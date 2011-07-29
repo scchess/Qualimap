@@ -1,0 +1,11 @@
+
+usage: qualimap <tool> [options]
+		
+Available tools:
+
+	bamqc                         Evaluates ngs mapping to a reference genome
+	rna-seq			      RNA-seq analysis
+
+2011 - Qualimap tools 
+
+.

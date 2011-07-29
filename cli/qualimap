@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$JAVA_OPTS" != "" ]
+then
+	java_options=$JAVA_OPTS
+	echo "detected environment java options $java_options"
+else
+	java_options="-Xms32m -Xmx2G -XX:MaxPermSize=2048m"
+fi
+
+
+CLASSPATH=""
+
+shell_path=`dirname "$0"`;
+absolute=`echo $shell_path | grep "^/"`;
+
+if [ -z $absolute ]
+then
+	export QUALIMAP_HOME="`pwd`/$shell_path"
+else 
+	export QUALIMAP_HOME="$shell_path"
+fi
+
+java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain $@ --home $QUALIMAP_HOME
+
+
+

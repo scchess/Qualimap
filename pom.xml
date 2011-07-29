@@ -1,0 +1,109 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bioinfo.ngs</groupId>
+	<artifactId>qualimap</artifactId>
+	<version>0.2</version>
+
+	<dependencies>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>bioinfo-formats</artifactId>
+			<version>0.2.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>bioinfo-ngs</artifactId>
+			<version>0.1.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>bioinfo-commons</artifactId>
+			<version>0.10.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>bioinfo-math</artifactId>
+			<version>0.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>bioinfo-graphics</artifactId>
+			<version>0.4.0</version>
+			<scope>test</scope>
+		</dependency>
+		<!--
+			<dependency> <groupId>es.blast2go</groupId>
+			<artifactId>blast2go</artifactId> <version>babel2</version>
+			</dependency>
+		-->
+
+	</dependencies>
+
+	<build>
+
+		<sourceDirectory>src/main</sourceDirectory>
+		<testSourceDirectory>src/test</testSourceDirectory>
+		<finalName>qualimap</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/install/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<tasks>
+								<copy todir="${project.build.directory}/install">
+									<fileset dir="cli"></fileset>
+								</copy>
+								<chmod file="${project.build.directory}/install/qualimap"
+									perm="755" />
+								<copy file="${project.build.directory}/qualimap.jar" todir="${project.build.directory}/install" />
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+
+</project>
+
