@@ -4,7 +4,7 @@
 	<groupId>org.bioinfo.ngs</groupId>
 	<artifactId>qualimap</artifactId>
 	<version>0.2</version>
-
+	<name>qualimap</name>
 	<dependencies>
 		
 		<dependency>
@@ -53,9 +53,10 @@
 
 	<build>
 
-		<sourceDirectory>src/main</sourceDirectory>
-		<testSourceDirectory>src/test</testSourceDirectory>
-		<finalName>qualimap</finalName>
+		<finalName>${project.artifactId}</finalName>
+ 		<sourceDirectory>src/main/java</sourceDirectory>
+    		<testSourceDirectory>src/test/java</testSourceDirectory>
+
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
