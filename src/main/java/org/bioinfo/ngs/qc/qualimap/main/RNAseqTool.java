@@ -16,7 +16,6 @@ public class RNAseqTool extends NgsSmartTool{
 	private String infoFile;
 	private String groupsFile;
 	
-	private String species;
 	private int k;
 	
 	private String cmd;
@@ -101,7 +100,7 @@ public class RNAseqTool extends NgsSmartTool{
 //		}
 		
 		if(commandLine.hasOption("species")) {
-			species =  commandLine.getOptionValue("species");
+			String species =  commandLine.getOptionValue("species");
 			
 			if(species.equalsIgnoreCase("human")){
 				infoFile = INFO_FILE_HUMAN_60;

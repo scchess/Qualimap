@@ -28,17 +28,17 @@ public class Region {
 	public String toString(){
 		return this.contig + ":" + start + "-" + end;
 	}
-	
+
+
 	public Gff toGff(){
 		return new Gff(contig,"josete-tools","featured",start,end,"" + regionScore,"+", "frame", "group");
 	}
 	
 	public boolean contains(String contig, int start, int end){
-		//if(this.contig==contig && this.start<=start && this.end>=end) return true;
-		if(this.contig.equalsIgnoreCase(contig) && this.start<=start && this.end>=start) return true;
-		else return false;		
+		boolean res = this.contig.equalsIgnoreCase(contig) && this.start<=start && this.end>=start;
+		return res;
 	}
-	
+
 	/**
 	 * @return the contig
 	 */

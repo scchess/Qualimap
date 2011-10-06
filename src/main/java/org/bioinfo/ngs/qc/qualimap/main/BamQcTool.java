@@ -105,12 +105,8 @@ public class BamQcTool extends NgsSmartTool{
 		initOutputDir();
 
 		// init bamqc
-		BamQCSplitted bamQC = null;
-		if(referenceAvailable) {
-			bamQC= new BamQCSplitted(bamFile,referenceFile);	
-		} else {
-			bamQC= new BamQCSplitted(bamFile);
-		}
+		BamQCSplitted bamQC = referenceAvailable ? new BamQCSplitted(bamFile,referenceFile) :
+                  new BamQCSplitted(bamFile);
 
 		if(selectedRegionsAvailable){
 			bamQC.setSelectedRegions(gffFile);
