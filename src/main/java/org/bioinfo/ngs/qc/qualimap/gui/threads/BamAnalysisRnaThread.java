@@ -196,7 +196,7 @@ public class BamAnalysisRnaThread extends Thread {
 	 */
 	private void loadBufferedImages() throws IOException {
 		BamQCRegionReporter reporter = tabProperties.getReporter();
-		reporter.setMapCharts(new HashMap<String, Object>());
+		reporter.setImageMap(new HashMap<String, BufferedImage>());
 		increaseProgressBar(currentStepLoaded, "Loading graphic: Global Saturation");
 		// Insert in the tab the graphic of the Global Saturations
 		addImage(reporter,Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
@@ -226,7 +226,7 @@ public class BamAnalysisRnaThread extends Thread {
 		BufferedImage imageToDisplay = null;
         try {
 	        imageToDisplay = ImageIO.read(new FileInputStream(new File(path)));
-			reporter.getMapCharts().put(name, imageToDisplay);
+			reporter.getImageMap().put(name, imageToDisplay);
         } catch (FileNotFoundException e) {
 	       System.out.println("Image not found: " + path );
         } catch (IOException e) {

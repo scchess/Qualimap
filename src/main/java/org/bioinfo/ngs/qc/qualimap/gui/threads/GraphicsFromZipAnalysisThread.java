@@ -30,6 +30,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.jfree.chart.JFreeChart;
 
 /**
  * Class to load the graphic Images from a Zip file into the GUI application
@@ -256,10 +257,10 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			InputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
 			BufferedImage image = ImageIO.read(bis);
 
-			if (reporter.getMapCharts() == null) {
-				reporter.setMapCharts(new HashMap<String, Object>());
+			if (reporter.getImageMap() == null) {
+				reporter.setImageMap(new HashMap<String, BufferedImage>());
 			}
-			reporter.getMapCharts().put(graphicName, image);
+			reporter.getImageMap().put(graphicName, image);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -292,7 +293,8 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			// Put the names of the graphics images into a map
 			String listaNombreMapas = prop.getProperty("mapGraphicNames");
 			String[] mapaNombres = listaNombreMapas.split(",");
-			reporter.setMapCharts(new HashMap<String, Object>());
+			//TODO: check this
+            reporter.setMapCharts(new HashMap<String, JFreeChart>());
 			for (int i = 0; i < mapaNombres.length; i++) {
 				reporter.getMapCharts().put(mapaNombres[i], null);
 			}

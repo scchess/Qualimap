@@ -56,7 +56,7 @@ public class OpenFilePanel extends JPanel {
 	JTextField valueNw, countThresHold;
 	JCheckBox drawChromosomeLimits, saveCoverage, labelPathCountFile2, labelInfoFile, labelSpeciesFile;
 	File inputFile, regionFile, fastaFile, infoFile;
-	JButton pathFastaFileButton, pathRegionFileButton, pathCountFile2Button, pathInfoFileButton;
+	JButton pathFastaFileButton, pathRegionFileButton, pathCountFile2Button, pathInfoFileButton, startAnalysisButton;
 	JLabel advancedInfo;
 	JComboBox comboSpecies;
 
@@ -261,13 +261,13 @@ public class OpenFilePanel extends JPanel {
 //		clearLoadFilter.addKeyListener(keyListener);
 //		resultContainer.add(clearLoadFilter);
 
-		JButton loadInputDataInfo = new JButton();
-		loadInputDataInfo.setText(startButtontext);
-		loadInputDataInfo.setSize(200,25);
-		loadInputDataInfo.setLocation(resultContainer.getWidth()-20-loadInputDataInfo.getWidth(), resultContainer.getHeight()-45-loadInputDataInfo.getHeight());
-		loadInputDataInfo.setAction(getActionLoadQualimap(startButtontext));
-		loadInputDataInfo.addKeyListener(keyListener);
-		resultContainer.add(loadInputDataInfo);
+		startAnalysisButton = new JButton();
+		startAnalysisButton.setText(startButtontext);
+		startAnalysisButton.setSize(200,25);
+        startAnalysisButton.setLocation(resultContainer.getWidth()-20-startAnalysisButton.getWidth(), resultContainer.getHeight()-45-startAnalysisButton.getHeight());
+		startAnalysisButton.setAction(getActionLoadQualimap(startButtontext));
+		startAnalysisButton.addKeyListener(keyListener);
+		resultContainer.add(startAnalysisButton);
 
 		return resultContainer;
 	}
@@ -764,6 +764,7 @@ public class OpenFilePanel extends JPanel {
 		BamAnalysisThread t;
 		tabProperties.setTypeAnalysis(homeFrame.getTypeAnalysis());
 		t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
+
 		t.start();
 	}
 
@@ -1056,8 +1057,9 @@ public class OpenFilePanel extends JPanel {
 			private static final long serialVersionUID = 8329832238125153187L;
 
 			public void actionPerformed(ActionEvent evt) {
-				// We can load from file or from a BAM file
-				TabPropertiesVO tabProperties = new TabPropertiesVO();
+                startAnalysisButton.setEnabled(false);
+                // We can load from file or from a BAM file
+                TabPropertiesVO tabProperties = new TabPropertiesVO();
 				if (loadFromZipFile) {
 					if (validateInputZipFile()) {
 						loadZipFileStatistics(tabProperties);

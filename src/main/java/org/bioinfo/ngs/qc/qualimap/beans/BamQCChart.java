@@ -14,6 +14,10 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.StandardXYSeriesLabelGenerator;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
@@ -43,6 +47,7 @@ public class BamQCChart {
 	private List<Color> colors;
 	private List<Stroke> strokes;
 	private List<AbstractXYItemRenderer> renderers;
+    private XYToolTipGenerator toolTipGenerator;
 	private int numberOfSeries;
 	
 	// other params
@@ -54,8 +59,9 @@ public class BamQCChart {
 	
 	// chart
 	private JFreeChart chart;
-	
-	public BamQCChart(String title,String subTitle, String xLabel, String yLabel){
+
+
+    public BamQCChart(String title,String subTitle, String xLabel, String yLabel){
 		// init  org.bioinfo.ntools.main params
 		this.title = title;
 		this.subTitle = subTitle;
@@ -77,14 +83,15 @@ public class BamQCChart {
 	
 	// line rendered series
 	public void addSeries(String name, XYVector series, Color color){
-		addSeries(name,series,color,new BasicStroke(1.5f));		
+		addSeries(name,series,color,new BasicStroke(1.5f), true);
 	}
 	
 	
-	public void addSeries(String name, XYVector series, Color color, Stroke stroke){
+	public void addSeries(String name, XYVector series, Color color, Stroke stroke, boolean visibleInLegend){
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesShapesVisible(0, false);
-		addSeries(name,series,color,stroke,renderer);
+        renderer.setSeriesVisibleInLegend(0, visibleInLegend);
+        addSeries(name,series,color,stroke,renderer);
 	}
 	
 	
@@ -124,7 +131,7 @@ public class BamQCChart {
 		DeviationRenderer renderer = new DeviationRenderer(true,false);
 		renderer.setSeriesFillPaint(0,deviationColor);
 		renderer.setAlpha(alpha);
-		addSeries(name,series,lineColor,stroke,renderer);
+        addSeries(name, series, lineColor, stroke, renderer);
 	}
 	
 	
@@ -137,7 +144,10 @@ public class BamQCChart {
 		numberOfSeries++;
 	}
 	
-	
+	void setToolTipGenerator(XYToolTipGenerator toolTipGenerator) {
+        this.toolTipGenerator = toolTipGenerator;
+    }
+
 	public void render(){
 		// init chart
 		chart = ChartFactory.createXYLineChart(title,xLabel,yLabel, null, PlotOrientation.VERTICAL, true, true, false);
@@ -155,7 +165,7 @@ public class BamQCChart {
 		sub.setPadding(5, 5, 15, 5);
 		sub.setPaint(Color.darkGray);
 		chart.setSubtitles(Arrays.asList(sub));
-						
+
 		// other params
 		chart.setPadding(new RectangleInsets(30,20,30,20));		
 		
@@ -214,8 +224,8 @@ public class BamQCChart {
 			if(minDomainAxisSeries<minDomainAxis) minDomainAxis = minDomainAxisSeries;
 			if(maxDomainAxisSeries>maxDomainAxis) maxDomainAxis = maxDomainAxisSeries;
 			if(numberOfSeriesPoints<minNumberOfPoints) minNumberOfPoints = numberOfSeriesPoints;
-			
-			if(renderers.get(i) instanceof DeviationRenderer){
+
+            if(renderers.get(i) instanceof DeviationRenderer){
 				YIntervalSeries currentIntervalSeries = new YIntervalSeries(names.get(i));
 				
 				// add points
@@ -229,7 +239,7 @@ public class BamQCChart {
 				YIntervalSeriesCollection data = new YIntervalSeriesCollection();
 				data.addSeries(currentIntervalSeries);
 				chart.getXYPlot().setDataset(i,data);
-			} else {
+            } else {
 				if(renderers.get(i) instanceof XYBarRenderer) anyBarRendered = true;
 				// init series
 				XYSeries currentSeries = new XYSeries(names.get(i));
@@ -248,10 +258,13 @@ public class BamQCChart {
 			
 			// set color
 			renderers.get(i).setSeriesPaint(0,colors.get(i));
-			
-			// add renderer
-			chart.getXYPlot().setRenderer(i,renderers.get(i));
-			
+
+            // set tooltip generator
+            renderers.get(i).setBaseToolTipGenerator(toolTipGenerator);
+
+            // add renderer
+            chart.getXYPlot().setRenderer(i,renderers.get(i));
+
 			// add legend item
 			LegendItem legendItem = new LegendItem(names.get(i));
 			legendItem.setLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,11));
@@ -266,7 +279,7 @@ public class BamQCChart {
 		chart.getLegend().setVerticalAlignment(VerticalAlignment.TOP);
 		chart.getLegend().setHorizontalAlignment(HorizontalAlignment.RIGHT);
 		chart.getLegend().setLegendItemGraphicPadding(new RectangleInsets(5,5,5,5));
-	
+
 		// adjust axis limits
 		double abit = 0;
 		if(anyBarRendered) abit = ((maxDomainAxis-minDomainAxis)/(double)minNumberOfPoints)/2.0;
@@ -300,8 +313,8 @@ public class BamQCChart {
 	/**
 	 * @param aPercentageChart the aPercentageChart to set
 	 */
-	public void setPercentageChart(boolean percentageChart) {
-		this.aPercentageChart = percentageChart;
+	public void setPercentageChart(boolean aPercentageChart) {
+		this.aPercentageChart = aPercentageChart;
 	}
 
 	/**

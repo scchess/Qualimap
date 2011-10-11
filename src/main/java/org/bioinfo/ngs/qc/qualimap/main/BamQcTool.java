@@ -144,7 +144,7 @@ public class BamQcTool extends NgsSmartTool{
 		logger.println("OK");		
 		// save charts
 		logger.print("   charts...");
-		reporter.computeCharts(bamQC.getBamStats(),outdir,bamQC.getLocator(), bamQC.isPairedData());
+		reporter.saveCharts(bamQC.getBamStats(), outdir, bamQC.getLocator(), bamQC.isPairedData());
 		logger.println("OK");
 
 		if(selectedRegionsAvailable){
@@ -154,7 +154,7 @@ public class BamQcTool extends NgsSmartTool{
 			logger.println("OK");		
 			// save charts
 			logger.print("   inside charts...");
-			reporter.computeCharts(bamQC.getInsideBamStats(),outdir,null, bamQC.isPairedData());
+			reporter.saveCharts(bamQC.getInsideBamStats(), outdir, null, bamQC.isPairedData());
 			logger.println("OK");
 
 			// save stats
@@ -164,7 +164,7 @@ public class BamQcTool extends NgsSmartTool{
 				logger.println("OK");		
 				// save charts
 				logger.print("   outside charts...");
-				reporter.computeCharts(bamQC.getOutsideBamStats(),outdir,null, bamQC.isPairedData());
+				reporter.saveCharts(bamQC.getOutsideBamStats(), outdir, null, bamQC.isPairedData());
 				logger.println("OK");
 			}
 

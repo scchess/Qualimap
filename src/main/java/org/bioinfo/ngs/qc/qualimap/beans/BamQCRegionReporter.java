@@ -1,8 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Stroke;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,15 +14,11 @@ import java.util.Map;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CombinedDomainXYPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.title.Title;
-import org.jfree.ui.HorizontalAlignment;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.labels.CustomXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.*;
 import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.VerticalAlignment;
-
-
 
 public class BamQCRegionReporter {
 	
@@ -31,7 +26,10 @@ public class BamQCRegionReporter {
 	private boolean paintChromosomeLimits;
 
 	/** Variable to contain the Charts generated in the class */
-	private Map<String, Object> mapCharts;
+	private Map<String, JFreeChart> mapCharts;
+
+    /** Contains buffered images of the charts */
+    private Map<String, BufferedImage> imageMap;
 
 	/** Variable that contains the input files names */
 	private String bamFileName, referenceFileName;
@@ -142,208 +140,42 @@ public class BamQCRegionReporter {
 		report.close();
 	}
 
+    private XYToolTipGenerator createTooltipGenerator(List<Double> windowReferences, GenomeLocator locator ) {
 
-	public void computeCharts(BamStats bamStats, String outdir, GenomeLocator locator, boolean isPairedData) throws IOException{
+        List<String> toolTips = new ArrayList<String>();
 
-		// define a stroke
-		Stroke stroke = new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, new float[] {4.0f, 8.0f}, 0.0f);
+        for (double pos : windowReferences) {
+            ContigRecord rec = locator.getContigCoordinates((int) pos);
+            long start = rec.getStart();
+            long relativePos = (long)pos - start + 1;
+            toolTips.add("Chromosome: " + rec.getName() + ", relative position: " + relativePos);
+        }
 
-		// some variables		
-		double maxValue = 50;
-		String subTitle = new File(bamStats.getSourceFile()).getName();
+        CustomXYToolTipGenerator generator = new CustomXYToolTipGenerator();
+        generator.addToolTipSeries(toolTips);
 
-		// compute window centers		
-		List<Double> windowReferences = new ArrayList<Double>(bamStats.getNumberOfWindows());//		
-		for(int i=0; i<bamStats.getNumberOfWindows(); i++){
-			windowReferences.add((double)(bamStats.getWindowStart(i)+bamStats.getWindowEnd(i))/2.0);
-		}
-		double lastReference = windowReferences.get(windowReferences.size()-1);
+        return generator;
 
-		// max coverage+std
-		double maxCoverage = 0;
-		for(int i=0; i<bamStats.getCoverageAcrossReference().size(); i++){
-			if(bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i)>maxCoverage) maxCoverage = bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i);			
-		}
+    }
 
-		// compute chromosome limits
-		Color chromosomeColor = new Color(40,40,40,150);
-		XYVector chromosomeCoverageLimits = null;
-		XYVector chromosomePercentageLimits = null;
-		XYVector chromosomeBytedLimits = null;
-		if(paintChromosomeLimits && locator!=null){
+	public void saveCharts(BamStats bamStats, String outdir, GenomeLocator locator, boolean isPairedData) throws IOException{
 
-			chromosomeCoverageLimits = new XYVector();
-			chromosomePercentageLimits = new XYVector();
-			chromosomeBytedLimits = new XYVector();
-			int numberOfChromosomes = locator.getContigs().size();
-			chromosomeCoverageLimits = new XYVector();
-			chromosomePercentageLimits = new XYVector();
-			chromosomeBytedLimits = new XYVector();
+		if (mapCharts == null) {
+            computeChartsBuffers(bamStats, locator, isPairedData);
+        }
 
-			for(int i=0; i<numberOfChromosomes; i++){
-				// coverage
-				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),maxCoverage));
-				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				// percentage
-				chromosomePercentageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				chromosomePercentageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),100));
-				chromosomePercentageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				// byte
-				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),255));
-				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-			}
+        for (Map.Entry<String, JFreeChart> entry : mapCharts.entrySet()) {
+            String fileName = entry.getKey();
+            JFreeChart chart = entry.getValue();
+            GraphUtils.saveChart(chart, outdir + "/" + fileName, 800, 600);
+        }
 
-		}
-
-
-		///////////////// coverage charts /////////////// 
-
-		// coverage (and gc) across reference
-		// coverage
-		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "coverage");
-		coverageChart.addIntervalRenderedSeries("coverage",new XYVector(windowReferences, bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()), new Color(250,50,50,150), new Color(50,50,250), 0.2f);
-		if(paintChromosomeLimits && locator!=null) coverageChart.addSeries("chromosomes",chromosomeCoverageLimits,chromosomeColor,stroke);
-		coverageChart.render();
-		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
-		// gc content
-		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle, "absolute position (bp)", "gc %");
-		gcContentChart.setPercentageChart(true);
-		gcContentChart.addSeries("CG content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
-		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(50,50,50,150),stroke);		
-		if(paintChromosomeLimits && locator!=null) gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke);
-		gcContentChart.render();
-		// combined plot
-		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new NumberAxis("Domain")); 
-		plot.add(coverageChart.getChart().getXYPlot(),5);
-		plot.setGap(0);
-		plot.getDomainAxis().setLabel("absolute position (bp)");
-		plot.add(gcContentChart.getChart().getXYPlot(),1);
-		plot.setOrientation(PlotOrientation.VERTICAL);
-		JFreeChart combinedChart = new JFreeChart("Coverage across reference",plot);
-		combinedChart.setPadding(new RectangleInsets(30,20,30,20));
-		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));        
-		GraphUtils.saveChart(combinedChart,outdir + "/" + bamStats.getName() + "_coverage_across_reference.png",800,600);
-
-		// coverage histogram
-		BamQCXYHistogramChart coverageHistogram = new BamQCXYHistogramChart("Coverage histogram", subTitle, "coverage (bp)", "frequency");
-		coverageHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
-		coverageHistogram.setNumberOfBins(Math.min(50,(int)bamStats.getCoverageHistogram().getMaxValue()));
-		coverageHistogram.setDomainAxisIntegerTicks(true);
-		coverageHistogram.render();
-		coverageHistogram.getChart().getXYPlot().getDomainAxis().setRange(bamStats.getCoverageHistogram().get(0).getX(),bamStats.getCoverageHistogram().get(bamStats.getCoverageHistogram().getSize()-1).getX());
-		GraphUtils.saveChart(coverageHistogram.getChart(),outdir + "/" + bamStats.getName() + "_coverage_histogram.png",800,600);
-
-		// coverage ranged histogram
-		BamQCXYHistogramChart coverageRangedHistogram = new BamQCXYHistogramChart("Coverage histogram (0 - " + (int)maxValue + "x)", subTitle, "coverage (bp)", "frequency");
-		coverageRangedHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
-		coverageRangedHistogram.setNumberOfBins(50);
-		coverageRangedHistogram.zoom(maxValue);
-		coverageRangedHistogram.setDomainAxisIntegerTicks(true);
-		coverageRangedHistogram.render();
-		GraphUtils.saveChart(coverageRangedHistogram.getChart(),outdir + "/" + bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",800,600);
-
-		//		  // coverage cumulative histogram
-		//		BamQCXYHistogramChart cumulativeCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram", subTitle, "coverage (bp)", "relative coverture of reference (%)");
-		//		cumulativeCoverageHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
-		//		cumulativeCoverageHistogram.setCumulative(true);
-		//		cumulativeCoverageHistogram.setNumberOfBins(50);
-		//		cumulativeCoverageHistogram.setDomainAxisIntegerTicks(true);
-		//		cumulativeCoverageHistogram.render();
-		//		GraphUtils.saveChart(cumulativeCoverageHistogram.getChart(),outdir + "/" + bamStats.getName() + "_coverage_cumulative_histogram.png",800,600);
-
-		//		  // coverage cumulative ranged histogram
-		//		BamQCXYHistogramChart cumulativeRangedCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram (0 - " + (int)maxValue + "x)", subTitle, "coverage (bp)", "relative coverture of reference (%)");
-		//		cumulativeRangedCoverageHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
-		//		cumulativeRangedCoverageHistogram.setCumulative(true);
-		//		cumulativeRangedCoverageHistogram.setNumberOfBins(50);		
-		//		cumulativeRangedCoverageHistogram.zoom(maxValue);
-		//		cumulativeRangedCoverageHistogram.setDomainAxisIntegerTicks(true);
-		//		cumulativeRangedCoverageHistogram.render();
-		//		GraphUtils.saveChart(cumulativeRangedCoverageHistogram.getChart(),outdir + "/" + bamStats.getName() + "_coverage_0to" + (int)maxValue + "_cumulative_histogram.png",800,600);
-
-		// coverage quota
-		BamQCChart coverageQuota = new BamQCChart("Coverage quota", subTitle, "coverage", "relative coverture of reference (%)");
-		coverageQuota.setPercentageChart(true);
-		coverageQuota.addBarRenderedSeries("Coverture", bamStats.getCoverageQuotes(), new Color(255,20,20,150));
-		coverageQuota.setDomainAxisIntegerTicks(true);
-		coverageQuota.render();		 
-		GraphUtils.saveChart(coverageQuota.getChart(),outdir + "/" + bamStats.getName() + "_coverage_quotes.png",800,600);
-
-		///////////////// actg content charts ///////////////
-
-		//		  // actg content across reference
-		//		BamQCChart actgContentChart = new BamQCChart("Nucleotide relative content", subTitle, "absolute position (bp)", "relative content (%)");
-		//		actgContentChart.setPercentageChart(true);
-		//		actgContentChart.addSeries("A", new XYVector(windowReferences,bamStats.getaRelativeContentAcrossReference()), new Color(50,200,50,200));
-		//		//if(bamQC.isReferenceAvailable()) actgContentChart.addSeries("A ref", new XYVector(windowReferences,bamStats.getaRelativeContentInReference()), new Color(50,200,50,200),stroke);
-		//		actgContentChart.addSeries("T", new XYVector(windowReferences,bamStats.gettRelativeContentAcrossReference()), new Color(200,50,50,200));
-		//		actgContentChart.addSeries("C", new XYVector(windowReferences,bamStats.getcRelativeContentAcrossReference()), new Color(50,50,200,200));
-		//		actgContentChart.addSeries("G", new XYVector(windowReferences,bamStats.getgRelativeContentAcrossReference()), new Color(50,50,50,200));		
-		//		actgContentChart.addSeries("N", new XYVector(windowReferences,bamStats.getnRelativeContentAcrossReference()), new Color(150,150,150,150));
-		//		if(paintChromosomeLimits && locator!=null) actgContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke);
-		//		actgContentChart.render();
-		//		GraphUtils.saveChart(actgContentChart.getChart(),outdir + "/" + bamStats.getName() + "_actg_across_reference.png",800,600);
-		//		
-		//  		  // GC/AT content across reference
-		//		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle, "absolute position (bp)", "relative content (%)");
-		//		gcContentChart.setPercentageChart(true);
-		//		if(bamStats.isReferenceAvailable()) {
-		//			gcContentChart.addIntervalRenderedSeries("CG", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference(),bamStats.getGcRelativeContentInReference(),false), new Color(250,50,50,150), new Color(250,50,50,250),0.4f);
-		//			gcContentChart.addIntervalRenderedSeries("AT", new XYVector(windowReferences,bamStats.getAtRelativeContentAcrossReference(),bamStats.getAtRelativeContentInReference(),false), new Color(50,50,250,150), new Color(50,50,250,250),0.4f);
-		//		} else {
-		//			gcContentChart.addSeries("CG", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(250,50,50,150));
-		//			gcContentChart.addSeries("AT", new XYVector(windowReferences,bamStats.getAtRelativeContentAcrossReference()), new Color(50,50,250,150));
-		//		}
-		//		gcContentChart.addSeries("mean GC", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(150,50,50,150),stroke);		
-		//		gcContentChart.addSeries("mean AT", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanAtRelativeContentPerWindow(),bamStats.getMeanAtRelativeContentPerWindow())),new Color(50,50,150,150),stroke);
-		//		if(paintChromosomeLimits && locator!=null) gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke);
-		//		gcContentChart.render();
-		//		GraphUtils.saveChart(gcContentChart.getChart(),outdir + "/" + bamStats.getName() + "_gc_across_reference.png",800,600);
-		//	
-
-		///////////////// mapping quality charts ///////////////
-
-		// mapping quality across reference
-		BamQCChart mappingQuality = new BamQCChart("Mapping quality across reference", subTitle, "absolute position (bp)", "mapping quality");
-		mappingQuality.addSeries("mapping quality",new XYVector(windowReferences, bamStats.getMappingQualityAcrossReference()), new Color(250,50,50,150));
-		mappingQuality.render();
-		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
-		if(paintChromosomeLimits && locator!=null) mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke);
-		GraphUtils.saveChart(mappingQuality.getChart(),outdir + "/" + bamStats.getName() + "_mapping_quality_across_reference.png",800,600);
-
-		// mapping quality histogram
-		BamQCXYHistogramChart mappingQualityHistogram = new BamQCXYHistogramChart("Mapping quality histogram", subTitle, "mapping quality", "frequency");
-		mappingQualityHistogram.addHistogram("mapping quality", bamStats.getMappingQualityHistogram(), Color.blue);
-		mappingQualityHistogram.setNumberOfBins(50);
-		mappingQualityHistogram.render();
-		GraphUtils.saveChart(mappingQualityHistogram.getChart(),outdir + "/" + bamStats.getName() + "_mapping_quality_histogram.png",800,600);
-
-		if(isPairedData){
-		
-			// insert size across reference
-			BamQCChart insertSize = new BamQCChart("Insert size across reference", subTitle, "absolute position (bp)", "insert size (bp)");
-			insertSize.addSeries("insert size",new XYVector(windowReferences, bamStats.getInsertSizeAcrossReference()), new Color(15,170,90,150));
-			insertSize.render();		
-			if(paintChromosomeLimits && locator!=null) insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke);
-			GraphUtils.saveChart(insertSize.getChart(),outdir + "/" + bamStats.getName() + "_insert_size_across_reference.png",800,600);
-	
-			// mapping quality histogram
-			BamQCXYHistogramChart insertSizeHistogram = new BamQCXYHistogramChart("Insert size histogram", subTitle, "insert size (bp)", "frequency");
-			insertSizeHistogram.addHistogram("insert size", bamStats.getInsertSizeHistogram(), new Color(15,170,90,150));
-			insertSizeHistogram.setNumberOfBins(50);		
-			insertSizeHistogram.render();
-			GraphUtils.saveChart(insertSizeHistogram.getChart(),outdir + "/" + bamStats.getName() + "_insert_size_histogram.png",800,600);
-
-		}
 	}
-
 
 	/**
 	 * Function to load the data variables obtained from the input file/s
 	 * @param bamStats data read in the input file
-	 * @throws IOException
+	 * @throws IOException some errors that can happen
 	 */
 	public void loadReportData(BamStats bamStats) throws IOException{
 		this.bamFileName = bamStats.getSourceFile();
@@ -401,15 +233,16 @@ public class BamQCRegionReporter {
 	/**
 	 * Create all the charts from the input file/s and save each of them into a bufferedImage
 	 * @param bamStats BamStats class that contains the information of the graphics titles
-	 * @param locator
-	 * @throws IOException
+	 * @param locator Genomic locator
+     * @param isPairedData Paired data identifier
+	 * @throws IOException Error during computation
 	 */
 	public void computeChartsBuffers(BamStats bamStats, GenomeLocator locator, boolean isPairedData) throws IOException{
 		// define a stroke
 		Stroke stroke = new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, new float[] {4.0f, 8.0f}, 0.0f);
 
 		if(mapCharts == null){
-			mapCharts = new HashMap<String, Object>();
+			mapCharts = new HashMap<String, JFreeChart>();
 		}
 
 		// some variables		
@@ -417,27 +250,27 @@ public class BamQCRegionReporter {
 		String subTitle = new File(bamStats.getSourceFile()).getName();
 
 		// compute window centers
-		List<Double> windowReferences = new ArrayList<Double>(bamStats.getNumberOfWindows());//
-		for(int i=0; i<bamStats.getNumberOfWindows(); i++){
+		List<Double> windowReferences = new ArrayList<Double>(bamStats.getNumberOfWindows());
+
+        for(int i=0; i<bamStats.getNumberOfWindows(); i++){
 			windowReferences.add((double)(bamStats.getWindowStart(i)+bamStats.getWindowEnd(i))/2.0);
-		}
+        }
 		double lastReference = windowReferences.get(windowReferences.size()-1);
 
 		// max coverage+std
 		double maxCoverage = 0;
 		for(int i=0; i<bamStats.getCoverageAcrossReference().size(); i++){
-			if(bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i)>maxCoverage) maxCoverage = bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i);			
+			if (bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i)>maxCoverage) {
+                maxCoverage = bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i);
+            }
 		}
 
-		// compute chromosome limits
+        // compute chromosome limits
 		Color chromosomeColor = new Color(40,40,40,150);
 		XYVector chromosomeCoverageLimits = null;
 		XYVector chromosomePercentageLimits = null;
 		XYVector chromosomeBytedLimits = null;
 		if(paintChromosomeLimits && locator!=null){
-			chromosomeCoverageLimits = new XYVector();
-			chromosomePercentageLimits = new XYVector();
-			chromosomeBytedLimits = new XYVector();
 			int numberOfChromosomes = locator.getContigs().size();
 			chromosomeCoverageLimits = new XYVector();
 			chromosomePercentageLimits = new XYVector();
@@ -464,28 +297,36 @@ public class BamQCRegionReporter {
 		// coverage (and gc) across reference
 		// coverage
 		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "coverage");
-		coverageChart.addIntervalRenderedSeries("coverage",new XYVector(windowReferences, bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()), new Color(250,50,50,150), new Color(50,50,250), 0.2f);
-		if(paintChromosomeLimits && locator!=null) coverageChart.addSeries("chromosomes",chromosomeCoverageLimits,chromosomeColor,stroke);
-		coverageChart.render();
+        XYToolTipGenerator toolTipGenerator = createTooltipGenerator(windowReferences, locator);
+        coverageChart.setToolTipGenerator(toolTipGenerator);
+        coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences, bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()), new Color(250,50,50,150), new Color(50,50,250), 0.2f);
+		if(paintChromosomeLimits && locator!=null) {
+            coverageChart.addSeries("chromosomes",chromosomeCoverageLimits,chromosomeColor,stroke,false);
+        }
+        coverageChart.render();
 		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
-		// gc content
+        // gc content
 		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle, "absolute position (bp)", "%");
 		gcContentChart.setPercentageChart(true);
 		gcContentChart.addSeries("CG content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
-		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(50,50,50,150),stroke);		
-		if(paintChromosomeLimits && locator!=null) gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke);
-		gcContentChart.render();
-		// combined plot
-		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new NumberAxis("Domain")); 
-		plot.add(coverageChart.getChart().getXYPlot(),5);
+		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(50,50,50,150),stroke,true);
+		if(paintChromosomeLimits && locator!=null) gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,false);
+	    gcContentChart.render();
+        // combined plot
+		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new NumberAxis());
+        plot.getDomainAxis().setTickLabelsVisible(false);
+        plot.getDomainAxis().setTickMarksVisible(false);
+
+
+        plot.add(coverageChart.getChart().getXYPlot(),5);
 		plot.setGap(0);
-		plot.getDomainAxis().setLabel("gc content");
+		//plot.getDomainAxis().setLabel("gc content, something");
 		plot.add(gcContentChart.getChart().getXYPlot(),1);
-		plot.setOrientation(PlotOrientation.VERTICAL);
-		JFreeChart combinedChart = new JFreeChart("Coverage across reference",plot);
+        plot.setOrientation(PlotOrientation.VERTICAL);
+        JFreeChart combinedChart = new JFreeChart("Coverage across reference",plot);
 		combinedChart.setPadding(new RectangleInsets(30,20,30,20));
-		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));  
-		mapCharts.put(bamStats.getName() + "_coverage_across_reference.png",combinedChart);
+		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
+        mapCharts.put(bamStats.getName() + "_coverage_across_reference.png",combinedChart);
 
 		// coverage histogram
 		BamQCXYHistogramChart coverageHistogram = new BamQCXYHistogramChart("Coverage histogram", subTitle, "coverage (bp)", "frequency");
@@ -584,7 +425,7 @@ public class BamQCRegionReporter {
 		mappingQuality.addSeries("mapping quality",new XYVector(windowReferences, bamStats.getMappingQualityAcrossReference()), new Color(250,50,50,150));
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
-		if(paintChromosomeLimits && locator!=null) mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke);
+		if(paintChromosomeLimits && locator!=null) mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
 		mapCharts.put(
 				bamStats.getName() + "_mapping_quality_across_reference.png",
 				mappingQuality.getChart());
@@ -603,7 +444,7 @@ public class BamQCRegionReporter {
 			BamQCChart insertSize = new BamQCChart("Insert size across reference", subTitle, "absolute position (bp)", "insert size (bp)");
 			insertSize.addSeries("insert size",new XYVector(windowReferences, bamStats.getInsertSizeAcrossReference()), new Color(15,170,90,150));
 			insertSize.render();		
-			if(paintChromosomeLimits && locator!=null) insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke);		
+			if(paintChromosomeLimits && locator!=null) insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
 			mapCharts.put(bamStats.getName() + "_insert_size_across_reference.png", insertSize.getChart());
 	
 			// mapping quality histogram
@@ -636,12 +477,6 @@ public class BamQCRegionReporter {
 	// ******************************************************************************************
 	// ********************************* GETTERS / SETTERS **************************************
 	// ******************************************************************************************
-	/**
-	 * @return the paintChromosomeLimits
-	 */
-	public boolean isPaintChromosomeLimits() {
-		return paintChromosomeLimits;
-	}
 
 	/**
 	 * @param paintChromosomeLimits the paintChromosomeLimits to set
@@ -650,13 +485,22 @@ public class BamQCRegionReporter {
 		this.paintChromosomeLimits = paintChromosomeLimits;
 	}
 
-	public Map<String, Object> getMapCharts() {
+	public Map<String, JFreeChart> getMapCharts() {
 		return mapCharts;
 	}
 
-	public void setMapCharts(Map<String, Object> mapCharts) {
+	public void setMapCharts(Map<String, JFreeChart> mapCharts) {
 		this.mapCharts = mapCharts;
 	}
+
+    public Map<String, BufferedImage> getImageMap() {
+            return imageMap;
+        }
+
+    public void setImageMap(Map<String, BufferedImage> imageMap) {
+        this.imageMap = imageMap;
+    }
+
 
 	public String getBamFileName() {
 		return bamFileName;
