@@ -105,8 +105,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	JFileChooser fileOpenChooser, fileSaveChooser;
 
 	public boolean isWebStart;
+    private SplashWindow splashWindow;
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				new HomeFrame();
@@ -181,12 +182,12 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			System.out.println("Created directory: " + path + " ");
 		}
 	}
-	
+
 	public void initGUI() {
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
 		if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
-			new SplashWindow(this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png"), this, 4000);
+			splashWindow = new SplashWindow(this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png"), this, 4000);
 		}
 		try {
 			Image iconImage = new ImageIcon(getClass().getResource(Constants.pathImages + "dna.png")).getImage();
@@ -377,7 +378,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	@Override
     public void actionPerformed(ActionEvent e) {
-	    if(e.getActionCommand().equalsIgnoreCase("exit")){
+	    splashWindow.setVisible(false);
+        if(e.getActionCommand().equalsIgnoreCase("exit")){
 	    	this.myexit();
 	    }
 	    else if (e.getActionCommand().equalsIgnoreCase("about")){
@@ -459,7 +461,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     }
 	
 	private void runAnalysis(int type){
-    	HomeFrame.this.setTypeAnalysis(type);
+    	//TODO: get rid of the typeAnalysis variable
+        HomeFrame.this.setTypeAnalysis(type);
 		OpenFilePanel inputDataBamAnalysisDialog = new OpenFilePanel();
 
 		if(type==Constants.TYPE_BAM_ANALYSIS_DNA){

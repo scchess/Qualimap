@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,14 +15,10 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.StandardXYSeriesLabelGenerator;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
-import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
@@ -34,7 +31,7 @@ import org.jfree.ui.HorizontalAlignment;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.VerticalAlignment;
 
-public class BamQCChart {
+public class BamQCChart implements Serializable {
 	// org.bioinfo.ntools.main params
 	private String title;
 	private String subTitle;
@@ -93,19 +90,7 @@ public class BamQCChart {
         renderer.setSeriesVisibleInLegend(0, visibleInLegend);
         addSeries(name,series,color,stroke,renderer);
 	}
-	
-	
-	// area rendered series
-	public void addAreaRenderedSeries(String name, XYVector series, Color color){
-		addAreaRenderedSeries(name,series,color,new BasicStroke(1.5f));		
-	}
-	
-	
-	public void addAreaRenderedSeries(String name, XYVector series, Color color, Stroke stroke){
-		addSeries(name,series,color,stroke,new XYAreaRenderer());
-	}
 
-	
 	// bar rendered series
 	public void addBarRenderedSeries(String name, XYVector series, Color color){		
 		addBarRenderedSeries(name,series,color,new BasicStroke(1.5f));		
@@ -282,7 +267,7 @@ public class BamQCChart {
 
 		// adjust axis limits
 		double abit = 0;
-		if(anyBarRendered) abit = ((maxDomainAxis-minDomainAxis)/(double)minNumberOfPoints)/2.0;
+		if(anyBarRendered) abit = ((maxDomainAxis-minDomainAxis)/minNumberOfPoints)/2.0;
 		
 		if(adjustDomainAxisLimits){
 			chart.getXYPlot().getDomainAxis().setRange(minDomainAxis-abit,maxDomainAxis+abit); 

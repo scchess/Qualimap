@@ -4,12 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.RectangularShape;
+import java.io.Serializable;
 
 import org.jfree.chart.renderer.xy.XYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.ui.RectangleEdge;
 
-public class BamXYBarPainter implements XYBarPainter{
+public class BamXYBarPainter implements XYBarPainter, Serializable {
 	private double barwidth;
 	private int numberOfBars = 20;
 	private static Color DEFAULT_BAR_COLOR = new Color(100,100,250,150);

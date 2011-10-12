@@ -49,7 +49,12 @@ public class StringUtilsSwing {
 		
 		return result;
 	}
-	
+
+    public boolean parseBool(String s) {
+        return s.compareTo("true") == 0 ? true : false;
+    }
+
+
 	public Double parseDouble(String s){
 		// To parse the double we have to put the English format.
 		NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);

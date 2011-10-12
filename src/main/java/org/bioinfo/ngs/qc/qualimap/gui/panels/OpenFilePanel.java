@@ -103,7 +103,6 @@ public class OpenFilePanel extends JPanel {
 	 */
 	public JDialog getOpenBamAnalysisDnaFilePanel(HomeFrame homeFrame, Dimension dim, String title) {
 		this.homeFrame = homeFrame;
-		this.loadFromZipFile = false;
 		ReferencePosition referencePosition = new ReferencePosition();
 		int containerHeight = 0;
 
@@ -190,7 +189,7 @@ public class OpenFilePanel extends JPanel {
 		resultContainer.add(drawChromosomeLimits);
 
 		// Input Line of information (check to show the advance info)
-		JCheckBox labelEnableAdvancedInfo = new JCheckBox("Advanced Info");
+		JCheckBox labelEnableAdvancedInfo = new JCheckBox("Advanced Options");
 		labelEnableAdvancedInfo.setSize(labelEnableAdvancedInfo.getPreferredSize().width + 10, Constants.elementHeight);
 		labelEnableAdvancedInfo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		labelEnableAdvancedInfo.setLocation(Constants.marginLeftForElement, referencePosition.getY() + Constants.marginTopForElementI);
@@ -285,7 +284,6 @@ public class OpenFilePanel extends JPanel {
 	 */
 	public JDialog getOpenBamAnalysisRnaFilePanel(HomeFrame homeFrame, Dimension dim, String title) {
 		this.homeFrame = homeFrame;
-		this.loadFromZipFile = false;
 		ReferencePosition referencePosition = new ReferencePosition();
 
 		// Create the JDialog to manage the input data
@@ -558,7 +556,7 @@ public class OpenFilePanel extends JPanel {
 		loadStatisticsButton.setText("Open file");
 		loadStatisticsButton.setSize(200,25);
 		loadStatisticsButton.setLocation(resultContainer.getWidth() - loadStatisticsButton.getWidth() - 20, resultContainer.getHeight() - loadStatisticsButton.getHeight() - 45);
-		loadStatisticsButton.setAction(getActionLoadQualimap("Open file"));
+		loadStatisticsButton.setAction(getActionLoadQualimapFromZipFile("Open file"));
 		loadStatisticsButton.addKeyListener(keyListener);
 		resultContainer.add(loadStatisticsButton);
 
@@ -1032,7 +1030,7 @@ public class OpenFilePanel extends JPanel {
 	 * @return AbstractAction with the event
 	 */
 	private AbstractAction getActionEnableAdvancedInfo() {
-		AbstractAction actionLoadFile = new AbstractAction("Advanced Info", null) {
+		AbstractAction actionLoadFile = new AbstractAction("Advanced Options", null) {
 			private static final long serialVersionUID = -521417101614049676L;
 
 			public void actionPerformed(ActionEvent evt) {
@@ -1060,20 +1058,12 @@ public class OpenFilePanel extends JPanel {
                 startAnalysisButton.setEnabled(false);
                 // We can load from file or from a BAM file
                 TabPropertiesVO tabProperties = new TabPropertiesVO();
-				if (loadFromZipFile) {
-					if (validateInputZipFile()) {
-						loadZipFileStatistics(tabProperties);
-					} else {
-						JOptionPane.showMessageDialog(null, stringValidacion.toString(), "Error", 0);
-					}
+				if (validateInput()) {
+					// If the input has the required values, load the
+					// results
+					loadStatistics(tabProperties);
 				} else {
-					if (validateInput()) {
-						// If the input has the required values, load the
-						// results
-						loadStatistics(tabProperties);
-					} else {
-						JOptionPane.showMessageDialog(null, stringValidacion.toString(), "Error", 0);
-					}
+					JOptionPane.showMessageDialog(null, stringValidacion.toString(), "Error", 0);
 				}
 			}
 		};
@@ -1095,6 +1085,7 @@ public class OpenFilePanel extends JPanel {
 				TabPropertiesVO tabProperties = new TabPropertiesVO();
 
 				if (loadFromZipFile) {
+					//TODO: another f**cking copy-paste? Or missing feature?
 					/*
 					 * if(validateInputZipFile()){
 					 * loadZipFileStatistics(tabProperties); } else {
@@ -1116,56 +1107,29 @@ public class OpenFilePanel extends JPanel {
 		return actionLoadFile;
 	}
 
-//	/**
-//	 * Action to calculate the qualimap with the input data.
-//	 * 
-//	 * @return AbstractAction with the event
-//	 */
-//	private AbstractAction getActionClearLoadFilter() {
-//		AbstractAction actionLoadFile = new AbstractAction("Clear Filter", null) {
-//			private static final long serialVersionUID = 3095693264354705722L;
-//
-//			public void actionPerformed(ActionEvent evt) {
-//				pathDataFile.setText(null);
-//				if (pathFastaFile != null) {
-//					pathFastaFile.setText(null);
-//				}
-//				if (pathDataAditionalFile != null) {
-//					pathDataAditionalFile.setText(null);
-//				}
-//				valueNw.setText(null);
-//				drawChromosomeLimits.setSelected(false);
-//				saveCoverage.setSelected(false);
-//			}
-//		};
-//
-//		return actionLoadFile;
-//	}
+    /**
+	 * Action to load the qualimap from a zip file
+	 *
+	 * @return AbstractAction with the event
+	 */
+	private AbstractAction getActionLoadQualimapFromZipFile(String text) {
+		AbstractAction actionLoadFile = new AbstractAction(text, null) {
+			private static final long serialVersionUID = 8329832238125153187L;
 
-//	/**
-//	 * Action to clean the filter before doing the analysis
-//	 * 
-//	 * @return AbstractAction with the event
-//	 */
-//	private AbstractAction getActionClearLoadRnaFilter() {
-//		AbstractAction actionLoadFile = new AbstractAction("Clear Filter", null) {
-//			private static final long serialVersionUID = 3095693264354705722L;
-//
-//			public void actionPerformed(ActionEvent evt) {
-//				pathDataFile.setText(null);
-//				pathCountFile2.setText(null);
-//				labelPathCountFile2.setEnabled(false);
-//				name1.setText("Sample 1");
-//				name2.setText("Sample 2");
-//				name2.setEnabled(false);
-//				countThresHold.setText("5");
-//				pathInfoFile.setText(null);
-//				comboSpecies.setSelectedIndex(0);
-//			}
-//		};
-//
-//		return actionLoadFile;
-//	}
+			public void actionPerformed(ActionEvent evt) {
+                // Laod Qualimap from zip file
+                TabPropertiesVO tabProperties = new TabPropertiesVO();
+				if (validateInputZipFile()) {
+				    loadZipFileStatistics(tabProperties);
+				} else {
+				    JOptionPane.showMessageDialog(null, stringValidacion.toString(), "Error", 0);
+			    }
+			}
+		};
+
+		return actionLoadFile;
+	}
+
 
 	// ******************************************************************************************
 	// ********************************* GETTERS / SETTERS

@@ -142,7 +142,7 @@ public class GenomicAnalysisDialog extends JDialog implements ActionListener{
 		this.add(drawChromosomeLimits);
 
 		// Input Line of information (check to show the advance info)
-		JCheckBox labelEnableAdvancedInfo = new JCheckBox("Advanced Info");
+		JCheckBox labelEnableAdvancedInfo = new JCheckBox("Advanced Options");
 		labelEnableAdvancedInfo.setSize(labelEnableAdvancedInfo.getPreferredSize().width + 10, Constants.elementHeight);
 		labelEnableAdvancedInfo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		labelEnableAdvancedInfo.setLocation(Constants.marginLeftForElement, referencePosition.getY() + Constants.marginTopForElementI);

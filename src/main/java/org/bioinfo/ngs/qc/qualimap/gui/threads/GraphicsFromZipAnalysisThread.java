@@ -3,12 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,6 +26,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Plot;
 
 /**
  * Class to load the graphic Images from a Zip file into the GUI application
@@ -163,12 +159,13 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 
 					JOptionPane.showMessageDialog(null, " • Cannot load all the needed files, review the zip file structure", "Error", 0);
 				} else {
-					openFilePanel.getHomeFrame().addNewPane(openFilePanel, tabProperties);
+                    openFilePanel.getHomeFrame().setTypeAnalysis(tabProperties.getTypeAnalysis());
+                    openFilePanel.getHomeFrame().addNewPane(openFilePanel, tabProperties);
 				}
 				// Stop the thread
 				join();
 			} catch (InterruptedException e) {
-				logger.error("Unable to sleep the principal thred while the statistics are generated");
+				logger.error("Unable to sleep the principal thread while the statistics are generated");
 			}
 		}
 	}
@@ -254,14 +251,20 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	private void insertGraphIntoReporter(TabPropertiesVO tabProperties, ZipEntry entry, String graphicName, BamQCRegionReporter reporter) {
 		try {
 			ZipFile zipFile = new ZipFile(openFilePanel.getPathDataFile().getText());
-			InputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
-			BufferedImage image = ImageIO.read(bis);
+			ObjectInput in = new ObjectInputStream(zipFile.getInputStream(entry));
+            Plot plot = (Plot) in.readObject();
+            if (reporter.getMapCharts() == null) {
+                reporter.setMapCharts(new HashMap<String, JFreeChart>());
+            }
 
-			if (reporter.getImageMap() == null) {
+            reporter.getMapCharts().put(graphicName, new JFreeChart(plot));
+			//BufferedImage image = ImageIO.read(bis);
+
+			/*if (reporter.getMap() == null) {
 				reporter.setImageMap(new HashMap<String, BufferedImage>());
 			}
-			reporter.getImageMap().put(graphicName, image);
-		} catch (IOException e) {
+			reporter.getImageMap().put(graphicName, image);*/
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -289,6 +292,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 
 			// Set the type of the tab analysis
 			tabProperties.setTypeAnalysis(stringUtils.parseInt(prop.getProperty("typeAnalysis")));
+            tabProperties.setPairedData( stringUtils.parseBool(prop.getProperty("isPairedData")));
 
 			// Put the names of the graphics images into a map
 			String listaNombreMapas = prop.getProperty("mapGraphicNames");

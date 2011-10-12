@@ -2,14 +2,11 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import java.awt.Component;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,7 +16,6 @@ import javax.swing.JOptionPane;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -78,24 +74,21 @@ public class SaveZipThread extends Thread {
 
 			if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
 				// Number of graphics + 3 files of properties
-				int numFilesToLoad = tabProperties.getReporter().getMapCharts().size() + 1;
+				int numFilesToSave = tabProperties.getReporter().getMapCharts().size() + 1;
 
-				percentLoad = (100.0 / numFilesToLoad);
+				percentLoad = (100.0 / numFilesToSave);
 
 				// Add the files of the first reporter
 				BamQCRegionReporter reporter = tabProperties.getReporter();
 
 				success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_PROPERTIES_IN_ZIP_FILE, tabProperties);
 			} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
-				int numFilesToLoad = tabProperties.getInsideReporter().getMapCharts().size() + tabProperties.getOutsideReporter().getMapCharts().size() + 2;
+				int numFilesToSave = tabProperties.getInsideReporter().getMapCharts().size() + tabProperties.getOutsideReporter().getMapCharts().size() + 2;
 
-				percentLoad = (100.0 / numFilesToLoad);
-
-				// Add the files of the first reporter
-				BamQCRegionReporter reporter = tabProperties.getReporter();
+				percentLoad = (100.0 / numFilesToSave);
 
 				// Add the files of the inside region
-				reporter = tabProperties.getInsideReporter();
+				BamQCRegionReporter reporter = tabProperties.getInsideReporter();
 				success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_INSIDE_PROPERTIES_IN_ZIP_FILE, tabProperties);
 
 				// Add the files of the third reporter
@@ -104,19 +97,16 @@ public class SaveZipThread extends Thread {
 					success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_OUTSIDE_PROPERTIES_IN_ZIP_FILE, tabProperties);
 				}
 			} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
-				int numFilesToLoad = 2;
+				int numFilesToSave = 2;
 				Map<String, Object> mapGenotypes = tabProperties.getRnaAnalysisVO().getMapClassesInfoFile();
 				if (mapGenotypes != null && mapGenotypes.size() > 0) {
-					numFilesToLoad += mapGenotypes.size();
+					numFilesToSave += mapGenotypes.size();
 				}
 
-				percentLoad = (100.0 / numFilesToLoad);
-
-				// Add the files of the first reporter
-				BamQCRegionReporter reporter = tabProperties.getReporter();
+				percentLoad = (100.0 / numFilesToSave);
 
 				// Add the files of the inside region
-				reporter = tabProperties.getReporter();
+				BamQCRegionReporter reporter = tabProperties.getReporter();
 
 				success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_PROPERTIES_IN_ZIP_FILE, tabProperties);
 			}
@@ -154,20 +144,18 @@ public class SaveZipThread extends Thread {
 	 *            name of the file of properties to generate
 	 * @param tabProperties
 	 *            properties of the tab selected
-	 * @return
+	 * @return result
+     *            true if file is saved successfully
 	 */
 	private boolean addFilesToZip(ZipOutputStream zipFile, BamQCRegionReporter reporter, String namePropFile, TabPropertiesVO tabProperties) {
 		boolean result = true;
-		Iterator<?> it = reporter.getMapCharts().entrySet().iterator();
-		BufferedImage bufImage = null;
+		//BufferedImage bufImage = null;
 		String fileName = namePropFile;
-		;
 
-		try {
-			// Generate the properties file
-			Properties prop = new Properties();
-			generatePropertiesFile(prop, reporter, tabProperties);
-			zipFile.putNextEntry(new ZipEntry(namePropFile));
+        try {
+            Properties prop = new Properties();
+            generatePropertiesFile(prop, reporter, tabProperties);
+            zipFile.putNextEntry(new ZipEntry(namePropFile));
 			prop.store(zipFile, null);
 			increaseProgressBar(numSavedFiles, namePropFile);
 
@@ -190,20 +178,28 @@ public class SaveZipThread extends Thread {
 				}
 			}
 
-			// Generate the Graphics images
-			while (it.hasNext() && result) {
-				@SuppressWarnings("unchecked")
-				Map.Entry<String, Object> entry = (Map.Entry<String, Object>) it.next();
+		    // save chart objects
+            Map<String,JFreeChart> chartMap = reporter.getMapCharts();
+
+            for (Map.Entry<String, JFreeChart> entry : chartMap.entrySet() ) {
 
 				fileName = entry.getKey();
-				if (entry.getValue() instanceof JFreeChart) {
-					bufImage = ((JFreeChart) entry.getValue()).createBufferedImage(Constants.GRAPHIC_TO_SAVE_WIDTH, Constants.GRAPHIC_TO_SAVE_HEIGHT);
-				} else {
-					bufImage = (BufferedImage) entry.getValue();
-				}
+				JFreeChart chart = entry.getValue();
+                zipFile.putNextEntry(new ZipEntry(fileName));
 
-				zipFile.putNextEntry(new ZipEntry(fileName));
-				ImageIO.write(bufImage, fileName.substring(fileName.lastIndexOf(".") + 1), zipFile);
+                ObjectOutput out = new ObjectOutputStream(zipFile);
+                out.writeObject(chart.getPlot());
+
+                // TODO: use this code for export to html
+                //if (entry.getValue() instanceof JFreeChart) {
+				//	bufImage = ((JFreeChart) entry.getValue()).createBufferedImage(Constants.GRAPHIC_TO_SAVE_WIDTH, Constants.GRAPHIC_TO_SAVE_HEIGHT);
+				//}
+                /*
+                else {
+					bufImage = (BufferedImage) entry.getValue();
+				} */
+
+				//ImageIO.write(bufImage, fileName.substring(fileName.lastIndexOf(".") + 1), zipFile);
 
 				increaseProgressBar(numSavedFiles, fileName);
 			}
@@ -230,6 +226,7 @@ public class SaveZipThread extends Thread {
 	 */
 	private void generatePropertiesFile(Properties prop, BamQCRegionReporter reporter, TabPropertiesVO tabProperties) {
 		prop.setProperty("typeAnalysis", tabProperties.getTypeAnalysis().toString());
+        prop.setProperty("isPairedData", tabProperties.isPairedData() ? "true" : "false");
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
 			prop.setProperty("bamFileName", reporter.getBamFileName());
@@ -251,7 +248,7 @@ public class SaveZipThread extends Thread {
 			}
 
 			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
-			prop.setProperty("atPercent", reporter.getAtPercent().toString());
+			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
 
 			// globals
 			prop.setProperty("numWindows", reporter.getNumWindows().toString());
@@ -277,7 +274,8 @@ public class SaveZipThread extends Thread {
 			prop.setProperty("nNumber", reporter.getnNumber().toString());
 			prop.setProperty("nPercent", reporter.getnPercent().toString());
 			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
-			prop.setProperty("atPercent", reporter.getAtPercent().toString());
+			//TODO: at relative content?
+			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
 
 			// coverage
 			prop.setProperty("meanCoverage", reporter.getMeanCoverage().toString());
@@ -287,14 +285,14 @@ public class SaveZipThread extends Thread {
 			prop.setProperty("speciesFileSelected", tabProperties.getRnaAnalysisVO().getSpecieFileIsSet().toString());
 		}
 
-		Iterator it = reporter.getMapCharts().entrySet().iterator();
+		Set<String> chartNames = reporter.getMapCharts().keySet();
+        Iterator iter = chartNames.iterator();
 
-		if (it.hasNext()) {
+        if (!chartNames.isEmpty()) {
 			String s = "";
-			while (it.hasNext()) {
-				Map.Entry<String, String> aux = (Map.Entry<String, String>) it.next();
-				s += aux.getKey();
-				if (it.hasNext()) {
+			while (iter.hasNext()) {
+				s += iter.next();
+				if (iter.hasNext()) {
 					s += ",";
 				}
 			}
@@ -310,12 +308,10 @@ public class SaveZipThread extends Thread {
 	 *            number of the element computed
 	 */
 	private void increaseProgressBar(double numElem, String fileName) {
-		int result = 0;
-
 		// Increase the number of files loaded
 		numSavedFiles++;
 		// Increase the progress bar value
-		result = (int) Math.ceil(numElem * percentLoad);
+		int result = (int) Math.ceil(numElem * percentLoad);
 		savePanel.getProgressBar().setValue(result);
 		if (fileName != null) {
 			savePanel.getProgressStream().setText("Compressing File: " + fileName);

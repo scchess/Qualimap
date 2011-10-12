@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,13 +15,15 @@ import java.util.Map;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.*;
 import org.jfree.ui.RectangleInsets;
 
-public class BamQCRegionReporter {
+public class BamQCRegionReporter implements Serializable {
 	
 	
 	private boolean paintChromosomeLimits;
@@ -158,7 +161,7 @@ public class BamQCRegionReporter {
 
     }
 
-	public void saveCharts(BamStats bamStats, String outdir, GenomeLocator locator, boolean isPairedData) throws IOException{
+    public void saveCharts(BamStats bamStats, String outdir, GenomeLocator locator, boolean isPairedData) throws IOException{
 
 		if (mapCharts == null) {
             computeChartsBuffers(bamStats, locator, isPairedData);
@@ -223,7 +226,8 @@ public class BamQCRegionReporter {
 		this.nNumber = bamStats.getNumberOfNs();
 		this.nPercent = bamStats.getMeanNRelativeContent();
 		this.gcPercent = bamStats.getMeanGcRelativeContent();
-		//		this.atPercent = bamStats.getMeanAtRelativeContent();
+		//TODO: calculate mean at relative content?
+		//this.atPercent = bamStats.getMeanAtRelativeContent();
 
 		// coverage
 		this.meanCoverage = bamStats.getMeanCoverage();
@@ -296,31 +300,32 @@ public class BamQCRegionReporter {
 
 		// coverage (and gc) across reference
 		// coverage
-		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "coverage");
+		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "Coverage");
         XYToolTipGenerator toolTipGenerator = createTooltipGenerator(windowReferences, locator);
         coverageChart.setToolTipGenerator(toolTipGenerator);
         coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences, bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()), new Color(250,50,50,150), new Color(50,50,250), 0.2f);
-		if(paintChromosomeLimits && locator!=null) {
+
+        if(paintChromosomeLimits && locator!=null) {
             coverageChart.addSeries("chromosomes",chromosomeCoverageLimits,chromosomeColor,stroke,false);
         }
         coverageChart.render();
 		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
         // gc content
 		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle, "absolute position (bp)", "%");
-		gcContentChart.setPercentageChart(true);
-		gcContentChart.addSeries("CG content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
+		gcContentChart.setToolTipGenerator(toolTipGenerator);
+        gcContentChart.setPercentageChart(true);
+		gcContentChart.addSeries("GC content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
 		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(50,50,50,150),stroke,true);
-		if(paintChromosomeLimits && locator!=null) gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,false);
+		if(paintChromosomeLimits && locator!=null) {
+            gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,false);
+        }
 	    gcContentChart.render();
         // combined plot
-		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new NumberAxis());
+		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new NumberAxis("Position (bp)"));
         plot.getDomainAxis().setTickLabelsVisible(false);
         plot.getDomainAxis().setTickMarksVisible(false);
-
-
         plot.add(coverageChart.getChart().getXYPlot(),5);
 		plot.setGap(0);
-		//plot.getDomainAxis().setLabel("gc content, something");
 		plot.add(gcContentChart.getChart().getXYPlot(),1);
         plot.setOrientation(PlotOrientation.VERTICAL);
         JFreeChart combinedChart = new JFreeChart("Coverage across reference",plot);

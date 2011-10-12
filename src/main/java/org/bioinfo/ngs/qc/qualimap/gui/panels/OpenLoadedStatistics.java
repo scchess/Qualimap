@@ -81,8 +81,6 @@ public class OpenLoadedStatistics extends JPanel {
 	/**
 	 * Show the statistics loaded into the tab selected
 	 * 
-	 * @param homeFrame
-	 *            HomeFrame reference that contains the reference to the wrapper
 	 * @return JSplitPane, User Interface with the data loaded.
 	 */
 	public JSplitPane getLoadedStatistics() {
@@ -128,7 +126,8 @@ public class OpenLoadedStatistics extends JPanel {
 	 * Function that load the left panel with the statistics links
 	 */
 	private void fillLeftSplit() {
-		boolean showAditionalGraphicsInfo = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).isGffSelected();
+		// TODO: refactor this crap. seriously.
+        boolean showAditionalGraphicsInfo = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).isGffSelected();
 
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 		tabProperties.setLastLinkSelected(null);
@@ -603,7 +602,8 @@ public class OpenLoadedStatistics extends JPanel {
 	}
 	
 	private BamQCRegionReporter getReport(){
-		BamQCRegionReporter reporter = null;
+		// TODO: WTF? Another shitty method? What is the difference between this and new?
+        BamQCRegionReporter reporter;
 		// Select the reporter that contains the data
 		if (homeFrame.getTypeAnalysis() == Constants.REPORT_INPUT_BAM_FILE) {
 			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getReporter();
@@ -616,7 +616,7 @@ public class OpenLoadedStatistics extends JPanel {
 	}
 	
 	private BamQCRegionReporter getReporterNew(String graphicName){
-		BamQCRegionReporter reporter = null;
+		BamQCRegionReporter reporter;
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 		
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || 
@@ -647,7 +647,7 @@ public class OpenLoadedStatistics extends JPanel {
 	 *            position in the screen to refer
 	 * @param marginSubMenu
 	 *            margin respect the element before
-	 * @param boolean visibility of the label
+	 * @param visible visibility of the label
 	 * @return JLabel label set
 	 */
 	private JLabel fillLabelLink(String labelName, Component locationRef, Integer marginSubMenu, boolean visible) {
