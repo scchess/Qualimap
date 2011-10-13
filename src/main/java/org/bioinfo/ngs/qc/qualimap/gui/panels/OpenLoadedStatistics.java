@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 
+import org.apache.xerces.xs.StringList;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
@@ -576,13 +577,13 @@ public class OpenLoadedStatistics extends JPanel {
 	}
 
 	public void showLeftSideSummaryInformation(int typeReport, JLabel label) {
-		openTextLink(getReport());
+		prepareHtmlSummary(getReport());
 		fillColorLink(label);
 	}
 	
 	public void showSummary() {
 		if(this.summaryLable!=null){
-			openTextLink(getReport());
+			prepareHtmlSummary(getReport());
 			fillColorLink(summaryLable);
 		}
 	}
@@ -728,7 +729,7 @@ public class OpenLoadedStatistics extends JPanel {
 	 * @param reporter
 	 *            BamQCRegionReporter data input values
 	 */
-	private void openTextLink(BamQCRegionReporter reporter) {
+	private void prepareHtmlSummary(BamQCRegionReporter reporter) {
 		HtmlJPanel panelDerecha = new HtmlJPanel();
 		panelDerecha.setSize(scrollPaneDerecha.getWidth(), scrollPaneDerecha.getHeight());
 		panelDerecha.setFont(HomeFrame.defaultFont);
@@ -742,25 +743,32 @@ public class OpenLoadedStatistics extends JPanel {
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
 		summaryHtml.append(HtmlJPanel.COLSTART + "<b>Globals:</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getBasesNumber()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Reference size" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getBasesNumber()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads" + HtmlJPanel.COLMID + sdf.formatInteger(reporter.getNumMappedReads())
                 + " / " + sdf.formatPercentage(reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of unmapped reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads() - reporter.getNumMappedReads())
                         + " / " + sdf.formatPercentage(100.0 - reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of mapped bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumMappedBases()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of sequenced bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumSequencedBases()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of aligned bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumAlignedBases()) + HtmlJPanel.COLEND);
+
+        //TODO:replace with something about read length disitribtion
+        //summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of mapped bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumMappedBases()) + HtmlJPanel.COLEND);
+        //summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of sequenced bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumSequencedBases()) + HtmlJPanel.COLEND);
+        //summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of aligned bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumAlignedBases()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
 		summaryHtml.append("<b>ACGT Content:</b>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of A's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getaNumber()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of C's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getcNumber()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of T's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.gettNumber()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of G's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getgNumber()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of N's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getnNumber()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of A's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getaNumber()) +
+                " / " + sdf.formatPercentage(reporter.getaPercent())+ HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of C's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getcNumber()) +
+                " / " + sdf.formatPercentage(reporter.getcPercent()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of T's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.gettNumber()) +
+                " / " + sdf.formatPercentage(reporter.gettPercent()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of G's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getgNumber()) +
+                " / " + sdf.formatPercentage(reporter.getgPercent()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of N's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getnNumber()) +
+                " / " + sdf.formatPercentage(reporter.getnPercent()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "GC Percentage" + HtmlJPanel.COLMID + sdf.formatPercentage(reporter.getGcPercent()) + HtmlJPanel.COLEND);
 //		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "AT Percentage" + HtmlJPanel.COLMID + sdf.formatPercentage(reporter.getAtPercent()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
@@ -768,8 +776,8 @@ public class OpenLoadedStatistics extends JPanel {
 		summaryHtml.append(HtmlJPanel.BR);
 		summaryHtml.append("<b>Coverage:</b>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean Coverage" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanCoverage()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Std Percentage" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getStdCoverage()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanCoverage()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Standard Deviation" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getStdCoverage()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
@@ -802,18 +810,24 @@ public class OpenLoadedStatistics extends JPanel {
 			while ((strLine = br.readLine()) != null) {
 				// Test if the read is the header of the table or not
 				if (strLine.startsWith("#")) {
-					strLine = strLine.substring(1);
-					String[] tableTitles = strLine.split("\t");
-					for (String s : tableTitles) {
-						htmlTable.append("<th align='left'>" + s + "</th>");
-					}
-				} else {
+                    htmlTable.append("<th align='left'>Name</th>");
+                    htmlTable.append("<th align='left'>Length</th>");
+                    htmlTable.append("<th align='left'>Mapped bases</th>");
+                    htmlTable.append("<th align='left'>Mean coverage</th>");
+                    htmlTable.append("<th align='left'>Std coverage</th>");
+            	} else {
 					String[] tableValues = strLine.split("\t");
 					htmlTable.append(HtmlJPanel.COLSTART);
 					int i = 0;
 					for (String s : tableValues) {
-						i++;
-						htmlTable.append(s);
+						if (i == 1) {
+                            String[] coords = s.split(":");
+                            assert(coords.length == 2);
+                            long len = Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;
+                            s = Long.toString(len);
+                        }
+                        i++;
+                        htmlTable.append(s);
 						if (i < tableValues.length) {
 							htmlTable.append(HtmlJPanel.COLMID);
 						}
@@ -837,51 +851,18 @@ public class OpenLoadedStatistics extends JPanel {
 	}
 
 	/**
-	 * Function to fill a row of the fieldset with the specific information
-	 * 
-	 * @param labelName
-	 *            Name of the label for this line
-	 * @param firstElement
-	 *            boolean to know if the element is in the first line in the
-	 *            fieldset
-	 * @param fieldset
-	 *            Fieldset where we have to put the line
-	 * @param value
-	 *            String with the value of the field
-	 */
-	private void fillRowOfFieldsetDataInfo(String labelName, boolean firstElement, JLabel fieldset, String value) {
-		int hPosition = (firstElement ? Constants.marginTopForFirstElement : heightValue);
-
-		JLabel titleElemFieldset = new JLabel(labelName);
-		titleElemFieldset.setSize(Constants.labelInputElementWidthLong, Constants.elementHeight);
-		titleElemFieldset.setLocation(Constants.marginLeftForElement + 20, hPosition);
-		fieldset.add(titleElemFieldset);
-
-		JTextField valueElemFieldset = new JTextField();
-		valueElemFieldset.setSize(Constants.widthInputNumber, Constants.elementHeight);
-		valueElemFieldset.setLocation(titleElemFieldset.getX() + titleElemFieldset.getWidth() + Constants.marginLeftForElement, titleElemFieldset.getY());
-		valueElemFieldset.setEditable(false);
-		valueElemFieldset.setHorizontalAlignment(JTextField.RIGHT);
-		valueElemFieldset.setText(value);
-		fieldset.add(valueElemFieldset);
-
-		heightValue = valueElemFieldset.getY() + valueElemFieldset.getHeight() + Constants.marginTopForElementSubMenu;
-	}
-
-	/**
 	 * Action to show or hide the submenu of graphics images
-	 * 
+	 *
+     * @param name Action name
 	 * @return AbstractAction with the event selected
 	 */
 	private AbstractAction getActionShowSubMenu(String name) {
-		AbstractAction action = new AbstractAction(name, null) {
+		return new AbstractAction(name, null) {
 			private static final long serialVersionUID = -6311968455290159751L;
 
 			public void actionPerformed(ActionEvent evt) {
 				refreshLeftMenu(evt);
 			}
 		};
-
-		return action;
-	}
+}
 }

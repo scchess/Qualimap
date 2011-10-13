@@ -20,7 +20,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCInsideOutsideAlignment;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
-
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 
 public class BamQCSplitted {
@@ -225,7 +225,7 @@ public class BamQCSplitted {
 			chromosomeStats.setWindowReferences(locator);
 			openChromosomeWindows = new HashMap<Long, BamGenomeWindow>();
 			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,null,false,false);
-			chromosomeStats.activateWindowReporting(outdir + "/chromosomes.txt");
+			chromosomeStats.activateWindowReporting(outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES);
 		}
 		
 		// init working variables

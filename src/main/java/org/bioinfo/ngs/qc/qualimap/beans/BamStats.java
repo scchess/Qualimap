@@ -303,7 +303,6 @@ public class BamStats {
 	}
 	
 	public void reportWindowHeader(){
-//		windowReport.println("#name\tabs_pos\tmapped_bases\tsequence_bases\taligned_bases\tmean_coverage");
 		windowReport.println("#name\tabsolute_pos\tmapped_bases\tmean_coverage\tstd_coverage");
 	}
 	
@@ -311,8 +310,6 @@ public class BamStats {
 		windowReport.print(window.getName() + "\t");
 		windowReport.print(window.getStart()+":"+window.getEnd() + "\t");
 		windowReport.print(window.getNumberOfMappedBases() + "\t");
-//		windowReport.print(window.getNumberOfSequencedBases() + "\t");
-//		windowReport.print(window.getNumberOfAlignedBases() + "\t");
 		windowReport.print(StringUtils.decimalFormat(window.getMeanCoverage(),"#,###,###,###.##") + "\t");
 		windowReport.print(StringUtils.decimalFormat(window.getStdCoverage(),"#,###,###,###.##"));
 		windowReport.println();
