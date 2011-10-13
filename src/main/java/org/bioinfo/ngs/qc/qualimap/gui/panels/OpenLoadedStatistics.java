@@ -744,8 +744,11 @@ public class OpenLoadedStatistics extends JPanel {
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getBasesNumber()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of mapped reads" + HtmlJPanel.COLMID + sdf.formatInteger(reporter.getNumMappedReads()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of mapped bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumMappedBases()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads" + HtmlJPanel.COLMID + sdf.formatInteger(reporter.getNumMappedReads())
+                + " / " + sdf.formatPercentage(reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
+        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of unmapped reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads() - reporter.getNumMappedReads())
+                        + " / " + sdf.formatPercentage(100.0 - reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
+        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of mapped bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumMappedBases()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of sequenced bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumSequencedBases()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of aligned bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumAlignedBases()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
