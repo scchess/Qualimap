@@ -179,9 +179,7 @@ public class BamQCSplitted {
 			// load selected regions
 			loadSelectedRegions();
 			
-			//Thread.sleep(40000);
-			
-			// inside			
+			// inside
 			insideWindowSize = computeWindowSize(insideReferenceSize, numberOfWindows);
 			effectiveInsideNumberOfWindows = computeEffectiveNumberOfWindows(insideReferenceSize, insideWindowSize);
 			insideBamStats = new BamStats("inside",insideReferenceSize,effectiveInsideNumberOfWindows);
@@ -224,7 +222,7 @@ public class BamQCSplitted {
 			chromosomeStats = new BamStats("chromosomes", referenceSize, numberOfReferenceContigs);
 			chromosomeStats.setWindowReferences(locator);
 			openChromosomeWindows = new HashMap<Long, BamGenomeWindow>();
-			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,null,false,false);
+			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,reference,true,false);
 			chromosomeStats.activateWindowReporting(outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES);
 		}
 		
@@ -270,7 +268,7 @@ public class BamQCSplitted {
 					// chromosome
 					if(computeChromosomeStats){
 						if(position>currentChromosome.getEnd()){
-							currentChromosome = finalizeAndGetNextWindow(position,currentChromosome,openChromosomeWindows,chromosomeStats,null,false,false);				
+							currentChromosome = finalizeAndGetNextWindow(position,currentChromosome,openChromosomeWindows,chromosomeStats,null,true,false);
 						}
 						
 						if(currentChromosome!=null){
@@ -312,7 +310,7 @@ public class BamQCSplitted {
 							
 							// finalize current and get next window
 							if(currentInsideWindow!=null && insideReadStart>currentInsideWindow.getEnd()){								
-								currentInsideWindow = finalizeAndGetNextWindow(insideReadStart,currentInsideWindow,openInsideWindows,insideBamStats,null,false,true);
+								currentInsideWindow = finalizeAndGetNextWindow(insideReadStart,currentInsideWindow,openInsideWindows,insideBamStats,null,true,false);
 							}							
 							// acum read
 							if(currentInsideWindow!=null){
@@ -335,7 +333,7 @@ public class BamQCSplitted {
 								
 								// finalize current and get next window											
 								if(currentOutsideWindow!=null && outsideReadStart>currentOutsideWindow.getEnd()){
-									currentOutsideWindow = finalizeAndGetNextWindow(outsideReadStart,currentOutsideWindow,openOutsideWindows,outsideBamStats,null,false,true);
+									currentOutsideWindow = finalizeAndGetNextWindow(outsideReadStart,currentOutsideWindow,openOutsideWindows,outsideBamStats,null,true,false);
 								}
 								
 								// acum read
@@ -373,12 +371,12 @@ public class BamQCSplitted {
 		}
 		
 		if(selectedRegionsAvailable){
-			currentInsideWindow = finalizeAndGetNextWindow(insideBamStats.getReferenceSize(),currentInsideWindow,openInsideWindows,insideBamStats,null,false,true);
+			currentInsideWindow = finalizeAndGetNextWindow(insideBamStats.getReferenceSize(),currentInsideWindow,openInsideWindows,insideBamStats,null,true,false);
 			if(currentInsideWindow!=null){
 				finalizeWindow(currentInsideWindow,insideBamStats,false);
 			}
 			if(computeOutsideStats){
-				currentOutsideWindow = finalizeAndGetNextWindow(outsideBamStats.getReferenceSize(),currentOutsideWindow,openOutsideWindows,outsideBamStats,null,false,true);
+				currentOutsideWindow = finalizeAndGetNextWindow(outsideBamStats.getReferenceSize(),currentOutsideWindow,openOutsideWindows,outsideBamStats,null,true,false);
 				if(currentOutsideWindow!=null){
 					finalizeWindow(currentOutsideWindow,outsideBamStats,false);
 				}
@@ -386,7 +384,7 @@ public class BamQCSplitted {
 		}
 		
 		if(computeChromosomeStats){
-			currentChromosome = finalizeAndGetNextWindow(chromosomeStats.getReferenceSize(),currentChromosome,openChromosomeWindows,chromosomeStats,null,false,false);
+			currentChromosome = finalizeAndGetNextWindow(chromosomeStats.getReferenceSize(),currentChromosome,openChromosomeWindows,chromosomeStats,null,true,false);
 			if(currentChromosome!=null){
 				finalizeWindow(currentChromosome,chromosomeStats,false);
 			}
@@ -583,7 +581,7 @@ public class BamQCSplitted {
 	
 	private BamGenomeWindow finalizeAndGetNextWindow(long position, BamGenomeWindow lastWindow,
 			HashMap<Long,BamGenomeWindow> openWindows,BamStats bamStats,byte[]reference, 
-			boolean verbose,boolean detailed) throws CloneNotSupportedException{
+			boolean detailed, boolean verbose) throws CloneNotSupportedException{
 		// acum globals
 		finalizeWindow(lastWindow,bamStats,verbose);
 				
