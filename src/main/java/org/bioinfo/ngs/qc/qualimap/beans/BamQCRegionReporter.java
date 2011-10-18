@@ -49,7 +49,6 @@ public class BamQCRegionReporter implements Serializable {
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
-
 	public void writeReport(BamStats bamStats, String outdir) throws IOException{
 		// init report		
 		String reportFile = outdir + "/" + bamStats.getName() + "_results.txt";

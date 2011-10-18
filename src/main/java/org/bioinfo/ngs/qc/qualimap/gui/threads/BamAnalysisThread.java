@@ -109,6 +109,9 @@ public class BamAnalysisThread extends Thread {
 		try {
 	        bamQC.run();
 	        tabProperties.setPairedData(bamQC.isPairedData());
+            tabProperties.setBamStats(bamQC.getBamStats());
+            tabProperties.setGenomeLocator(bamQC.getLocator());
+
 			// t.setThreadDone(true);
 			openFilePanel.getProgressStream().setText("End of bam qc");
 	

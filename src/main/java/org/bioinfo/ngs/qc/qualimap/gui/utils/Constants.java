@@ -205,7 +205,10 @@ public final class Constants {
 	// Name of property file that contains the data in the Zip file for the outside reference input
 	public static final String NAME_OF_OUTSIDE_PROPERTIES_IN_ZIP_FILE  = "outside_reference.properties";
 	
-	
+	public static final String NAME_OF_GENOME_LOCATOR_IN_ZIP_FILE = "genome_locator";
+
+    public static final String NAME_OF_BAM_STATS_IN_ZIP_FILE = "bam_stats";
+
 	//******************************************************************************************
 	//********************************* NAMES OF DATA RAW FILES ********************************
 	//******************************************************************************************

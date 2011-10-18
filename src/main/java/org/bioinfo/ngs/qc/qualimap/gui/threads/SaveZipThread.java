@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -13,13 +14,18 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import com.sun.org.apache.bcel.internal.classfile.Constant;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
+import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Plot;
 
 /**
  * Class to manage a thread taht save the loaded data into a Zip file
@@ -178,31 +184,28 @@ public class SaveZipThread extends Thread {
 				}
 			}
 
-		    // save chart objects
-            Map<String,JFreeChart> chartMap = reporter.getMapCharts();
+            //Map<String,JFreeChart> chartMap = reporter.getMapCharts();
 
-            for (Map.Entry<String, JFreeChart> entry : chartMap.entrySet() ) {
+            zipFile.putNextEntry(new ZipEntry(Constants.NAME_OF_GENOME_LOCATOR_IN_ZIP_FILE));
+            ObjectOutputStream out1 = new ObjectOutputStream(zipFile);
+            out1.writeObject(tabProperties.getGenomeLocator());
 
-				fileName = entry.getKey();
-				JFreeChart chart = entry.getValue();
-                zipFile.putNextEntry(new ZipEntry(fileName));
+            zipFile.putNextEntry(new ZipEntry(Constants.NAME_OF_BAM_STATS_IN_ZIP_FILE));
+            ObjectOutput out2 = new ObjectOutputStream(zipFile);
+            out2.writeObject(tabProperties.getBamStats());
 
-                ObjectOutput out = new ObjectOutputStream(zipFile);
-                out.writeObject(chart.getPlot());
-
-                // TODO: use this code for export to html
-                //if (entry.getValue() instanceof JFreeChart) {
+            // TODO: use this code for export to html
+            //for (Map.Entry<String, JFreeChart> entry : chartMap.entrySet() ) {
+            //if (entry.getValue() instanceof JFreeChart) {
 				//	bufImage = ((JFreeChart) entry.getValue()).createBufferedImage(Constants.GRAPHIC_TO_SAVE_WIDTH, Constants.GRAPHIC_TO_SAVE_HEIGHT);
 				//}
                 /*
                 else {
 					bufImage = (BufferedImage) entry.getValue();
 				} */
-
 				//ImageIO.write(bufImage, fileName.substring(fileName.lastIndexOf(".") + 1), zipFile);
-
-				increaseProgressBar(numSavedFiles, fileName);
-			}
+			    //increaseProgressBar(numSavedFiles, fileName);
+			//}
 			savePanel.getProgressBar().setValue(100);
 		} catch (IOException e) {
 			result = false;

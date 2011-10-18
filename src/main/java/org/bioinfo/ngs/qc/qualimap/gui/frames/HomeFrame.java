@@ -291,7 +291,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		op.resizeLeftPanel();
 		aTabbedPane.validate();
 		inputScrollPane.validate();
-		op.panelIzquierda.validate();
+		op.leftPanel.validate();
 	}
 	
 	/**

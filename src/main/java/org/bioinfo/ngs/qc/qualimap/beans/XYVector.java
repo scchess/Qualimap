@@ -1,9 +1,10 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XYVector {
+public class XYVector implements Serializable {
 
 	private double maxValue;
 	private List<XYItem> items;

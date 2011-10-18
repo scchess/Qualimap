@@ -1,6 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-public class ContigRecord {
+import java.io.Serializable;
+
+public class ContigRecord implements Serializable {
 	private String name;
 	private long position;
 	private long relative;

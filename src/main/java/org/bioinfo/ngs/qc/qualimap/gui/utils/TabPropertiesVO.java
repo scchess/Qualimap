@@ -8,6 +8,8 @@ import javax.swing.JLabel;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
+import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.utils.UniqueID;
 
@@ -60,8 +62,27 @@ public class TabPropertiesVO {
 	 */
 	private JComponent leftSplitLastElement;	
 	private boolean isPairedData;	
-		
-	
+    private BamStats bamStats;
+    private GenomeLocator genomeLocator;
+
+
+    public BamStats getBamStats() {
+          return bamStats;
+    }
+
+    public void setBamStats(BamStats bamStats) {
+        this.bamStats = bamStats;
+    }
+
+
+    public GenomeLocator getGenomeLocator() {
+        return genomeLocator;
+    }
+
+    public void setGenomeLocator(GenomeLocator genomeLocator) {
+        this.genomeLocator = genomeLocator;
+    }
+
 	public boolean isPairedData() {
     	return isPairedData;
     }

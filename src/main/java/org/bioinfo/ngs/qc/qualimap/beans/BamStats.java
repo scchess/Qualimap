@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
 
 
-public class BamStats {
+public class BamStats implements Serializable {
 	private String name;
 	private String sourceFile;
 	private String referenceFile;
@@ -187,10 +188,10 @@ public class BamStats {
 	// reporting
 	private boolean activeWindowReporting;
 	private String windowReportFile;
-	private PrintWriter windowReport;
+	transient private PrintWriter windowReport;
 	private boolean activeCoverageReporting;
 	private String coverageReportFile;
-	private PrintWriter coverageReport;
+	transient private PrintWriter coverageReport;
 		
 	public BamStats(String name, long referenceSize, int numberOfWindows){
 				

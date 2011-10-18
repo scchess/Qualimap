@@ -1,6 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-public class XYItem {
+import java.io.Serializable;
+
+public class XYItem implements Serializable {
 
 	private double x;
 	private double y;

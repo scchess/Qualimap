@@ -18,8 +18,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64DecoderStream;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
+import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -140,7 +143,27 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 
 				while ((entry = zip.getNextEntry()) != null && numOfDirs < 2) {
 					if (!entry.isDirectory()) {
-						loadFile(tabProperties, entry);
+						if (entry.getName().equals(Constants.NAME_OF_GENOME_LOCATOR_IN_ZIP_FILE)){
+                            ObjectInputStream in = new ObjectInputStream(zip);
+                            try {
+                                GenomeLocator locator = (GenomeLocator) in.readObject();
+                                tabProperties.setGenomeLocator(locator);
+                                increaseProgressBar(numLoadedFiles, entry.getName());
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (entry.getName().equals(Constants.NAME_OF_BAM_STATS_IN_ZIP_FILE)) {
+                            ObjectInputStream in = new ObjectInputStream(zip);
+                            try {
+                                BamStats bamStats = (BamStats) in.readObject();
+                                tabProperties.setBamStats(bamStats);
+                                increaseProgressBar(numLoadedFiles, entry.getName());
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            loadFile(tabProperties, entry);
+                        }
 					} else {
 						numOfDirs++;
 					}
@@ -160,14 +183,19 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 					JOptionPane.showMessageDialog(null, " • Cannot load all the needed files, review the zip file structure", "Error", 0);
 				} else {
                     openFilePanel.getHomeFrame().setTypeAnalysis(tabProperties.getTypeAnalysis());
+                    BamStats bamStats = tabProperties.getBamStats();
+                    GenomeLocator locator = tabProperties.getGenomeLocator();
+                    tabProperties.getReporter().computeChartsBuffers(bamStats,locator,tabProperties.isPairedData());
                     openFilePanel.getHomeFrame().addNewPane(openFilePanel, tabProperties);
 				}
 				// Stop the thread
 				join();
 			} catch (InterruptedException e) {
 				logger.error("Unable to sleep the principal thread while the statistics are generated");
-			}
-		}
+			} catch (IOException e) {
+                logger.error("Unable to compute chart buffers");
+            }
+        }
 	}
 
 	/**
@@ -183,7 +211,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 		boolean result = false;
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
-			size = tabProperties.getReporter().getMapCharts().size() + 2;
+			size = 4; //tabProperties.getReporter().getMapCharts().size() + 2;
 		} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
 			size = tabProperties.getInsideReporter().getMapCharts().size() + tabProperties.getOutsideReporter().getMapCharts().size() + 2;
 		} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
@@ -213,7 +241,13 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			fileName = s[s.length - 1];
 		}
 
-		if ((tabProperties.getReporter().getMapCharts() != null && tabProperties.getReporter().getMapCharts().containsKey(fileName)) || fileName.equalsIgnoreCase(Constants.NAME_OF_FILE_CHROMOSOMES)) {
+        if (fileName.equalsIgnoreCase(Constants.NAME_OF_FILE_CHROMOSOMES)) {
+			createFileIntoFolder(tabProperties, entry, fileName);
+            increaseProgressBar(numLoadedFiles, fileName);
+        }
+
+		//TODO: check this stuff carefully
+		/*if (fileName.equalsIgnoreCase(Constants.NAME_OF_FILE_CHROMOSOMES)) {
 			if (fileName.equalsIgnoreCase(Constants.NAME_OF_FILE_CHROMOSOMES)) {
 				createFileIntoFolder(tabProperties, entry, fileName);
 			} else {
@@ -232,7 +266,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 				insertGraphIntoReporter(tabProperties, entry, fileName, tabProperties.getOutsideReporter());
 			}
 			increaseProgressBar(numLoadedFiles, fileName);
-		}
+		} */
 	}
 
 	/**
@@ -250,8 +284,11 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	 */
 	private void insertGraphIntoReporter(TabPropertiesVO tabProperties, ZipEntry entry, String graphicName, BamQCRegionReporter reporter) {
 		try {
-			ZipFile zipFile = new ZipFile(openFilePanel.getPathDataFile().getText());
-			ObjectInput in = new ObjectInputStream(zipFile.getInputStream(entry));
+
+            ZipFile zipFile = new ZipFile(openFilePanel.getPathDataFile().getText());
+            ObjectInputStream in = new ObjectInputStream(zipFile.getInputStream(entry));
+            String str = (String) in.readObject();
+            System.out.println(str);
             Plot plot = (Plot) in.readObject();
             if (reporter.getMapCharts() == null) {
                 reporter.setMapCharts(new HashMap<String, JFreeChart>());
@@ -406,6 +443,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			}
 
 			outstream.close();
+            inputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

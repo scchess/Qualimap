@@ -1,10 +1,11 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GenomeLocator {
+public class GenomeLocator implements Externalizable {
 	private List<ContigRecord> contigs;
 	private HashMap<String,Long> positions;
 	private long totalSize;
@@ -80,5 +81,20 @@ public class GenomeLocator {
 	 */
 	public void setTotalSize(long totalSize) {
 		this.totalSize = totalSize;
-	}	
+	}
+
+    @Override
+    public void writeExternal(ObjectOutput objectOutput) throws IOException {
+        objectOutput.writeObject(contigs);
+        objectOutput.writeObject(positions);
+        objectOutput.writeLong(totalSize);
+    }
+
+    @Override
+    public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
+        contigs = (List<ContigRecord>) objectInput.readObject();
+        positions = (HashMap<String,Long>) objectInput.readObject();
+        totalSize = objectInput.readLong();
+
+    }
 }
