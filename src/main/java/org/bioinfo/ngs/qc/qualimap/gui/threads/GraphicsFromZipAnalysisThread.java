@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64DecoderStream;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;

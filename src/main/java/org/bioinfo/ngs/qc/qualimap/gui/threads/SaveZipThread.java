@@ -14,8 +14,6 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-import com.sun.org.apache.bcel.internal.classfile.Constant;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
