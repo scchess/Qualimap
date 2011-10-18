@@ -109,7 +109,7 @@ public class OpenLoadedStatistics extends JPanel {
 		}
 		
 		JPanel rightPanel = new JPanel();
-		rightPanel.setLayout(new GroupLayout((JComponent) rightPanel));
+		rightPanel.setLayout(new GroupLayout(rightPanel));
 		rightScrollPane.setViewportView(rightPanel);
 
 		statisticsContainer.setLeftComponent(leftScrollPane);
@@ -209,7 +209,7 @@ public class OpenLoadedStatistics extends JPanel {
 
 			lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
 
-		} else if (showAditionalGraphicsInfo) {
+		} else {
 			JCheckBox checkFirstSection = new JCheckBox("Reads inside region");
 			checkFirstSection.setSelected(true);
 			checkFirstSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
@@ -432,7 +432,7 @@ public class OpenLoadedStatistics extends JPanel {
 			Iterator it = mapGenotypes.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
-				j = fillLabelSubMenuGraphic(entry.getKey().toString(), referencePosition, marginSubMenu, entry.getValue().toString(), true);
+				j = fillLabelSubMenuGraphic(entry.getKey(), referencePosition, marginSubMenu, entry.getValue().toString(), true);
 				referencePosition.setComponent(j);
 				leftPanel.add(j);
 			}
@@ -484,11 +484,7 @@ public class OpenLoadedStatistics extends JPanel {
 			// We have to get the last checkbox selected to change the
 			// location of the elements of its submenu.
 			if (elem instanceof JCheckBox) {
-				if (checkBoxSelected.equals(elem)) {
-					afterSubmenuChanged = true;
-				} else {
-					afterSubmenuChanged = false;
-				}
+                afterSubmenuChanged = checkBoxSelected.equals(elem);
 			} else if (elem instanceof JLabel && afterSubmenuChanged) {
 				// If the element is into the submenu of the checkbox selected
 				// and this checkbox have to show the elements, we show this

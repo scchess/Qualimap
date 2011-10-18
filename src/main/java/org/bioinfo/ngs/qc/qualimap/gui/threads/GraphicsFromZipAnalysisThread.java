@@ -52,9 +52,6 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	/** Variable to manage the panel with the progressbar at the init */
 	private OpenFilePanel openFilePanel;
 
-	/** Variables that contains the name of the graphic image in each report */
-	private Map<String, String> reportFileNames, insideReportFileNames, outsideReportFileNames;
-
 	/** Variables that contains the tab properties loaded in the thread */
 	TabPropertiesVO tabProperties;
 
@@ -102,7 +99,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 				numFilesInZip++;
 			}
 
-			// We select the properties files to extract the properties values
+            // We select the properties files to extract the properties values
 			// (some of them needed to extract the number
 			// of graphics)
 			zipFile = new FileInputStream(openFilePanel.getPathDataFile().getText());
@@ -121,13 +118,13 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 					// Fill the map that contains the files to load and the
 					// percent loaded
 					if (fileName.equalsIgnoreCase(Constants.NAME_OF_PROPERTIES_IN_ZIP_FILE)) {
-						insertTextIntoReporter(tabProperties, entry, fileName, tabProperties.getReporter());
+						insertTextIntoReporter(entry, tabProperties.getReporter());
 						increaseProgressBar(numLoadedFiles, fileName);
 					} else if (fileName.equalsIgnoreCase(Constants.NAME_OF_INSIDE_PROPERTIES_IN_ZIP_FILE)) {
-						insertTextIntoReporter(tabProperties, entry, fileName, tabProperties.getInsideReporter());
+						insertTextIntoReporter(entry, tabProperties.getInsideReporter());
 						increaseProgressBar(numLoadedFiles, fileName);
 					} else if (fileName.equalsIgnoreCase(Constants.NAME_OF_OUTSIDE_PROPERTIES_IN_ZIP_FILE)) {
-						insertTextIntoReporter(tabProperties, entry, fileName, tabProperties.getOutsideReporter());
+						insertTextIntoReporter(entry, tabProperties.getOutsideReporter());
 						increaseProgressBar(numLoadedFiles, fileName);
 					}
 				} else {
@@ -162,7 +159,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
                                 e.printStackTrace();
                             }
                         } else {
-                            loadFile(tabProperties, entry);
+                            loadFile(entry);
                         }
 					} else {
 						numOfDirs++;
@@ -175,7 +172,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			JOptionPane.showMessageDialog(null, " • Can not read the Zip File entry", "Error", 0);
 		} finally {
 			try {
-				if (!allFilesLoaded(tabProperties)) {
+				if (!allFilesLoaded()) {
 					// Show the ProgressBar and the Text Description
 					openFilePanel.getProgressStream().setVisible(false);
 					openFilePanel.getProgressBar().setVisible(false);
@@ -202,11 +199,9 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	 * Evaluate if the number of loaded files is the correct number of files or
 	 * not
 	 * 
-	 * @param tabProperties
-	 *            Properties where we have the loaded files
-	 * @return
+	 * @return  True, if all expected data from project are loaded
 	 */
-	private boolean allFilesLoaded(TabPropertiesVO tabProperties) {
+	private boolean allFilesLoaded() {
 		Integer size = null;
 		boolean result = false;
 
@@ -228,12 +223,10 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	/**
 	 * Load the graphic file into the reporter
 	 * 
-	 * @param tabProperties
-	 *            Object that contains the tab graphs and data
 	 * @param entry
 	 *            file read from the zip file
 	 */
-	private void loadFile(TabPropertiesVO tabProperties, ZipEntry entry) {
+	private void loadFile(ZipEntry entry) {
 		String fileName = entry.getName();
 		String[] s = fileName.split("/");
 
@@ -242,7 +235,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 		}
 
         if (fileName.equalsIgnoreCase(Constants.NAME_OF_FILE_CHROMOSOMES)) {
-			createFileIntoFolder(tabProperties, entry, fileName);
+			createFileIntoFolder(entry, fileName);
             increaseProgressBar(numLoadedFiles, fileName);
         }
 
@@ -270,57 +263,16 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	}
 
 	/**
-	 * Load the graphic file into the reporter with the name received
-	 * 
-	 * @param tabProperties
-	 *            Object that contains the tab graphs and data
-	 * @param entry
-	 *            file read from the zip file.
-	 * @param graphicName
-	 *            , String with the graphic name.
-	 * @param reporter
-	 *            , BamQCRegionReporter with contains the reporter of the
-	 *            graphic images.
-	 */
-	private void insertGraphIntoReporter(TabPropertiesVO tabProperties, ZipEntry entry, String graphicName, BamQCRegionReporter reporter) {
-		try {
-
-            ZipFile zipFile = new ZipFile(openFilePanel.getPathDataFile().getText());
-            ObjectInputStream in = new ObjectInputStream(zipFile.getInputStream(entry));
-            String str = (String) in.readObject();
-            System.out.println(str);
-            Plot plot = (Plot) in.readObject();
-            if (reporter.getMapCharts() == null) {
-                reporter.setMapCharts(new HashMap<String, JFreeChart>());
-            }
-
-            reporter.getMapCharts().put(graphicName, new JFreeChart(plot));
-			//BufferedImage image = ImageIO.read(bis);
-
-			/*if (reporter.getMap() == null) {
-				reporter.setImageMap(new HashMap<String, BufferedImage>());
-			}
-			reporter.getImageMap().put(graphicName, image);*/
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Load the data information from the properties file into the reporter with
 	 * the name received
 	 * 
-	 * @param tabProperties
-	 *            Object that contains the tab graphs and data
 	 * @param entry
 	 *            file read from the zip file.
-	 * @param fileName
-	 *            , String with the file name.
 	 * @param reporter
 	 *            , BamQCRegionReporter with contains the reporter of the
 	 *            graphic images.
 	 */
-	private void insertTextIntoReporter(TabPropertiesVO tabProperties, ZipEntry entry, String fileName, BamQCRegionReporter reporter) {
+	private void insertTextIntoReporter(ZipEntry entry, BamQCRegionReporter reporter) {
 		Properties prop = new Properties();
 		StringUtilsSwing stringUtils = new StringUtilsSwing();
 		try {
@@ -330,15 +282,6 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			// Set the type of the tab analysis
 			tabProperties.setTypeAnalysis(stringUtils.parseInt(prop.getProperty("typeAnalysis")));
             tabProperties.setPairedData( stringUtils.parseBool(prop.getProperty("isPairedData")));
-
-			// Put the names of the graphics images into a map
-			String listaNombreMapas = prop.getProperty("mapGraphicNames");
-			String[] mapaNombres = listaNombreMapas.split(",");
-			//TODO: check this
-            reporter.setMapCharts(new HashMap<String, JFreeChart>());
-			for (int i = 0; i < mapaNombres.length; i++) {
-				reporter.getMapCharts().put(mapaNombres[i], null);
-			}
 
 			if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
 				tabProperties.getRnaAnalysisVO().setInfoFileIsSet(Boolean.parseBoolean(prop.getProperty("infoFileSelected")));
@@ -361,8 +304,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			}
 
 			reporter.setBamFileName(prop.getProperty("bamFileName"));
-
-			reporter.setBasesNumber(stringUtils.parseLong(prop.getProperty("basesNumber")));
+            reporter.setBasesNumber(stringUtils.parseLong(prop.getProperty("basesNumber")));
 			reporter.setContigsNumber(stringUtils.parseLong(prop.getProperty("contigsNumber")));
 
 			reporter.setReferenceFileName(prop.getProperty("referenceFileName"));
@@ -422,14 +364,12 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 	 * Uncompress a File and create a new File into the folder that manage tab
 	 * selected with the necessary information.
 	 * 
-	 * @param tabProperties
-	 *            Object that contains the tab graphs and data
 	 * @param entry
 	 *            file read from the zip file.
 	 * @param fileName
 	 *            , String with the file name.
 	 */
-	private void createFileIntoFolder(TabPropertiesVO tabProperties, ZipEntry entry, String fileName) {
+	private void createFileIntoFolder(ZipEntry entry, String fileName) {
 		try {
 			ZipFile zipFile = new ZipFile(openFilePanel.getPathDataFile().getText());
 			InputStream inputStream = zipFile.getInputStream(entry);
@@ -471,31 +411,4 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 		}
 	}
 
-	// ******************************************************************************************
-	// ********************************* GETTERS / SETTERS
-	// **************************************
-	// ******************************************************************************************
-	public String getProcessedString() {
-		return processedString;
-	}
-
-	public void setProcessedString(String processedString) {
-		this.processedString = processedString;
-	}
-
-	public Double getLoadPercent() {
-		return loadPercent;
-	}
-
-	public void setLoadPercent(Double loadPercent) {
-		this.loadPercent = loadPercent;
-	}
-
-	public Logger getLogger() {
-		return logger;
-	}
-
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
 }
