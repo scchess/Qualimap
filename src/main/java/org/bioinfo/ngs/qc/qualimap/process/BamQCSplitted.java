@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 
+import net.sf.samtools.SAMRecordIterator;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.formats.core.feature.Gff;
 import org.bioinfo.formats.core.feature.io.GffReader;
@@ -50,6 +52,7 @@ public class BamQCSplitted {
 	private double percentageOfValidReads;
 	private int numberOfMappedReads;
 	private double percentageOfMappedReads;
+    private int numberOfDuplicatedReads;
 	
 	// statistics
 	private BamStats bamStats; 
@@ -137,10 +140,16 @@ public class BamQCSplitted {
 
 	public void run() throws Exception{
 		String prefix = "w";
-		
+
+
 		// init reader
 		SAMFileReader reader = new SAMFileReader(new File(bamFile));
-		
+
+        Package[] packages = Package.getPackages();
+        for (Package p : packages) {
+           logger.println( p.getName() + " " + p.getImplementationVersion() + p.getSpecificationVersion());
+        }
+
 		// org.bioinfo.ntools.process header
 		lastActionDone = "loading sam header header";
 		logger.println(lastActionDone);
@@ -222,7 +231,7 @@ public class BamQCSplitted {
 			chromosomeStats = new BamStats("chromosomes", referenceSize, numberOfReferenceContigs);
 			chromosomeStats.setWindowReferences(locator);
 			openChromosomeWindows = new HashMap<Long, BamGenomeWindow>();
-			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,reference,true,false);
+			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,reference,false,false);
 			chromosomeStats.activateWindowReporting(outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES);
 		}
 		
@@ -235,11 +244,41 @@ public class BamQCSplitted {
 		int currentRegion = 0;
 		int insertSize;
 		isPairedData = true;
-		
+
+        int numberOfUnmappedReads = 0;
+
 		// run reads
-		for(SAMRecord read:reader){
+        SAMRecordIterator iter = reader.iterator();
+        while(iter.hasNext()){
+			SAMRecord read = null;
+            try {
+                read = iter.next();
+            } catch (RuntimeException e) {
+                logger.warn( e.getMessage() );
+            }
+
+            if (read == null) {
+                //++numberOfReads;
+                continue;
+            }
+
 			// filter invalid reads
-			if(read.isValid()==null && !read.getDuplicateReadFlag()){
+			if(read.isValid() == null){
+
+                if (read.getDuplicateReadFlag()) {
+                    numberOfDuplicatedReads++;
+                }
+
+				// accumulate only mapped reads
+				if(!read.getReadUnmappedFlag()) {
+                    numberOfMappedReads++;
+                }  else {
+                    numberOfUnmappedReads++;
+                    logger.info(read.toString());
+                    ++numberOfReads;
+                    continue;
+                }
+
 				// compute alignment
 				alignment = BamGenomeWindow.computeAlignment(read);
 				
@@ -255,20 +294,18 @@ public class BamQCSplitted {
 					insertSize = -1;
 					isPairedData = false;
 				}
-				
-				// acum mapped reads
-				if(!read.getReadUnmappedFlag()) numberOfMappedReads++;
+
 			
 				// compute absolute position
 				position = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 				
 				// something strange has happend?
-				if(position!=-1) {
+				if(position != -1) {
 					
 					// chromosome
 					if(computeChromosomeStats){
 						if(position>currentChromosome.getEnd()){
-							currentChromosome = finalizeAndGetNextWindow(position,currentChromosome,openChromosomeWindows,chromosomeStats,null,true,false);
+							currentChromosome = finalizeAndGetNextWindow(position,currentChromosome,openChromosomeWindows,chromosomeStats,null,false,false);
 						}
 						
 						if(currentChromosome!=null){
@@ -362,10 +399,16 @@ public class BamQCSplitted {
 		
 		// close stream	
 		reader.close();
-		
+
+        logger.println("Number of reads: " + numberOfReads);
+        logger.println("Number of mapped reads: " + numberOfMappedReads);
+        logger.println("Number of unmapped reads: " + numberOfUnmappedReads);
+        logger.println("Number of valid reads: " + numberOfValidReads);
+        logger.println("Number of dupliated reads: " + numberOfDuplicatedReads);
+
 		// close last current windows
 		currentWindow = finalizeAndGetNextWindow(bamStats.getReferenceSize(), currentWindow, openWindows, bamStats, reference, true, true);
-		
+
 		if(currentWindow!=null){
 			finalizeWindow(currentWindow,bamStats,true);
 		}
@@ -384,7 +427,7 @@ public class BamQCSplitted {
 		}
 		
 		if(computeChromosomeStats){
-			currentChromosome = finalizeAndGetNextWindow(chromosomeStats.getReferenceSize(),currentChromosome,openChromosomeWindows,chromosomeStats,null,true,false);
+			currentChromosome = finalizeAndGetNextWindow(chromosomeStats.getReferenceSize(),currentChromosome,openChromosomeWindows,chromosomeStats,null,false,false);
 			if(currentChromosome!=null){
 				finalizeWindow(currentChromosome,chromosomeStats,false);
 			}

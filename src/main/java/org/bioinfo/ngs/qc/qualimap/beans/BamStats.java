@@ -359,15 +359,15 @@ public class BamStats implements Serializable {
 	
 	public void addWindowInformation(BamGenomeWindow window){
 		numberOfProcessedWindows++;
-		
-		// global		
+
+		// global
 		numberOfMappedBases+=window.getNumberOfMappedBases();
 		numberOfSequencedBases+=window.getNumberOfSequencedBases();
 		numberOfAlignedBases+=window.getNumberOfAlignedBases();
 		
 		/*
-		 * Reference
-		 */
+		* Reference
+		*/
 		
 		  // A
 		numberOfAsInReference+=window.getNumberOfAsInReference();

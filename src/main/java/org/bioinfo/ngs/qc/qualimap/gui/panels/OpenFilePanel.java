@@ -56,7 +56,16 @@ public class OpenFilePanel extends JPanel {
 	JTextField valueNw, countThresHold;
 	JCheckBox drawChromosomeLimits, saveCoverage, labelPathCountFile2, labelInfoFile, labelSpeciesFile;
 	File inputFile, regionFile, fastaFile, infoFile;
-	JButton pathFastaFileButton, pathRegionFileButton, pathCountFile2Button, pathInfoFileButton, startAnalysisButton;
+	JButton pathFastaFileButton;
+    JButton pathRegionFileButton;
+    JButton pathCountFile2Button;
+    JButton pathInfoFileButton;
+
+    public JButton getStartAnalysisButton() {
+        return startAnalysisButton;
+    }
+
+    JButton startAnalysisButton;
 	JLabel advancedInfo;
 	JComboBox comboSpecies;
 

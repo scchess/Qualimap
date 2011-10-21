@@ -2,7 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import java.awt.Component;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
@@ -88,15 +88,6 @@ public class BamAnalysisThread extends Thread {
 			tabProperties.setGffSelected(true);
 		}
 
-		/*
-		 * ReadStandartOutputThread t = new
-		 * ReadStandartOutputThread("Standart Output Thread", openFilePanel,
-		 * bamQC); t.start();
-		 */
-
-		/*ReadStandartOutputThread t = new ReadStandartOutputThread("Standart Output Thread", openFilePanel, bamQC);
-		t.start();*/
-		
 		bamQC.setComputeChromosomeStats(true);
 		bamQC.setComputeOutsideStats(true);
 
@@ -177,14 +168,27 @@ public class BamAnalysisThread extends Thread {
 			// Increment the pogress bar
 			openFilePanel.getProgressStream().setText("OK");
 			openFilePanel.getProgressBar().setValue(100);
-		 } catch (Exception e) {
-		        // TODO Auto-generated catch block
-		        e.printStackTrace();
-		 }
-		 openFilePanel.getHomeFrame().addNewPane(openFilePanel,tabProperties);
+		} catch( OutOfMemoryError e) {
+            JOptionPane.showMessageDialog(null, "<html><body align=\"center\">Out of memory!<br>Try increasing number of windows in Advanced Options" +
+                    "<br>or changing Java virtual machine settings.</body></html>", "Calculate statistics", JOptionPane.ERROR_MESSAGE);
+            resetOpenFilePanel();
+            return;
+        } catch (Exception e) {
+		    JOptionPane.showMessageDialog(null, "Analysis is failed. Reason: " + e.getMessage(), "Calculate statistics", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            resetOpenFilePanel();
+            return;
+		}
+		openFilePanel.getHomeFrame().addNewPane(openFilePanel,tabProperties);
 	}
 
-	/**
+    private void resetOpenFilePanel() {
+        openFilePanel.getProgressBar().setValue(0);
+        openFilePanel.getProgressBar().setVisible(false);
+        openFilePanel.getProgressStream().setText("");
+        openFilePanel.getStartAnalysisButton().setEnabled(true);
+    }
+    /**
 	 * Increase the progress bar in the percent depends on the number of the
 	 * element computed.
 	 * 

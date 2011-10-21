@@ -338,7 +338,11 @@ public class BamGenomeWindow {
 	public static String computeAlignment(SAMRecord read){
 		// init read params
 		int alignmentLength = (read.getAlignmentEnd()-read.getAlignmentStart()+1);		
-		
+
+        if (alignmentLength < 0) {
+            return new String();
+        }
+
 		CigarElement element; 
 		Cigar cigar = read.getCigar();
 		
