@@ -1,9 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import java.awt.Component;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -11,19 +9,14 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
-import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.Plot;
 
 /**
  * Class to manage a thread taht save the loaded data into a Zip file
@@ -215,22 +208,9 @@ public class SaveZipThread extends Thread {
 		return result;
 	}
 
-	/**
-	 * Function that fill the properties file
-	 * 
-	 * @param prop
-	 *            properties file
-	 * @param reporter
-	 *            with the input information
-	 * @param tabProperties
-	 *            properties of the tab selected
-	 */
-	private void generatePropertiesFile(Properties prop, BamQCRegionReporter reporter, TabPropertiesVO tabProperties) {
-		prop.setProperty("typeAnalysis", tabProperties.getTypeAnalysis().toString());
-        prop.setProperty("isPairedData", tabProperties.isPairedData() ? "true" : "false");
 
-		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
-			prop.setProperty("bamFileName", reporter.getBamFileName());
+    public static void generateBamQcProperties(Properties prop, BamQCRegionReporter reporter) {
+            prop.setProperty("bamFileName", reporter.getBamFileName());
 			prop.setProperty("basesNumber", reporter.getBasesNumber().toString());
 			prop.setProperty("contigsNumber", reporter.getContigsNumber().toString());
 
@@ -275,12 +255,31 @@ public class SaveZipThread extends Thread {
 			prop.setProperty("nNumber", reporter.getnNumber().toString());
 			prop.setProperty("nPercent", reporter.getnPercent().toString());
 			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
-			//TODO: at relative content?
+			//TODO: add relative content?
 			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
 
 			// coverage
 			prop.setProperty("meanCoverage", reporter.getMeanCoverage().toString());
 			prop.setProperty("stdCoverage", reporter.getStdCoverage().toString());
+    }
+
+
+	/**
+	 * Function that fill the properties file
+	 * 
+	 * @param prop
+	 *            properties file
+	 * @param reporter
+	 *            with the input information
+	 * @param tabProperties
+	 *            properties of the tab selected
+	 */
+	private void generatePropertiesFile(Properties prop, BamQCRegionReporter reporter, TabPropertiesVO tabProperties) {
+		prop.setProperty("typeAnalysis", tabProperties.getTypeAnalysis().toString());
+        prop.setProperty("isPairedData", tabProperties.isPairedData() ? "true" : "false");
+
+		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
+			generateBamQcProperties(prop, reporter);
 		} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
 			prop.setProperty("infoFileSelected", tabProperties.getRnaAnalysisVO().getInfoFileIsSet().toString());
 			prop.setProperty("speciesFileSelected", tabProperties.getRnaAnalysisVO().getSpecieFileIsSet().toString());

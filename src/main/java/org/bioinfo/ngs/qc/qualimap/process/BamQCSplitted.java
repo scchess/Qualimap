@@ -123,8 +123,8 @@ public class BamQCSplitted {
 		this.numberOfWindows = DEFAULT_NUMBER_OF_WINDOWS;
 		logger = new Logger();
 	}
-	
-	public void activeReporting(String outdir){
+
+    public void activeReporting(String outdir){
 		this.outdir = outdir;
 		this.activeReporting = true;	
 	}
@@ -145,12 +145,7 @@ public class BamQCSplitted {
 		// init reader
 		SAMFileReader reader = new SAMFileReader(new File(bamFile));
 
-        Package[] packages = Package.getPackages();
-        for (Package p : packages) {
-           logger.println( p.getName() + " " + p.getImplementationVersion() + p.getSpecificationVersion());
-        }
-
-		// org.bioinfo.ntools.process header
+        // org.bioinfo.ntools.process header
 		lastActionDone = "loading sam header header";
 		logger.println(lastActionDone);
 		SAMFileHeader header = reader.getFileHeader();
@@ -762,13 +757,6 @@ public class BamQCSplitted {
 	}
 
 	/**
-	 * @param bamFile the bamFile to set
-	 */
-	public void setBamFile(String bamFile) {
-		this.bamFile = bamFile;
-	}
-
-	/**
 	 * @return the referenceAvailable
 	 */
 	public boolean isReferenceAvailable() {
@@ -789,25 +777,12 @@ public class BamQCSplitted {
 		return reference;
 	}
 
-	/**
-	 * @param reference the reference to set
-	 */
-	public void setReference(byte[] reference) {
-		this.reference = reference;
-	}
 
 	/**
 	 * @return the numberOfReferenceContigs
 	 */
 	public int getNumberOfReferenceContigs() {
 		return numberOfReferenceContigs;
-	}
-
-	/**
-	 * @param numberOfReferenceContigs the numberOfReferenceContigs to set
-	 */
-	public void setNumberOfReferenceContigs(int numberOfReferenceContigs) {
-		this.numberOfReferenceContigs = numberOfReferenceContigs;
 	}
 
 	/**
@@ -832,13 +807,6 @@ public class BamQCSplitted {
 	}
 
 	/**
-	 * @param windowSize the windowSize to set
-	 */
-	public void setWindowSize(int windowSize) {
-		this.windowSize = windowSize;
-	}
-
-	/**
 	 * @return the locator
 	 */
 	public GenomeLocator getLocator() {
@@ -846,24 +814,10 @@ public class BamQCSplitted {
 	}
 
 	/**
-	 * @param locator the locator to set
-	 */
-	public void setLocator(GenomeLocator locator) {
-		this.locator = locator;
-	}
-
-	/**
 	 * @return the numberOfReads
 	 */
 	public int getNumberOfReads() {
 		return numberOfReads;
-	}
-
-	/**
-	 * @param numberOfReads the numberOfReads to set
-	 */
-	public void setNumberOfReads(int numberOfReads) {
-		this.numberOfReads = numberOfReads;
 	}
 
 	/**

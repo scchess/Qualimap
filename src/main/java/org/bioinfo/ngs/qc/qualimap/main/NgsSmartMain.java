@@ -37,8 +37,10 @@ public class NgsSmartMain {
 			if(toolName.equalsIgnoreCase("rna-seq")){
 				tool = new RNAseqTool();
 			}
-						
-			if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help") || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
+
+            if (toolName.equalsIgnoreCase("run-tests")) {
+                //runTests();
+            } else if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help") || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
 				logger.println("");
 				logger.println(getHelp());
 			} else {

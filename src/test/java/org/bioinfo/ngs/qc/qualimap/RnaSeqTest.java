@@ -7,7 +7,8 @@ import org.junit.Test;
 
 
 public class RnaSeqTest {
-	@Test
+
+    @Test
     public void testBamQC(){
 		String outdir = "/home/lcruz/Escritorio/bamQC/";
         new File(outdir).mkdirs(); 

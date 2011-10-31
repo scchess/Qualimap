@@ -793,4 +793,6 @@ public class BamQCRegionReporter implements Serializable {
 	public void setStdCoverage(Double stdCoverage) {
 		this.stdCoverage = stdCoverage;
 	}
+
+
 }
