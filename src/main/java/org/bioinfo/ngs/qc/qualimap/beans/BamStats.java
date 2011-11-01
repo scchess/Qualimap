@@ -192,8 +192,9 @@ public class BamStats implements Serializable {
 	private boolean activeCoverageReporting;
 	private String coverageReportFile;
 	transient private PrintWriter coverageReport;
-		
-	public BamStats(String name, long referenceSize, int numberOfWindows){
+    private long sumCoverageSquared;
+
+    public BamStats(String name, long referenceSize, int numberOfWindows){
 				
 		// global
 		this.name = name;
@@ -403,7 +404,10 @@ public class BamStats implements Serializable {
 		// coverage across reference
 		coverageAcrossReference.add(window.getMeanCoverage());
 		stdCoverageAcrossReference.add(window.getStdCoverage());
-		if(window instanceof BamDetailedGenomeWindow) updateHistograms((BamDetailedGenomeWindow)window);
+        if(window instanceof BamDetailedGenomeWindow) {
+            sumCoverageSquared += ((BamDetailedGenomeWindow)window).getSumCoverageSquared();
+            updateHistograms((BamDetailedGenomeWindow)window);
+        }
 		
 		// quality
 		mappingQualityAcrossReference.add(window.getMeanMappingQuality());		
@@ -495,7 +499,7 @@ public class BamStats implements Serializable {
 		
 		// coverage		
 		meanCoverage = (double)numberOfMappedBases/(double)referenceSize;		
-		stdCoverage = MathUtils.mean(ListUtils.toDoubleArray(stdCoverageAcrossReference));
+		stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) referenceSize - meanCoverage*meanCoverage);
 		
 		// quality
 		meanMappingQualityPerWindow = MathUtils.mean(ListUtils.toDoubleArray(mappingQualityAcrossReference));

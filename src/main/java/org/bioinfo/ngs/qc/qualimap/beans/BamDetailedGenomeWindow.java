@@ -38,6 +38,10 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		
 	// insert size
 	private double[] insertSizeAcrossReference;
+
+    // required for calculation of global coverage
+    private long sumCoverageSquared;
+
 	
 	public BamDetailedGenomeWindow(String name, long start, long end){
 		this(name,start,end,null);		
@@ -145,6 +149,9 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 				
 		// compute std coverage
 		stdCoverage = MathUtils.standardDeviation(ArrayUtils.toDoubleArray(coverageAcrossReference));
+        for (long coverage : coverageAcrossReference) {
+            sumCoverageSquared += coverage*coverage;
+        }
 		
 		super.computeDescriptors();
 		
@@ -170,7 +177,11 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	public long[] getCoverageAcrossReference() {
 		return coverageAcrossReference;
 	}
-	
+
+    public long getSumCoverageSquared() {
+        return sumCoverageSquared;
+    }
+
 	/**
 	 * @param coverageAcrossReference the coverageAcrossReference to set
 	 */

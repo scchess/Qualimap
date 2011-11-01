@@ -22,7 +22,7 @@ public class BamQCTest {
         String pathToValidationOptions = "/home/kokonech/sample_data/example-alignment.properties";
 
         BamQCSplitted bamQc = new BamQCSplitted(pathToBamFile);
-        bamQc.setNumberOfWindows(200);
+        bamQc.setNumberOfWindows(500);
         BamQCRegionReporter bamQcReporter = new BamQCRegionReporter();
 
         try {
@@ -47,7 +47,7 @@ public class BamQCTest {
             return;
         }
 
-        final List<String> keysToSkip = Arrays.asList("key1", "key2");
+        final List<String> keysToSkip = Arrays.asList("meanMappingQuality", "numWindows");
 
         for (String key : calculatedProps.stringPropertyNames()) {
             if (keysToSkip.contains(key)) {
