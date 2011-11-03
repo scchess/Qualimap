@@ -144,6 +144,10 @@ public class BamQCRegionReporter implements Serializable {
 
     private XYToolTipGenerator createTooltipGenerator(List<Double> windowReferences, GenomeLocator locator ) {
 
+        if (locator == null) {
+            return null;
+        }
+
         List<String> toolTips = new ArrayList<String>();
 
         for (double pos : windowReferences) {

@@ -273,13 +273,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		aTabbedPane.setTabComponentAt(aTabbedPane.indexOfComponent(inputScrollPane), new ButtonTabComponent(aTabbedPane, ic, prefix + openFilePanel.getInputFile().getName()));
 		aTabbedPane.setSelectedIndex(aTabbedPane.getTabCount() - 1);
 		OpenLoadedStatistics op = new OpenLoadedStatistics(this);
-		aTabbedPane.setComponentAt(aTabbedPane.getSelectedIndex(), op.getLoadedStatistics());
+        aTabbedPane.setComponentAt(aTabbedPane.getSelectedIndex(), op.getLoadedStatistics());
 		aTabbedPane.setToolTipText(fileName);
 		aTabbedPane.addMouseListener(this);
 		this.getContentPane().add(aTabbedPane);
 		aTabbedPane.validate();
 		this.validate();
-		this.pack();
+        this.pack();
 		
 		if(Constants.TYPE_BAM_ANALYSIS_DNA==typeAnalysis){
 			op.showSummary();
@@ -289,10 +289,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			op.showImage(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
 		}	
 		op.resizeLeftPanel();
-		aTabbedPane.validate();
+        aTabbedPane.validate();
 		inputScrollPane.validate();
 		op.leftPanel.validate();
-	}
+    }
 	
 	/**
 	 * Private function that erase from the disk the temporal directories that

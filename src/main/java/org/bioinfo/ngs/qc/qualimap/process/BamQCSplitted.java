@@ -518,9 +518,12 @@ public class BamQCSplitted {
 			numberOfSelectedRegions++;
 		}
 		gffReader.close();
-		System.out.println("found " + numberOfSelectedRegions + " regions");
+		if (numberOfSelectedRegions == 0) {
+            throw new RuntimeException("Failed to load selected regions.");
+        }
+        System.out.println("found " + numberOfSelectedRegions + " regions");
 		System.out.println("initilizing memory... ");
-		
+
 		selectedRegionStarts = new long[numberOfSelectedRegions];
 		selectedRegionEnds = new long[numberOfSelectedRegions];
 		selectedRegionRelativePositions = new long[numberOfSelectedRegions];

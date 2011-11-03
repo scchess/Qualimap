@@ -120,8 +120,6 @@ public class OpenLoadedStatistics extends JPanel {
         return statisticsContainer;
 	}
 
-	
-	
 	/**
 	 * Function that load the left panel with the statistics links
 	 */
@@ -139,7 +137,7 @@ public class OpenLoadedStatistics extends JPanel {
 			checkFirstSection.setSelectedIcon(treeMinusIcon);
 			checkFirstSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			checkFirstSection.setSize(checkFirstSection.getPreferredSize());
-			checkFirstSection.setLocation(0, 3);
+			//checkFirstSection.setLocation(0, 3);
 			checkFirstSection.setAction(getActionShowSubMenu("Results"));
 			leftPanel.add(checkFirstSection);
 
@@ -295,39 +293,40 @@ public class OpenLoadedStatistics extends JPanel {
 			checkSecondSection.setSelectedIcon(treeMinusIcon);
 			checkSecondSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			checkSecondSection.setSize(checkSecondSection.getPreferredSize());
-			checkSecondSection.setLocation(0, lastComponentVisible.getY() + lastComponentVisible.getHeight() + Constants.marginTopForElementSubMenu);
+            checkSecondSection.setLocation(0, lastComponentVisible.getY() + lastComponentVisible.getHeight() + Constants.marginTopForElementSubMenu);
 			checkSecondSection.setAction(getActionShowSubMenu("Reads outside region"));
 			leftPanel.add(checkSecondSection);
+            lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
 
-			lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
 
 			// General Summary
-			JLabel summary = fillLabelSubMenuText("Summary", checkFirstSection, marginSubMenu, null, Constants.REPORT_OUTSIDE_BAM_FILE);
+			JLabel summary = fillLabelSubMenuText("Summary", checkSecondSection, marginSubMenu, null, Constants.REPORT_OUTSIDE_BAM_FILE);
 			summary.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
 			summary.setToolTipText("Basic information and statistics for the alignment sequencing input");
-			leftPanel.add(summary);
+            leftPanel.add(summary);
 
-			JLabel j3_1 = fillLabelSubMenuGraphic("Coverage Across Reference", checkSecondSection, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE, false);
+
+			JLabel j3_1 = fillLabelSubMenuGraphic("Coverage Across Reference", summary, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
 			leftPanel.add(j3_1);
 
-			JLabel j3_2 = fillLabelSubMenuGraphic("Coverage Histogram", j3_1, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM, false);
+			JLabel j3_2 = fillLabelSubMenuGraphic("Coverage Histogram", j3_1, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
 			j3_2.setToolTipText("Frequency histogram of the coverage");
 			leftPanel.add(j3_2);
 
-			JLabel j3_3 = fillLabelSubMenuGraphic("Coverage Histogram (0-50x)", j3_2, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50, false);
+			JLabel j3_3 = fillLabelSubMenuGraphic("Coverage Histogram (0-50x)", j3_2, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
 			j3_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
 			leftPanel.add(j3_3);
 
-			JLabel j3_4 = fillLabelSubMenuGraphic("Coverage Quota", j3_3, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA, false);
+			JLabel j3_4 = fillLabelSubMenuGraphic("Coverage Quota", j3_3, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
 			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
 			leftPanel.add(j3_4);
 
-			JLabel j3_5 = fillLabelSubMenuGraphic("Mapping Quality Across Ref.", j3_4, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE, false);
+			JLabel j3_5 = fillLabelSubMenuGraphic("Mapping Quality Across Ref.", j3_4, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
 			j3_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j3_5.setToolTipText("Mapping Quality Across Reference");
 			leftPanel.add(j3_5);
 
-			JLabel j3_6 = fillLabelSubMenuGraphic("Mapping Quality Histogram", j3_5, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM, false);
+			JLabel j3_6 = fillLabelSubMenuGraphic("Mapping Quality Histogram", j3_5, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
 			j3_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j3_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j3_6);
@@ -343,8 +342,8 @@ public class OpenLoadedStatistics extends JPanel {
 				j3_8.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j3_8);
 			}
-			
-			// JLabel j3_7 =
+
+            // JLabel j3_7 =
 			// fillLabelSubMenuGraphic("Nucleotide Rel. Content", j3_6,
 			// marginSubMenu,
 			// Constants.GRAPHIC_NAME_GENOME_OUTSIDE_NUCLEOTIDE_RELATIVE_CONTENT,
@@ -364,11 +363,13 @@ public class OpenLoadedStatistics extends JPanel {
 			// ImageIcon(getClass().getResource(Constants.pathImages +
 			// "bullet_purple.png")));
 			// leftPanel.add(j3_8);
-		}
+            lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
+
+        }
 
 		// Set the last component showed at the left split
 		tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
-	}
+    }
 
 	/**
 	 * Function that load the left panel with the statistics links for the
@@ -460,7 +461,7 @@ public class OpenLoadedStatistics extends JPanel {
 
 		// Set the last component showed at the left split
 		lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
-		tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
+        tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
 	}
 
 	/**
@@ -471,42 +472,46 @@ public class OpenLoadedStatistics extends JPanel {
 	 *            ActionEvent that contains the JCheckbox selected by the user.
 	 */
 	private void refreshLeftMenu(ActionEvent evt) {
-		int i = 0;
-		boolean afterSubmenuChanged = false;
-		Component elem;
-		JCheckBox checkBoxSelected = (JCheckBox) evt.getSource();
+
+
+        JCheckBox checkBoxSelected = (JCheckBox) evt.getSource();
 		boolean showItem = (checkBoxSelected).isSelected();
 
-		lastComponentVisible = leftPanel.getComponent(0);
-		while (i < leftPanel.getComponentCount()) {
-			elem = leftPanel.getComponent(i);
 
-			// We have to get the last checkbox selected to change the
-			// location of the elements of its submenu.
-			if (elem instanceof JCheckBox) {
+        int i = 0;
+		boolean afterSubmenuChanged = false;
+		Component elem;
+
+        lastComponentVisible = leftPanel.getComponent(0);
+        while (i < leftPanel.getComponentCount()) {
+            elem = leftPanel.getComponent(i);
+
+            // We have to get the last checkbox selected to change the
+            // location of the elements of its submenu.
+            if (elem instanceof JCheckBox) {
                 afterSubmenuChanged = checkBoxSelected.equals(elem);
-			} else if (elem instanceof JLabel && afterSubmenuChanged) {
-				// If the element is into the submenu of the checkbox selected
-				// and this checkbox have to show the elements, we show this
-				// element.
-				if (showItem) {
-					elem.setVisible(true);
-				} else {
-					elem.setVisible(false);
-				}
-			}
+            } else if (elem instanceof JLabel && afterSubmenuChanged) {
+                // If the element is into the submenu of the checkbox selected
+                // and this checkbox have to show the elements, we show this
+                // element.
+                if (showItem) {
+                    elem.setVisible(true);
+                } else {
+                    elem.setVisible(false);
+                }
+            }
 
-			if (i > 0) {
-				elem.setLocation(elem.getLocation().x, lastComponentVisible.getY() + lastComponentVisible.getHeight() + Constants.marginTopForElementSubMenu);
-				resizeLeftPanel(elem);
-			}
+            if (i > 0) {
+                elem.setLocation(elem.getLocation().x, lastComponentVisible.getY() + lastComponentVisible.getHeight() + Constants.marginTopForElementSubMenu);
+                resizeLeftPanel(elem);
+            }
 
-			if (elem.isVisible()) {
-				lastComponentVisible = elem;
-			}
+            if (elem.isVisible()) {
+                lastComponentVisible = elem;
+            }
 
-			i++;
-		}
+            i++;
+        }
 	}
 	
 	public void resizeLeftPanel() {
@@ -523,13 +528,13 @@ public class OpenLoadedStatistics extends JPanel {
      *            of the last element to draw
      */
     private void resizeLeftPanel(Component elem) {
-            JViewport panelIzquierda = leftScrollPane.getViewport();
-            Component subElementIzquierda = panelIzquierda.getComponent(0);
+            JViewport leftPanel = leftScrollPane.getViewport();
+            Component subElementIzquierda = leftPanel.getComponent(0);
             TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-            
+
             if (subElementIzquierda instanceof JPanel) {
                     tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
-                    if (lastComponentVisible.getX() + lastComponentVisible.getWidth() <= leftScrollPane.getHeight() && lastComponentVisible.getY() + lastComponentVisible.getHeight() <= leftScrollPane.getWidth()) {
+                    if (lastComponentVisible.getX() + lastComponentVisible.getWidth() <= leftScrollPane.getWidth() && lastComponentVisible.getY() + lastComponentVisible.getHeight() <= leftScrollPane.getHeight()) {
                             this.leftPanel.setSize(this.leftPanel.getWidth(), lastComponentVisible.getY() + lastComponentVisible.getHeight());
                             this.leftPanel.setPreferredSize(this.leftPanel.getSize());
                     } else if (lastComponentVisible.getY() + lastComponentVisible.getHeight() > leftScrollPane.getWidth()) {
@@ -537,7 +542,7 @@ public class OpenLoadedStatistics extends JPanel {
                             this.leftPanel.setPreferredSize(this.leftPanel.getSize());
                     }
             }
-            panelIzquierda.validate();
+            leftPanel.validate();
     }
 
 	private JLabel fillLabelSubMenuGraphic(String labelName, Component locationRef, Integer marginSubMenu, String graphicName) {
@@ -572,7 +577,8 @@ public class OpenLoadedStatistics extends JPanel {
 	}
 
 	public void showLeftSideSummaryInformation(int typeReport, JLabel label) {
-		prepareHtmlSummary(getReport());
+		homeFrame.setTypeAnalysis(typeReport);
+        prepareHtmlSummary(getReport());
 		fillColorLink(label);
 	}
 	

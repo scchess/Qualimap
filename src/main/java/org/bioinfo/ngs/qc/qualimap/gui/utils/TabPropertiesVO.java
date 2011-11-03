@@ -216,10 +216,6 @@ public class TabPropertiesVO {
 		return rnaAnalysisVO;
 	}
 
-	public JComponent getLeftSplitLastElement() {
-		return leftSplitLastElement;
-	}
-
 	public void setLeftSplitLastElement(JComponent leftSplitLastElement) {
 		this.leftSplitLastElement = leftSplitLastElement;
 	}
