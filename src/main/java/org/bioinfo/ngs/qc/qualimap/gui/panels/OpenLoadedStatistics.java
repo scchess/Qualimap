@@ -698,7 +698,8 @@ public class OpenLoadedStatistics extends JPanel {
 	 *            BamQCRegionReporter graphic input values
 	 */
 	private void openGraphic(String name, BamQCRegionReporter reporter) {
-		Object imageToDisplay = reporter.getMapCharts().get(name);
+
+        Object imageToDisplay = reporter.getChart(name);
 
 		// The image can be a JFreeChart generated of come from a file like a
 		// BufferedImage

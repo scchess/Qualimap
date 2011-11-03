@@ -493,6 +493,16 @@ public class BamQCRegionReporter implements Serializable {
 		this.paintChromosomeLimits = paintChromosomeLimits;
 	}
 
+    public Object getChart(String name) {
+        if (mapCharts != null && mapCharts.containsKey(name)) {
+            return mapCharts.get(name);
+        } else if (imageMap != null && imageMap.containsKey(name)) {
+            return imageMap.get(name);
+        } else {
+            return null;
+        }
+    }
+
 	public Map<String, JFreeChart> getMapCharts() {
 		return mapCharts;
 	}
@@ -503,7 +513,7 @@ public class BamQCRegionReporter implements Serializable {
 
     public Map<String, BufferedImage> getImageMap() {
             return imageMap;
-        }
+    }
 
     public void setImageMap(Map<String, BufferedImage> imageMap) {
         this.imageMap = imageMap;
