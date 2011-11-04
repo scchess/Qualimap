@@ -281,15 +281,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		this.validate();
         this.pack();
 		
-		if(Constants.TYPE_BAM_ANALYSIS_DNA==typeAnalysis){
-			op.showSummary();
-		}else if (Constants.TYPE_BAM_ANALYSIS_EXOME==typeAnalysis){
-			op.showSummary();
-		}else if (Constants.TYPE_BAM_ANALYSIS_RNA==typeAnalysis){
-			op.showImage(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
-		}	
-		op.resizeLeftPanel();
-        aTabbedPane.validate();
+		op.showInitialPage();
+		aTabbedPane.validate();
 		inputScrollPane.validate();
 		op.leftPanel.validate();
     }

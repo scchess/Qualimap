@@ -1,10 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -16,17 +12,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JViewport;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
@@ -34,7 +20,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.GraphicImagePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.JLabelMouseListener;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.ReferencePosition;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.jfree.chart.ChartPanel;
@@ -50,31 +35,19 @@ public class OpenLoadedStatistics extends JPanel {
 	HomeFrame homeFrame;
 	protected Logger logger;
 
-	private ImageIcon treeMinusIcon;
+	private ImageIcon treeMinusIcon, treePlusIcon;
 	/** Panels that contains the dynamic structures */
 	private JScrollPane leftScrollPane, rightScrollPane;
 
 	/** Variable to manage the left panel that contains the links to the results */
 	public JPanel leftPanel;
-
-	/**
-	 * Variable to store the last component inserted visible inserted into the
-	 * left menu, to know the position in the screen for the next element that
-	 * the user can see.
-	 */
-	private Component lastComponentVisible;
-
-	/**
-	 * Variable to store the vertical position to set the next element of a
-	 * fieldset into the right panel at each moment
-	 */
-	private int heightValue;
-	private JLabel summaryLable;
+    private JLabel initialLabel;
 
 	public OpenLoadedStatistics(HomeFrame homeFrame) {
 		super();
 		this.homeFrame = homeFrame;
 		treeMinusIcon = new ImageIcon(homeFrame.getClass().getResource(Constants.pathImages + "minus_blue.png"));
+        treePlusIcon = new ImageIcon(homeFrame.getClass().getResource(Constants.pathImages + "add.png"));
 	}
 
 	/**
@@ -84,11 +57,11 @@ public class OpenLoadedStatistics extends JPanel {
 	 */
 	public JSplitPane getLoadedStatistics() {
 		JSplitPane statisticsContainer = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		statisticsContainer.setDividerSize(2);
+		//statisticsContainer.setDividerSize(2);
 		int leftPanelWidth = 250;
 
 		leftPanel = new JPanel();
-		leftPanel.setLayout(new GroupLayout(leftPanel));
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		leftScrollPane = new JScrollPane(leftPanel);
 		leftScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		leftScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -118,74 +91,64 @@ public class OpenLoadedStatistics extends JPanel {
 		leftScrollPane.validate();
 
         return statisticsContainer;
-	}
+    }
 
-	/**
+    /**
 	 * Function that load the left panel with the statistics links
 	 */
 	private void fillLeftSplit() {
-		// TODO: refactor this crap. seriously.
+
         boolean showAditionalGraphicsInfo = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).isGffSelected();
 
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 		tabProperties.setLastLinkSelected(null);
 
 		if (!showAditionalGraphicsInfo) {
-			JCheckBox checkFirstSection = new JCheckBox("Results");
-			checkFirstSection.setSelected(true);
-			checkFirstSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-			checkFirstSection.setSelectedIcon(treeMinusIcon);
-			checkFirstSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			checkFirstSection.setSize(checkFirstSection.getPreferredSize());
-			//checkFirstSection.setLocation(0, 3);
-			checkFirstSection.setAction(getActionShowSubMenu("Results"));
+
+            JCheckBox checkFirstSection = createResultsCheckBox("Results");
 			leftPanel.add(checkFirstSection);
 
-			Integer marginSubMenu = checkFirstSection.getX() + Constants.marginLeftForElementSubMenu;
+            JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
+            leftPanel.add(j1_0);
+            initialLabel = j1_0;
 
-			JLabel j1_0 = fillLabelSubMenuText("Summary", checkFirstSection, marginSubMenu, null, Constants.REPORT_INPUT_BAM_FILE);
-			j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
-			j1_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
-			leftPanel.add(j1_0);
-			summaryLable = j1_0;
+			JLabel j1_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
+            leftPanel.add(j1_1);
 
-			JLabel j1_1 = fillLabelSubMenuGraphic("Coverage Across Reference", j1_0, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
-			leftPanel.add(j1_1);
-
-			JLabel j1_2 = fillLabelSubMenuGraphic("Coverage Histogram", j1_1, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
+            JLabel j1_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
 			j1_2.setToolTipText("Frequency histogram of the coverage");
 			leftPanel.add(j1_2);
 
-			JLabel j1_3 = fillLabelSubMenuGraphic("Coverage Histogram (0-50x)", j1_2, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
+			JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
 			j1_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
+            leftPanel.add(j1_3);
 
-			leftPanel.add(j1_3);
-
-			JLabel j1_4 = fillLabelSubMenuGraphic("Coverage Quota", j1_3, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
+			JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
 			j1_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
 			leftPanel.add(j1_4);
 
-			JLabel j1_5 = fillLabelSubMenuGraphic("Mapping Quality Across Ref.", j1_4, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
+			JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
 			j1_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j1_5.setToolTipText("Mapping Quality Across Reference");
 			leftPanel.add(j1_5);
 
-			JLabel j1_6 = fillLabelSubMenuGraphic("Mapping Quality Histogram", j1_5, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
+			JLabel j1_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
 			j1_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j1_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j1_6);
-			if(tabProperties.isPairedData()){
-				JLabel j1_7 = fillLabelSubMenuGraphic("Insert Size Histogram", j1_6, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
+
+            if(tabProperties.isPairedData()){
+				JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
 				j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 				j1_7.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j1_7);
-				
-				JLabel j1_8 = fillLabelSubMenuGraphic("Insert Size Across Reference", j1_7, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
+
+				JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
 				j1_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 				j1_8.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j1_8);
 			}
-			
+
 			// JLabel j1_7 =
 			// fillLabelSubMenuGraphic("Nucleotide Rel. Content", j1_6,
 			// marginSubMenu,
@@ -205,171 +168,99 @@ public class OpenLoadedStatistics extends JPanel {
 			// "bullet_purple.png")));
 			// leftPanel.add(j1_8);
 
-			lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
-
 		} else {
-			JCheckBox checkFirstSection = new JCheckBox("Reads inside region");
-			checkFirstSection.setSelected(true);
-			checkFirstSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-			checkFirstSection.setSelectedIcon(treeMinusIcon);
-			checkFirstSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			checkFirstSection.setSize(checkFirstSection.getPreferredSize());
-			checkFirstSection.setLocation(0, 3);
-			checkFirstSection.setAction(getActionShowSubMenu("Reads inside region"));
-			leftPanel.add(checkFirstSection);
+			JCheckBox checkFirstSection = createResultsCheckBox("Reads inside region");
+            leftPanel.add(checkFirstSection);
 
-			Integer marginSubMenu = checkFirstSection.getX() + Constants.marginLeftForElementSubMenu;
-
-			lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
-			JLabel j2_0 = fillLabelSubMenuText("Summary", checkFirstSection, marginSubMenu, null, Constants.REPORT_INSIDE_BAM_FILE);
-			j2_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+			JLabel j2_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INSIDE_BAM_FILE);
 			j2_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
 			leftPanel.add(j2_0);
-			summaryLable = j2_0;
+            initialLabel = j2_0;
 
-			JLabel j2_1 = fillLabelSubMenuGraphic("Coverage Across Reference", summaryLable, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_ACROSS_REFERENCE);
+			JLabel j2_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_ACROSS_REFERENCE);
 			leftPanel.add(j2_1);
 
-			JLabel j2_2 = fillLabelSubMenuGraphic("Coverage Histogram", j2_1, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM);
+			JLabel j2_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM);
 			j2_2.setToolTipText("Frequency histogram of the coverage");
 			leftPanel.add(j2_2);
 
-			JLabel j2_3 = fillLabelSubMenuGraphic("Coverage Histogram (0-50x)", j2_2, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM_0_50);
+			JLabel j2_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM_0_50);
 			j2_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
 			leftPanel.add(j2_3);
 
-			JLabel j2_4 = fillLabelSubMenuGraphic("Coverage Quota", j2_3, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_QUOTA);
+			JLabel j2_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_QUOTA);
 			j2_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
 			leftPanel.add(j2_4);
 
-			JLabel j2_5 = fillLabelSubMenuGraphic("Mapping Quality Across Ref.", j2_4, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
+			JLabel j2_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
 			j2_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j2_5.setToolTipText("Mapping Quality Across Reference");
 			leftPanel.add(j2_5);
 
-			JLabel j2_6 = fillLabelSubMenuGraphic("Mapping Quality Histogram", j2_5, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_HISTOGRAM);
+			JLabel j2_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_HISTOGRAM);
 			j2_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j2_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j2_6);
 
 			if(tabProperties.isPairedData()){
-				JLabel j2_7 = fillLabelSubMenuGraphic("Insert Size Histogram", j2_6, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_INSERT_SIZE_HISTOGRAM);
+				JLabel j2_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSIDE_INSERT_SIZE_HISTOGRAM);
 				j2_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 				j2_7.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j2_7);
 				
-				JLabel j2_8 = fillLabelSubMenuGraphic("Insert Size Across Reference", j2_7, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_INSIDE_INSERT_SIZE_ACROSS_REFERENCE);
+				JLabel j2_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSIDE_INSERT_SIZE_ACROSS_REFERENCE);
 				j2_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 				j2_8.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j2_8);
 			}
 
-			// JLabel j2_7 =
-			// fillLabelSubMenuGraphic("Nucleotide Rel. Content", j2_6,
-			// marginSubMenu,
-			// Constants.GRAPHIC_NAME_GENOME_INSIDE_NUCLEOTIDE_RELATIVE_CONTENT,
-			// false);
-			// j2_7.setToolTipText("Nucleotide Relative Content");
-			// j2_7.setIcon(new
-			// ImageIcon(getClass().getResource(Constants.pathImages +
-			// "bullet_purple.png")));
-			// leftPanel.add(j2_7);
-			//
-			// JLabel j2_8 =
-			// fillLabelSubMenuGraphic("GC/AT Relative Content", j2_7,
-			// marginSubMenu,
-			// Constants.GRAPHIC_NAME_GENOME_INSIDE_GC_AT_RELATIVE_CONTENT,
-			// false);
-			// j2_8.setIcon(new
-			// ImageIcon(getClass().getResource(Constants.pathImages +
-			// "bullet_purple.png")));
-			// leftPanel.add(j2_8);
-
-			lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
-
-			JCheckBox checkSecondSection = new JCheckBox("Reads outside region");
-			checkSecondSection.setSelected(true);
-			checkSecondSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-			checkSecondSection.setSelectedIcon(treeMinusIcon);
-			checkSecondSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			checkSecondSection.setSize(checkSecondSection.getPreferredSize());
-            checkSecondSection.setLocation(0, lastComponentVisible.getY() + lastComponentVisible.getHeight() + Constants.marginTopForElementSubMenu);
-			checkSecondSection.setAction(getActionShowSubMenu("Reads outside region"));
+			JCheckBox checkSecondSection = createResultsCheckBox("Reads outside region");
 			leftPanel.add(checkSecondSection);
-            lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
 
-
-			// General Summary
-			JLabel summary = fillLabelSubMenuText("Summary", checkSecondSection, marginSubMenu, null, Constants.REPORT_OUTSIDE_BAM_FILE);
+			JLabel summary = createSummaryLinkLabel("Summary", Constants.REPORT_OUTSIDE_BAM_FILE);
 			summary.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
 			summary.setToolTipText("Basic information and statistics for the alignment sequencing input");
             leftPanel.add(summary);
 
-
-			JLabel j3_1 = fillLabelSubMenuGraphic("Coverage Across Reference", summary, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
+			JLabel j3_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
 			leftPanel.add(j3_1);
 
-			JLabel j3_2 = fillLabelSubMenuGraphic("Coverage Histogram", j3_1, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
+			JLabel j3_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
 			j3_2.setToolTipText("Frequency histogram of the coverage");
 			leftPanel.add(j3_2);
 
-			JLabel j3_3 = fillLabelSubMenuGraphic("Coverage Histogram (0-50x)", j3_2, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
+			JLabel j3_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
 			j3_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
 			leftPanel.add(j3_3);
 
-			JLabel j3_4 = fillLabelSubMenuGraphic("Coverage Quota", j3_3, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
+			JLabel j3_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
 			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
 			leftPanel.add(j3_4);
 
-			JLabel j3_5 = fillLabelSubMenuGraphic("Mapping Quality Across Ref.", j3_4, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
+			JLabel j3_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
 			j3_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j3_5.setToolTipText("Mapping Quality Across Reference");
 			leftPanel.add(j3_5);
 
-			JLabel j3_6 = fillLabelSubMenuGraphic("Mapping Quality Histogram", j3_5, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
+			JLabel j3_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
 			j3_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j3_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j3_6);
 
 			if(tabProperties.isPairedData()){
-				JLabel j3_7 = fillLabelSubMenuGraphic("Insert Size Histogram", j3_6, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
+				JLabel j3_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
 				j3_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 				j3_7.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j3_7);
 				
-				JLabel j3_8 = fillLabelSubMenuGraphic("Insert Size Across Reference", j3_7, marginSubMenu, Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
+				JLabel j3_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
 				j3_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 				j3_8.setToolTipText("Frequency histogram of the insert size");
 				leftPanel.add(j3_8);
 			}
-
-            // JLabel j3_7 =
-			// fillLabelSubMenuGraphic("Nucleotide Rel. Content", j3_6,
-			// marginSubMenu,
-			// Constants.GRAPHIC_NAME_GENOME_OUTSIDE_NUCLEOTIDE_RELATIVE_CONTENT,
-			// false);
-			// j3_7.setIcon(new
-			// ImageIcon(getClass().getResource(Constants.pathImages +
-			// "bullet_purple.png")));
-			// j3_7.setToolTipText("Nucleotide Relative Content");
-			// leftPanel.add(j3_7);
-			//
-			// JLabel j3_8 =
-			// fillLabelSubMenuGraphic("GC/AT Relative Content", j3_7,
-			// marginSubMenu,
-			// Constants.GRAPHIC_NAME_GENOME_OUTSIDE_GC_AT_RELATIVE_CONTENT,
-			// false);
-			// j3_8.setIcon(new
-			// ImageIcon(getClass().getResource(Constants.pathImages +
-			// "bullet_purple.png")));
-			// leftPanel.add(j3_8);
-            lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
-
         }
 
-		// Set the last component showed at the left split
-		tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
-    }
+	}
 
 	/**
 	 * Function that load the left panel with the statistics links for the
@@ -381,88 +272,63 @@ public class OpenLoadedStatistics extends JPanel {
 		boolean speciesFileSelected = tabProperties.getRnaAnalysisVO().getSpecieFileIsSet();
 		tabProperties.setLastLinkSelected(null);
 
-		JCheckBox checkFirstSection = new JCheckBox("Results");
-		checkFirstSection.setSelected(true);
-		checkFirstSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-		checkFirstSection.setSelectedIcon(treeMinusIcon);
-		checkFirstSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		checkFirstSection.setSize(checkFirstSection.getPreferredSize());
-		checkFirstSection.setLocation(0, 3);
-		checkFirstSection.setAction(getActionShowSubMenu("Results"));
-		ReferencePosition referencePosition = new ReferencePosition(checkFirstSection);
+        JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
 
-		Integer marginSubMenu = referencePosition.getX() + Constants.marginLeftForElementSubMenu;
-
-		JLabel j1_0 = fillLabelSubMenuGraphic("Global Saturation", referencePosition, marginSubMenu, Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
+		JLabel j1_0 = createImageLinkLabel("Global Saturation", Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
 		j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
 		j1_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
-		referencePosition.setComponent(j1_0);
 		leftPanel.add(j1_0);
-		summaryLable = j1_0;
+		initialLabel = j1_0;
 
 		if (infoFileSelected || speciesFileSelected) {
-			
-			JLabel j1_1 = fillLabelSubMenuGraphic("Detection per group", referencePosition, marginSubMenu, Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS, true);
-			referencePosition.setComponent(j1_1);
+
+			JLabel j1_1 = createImageLinkLabel("Detection per group", Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS);
 			leftPanel.add(j1_1);
-			
-			JLabel j1_2 = fillLabelSubMenuGraphic("Counts per group", referencePosition, marginSubMenu, Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS, true);
+
+			JLabel j1_2 = createImageLinkLabel("Counts per group", Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS);
 			j1_2.setToolTipText("Frequency histogram of the coverage");
-			referencePosition.setComponent(j1_2);
 			leftPanel.add(j1_2);
 
-			
-			JCheckBox checkSaturationSection = new JCheckBox("Saturation per group");
-			checkSaturationSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-			checkSaturationSection.setSelectedIcon(treeMinusIcon);
-			checkSaturationSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			checkSaturationSection.setSize(checkSaturationSection.getPreferredSize());
-			checkSaturationSection.setLocation(0, referencePosition.getY() + referencePosition.getHeight() + Constants.marginTopForElementSubMenu);
-			checkSaturationSection.setAction(getActionShowSubMenu("Saturation per group"));
-			checkSaturationSection.setSelected(true);
-			checkSaturationSection.setVisible(true);
-			referencePosition.setComponent(checkSaturationSection);
+
+			JCheckBox checkSaturationSection = createResultsCheckBox("Saturation per group");
 			leftPanel.add(checkSaturationSection);
 
-
-			JLabel j = null;
-			Map<String, Object> mapGenotypes = tabProperties.getRnaAnalysisVO().getMapClassesInfoFile();
+            Map<String, Object> mapGenotypes = tabProperties.getRnaAnalysisVO().getMapClassesInfoFile();
 			// Hack to add unknown
 			mapGenotypes.put("unknown", "unknown.png");
 			Iterator it = mapGenotypes.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
-				j = fillLabelSubMenuGraphic(entry.getKey(), referencePosition, marginSubMenu, entry.getValue().toString(), true);
-				referencePosition.setComponent(j);
+				JLabel j = createImageLinkLabel(entry.getKey(), entry.getValue());
 				leftPanel.add(j);
 			}
 
-			JCheckBox checkCountsSection = new JCheckBox("Counts & Sequencing depth");
+			JCheckBox checkCountsSection = createResultsCheckBox("Counts & Sequencing depth");
 			checkCountsSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-			checkCountsSection.setSelectedIcon(treeMinusIcon);
-			checkCountsSection.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			checkCountsSection.setSize(checkCountsSection.getPreferredSize());
-			checkCountsSection.setLocation(0, referencePosition.getY() + referencePosition.getHeight() + Constants.marginTopForElementSubMenu);
-			checkCountsSection.setAction(getActionShowSubMenu("Counts per group"));
-			checkCountsSection.setVisible(true);
-			checkCountsSection.setSelected(true);
-			referencePosition.setComponent(checkCountsSection);
 			leftPanel.add(checkCountsSection);
 
 			it = mapGenotypes.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
-				j = fillLabelSubMenuGraphic(entry.getKey().toString(), referencePosition, marginSubMenu, entry.getKey().toString() + "_boxplot.png", true);
-				referencePosition.setComponent(j);
+				JLabel j = createImageLinkLabel(entry.getKey().toString(), entry.getKey().toString() + "_boxplot.png");
 				leftPanel.add(j);
 			}
 		}
 
-		// Set the last component showed at the left split
-		lastComponentVisible = leftPanel.getComponent(leftPanel.getComponentCount() - 1);
-        tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
-	}
+    }
+
+    public void showInitialPage()
+    {
+        if(Constants.TYPE_BAM_ANALYSIS_DNA ==  homeFrame.getTypeAnalysis() ){
+			showLeftSideSummaryInformation(Constants.TYPE_BAM_ANALYSIS_DNA, initialLabel);
+		}else if (Constants.TYPE_BAM_ANALYSIS_EXOME ==  homeFrame.getTypeAnalysis()){
+			showLeftSideSummaryInformation(Constants.TYPE_BAM_ANALYSIS_EXOME, initialLabel);
+		}else if (Constants.TYPE_BAM_ANALYSIS_RNA ==  homeFrame.getTypeAnalysis() ){
+			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel);
+		}
+
+    }
 
 	/**
 	 * Refresh the left menu showing or hiding the elements depends on the user
@@ -482,7 +348,6 @@ public class OpenLoadedStatistics extends JPanel {
 		boolean afterSubmenuChanged = false;
 		Component elem;
 
-        lastComponentVisible = leftPanel.getComponent(0);
         while (i < leftPanel.getComponentCount()) {
             elem = leftPanel.getComponent(i);
 
@@ -501,99 +366,70 @@ public class OpenLoadedStatistics extends JPanel {
                 }
             }
 
-            if (i > 0) {
-                elem.setLocation(elem.getLocation().x, lastComponentVisible.getY() + lastComponentVisible.getHeight() + Constants.marginTopForElementSubMenu);
-                resizeLeftPanel(elem);
-            }
-
-            if (elem.isVisible()) {
-                lastComponentVisible = elem;
-            }
-
             i++;
         }
-	}
-	
-	public void resizeLeftPanel() {
-		resizeLeftPanel(lastComponentVisible);
-	}
-	
-	
-    /**
-     * Function to resize the left panel if the content is bigger than the
-     * reserved space adding scroll bars.
-     * 
-     * @param elem
-     *            Component that contains the element with the size and position
-     *            of the last element to draw
-     */
-    private void resizeLeftPanel(Component elem) {
-            JViewport leftPanel = leftScrollPane.getViewport();
-            Component subElementIzquierda = leftPanel.getComponent(0);
-            TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 
-            if (subElementIzquierda instanceof JPanel) {
-                    tabProperties.setLeftSplitLastElement((JComponent) lastComponentVisible);
-                    if (lastComponentVisible.getX() + lastComponentVisible.getWidth() <= leftScrollPane.getWidth() && lastComponentVisible.getY() + lastComponentVisible.getHeight() <= leftScrollPane.getHeight()) {
-                            this.leftPanel.setSize(this.leftPanel.getWidth(), lastComponentVisible.getY() + lastComponentVisible.getHeight());
-                            this.leftPanel.setPreferredSize(this.leftPanel.getSize());
-                    } else if (lastComponentVisible.getY() + lastComponentVisible.getHeight() > leftScrollPane.getWidth()) {
-                            this.leftPanel.setSize(this.leftPanel.getWidth(), elem.getY() + elem.getHeight());
-                            this.leftPanel.setPreferredSize(this.leftPanel.getSize());
-                    }
-            }
-            leftPanel.validate();
+        leftPanel.validate();
+	}
+
+    /**
+	 * Fill the commons properties for the graphic and text links
+	 *
+	 * @param labelText
+	 *            Name displayed of the label
+	 * @return JLabel label set
+	 */
+
+    JLabel createLinkLabel(final String labelText) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font(label.getFont().getFontName(), label.getFont().getStyle(), 11));
+        label.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
+        label.setOpaque(true);
+        label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        label.setIconTextGap(0);
+        label.setToolTipText(labelText);
+
+        return label;
     }
 
-	private JLabel fillLabelSubMenuGraphic(String labelName, Component locationRef, Integer marginSubMenu, String graphicName) {
-		return fillLabelSubMenuGraphic(labelName, locationRef, marginSubMenu, graphicName, true);
-	}
+    JLabel createSummaryLinkLabel(final String labelText, final int analysisType) {
+        final JLabel label = createLinkLabel(labelText);
+        label.addMouseListener(new JLabelMouseListener() {
+            public void mouseClicked(MouseEvent arg0) {
+                showLeftSideSummaryInformation(analysisType, label);
+            }
+        });
 
-	private JLabel fillLabelSubMenuGraphic(String labelName, Component locationRef, Integer marginSubMenu, final String graphicName, boolean visible) {
-		final JLabel label = fillLabelLink(labelName, locationRef, marginSubMenu, visible);
-		label.addMouseListener(new JLabelMouseListener() {
-			public void mouseClicked(MouseEvent arg0) {
+        return label;
+    }
+
+
+    JLabel createImageLinkLabel(final String labelText, final String graphicName) {
+        final JLabel label = createLinkLabel(labelText);
+        label.addMouseListener(new JLabelMouseListener() {
+            public void mouseClicked(MouseEvent arg0) {
 				showLeftSideInformation(graphicName, label);
 			}
 		});
-		if (!visible) {
-			label.setVisible(false);
-		}
-		return label;
-	}
 
-	private JLabel fillLabelSubMenuText(String labelName, Component locationRef, Integer marginSubMenu, String textFileName, int typeReport) {
-		return fillLabelSubMenuText(labelName, locationRef, marginSubMenu, textFileName, true, typeReport);
-	}
-
-	private JLabel fillLabelSubMenuText(String labelName, Component locationRef, Integer marginSubMenu, final String textFileName, boolean visible, final int typeReport) {
-		final JLabel label = fillLabelLink(labelName, locationRef, marginSubMenu, visible);
-		label.addMouseListener(new JLabelMouseListener() {
-			public void mouseClicked(MouseEvent arg0) {
-				showLeftSideSummaryInformation(typeReport, label);
-			}
-		});
 		return label;
-	}
+    }
+
+    JCheckBox createResultsCheckBox(String text) {
+        JCheckBox checkBox = new JCheckBox(text);
+        checkBox.setSelected(true);
+		checkBox.setIcon(treePlusIcon);
+		checkBox.setSelectedIcon(treeMinusIcon);
+		checkBox.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		checkBox.setAction(getActionShowSubMenu(text));
+
+        return checkBox;
+    }
 
 	public void showLeftSideSummaryInformation(int typeReport, JLabel label) {
 		homeFrame.setTypeAnalysis(typeReport);
         prepareHtmlSummary(getReport());
 		fillColorLink(label);
-	}
-	
-	public void showSummary() {
-		if(this.summaryLable!=null){
-			prepareHtmlSummary(getReport());
-			fillColorLink(summaryLable);
-		}
-	}
-	
-	public void showImage(String graphic) {
-		if(this.summaryLable!=null){
-			openGraphic(graphic, getReporterNew(graphic));
-			fillColorLink(summaryLable);
-		}
 	}
 
 	private void showLeftSideInformation(String graphicName, JLabel label) {
@@ -641,35 +477,6 @@ public class OpenLoadedStatistics extends JPanel {
 	}
 
 	/**
-	 * Fill the commons properties for the graphic and text links
-	 * 
-	 * @param labelName
-	 *            Name displayed of the label
-	 * @param locationRef
-	 *            position in the screen to refer
-	 * @param marginSubMenu
-	 *            margin respect the element before
-	 * @param visible visibility of the label
-	 * @return JLabel label set
-	 */
-	private JLabel fillLabelLink(String labelName, Component locationRef, Integer marginSubMenu, boolean visible) {
-		JLabel label = new JLabel(labelName);
-		label.setFont(new Font(label.getFont().getFontName(), label.getFont().getStyle(), 11));
-		label.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
-		label.setSize(label.getPreferredSize());
-		label.setOpaque(true);
-		label.setLocation(marginSubMenu, locationRef.getY() + locationRef.getHeight() + Constants.marginTopForElementSubMenu);
-		label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		label.setIconTextGap(0);
-		label.setToolTipText(labelName);
-
-		if (!visible) {
-			label.setVisible(false);
-		}
-		return label;
-	}
-
-	/**
 	 * Fill the color of the link pressed by the user in the left menu
 	 * 
 	 * @param label
@@ -685,6 +492,8 @@ public class OpenLoadedStatistics extends JPanel {
 		if (label != null) {
 			label.setBackground(new Color(240, 230, 140));
 			label.setFont(HomeFrame.defaultFontItalic);
+            label.setSize(label.getPreferredSize());
+            label.validate();
 			tabProperties.setLastLinkSelected(label);
 		}
 	}
