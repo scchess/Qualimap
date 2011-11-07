@@ -57,7 +57,7 @@ public class OpenLoadedStatistics extends JPanel {
 	 */
 	public JSplitPane getLoadedStatistics() {
 		JSplitPane statisticsContainer = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		//statisticsContainer.setDividerSize(2);
+		statisticsContainer.setDividerSize(2);
 		int leftPanelWidth = 250;
 
 		leftPanel = new JPanel();

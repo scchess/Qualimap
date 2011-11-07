@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
@@ -231,7 +230,7 @@ public class BamQCSplitted {
 		}
 		
 		// init working variables
-		long position = 0;
+		long position;
 		int maxConcurrentOpenWindow = 0;
 		String alignment;
 		long insideReadStart,outsideReadStart,insideReadEnd,outsideReadEnd;
@@ -290,11 +289,10 @@ public class BamQCSplitted {
 					isPairedData = false;
 				}
 
-			
-				// compute absolute position
+			    // compute absolute position
 				position = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 				
-				// something strange has happend?
+				// something strange has happened?
 				if(position != -1) {
 					
 					// chromosome
@@ -305,7 +303,7 @@ public class BamQCSplitted {
 						
 						if(currentChromosome!=null){
 							// acum read
-							outOfBounds = currentChromosome.acumRead(read,alignment,locator);					
+							outOfBounds = currentChromosome.acumRead(read,alignment,locator);
 							if(outOfBounds) {							
 								propagateRead(alignment,position,position+alignment.length()-1,read.getMappingQuality(),insertSize,currentChromosome,chromosomeStats,openChromosomeWindows,null,false,false);
 							}

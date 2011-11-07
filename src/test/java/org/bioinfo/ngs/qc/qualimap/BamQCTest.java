@@ -35,8 +35,8 @@ public class BamQCTest {
     public BamQCTest() {
         tests = new ArrayList<TestConfig>();
 
-       // tests.add( new TestConfig("/home/kokonech/sample_data/example-alignment.sorted.bam",
-         //       "/home/kokonech/sample_data/example-alignment.properties"));
+        tests.add( new TestConfig("/home/kokonech/sample_data/example-alignment.sorted.bam",
+                "/home/kokonech/sample_data/example-alignment.properties"));
 
         tests.add( new TestConfig("/home/kokonech/sample_data/PlasmodiumD37_RNASeq.bam",
                        "/home/kokonech/sample_data/PlasmodiumD37_RNASeq.properties"));
