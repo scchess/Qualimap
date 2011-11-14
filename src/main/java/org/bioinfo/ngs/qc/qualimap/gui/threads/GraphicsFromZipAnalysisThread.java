@@ -349,7 +349,7 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 			reporter.setGcPercent(stringUtils.parseDouble(prop.getProperty("gcPercent")));
 			reporter.setAtPercent(stringUtils.parseDouble(prop.getProperty("atPercent")));
 
-			// coverage
+			// coverageData
 			reporter.setMeanCoverage(stringUtils.parseDouble(prop.getProperty("meanCoverage")));
 			reporter.setStdCoverage(stringUtils.parseDouble(prop.getProperty("stdCoverage")));
 		} catch (FileNotFoundException e) {

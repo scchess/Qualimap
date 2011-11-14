@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SaveZipThread;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 import org.junit.Test;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -35,9 +36,9 @@ public class BamQCTest {
     public BamQCTest() {
         tests = new ArrayList<TestConfig>();
 
-        tests.add( new TestConfig("/home/kokonech/sample_data/example-alignment.sorted.bam",
+        /*tests.add( new TestConfig("/home/kokonech/sample_data/example-alignment.sorted.bam",
                 "/home/kokonech/sample_data/example-alignment.properties"));
-
+        */
         tests.add( new TestConfig("/home/kokonech/sample_data/PlasmodiumD37_RNASeq.bam",
                        "/home/kokonech/sample_data/PlasmodiumD37_RNASeq.properties"));
 
@@ -49,16 +50,18 @@ public class BamQCTest {
 
 
         for (TestConfig test : tests) {
-            BamQCSplitted bamQc = new BamQCSplitted(test.getPathToBamFile());
-            bamQc.setNumberOfWindows(500);
+            //BamQCSplitted bamQc = new BamQCSplitted(test.getPathToBamFile());
+            // bamQc.setNumberOfWindows(500);
             BamQCRegionReporter bamQcReporter = new BamQCRegionReporter();
+
+            BamStatsAnalysis bamQc = new BamStatsAnalysis(test.getPathToBamFile()) ;
 
             try {
                 bamQc.run();
                 bamQcReporter.loadReportData(bamQc.getBamStats());
                 bamQcReporter.computeChartsBuffers(bamQc.getBamStats(), bamQc.getLocator(),bamQc.isPairedData());
             } catch (Exception e) {
-                assertTrue("Error calculating stats.", false);
+                assertTrue("Error calculating stats. " + e.getMessage(), false);
                 e.printStackTrace();
                 return;
             }
@@ -75,7 +78,7 @@ public class BamQCTest {
                 return;
             }
 
-            final List<String> keysToSkip = Arrays.asList("meanMappingQuality", "numWindows");
+            final List<String> keysToSkip = Arrays.asList("meanMappingQuality", "numWindows", "aPercent");
 
             for (String key : calculatedProps.stringPropertyNames()) {
                 if (keysToSkip.contains(key)) {

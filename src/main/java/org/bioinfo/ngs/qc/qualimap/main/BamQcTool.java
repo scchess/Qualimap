@@ -34,7 +34,7 @@ public class BamQcTool extends NgsSmartTool{
 		options.addOption("chr_stats", false, "compute chromosome stats");
 		options.addOption("isize", false, "compute insert size chart (only for pair-end seq)");
 		
-		options.addOption("sc", false, "save coverage per nucleotide");
+		options.addOption("sc", false, "save coverageData per nucleotide");
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import org.bioinfo.ngs.qc.qualimap.process.Region;
 
 public class BamGenomeWindow {
 	protected String name;
-		
+
 	// window params
 	protected long start;
 	protected long end;
@@ -28,7 +28,7 @@ public class BamGenomeWindow {
 	protected long numberOfMappedBases;
 	protected long numberOfSequencedBases;
 	protected long numberOfAlignedBases;
-	
+
 	// gff-like
 	protected boolean selectedRegionsAvailable;
 	protected boolean[] selectedRegions;
@@ -78,7 +78,7 @@ public class BamGenomeWindow {
 	 * 
 	 */
 	
-	// coverage
+	// coverageData
 	protected double meanProperlyPairedCoverage;
 	protected long numberOfProperlyPairedMappedBases;
 	protected double meanCoverage;
@@ -214,7 +214,7 @@ public class BamGenomeWindow {
 	
 	protected boolean processRead(SAMRecord read, String alignment, GenomeLocator locator){
 		long readStart = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
-		long readEnd = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentEnd());
+		long readEnd = locator.getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentEnd());
 		return processRead(alignment, readStart, readEnd, read.getMappingQuality(),read.getInferredInsertSize());
 	}
 	
@@ -268,21 +268,21 @@ public class BamGenomeWindow {
 					}
 					
 					// ATCG content
-					if(alignment.charAt((int)pos)=='A'){			
+					if(nucleotide=='A'){
 						acumA(relative);
 					} 
-					else if(alignment.charAt((int)pos)=='C'){
+					else if(nucleotide=='C'){
 						acumC(relative);
 					}
-					else if(alignment.charAt((int)pos)=='T'){					
+					else if(nucleotide=='T'){
 						acumT(relative);					
 					}
-					else if(alignment.charAt((int)pos)=='G'){					
+					else if(nucleotide=='G'){
 						acumG(relative);				
 					}
-					else if(alignment.charAt((int)pos)=='-'){
+					else if(nucleotide=='-'){
 					}
-					else if(alignment.charAt((int)pos)=='N'){
+					else if(nucleotide=='N'){
 					}
 					
 					// mapping quality
@@ -583,13 +583,7 @@ public class BamGenomeWindow {
 	public long getNumberOfProcessedReads() {
 		return numberOfProcessedReads;
 	}
-	
-	/**
-	 * @param numberOfProcessedReads the numberOfProcessedReads to set
-	 */
-	public void setNumberOfProcessedReads(long numberOfProcessedReads) {
-		this.numberOfProcessedReads = numberOfProcessedReads;
-	}
+
 	
 	/**
 	 * @return the numberOfOutOfBoundsReads
@@ -597,13 +591,7 @@ public class BamGenomeWindow {
 	public long getNumberOfOutOfBoundsReads() {
 		return numberOfOutOfBoundsReads;
 	}
-	
-	/**
-	 * @param numberOfOutOfBoundsReads the numberOfOutOfBoundsReads to set
-	 */
-	public void setNumberOfOutOfBoundsReads(long numberOfOutOfBoundsReads) {
-		this.numberOfOutOfBoundsReads = numberOfOutOfBoundsReads;
-	}
+
 	
 	/**
 	 * @return the numberOfMappedBases
@@ -1059,13 +1047,7 @@ public class BamGenomeWindow {
 	public double getMeanCRelativeContent() {
 		return meanCRelativeContent;
 	}
-	
-	/**
-	 * @param meanCRelativeContent the meanCRelativeContent to set
-	 */
-	public void setMeanCRelativeContent(double meanCRelativeContent) {
-		this.meanCRelativeContent = meanCRelativeContent;
-	}
+
 	
 	/**
 	 * @return the numberOfTs
@@ -1073,28 +1055,14 @@ public class BamGenomeWindow {
 	public long getNumberOfTs() {
 		return numberOfTs;
 	}
-	
-	/**
-	 * @param numberOfTs the numberOfTs to set
-	 */
-	public void setNumberOfTs(long numberOfTs) {
-		this.numberOfTs = numberOfTs;
-	}
-	
+
 	/**
 	 * @return the meanGContent
 	 */
 	public double getMeanGContent() {
 		return meanGContent;
 	}
-	
-	/**
-	 * @param meanGContent the meanGContent to set
-	 */
-	public void setMeanGContent(double meanGContent) {
-		this.meanGContent = meanGContent;
-	}
-	
+
 	/**
 	 * @return the meanGRelativeContent
 	 */
@@ -1115,13 +1083,7 @@ public class BamGenomeWindow {
 	public long getNumberOfGs() {
 		return numberOfGs;
 	}
-	
-	/**
-	 * @param numberOfGs the numberOfGs to set
-	 */
-	public void setNumberOfGs(long numberOfGs) {
-		this.numberOfGs = numberOfGs;
-	}
+
 	
 	/**
 	 * @return the meanTContent
@@ -1129,13 +1091,7 @@ public class BamGenomeWindow {
 	public double getMeanTContent() {
 		return meanTContent;
 	}
-	
-	/**
-	 * @param meanTContent the meanTContent to set
-	 */
-	public void setMeanTContent(double meanTContent) {
-		this.meanTContent = meanTContent;
-	}
+
 	
 	/**
 	 * @return the meanTRelativeContent
@@ -1143,13 +1099,7 @@ public class BamGenomeWindow {
 	public double getMeanTRelativeContent() {
 		return meanTRelativeContent;
 	}
-	
-	/**
-	 * @param meanTRelativeContent the meanTRelativeContent to set
-	 */
-	public void setMeanTRelativeContent(double meanTRelativeContent) {
-		this.meanTRelativeContent = meanTRelativeContent;
-	}
+
 	
 	/**
 	 * @return the numberOfNs
@@ -1157,13 +1107,7 @@ public class BamGenomeWindow {
 	public long getNumberOfNs() {
 		return numberOfNs;
 	}
-	
-	/**
-	 * @param numberOfNs the numberOfNs to set
-	 */
-	public void setNumberOfNs(long numberOfNs) {
-		this.numberOfNs = numberOfNs;
-	}
+
 	
 	/**
 	 * @return the meanNContent
@@ -1171,13 +1115,7 @@ public class BamGenomeWindow {
 	public double getMeanNContent() {
 		return meanNContent;
 	}
-	
-	/**
-	 * @param meanNContent the meanNContent to set
-	 */
-	public void setMeanNContent(double meanNContent) {
-		this.meanNContent = meanNContent;
-	}
+
 	
 	/**
 	 * @return the meanNRelativeContent
@@ -1185,13 +1123,7 @@ public class BamGenomeWindow {
 	public double getMeanNRelativeContent() {
 		return meanNRelativeContent;
 	}
-	
-	/**
-	 * @param meanNRelativeContent the meanNRelativeContent to set
-	 */
-	public void setMeanNRelativeContent(double meanNRelativeContent) {
-		this.meanNRelativeContent = meanNRelativeContent;
-	}
+
 	
 	/**
 	 * @return the meanGcContent
@@ -1199,13 +1131,7 @@ public class BamGenomeWindow {
 	public double getMeanGcContent() {
 		return meanGcContent;
 	}
-	
-	/**
-	 * @param meanGcContent the meanGcContent to set
-	 */
-	public void setMeanGcContent(double meanGcContent) {
-		this.meanGcContent = meanGcContent;
-	}
+
 	
 	/**
 	 * @return the meanGcRelativeContent
@@ -1213,13 +1139,7 @@ public class BamGenomeWindow {
 	public double getMeanGcRelativeContent() {
 		return meanGcRelativeContent;
 	}
-	
-	/**
-	 * @param meanGcRelativeContent the meanGcRelativeContent to set
-	 */
-	public void setMeanGcRelativeContent(double meanGcRelativeContent) {
-		this.meanGcRelativeContent = meanGcRelativeContent;
-	}
+
 
 	/**
 	 * @return the acumInsertSize
@@ -1247,5 +1167,23 @@ public class BamGenomeWindow {
 	 */
 	public void setMeanInsertSize(double meanInsertSize) {
 		this.meanInsertSize = meanInsertSize;
-	}	
+	}
+
+    public void addReadData(SingleReadData readData) {
+
+        numberOfProcessedReads += readData.numberOfProcessedReads;
+        numberOfOutOfBoundsReads += readData.numberOfOutOfBoundsReads;
+
+        numberOfAlignedBases += readData.numberOfAlignedBases;
+        numberOfMappedBases += readData.numberOfMappedBases;
+        numberOfSequencedBases += readData.numberOfSequencedBases;
+
+        numberOfAs += readData.numberOfAs;
+        numberOfCs += readData.numberOfCs;
+        numberOfGs += readData.numberOfGs;
+        numberOfTs += readData.numberOfTs;
+
+
+    }
+
 }

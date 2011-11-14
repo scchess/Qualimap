@@ -94,7 +94,7 @@ public class BamStats implements Serializable {
 	 * 
 	 */
 	
-	// coverage
+	// coverageData
 	private double meanCoverage;
 	private double meanCoveragePerWindow;
 	private double stdCoverage;
@@ -221,7 +221,7 @@ public class BamStats implements Serializable {
 		atContentInReference = new ArrayList<Double>(numberOfWindows);
 		atRelativeContentInReference = new ArrayList<Double>(numberOfWindows);
 		
-		// coverage across reference arrays
+		// coverageData across reference arrays
 		coverageAcrossReference = new ArrayList<Double>(numberOfWindows);
 		stdCoverageAcrossReference = new ArrayList<Double>(numberOfWindows);
 		coverageHistogramMap = new HashMap<Long,Long>(numberOfWindows);
@@ -331,8 +331,8 @@ public class BamStats implements Serializable {
 	}
 	
 	public void reportCoverageHeader(){
-//		coverageReport.println("#position\tcoverage\tAs\tCs\tTs\tGs");
-		coverageReport.println("#position\tcoverage");
+//		coverageReport.println("#position\tcoverageData\tAs\tCs\tTs\tGs");
+		coverageReport.println("#position\tcoverageData");
 	}
 	
 	public void reportCoverage(BamDetailedGenomeWindow window){
@@ -353,13 +353,15 @@ public class BamStats implements Serializable {
 	/*
 	 * Window management
 	 */
-	public void incInitializedWindows(){
+	public synchronized void incInitializedWindows(){
 		numberOfInitializedWindows++;
 	}
+
+    public synchronized void incProcessedWindows() {
+        numberOfProcessedWindows++;
+    }
 	
-	
-	public void addWindowInformation(BamGenomeWindow window){
-		numberOfProcessedWindows++;
+	public synchronized  void addWindowInformation(BamGenomeWindow window){
 
 		// global
 		numberOfMappedBases+=window.getNumberOfMappedBases();
@@ -401,7 +403,7 @@ public class BamStats implements Serializable {
 		 * Sample
 		 */
 		
-		// coverage across reference
+		// coverageData across reference
 		coverageAcrossReference.add(window.getMeanCoverage());
 		stdCoverageAcrossReference.add(window.getStdCoverage());
         if(window instanceof BamDetailedGenomeWindow) {
@@ -411,7 +413,7 @@ public class BamStats implements Serializable {
 		
 		// quality
 		mappingQualityAcrossReference.add(window.getMeanMappingQuality());		
-		if(window instanceof BamDetailedGenomeWindow) updateHistogramFromDoubleVector((HashMap<Integer,Long>)mappingQualityHistogramMap,((BamDetailedGenomeWindow)window).getMappingQualityAcrossReference());
+		if(window instanceof BamDetailedGenomeWindow) updateHistogramFromDoubleVector(mappingQualityHistogramMap,((BamDetailedGenomeWindow)window).getMappingQualityAcrossReference());
 
 		// A
 		numberOfAs+=window.getNumberOfAs();
@@ -442,14 +444,15 @@ public class BamStats implements Serializable {
 		gcContentAcrossReference.add(window.getMeanGcContent());
 		gcRelativeContentAcrossReference.add(window.getMeanGcRelativeContent());
 		
-//		  // AT
-//		atContentAcrossReference.add(window.getMeanAtContent());
-//		atRelativeContentAcrossReference.add(window.getMeanAtRelativeContent());
+    	// TODO: it is not used anywhere
+    	// AT
+        // atContentAcrossReference.add(window.getMeanAtContent());
+        // atRelativeContentAcrossReference.add(window.getMeanAtRelativeContent());
 				
 		// insert size
 		insertSizeAcrossReference.add(window.getMeanInsertSize());
 		if(window instanceof BamDetailedGenomeWindow){
-			updateHistogramFromDoubleVector((HashMap<Long,Long>)insertSizeHistogramMap,((BamDetailedGenomeWindow)window).getInsertSizeAcrossReference());		
+			updateHistogramFromDoubleVector(insertSizeHistogramMap,((BamDetailedGenomeWindow)window).getInsertSizeAcrossReference());
 		}
 		
 		// reporting
@@ -460,6 +463,8 @@ public class BamStats implements Serializable {
 	}
 	
 	public void computeDescriptors(){
+		//TODO: this can be parallel!
+
 		/* Reference */
 
 		// A
@@ -497,7 +502,7 @@ public class BamStats implements Serializable {
 		 * Sample  
 		 */
 		
-		// coverage		
+		// coverageData
 		meanCoverage = (double)numberOfMappedBases/(double)referenceSize;		
 		stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) referenceSize - meanCoverage*meanCoverage);
 		
@@ -571,7 +576,7 @@ public class BamStats implements Serializable {
 	
 	public void updateHistograms(BamDetailedGenomeWindow window){
 		for(int i=0; i<window.getCoverageAcrossReference().length; i++){
-			// coverage
+			// coverageData
 			incCoverageFrequency(window.getCoverageAcrossReference()[i]);
 			
 			// quality
@@ -643,7 +648,7 @@ public class BamStats implements Serializable {
 			acumCoverageHistogram.addItem(new XYItem(sortedCoverages[i],acum));//(acum/(double)totalCoverage)*100.0));
 		}
 		
-		// coverage quotes		
+		// coverageData quotes
 		coverageQuotes = new XYVector();
 		double total = acum;
 		acum = 0;
@@ -681,7 +686,7 @@ public class BamStats implements Serializable {
 			totalCoverage+=freqs[i];
 		}
 		
-		// sort coverage
+		// sort coverageData
 		int[] index = ArrayUtils.order(coverages);
 		double[] sortedCoverages = ArrayUtils.ordered(coverages,index);
 		double[] sortedFreqs = ArrayUtils.ordered(freqs,index);

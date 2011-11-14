@@ -127,14 +127,14 @@ public class BamQCRegionReporter implements Serializable {
 		report.println("");
 		report.println("");
 
-		// coverage
+		// coverageData
 		report.println(">>>>>>> Coverage");
 		report.println("");
-		report.println("     mean coverage = " + formatDecimal(bamStats.getMeanCoverage()) + "X");
-		report.println("     std coverage = " + formatDecimal(bamStats.getStdCoverage()) + "X");
+		report.println("     mean coverageData = " + formatDecimal(bamStats.getMeanCoverage()) + "X");
+		report.println("     std coverageData = " + formatDecimal(bamStats.getStdCoverage()) + "X");
 		report.println("");
 		for(int i=0; i<bamStats.getCoverageQuotes().getSize(); i++){
-			report.println("     There is a " + StringUtils.decimalFormat(bamStats.getCoverageQuotes().get(i).getY(),"#0.##") + "% of reference with a coverage >= " + (1+(int)bamStats.getCoverageQuotes().get(i).getX()) + "X");
+			report.println("     There is a " + StringUtils.decimalFormat(bamStats.getCoverageQuotes().get(i).getY(),"#0.##") + "% of reference with a coverageData >= " + (1+(int)bamStats.getCoverageQuotes().get(i).getX()) + "X");
 		}
 		report.println("");
 		report.println("");
@@ -232,7 +232,7 @@ public class BamQCRegionReporter implements Serializable {
 		//TODO: calculate mean at relative content?
 		//this.atPercent = bamStats.getMeanAtRelativeContent();
 
-		// coverage
+		// coverageData
 		this.meanCoverage = bamStats.getMeanCoverage();
 		this.stdCoverage = bamStats.getStdCoverage();
 	}
@@ -264,7 +264,7 @@ public class BamQCRegionReporter implements Serializable {
         }
 		double lastReference = windowReferences.get(windowReferences.size()-1);
 
-		// max coverage+std
+		// max coverageData+std
 		double maxCoverage = 0;
 		for(int i=0; i<bamStats.getCoverageAcrossReference().size(); i++){
 			if (bamStats.getCoverageAcrossReference().get(i)+bamStats.getStdCoverageAcrossReference().get(i)>maxCoverage) {
@@ -283,7 +283,7 @@ public class BamQCRegionReporter implements Serializable {
 			chromosomePercentageLimits = new XYVector();
 			chromosomeBytedLimits = new XYVector();
 			for(int i=0; i<numberOfChromosomes; i++){
-				// coverage
+				// coverageData
 				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
 				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),maxCoverage));
 				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
@@ -299,10 +299,10 @@ public class BamQCRegionReporter implements Serializable {
 		}
 
 
-		///////////////// coverage charts /////////////// 
+		///////////////// coverageData charts ///////////////
 
-		// coverage (and gc) across reference
-		// coverage
+		// coverageData (and gc) across reference
+		// coverageData
 		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "Coverage");
         XYToolTipGenerator toolTipGenerator = createTooltipGenerator(windowReferences, locator);
         coverageChart.setToolTipGenerator(toolTipGenerator);
@@ -336,9 +336,9 @@ public class BamQCRegionReporter implements Serializable {
 		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
         mapCharts.put(bamStats.getName() + "_coverage_across_reference.png",combinedChart);
 
-		// coverage histogram
-		BamQCXYHistogramChart coverageHistogram = new BamQCXYHistogramChart("Coverage histogram", subTitle, "coverage (bp)", "frequency");
-		coverageHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
+		// coverageData histogram
+		BamQCXYHistogramChart coverageHistogram = new BamQCXYHistogramChart("Coverage histogram", subTitle, "coverageData (bp)", "frequency");
+		coverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		coverageHistogram.setNumberOfBins(Math.min(50,(int)bamStats.getCoverageHistogram().getMaxValue()));
 		coverageHistogram.setDomainAxisIntegerTicks(true);
 		coverageHistogram.render();
@@ -347,9 +347,9 @@ public class BamQCRegionReporter implements Serializable {
 				bamStats.getName() + "_coverage_histogram.png",
 				coverageHistogram.getChart());
 
-		// coverage ranged histogram
-		BamQCXYHistogramChart coverageRangedHistogram = new BamQCXYHistogramChart("Coverage histogram (0 - " + (int)maxValue + "x)", subTitle, "coverage (bp)", "frequency");
-		coverageRangedHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
+		// coverageData ranged histogram
+		BamQCXYHistogramChart coverageRangedHistogram = new BamQCXYHistogramChart("Coverage histogram (0 - " + (int)maxValue + "x)", subTitle, "coverageData (bp)", "frequency");
+		coverageRangedHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		coverageRangedHistogram.setNumberOfBins(50);
 		coverageRangedHistogram.zoom(maxValue);
 		coverageRangedHistogram.setDomainAxisIntegerTicks(true);
@@ -358,9 +358,9 @@ public class BamQCRegionReporter implements Serializable {
 				bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
 				coverageRangedHistogram.getChart());
 
-		//		  // coverage cumulative histogram
-		//		BamQCXYHistogramChart cumulativeCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram", subTitle, "coverage (bp)", "relative coverture of reference (%)");
-		//		cumulativeCoverageHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
+		//		  // coverageData cumulative histogram
+		//		BamQCXYHistogramChart cumulativeCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram", subTitle, "coverageData (bp)", "relative coverture of reference (%)");
+		//		cumulativeCoverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		//		cumulativeCoverageHistogram.setCumulative(true);
 		//		cumulativeCoverageHistogram.setNumberOfBins(50);
 		//		cumulativeCoverageHistogram.setDomainAxisIntegerTicks(true);
@@ -369,9 +369,9 @@ public class BamQCRegionReporter implements Serializable {
 		//				bamStats.getName() + "_coverage_cumulative_histogram.png",
 		//				cumulativeCoverageHistogram.getChart());
 		//		
-		//		  // coverage cumulative ranged histogram
-		//		BamQCXYHistogramChart cumulativeRangedCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram (0 - " + (int)maxValue + "x)", subTitle, "coverage (bp)", "relative coverture of reference (%)");
-		//		cumulativeRangedCoverageHistogram.addHistogram("coverage", bamStats.getCoverageHistogram(), Color.blue);
+		//		  // coverageData cumulative ranged histogram
+		//		BamQCXYHistogramChart cumulativeRangedCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram (0 - " + (int)maxValue + "x)", subTitle, "coverageData (bp)", "relative coverture of reference (%)");
+		//		cumulativeRangedCoverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		//		cumulativeRangedCoverageHistogram.setCumulative(true);
 		//		cumulativeRangedCoverageHistogram.setNumberOfBins(50);		
 		//		cumulativeRangedCoverageHistogram.zoom(maxValue);
@@ -381,8 +381,8 @@ public class BamQCRegionReporter implements Serializable {
 		//				bamStats.getName() + "_coverage_0to" + (int)maxValue + "_cumulative_histogram.png",
 		//				cumulativeRangedCoverageHistogram.getChart());
 
-		// coverage quota
-		BamQCChart coverageQuota = new BamQCChart("Coverage quota", subTitle, "coverage (bp)", "relative coverture of reference (%)");
+		// coverageData quota
+		BamQCChart coverageQuota = new BamQCChart("Coverage quota", subTitle, "coverageData (bp)", "relative coverture of reference (%)");
 		coverageQuota.setPercentageChart(true);
 		coverageQuota.addBarRenderedSeries("Coverture", bamStats.getCoverageQuotes(), new Color(255,20,20,150));
 		coverageQuota.setDomainAxisIntegerTicks(true);

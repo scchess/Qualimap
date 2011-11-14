@@ -209,7 +209,7 @@ public class OpenFilePanel extends JPanel {
 		resultContainer.add(labelEnableAdvancedInfo);
 
 		// Input Line of information for the advance info (num. of windows and
-		// save coverage item)
+		// save coverageData item)
 		advancedInfo = new JLabel();
 		advancedInfo.setSize(265, 80);
 		advancedInfo.setBorder(BorderFactory.createEtchedBorder());

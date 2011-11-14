@@ -258,7 +258,7 @@ public class SaveZipThread extends Thread {
 			//TODO: add relative content?
 			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
 
-			// coverage
+			// coverageData
 			prop.setProperty("meanCoverage", reporter.getMeanCoverage().toString());
 			prop.setProperty("stdCoverage", reporter.getStdCoverage().toString());
     }

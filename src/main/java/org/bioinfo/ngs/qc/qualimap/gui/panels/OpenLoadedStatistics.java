@@ -116,15 +116,15 @@ public class OpenLoadedStatistics extends JPanel {
             leftPanel.add(j1_1);
 
             JLabel j1_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
-			j1_2.setToolTipText("Frequency histogram of the coverage");
+			j1_2.setToolTipText("Frequency histogram of the coverageData");
 			leftPanel.add(j1_2);
 
 			JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
-			j1_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
+			j1_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
             leftPanel.add(j1_3);
 
 			JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
-			j1_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
+			j1_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
 			leftPanel.add(j1_4);
 
 			JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
@@ -181,15 +181,15 @@ public class OpenLoadedStatistics extends JPanel {
 			leftPanel.add(j2_1);
 
 			JLabel j2_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM);
-			j2_2.setToolTipText("Frequency histogram of the coverage");
+			j2_2.setToolTipText("Frequency histogram of the coverageData");
 			leftPanel.add(j2_2);
 
 			JLabel j2_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM_0_50);
-			j2_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
+			j2_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
 			leftPanel.add(j2_3);
 
 			JLabel j2_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_QUOTA);
-			j2_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
+			j2_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
 			leftPanel.add(j2_4);
 
 			JLabel j2_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
@@ -226,15 +226,15 @@ public class OpenLoadedStatistics extends JPanel {
 			leftPanel.add(j3_1);
 
 			JLabel j3_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
-			j3_2.setToolTipText("Frequency histogram of the coverage");
+			j3_2.setToolTipText("Frequency histogram of the coverageData");
 			leftPanel.add(j3_2);
 
 			JLabel j3_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
-			j3_3.setToolTipText("There is often big picks of coverage across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverage greater " + "than 50X are groped into the last bin");
+			j3_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
 			leftPanel.add(j3_3);
 
 			JLabel j3_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
-			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverage higher than a selected level");
+			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
 			leftPanel.add(j3_4);
 
 			JLabel j3_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
@@ -287,7 +287,7 @@ public class OpenLoadedStatistics extends JPanel {
 			leftPanel.add(j1_1);
 
 			JLabel j1_2 = createImageLinkLabel("Counts per group", Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS);
-			j1_2.setToolTipText("Frequency histogram of the coverage");
+			j1_2.setToolTipText("Frequency histogram of the coverageData");
 			leftPanel.add(j1_2);
 
 
@@ -624,8 +624,8 @@ public class OpenLoadedStatistics extends JPanel {
                     htmlTable.append("<th align='left'>Name</th>");
                     htmlTable.append("<th align='left'>Length</th>");
                     htmlTable.append("<th align='left'>Mapped bases</th>");
-                    htmlTable.append("<th align='left'>Mean coverage</th>");
-                    htmlTable.append("<th align='left'>Std coverage</th>");
+                    htmlTable.append("<th align='left'>Mean coverageData</th>");
+                    htmlTable.append("<th align='left'>Std coverageData</th>");
             	} else {
 					String[] tableValues = strLine.split("\t");
 					htmlTable.append(HtmlJPanel.COLSTART);

@@ -268,7 +268,7 @@ public class BamQCSplitted {
                     numberOfMappedReads++;
                 }  else {
                     numberOfUnmappedReads++;
-                    logger.info(read.toString());
+                    //logger.info(read.toString());
                     ++numberOfReads;
                     continue;
                 }

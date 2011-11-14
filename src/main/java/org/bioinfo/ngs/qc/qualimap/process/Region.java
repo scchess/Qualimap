@@ -17,7 +17,7 @@ public class Region {
 	}
 	
 	public Region(String contig, int start, int end, double score){
-		this.contig = contig;
+        this.contig = contig;
 		this.start = start;
 		this.end = end;
 		this.regionScore = score;

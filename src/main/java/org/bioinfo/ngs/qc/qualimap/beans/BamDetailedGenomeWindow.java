@@ -8,7 +8,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	// reference sequence	
 	private byte[] reference;
 		
-	// coverage
+	// coverageData
 	private long[] coverageAcrossReference;
 	private long[] properlyPairedCoverageAcrossReference;
 		
@@ -39,7 +39,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	// insert size
 	private double[] insertSizeAcrossReference;
 
-    // required for calculation of global coverage
+    // required for calculation of global coverageData
     private long sumCoverageSquared;
 
 	
@@ -56,11 +56,11 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		
 		// init arrays		
 		coverageAcrossReference = new long[(int)this.windowSize];
-		properlyPairedCoverageAcrossReference = new long[(int)this.windowSize];
+//		properlyPairedCoverageAcrossReference = new long[(int)this.windowSize];
 		for(int i=0; i<this.windowSize; i++){
 			coverageAcrossReference[i] = 0;
 		}
-		
+
 		mappingQualityAcrossReference = new double[(int)this.windowSize];
 //		sequencingQualityAcrossReference = new int[this.windowSize];
 		aContentAcrossReference = new long[(int)this.windowSize];
@@ -83,7 +83,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	@Override
 	protected void acumProperlyPairedBase(long relative){
 		super.acumProperlyPairedBase(relative);
-		properlyPairedCoverageAcrossReference[(int)relative] = properlyPairedCoverageAcrossReference[(int)relative] + 1;
+		//TODO: why collect it?
+		//properlyPairedCoverageAcrossReference[(int)relative] = properlyPairedCoverageAcrossReference[(int)relative] + 1;
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	@Override
 	protected void acumG(long relative){
 		super.acumG(relative);
-		gContentAcrossReference[(int)relative] = gContentAcrossReference[(int)relative]+1;		
+		gContentAcrossReference[(int)relative] = gContentAcrossReference[(int)relative]+1;
 	}
 	
 	@Override
@@ -128,49 +129,63 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	
 		// normalize vectors
 		for(int i=0; i<coverageAcrossReference.length; i++){
-			// number of mapped bases
-//			numberOfMappedBases+=coverageAcrossReference[i];
-			
-			if(coverageAcrossReference[i]>0){
+
+			long coverageAtPosition =  coverageAcrossReference[i];
+
+            if(coverageAtPosition > 0){
 				
 				// GC/AT contents
-				gcContentAcrossReference[i] = (float)(gContentAcrossReference[i] + cContentAcrossReference[i])/(float)coverageAcrossReference[i];				
-//				atContentAcrossReference[i] = (float)(aContentAcrossReference[i] + tContentAcrossReference[i])/(float)coverageAcrossReference[i];
+				// TODO: optimize no one is using this variable
+                //gcContentAcrossReference[i] = (float)(gcContentAcrossReference[i])/coverageAtPosition;
+                //TODO: why to keep this?
+                //atContentAcrossReference[i] = (float)(aContentAcrossReference[i] + tContentAcrossReference[i])/(float)coverageAcrossReference[i];
 				
 				// quality
-				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i]/(double)coverageAcrossReference[i];
-				acumMappingQuality+=mappingQualityAcrossReference[i];
+				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i]/(double)coverageAtPosition;
 //				System.err.println(properlyPairedCoverageAcrossReference[i]);
 //				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
-				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)coverageAcrossReference[i];
+				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)coverageAtPosition;
+
+                sumCoverageSquared += coverageAtPosition*coverageAtPosition;
 				
 			}
 		}
 				
-		// compute std coverage
+		// compute std coverageData
 		stdCoverage = MathUtils.standardDeviation(ArrayUtils.toDoubleArray(coverageAcrossReference));
-        for (long coverage : coverageAcrossReference) {
-            sumCoverageSquared += coverage*coverage;
-        }
-		
+
 		super.computeDescriptors();
 		
 	}
-	
-	/**
+
+    @Override
+    public void addReadData(SingleReadData readData) {
+        super.addReadData(readData);
+        for (int pos : readData.coverageData) {
+            coverageAcrossReference[pos]++;
+        }
+
+        for (SingleReadData.Cell cell : readData.mappingQualityData) {
+            int pos = cell.getPosition();
+            int val = cell.getValue();
+            mappingQualityAcrossReference[pos] += val;
+        }
+
+        for (SingleReadData.Cell cell : readData.insertSizeData) {
+            int pos = cell.getPosition();
+            int val = cell.getValue();
+            insertSizeAcrossReference[pos] += val;
+        }
+
+    }
+
+    /**
 	 * @return the reference
 	 */
 	public byte[] getReference() {
 		return reference;
 	}
-	
-	/**
-	 * @param reference the reference to set
-	 */
-	public void setReference(byte[] reference) {
-		this.reference = reference;
-	}
-	
+
 	/**
 	 * @return the coverageAcrossReference
 	 */
@@ -183,109 +198,55 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
     }
 
 	/**
-	 * @param coverageAcrossReference the coverageAcrossReference to set
-	 */
-	public void setCoverageAcrossReference(long[] coverageAcrossReference) {
-		this.coverageAcrossReference = coverageAcrossReference;
-	}
-	
-	/**
 	 * @return the mappingQualityAcrossReference
 	 */
 	public double[] getMappingQualityAcrossReference() {
 		return mappingQualityAcrossReference;
 	}
-	
-	/**
-	 * @param mappingQualityAcrossReference the mappingQualityAcrossReference to set
-	 */
-	public void setMappingQualityAcrossReference(
-			double[] mappingQualityAcrossReference) {
-		this.mappingQualityAcrossReference = mappingQualityAcrossReference;
-	}
-	
-	/**
+
+	//TODO: optimize it.
+	// Some data is not even used. Why calculate it?
+
+    /**
 	 * @return the aContentAcrossReference
 	 */
 	public long[] getaContentAcrossReference() {
 		return aContentAcrossReference;
 	}
-	
-	/**
-	 * @param aContentAcrossReference the aContentAcrossReference to set
-	 */
-	public void setaContentAcrossReference(long[] aContentAcrossReference) {
-		this.aContentAcrossReference = aContentAcrossReference;
-	}
-	
+
 	/**
 	 * @return the cContentAcrossReference
 	 */
 	public long[] getcContentAcrossReference() {
 		return cContentAcrossReference;
 	}
-	
-	/**
-	 * @param cContentAcrossReference the cContentAcrossReference to set
-	 */
-	public void setcContentAcrossReference(long[] cContentAcrossReference) {
-		this.cContentAcrossReference = cContentAcrossReference;
-	}
-	
+
 	/**
 	 * @return the gContentAcrossReference
 	 */
 	public long[] getgContentAcrossReference() {
 		return gContentAcrossReference;
 	}
-	
-	/**
-	 * @param gContentAcrossReference the gContentAcrossReference to set
-	 */
-	public void setgContentAcrossReference(long[] gContentAcrossReference) {
-		this.gContentAcrossReference = gContentAcrossReference;
-	}
-	
+
 	/**
 	 * @return the tContentAcrossReference
 	 */
 	public long[] gettContentAcrossReference() {
 		return tContentAcrossReference;
 	}
-	
-	/**
-	 * @param tContentAcrossReference the tContentAcrossReference to set
-	 */
-	public void settContentAcrossReference(long[] tContentAcrossReference) {
-		this.tContentAcrossReference = tContentAcrossReference;
-	}
-	
+
 	/**
 	 * @return the nContentAcrossReference
 	 */
 	public long[] getnContentAcrossReference() {
 		return nContentAcrossReference;
 	}
-	
-	/**
-	 * @param nContentAcrossReference the nContentAcrossReference to set
-	 */
-	public void setnContentAcrossReference(long[] nContentAcrossReference) {
-		this.nContentAcrossReference = nContentAcrossReference;
-	}
-	
+
 	/**
 	 * @return the gcContentAcrossReference
 	 */
 	public double[] getGcContentAcrossReference() {
 		return gcContentAcrossReference;
-	}
-	
-	/**
-	 * @param gcContentAcrossReference the gcContentAcrossReference to set
-	 */
-	public void setGcContentAcrossReference(double[] gcContentAcrossReference) {
-		this.gcContentAcrossReference = gcContentAcrossReference;
 	}
 
 	/**
@@ -295,12 +256,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		return insertSizeAcrossReference;
 	}
 
-	/**
-	 * @param insertSizeAcrossReference the insertSizeAcrossReference to set
-	 */
-	public void setInsertSizeAcrossReference(double[] insertSizeAcrossReference) {
-		this.insertSizeAcrossReference = insertSizeAcrossReference;
-	}
-	
+
+
+
 
 }
