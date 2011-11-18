@@ -11,6 +11,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 /**
  * Class to manage a thread to do the Bam analysis to the input bam files and
@@ -53,7 +54,7 @@ public class BamAnalysisThread extends Thread {
 	 * method start over this thread.
 	 */
 	public void run() {
-		BamQCSplitted bamQC = null;
+		//BamQCSplitted bamQC = null;
 
 		// Show the ProgressBar and the Text Description
 		openFilePanel.getProgressStream().setVisible(true);
@@ -63,11 +64,12 @@ public class BamAnalysisThread extends Thread {
 		StringBuilder outputDirPath = tabProperties.createDirectory();
 
 		// Create a BamQCSplitted with a reference file or without it
-		if (openFilePanel.getFastaFile() != null) {
+		/*if (openFilePanel.getFastaFile() != null) {
 			bamQC = new BamQCSplitted(openFilePanel.getInputFile().getAbsolutePath(), openFilePanel.getFastaFile().getAbsolutePath());
 		} else {
 			bamQC = new BamQCSplitted(openFilePanel.getInputFile().getAbsolutePath());
-		}
+		}*/
+        BamStatsAnalysis bamQC = new BamStatsAnalysis(openFilePanel.getInputFile().getAbsolutePath());
 
 		// Set the number of windows
 		if (!openFilePanel.getValueNw().getText().isEmpty()) {
@@ -78,7 +80,7 @@ public class BamAnalysisThread extends Thread {
 
 		// Set the region file
 		if (openFilePanel.getRegionFile() != null) {
-			bamQC.setSelectedRegions(openFilePanel.getRegionFile().getAbsolutePath());
+		//	bamQC.setSelectedRegions(openFilePanel.getRegionFile().getAbsolutePath());
 		}
 
 		// Put the gff variable to know if the user has added a region file only
@@ -88,12 +90,12 @@ public class BamAnalysisThread extends Thread {
 			tabProperties.setGffSelected(true);
 		}
 
-		bamQC.setComputeChromosomeStats(true);
-		bamQC.setComputeOutsideStats(true);
+		//bamQC.setComputeChromosomeStats(true);
+		//bamQC.setComputeOutsideStats(true);
 
 
 		// reporting
-		bamQC.activeReporting(outputDirPath.toString());
+		//bamQC.activeReporting(outputDirPath.toString());
 
 		openFilePanel.getProgressStream().setText("Starting bam qc....");
 
@@ -115,20 +117,20 @@ public class BamAnalysisThread extends Thread {
 	
 			openFilePanel.getProgressStream().setText("   text report...");
 			reporter.loadReportData(bamQC.getBamStats());
-			increaseProgressBar(1.0, bamQC);
+			//increaseProgressBar(1.0, bamQC);
 			openFilePanel.getProgressStream().setText("OK");
 			tabProperties.setReporter(reporter);
 	
 			// Increment the pogress bar
 			openFilePanel.getProgressStream().setText("   charts...");
 			reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
-			increaseProgressBar(2.0, bamQC);
+			//increaseProgressBar(2.0, bamQC);
 			openFilePanel.getProgressStream().setText("OK");
 	
 			// Set the reporter into the created tab
 			tabProperties.setReporter(reporter);
 	
-			if (openFilePanel.getRegionFile() != null) {
+			/*if (openFilePanel.getRegionFile() != null) {
 				BamQCRegionReporter insideReporter = new BamQCRegionReporter();
 				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 	
@@ -163,7 +165,7 @@ public class BamAnalysisThread extends Thread {
 				// Set the reporters into the created tab
 				tabProperties.setInsideReporter(insideReporter);
 				tabProperties.setOutsideReporter(outsideReporter);
-			}
+			} */
 	
 			// Increment the pogress bar
 			openFilePanel.getProgressStream().setText("OK");

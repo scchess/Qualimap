@@ -40,8 +40,11 @@ public class BamQCTest {
                 "/home/kokonech/sample_data/example-alignment.properties"));
         */
         tests.add( new TestConfig("/home/kokonech/sample_data/PlasmodiumD37_RNASeq.bam",
-                       "/home/kokonech/sample_data/PlasmodiumD37_RNASeq.properties"));
+                      "/home/kokonech/sample_data/PlasmodiumD37_RNASeq.properties"));
 
+        /*tests.add( new TestConfig("/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.bam",
+                               "/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.properties"));
+        */
 
     }
 
@@ -50,11 +53,12 @@ public class BamQCTest {
 
 
         for (TestConfig test : tests) {
-            //BamQCSplitted bamQc = new BamQCSplitted(test.getPathToBamFile());
-            // bamQc.setNumberOfWindows(500);
+
             BamQCRegionReporter bamQcReporter = new BamQCRegionReporter();
 
             BamStatsAnalysis bamQc = new BamStatsAnalysis(test.getPathToBamFile()) ;
+            bamQc.setNumberOfWindows(400);
+
 
             try {
                 bamQc.run();

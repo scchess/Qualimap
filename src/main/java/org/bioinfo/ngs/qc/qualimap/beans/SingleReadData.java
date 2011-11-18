@@ -13,7 +13,7 @@ public class SingleReadData {
     public long numberOfSequencedBases;
     public long numberOfMappedBases;
     public long numberOfMappedBasesSquared;
-    public long acumMappingQuality;
+    //public long acumMappingQuality;
     public long correctInsertSizes;
     public long acumInsertSize;
     public long numberOfAs;
@@ -21,11 +21,11 @@ public class SingleReadData {
     public long numberOfCs;
     public long numberOfGs;
 
-    public long numberOfProcessedReads;
-    public long numberOfOutOfBoundsReads;
+    //public long numberOfProcessedReads;
+    //public long numberOfOutOfBoundsReads;
     public long numberOfAlignedBases;
 
-    public class Cell {
+    public static class Cell {
         int position;
         int value;
         public Cell(int position, int value) {
@@ -39,18 +39,16 @@ public class SingleReadData {
         public int getValue() {
             return value;
         }
-
     }
 
     public List<Integer> coverageData;
     public List<Cell> mappingQualityData;
     public List<Cell> insertSizeData;
 
-    long windowStart, windowSize;
+    long windowStart;
 
-    public SingleReadData(long windowStart, long windowSize) {
+    public SingleReadData(long windowStart) {
         this.windowStart = windowStart;
-        this.windowSize = windowSize;
         coverageData = new ArrayList<Integer>();
         mappingQualityData = new ArrayList<Cell>();
         insertSizeData = new ArrayList<Cell>();
@@ -92,7 +90,7 @@ public class SingleReadData {
     }
 
 	public void acumMappingQuality(long relative, int mappingQuality){
-		acumMappingQuality+=mappingQuality;
+		//acumMappingQuality+=mappingQuality;
         //TODO: check how the histogram is calculated!
         if (mappingQuality != 0) {
             mappingQualityData.add( new Cell((int)relative, mappingQuality) );

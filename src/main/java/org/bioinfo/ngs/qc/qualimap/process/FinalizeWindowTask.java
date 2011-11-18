@@ -42,15 +42,19 @@ public class FinalizeWindowTask implements Callable {
         //System.out.println("From FinalizeWindowTask: started!");
         //log.println("Window name: " + window.getName() + " cNumber: " + window.getNumberOfCs());
         //log.flush();
+        long startTime = System.currentTimeMillis();
+
 
         try {
             window.computeDescriptors();
             bamStats.addWindowInformation(window);
-            System.out.println("From FinalizeWindowTask: finalized a window " + window.getName());
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            return -1;
         }
 
+        long endTime = System.currentTimeMillis();
+        System.out.println("From FinalizeWindowTask: finalized a window " + window.getName() + ", time (ms): " + (endTime - startTime));
 
         //System.out.println("From FinalizeWindowTask: finished!");
 

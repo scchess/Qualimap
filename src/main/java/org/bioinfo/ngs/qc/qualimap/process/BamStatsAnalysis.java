@@ -72,6 +72,8 @@ public class BamStatsAnalysis {
 	private HashMap<Long,BamGenomeWindow> openInsideWindows;
 	private BamStats insideBamStats;
 	private int numberOfInsideMappedReads;
+    private final int threadNumber = 8;
+    private final int numReadsInBunch = 2000;
 
 	// outside
 	private boolean computeOutsideStats;
@@ -98,14 +100,15 @@ public class BamStatsAnalysis {
 	private boolean activeReporting;
 	private boolean saveCoverage;
 	private boolean isPairedData;
+    List<Future<Collection<SingleReadData>>> results;
 
-    private ExecutorService threadPool;
+    private ExecutorService workerThreadPool, finalizeThreadPool;
 
     public BamStatsAnalysis(String bamFile){
 		this.bamFile = bamFile;
-		this.numberOfWindows = 200;
+		this.numberOfWindows = 400;
 		logger = new Logger();
-        threadPool = Executors.newFixedThreadPool(4);
+        workerThreadPool = Executors.newFixedThreadPool(threadNumber);
     }
 
     public void run() throws Exception{
@@ -147,7 +150,9 @@ public class BamStatsAnalysis {
 
 		// run reads
         SAMRecordIterator iter = reader.iterator();
-        List<Callable<List<SingleReadData>>> taskList = new ArrayList<Callable<List<SingleReadData>>>();
+
+        ArrayList<SAMRecord> readsBunch = new ArrayList<SAMRecord>();
+        results = new ArrayList<Future<Collection<SingleReadData>>>();
 
         while(iter.hasNext()){
 
@@ -183,11 +188,11 @@ public class BamStatsAnalysis {
 
                 // finalize current and get next window
 			    if(position > currentWindow.getEnd() ){
-                    analyzeReads(taskList);
+                    analyzeReads(readsBunch);
                     //finalize
 				    currentWindow = finalizeAndGetNextWindow(position,currentWindow,openWindows,
                             bamStats,reference,true,true);
-                    taskList.clear();
+                    readsBunch.clear();
                 }
 
                 if (currentWindow == null) {
@@ -195,7 +200,7 @@ public class BamStatsAnalysis {
                     break;
                 }
 
-                taskList.add( new ProcessReadTask(read, position, currentWindow, this));
+                readsBunch.add(read);
                 numberOfValidReads++;
 
             }
@@ -203,27 +208,26 @@ public class BamStatsAnalysis {
             numberOfReads++;
 
         }
+
         // close stream
         reader.close();
 
-
-        if (!taskList.isEmpty()) {
+        if (!readsBunch.isEmpty()) {
             int numWindows = bamStats.getNumberOfWindows();
             long lastPosition = bamStats.getWindowEnd(numWindows - 1) + 1;
-            analyzeReads(taskList);
+            analyzeReads(readsBunch);
             //finalize
             finalizeAndGetNextWindow(lastPosition,currentWindow,openWindows,bamStats,reference,true,true);
-            taskList.clear();
+            readsBunch.clear();
         }
 
         if (lastResult != null) {
             lastResult.get();
         }
 
-        threadPool.shutdown();
+        workerThreadPool.shutdown();
 
         long endTime = System.currentTimeMillis();
-
 
         logger.println("Number of reads: " + numberOfReads);
         logger.println("Number of mapped reads: " + numberOfMappedReads);
@@ -248,18 +252,70 @@ public class BamStatsAnalysis {
 
     }
 
+    public void startReadAnalysis(SAMRecord read, ArrayList<SAMRecord> readsBunch) throws InterruptedException, ExecutionException {
 
-    public void analyzeReads(List<Callable<List<SingleReadData>>> taskList ) throws InterruptedException, ExecutionException {
+        if (readsBunch.size() < numReadsInBunch) {
+            readsBunch.add(read);
+        } else {
+            List<SAMRecord> bunch = (List<SAMRecord>) readsBunch.clone(); // shallow copy
+            Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(bunch,currentWindow, this);
+            results.add( workerThreadPool.submit(task) );
+            readsBunch.clear();
+        }
+    }
 
-        List<Future<List<SingleReadData>>> results  = threadPool.invokeAll(taskList);
+
+    public void finalizeAnalysis(ArrayList<SAMRecord> readsBunch ) throws InterruptedException, ExecutionException {
+
+        // start last bunch
+        List<SAMRecord> bunch = (List<SAMRecord>) readsBunch.clone(); // shallow copy
+        Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(bunch,currentWindow, this);
+        results.add( workerThreadPool.submit(task) );
+        readsBunch.clear();
+
         // wait till all tasks are finished
-        for (Future<List<SingleReadData>> result : results) {
-            List<SingleReadData> dataset = result.get();
+        for (Future<Collection<SingleReadData>> result : results) {
+            Collection<SingleReadData> dataset = result.get();
             for (SingleReadData rd : dataset) {
                 BamGenomeWindow w = openWindows.get(rd.getWindowStart());
                 w.addReadData(rd);
             }
         }
+
+
+    }
+
+
+    public void analyzeReads(List<SAMRecord> readList ) throws InterruptedException, ExecutionException {
+
+        List<Future<Collection<SingleReadData>>> results = new ArrayList<Future<Collection<SingleReadData>>>();
+        System.out.println("Number of reads to analyze: " + readList.size());
+
+        long startTime = System.currentTimeMillis();
+
+        for (int fromIndex = 0; fromIndex < readList.size(); fromIndex += numReadsInBunch ) {
+            int toIndex = fromIndex + numReadsInBunch;
+            if (toIndex >= readList.size() ) {
+                toIndex = readList.size();
+            }
+            List<SAMRecord> readsBunch = readList.subList(fromIndex, toIndex);
+            Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(readsBunch,currentWindow, this);
+            results.add( workerThreadPool.submit(task) );
+        }
+
+        //List<Future<List<SingleReadData>>> results  = workerThreadPool.invokeAll(taskList, position, currentWindow, this);
+        // wait till all tasks are finished
+        for (Future<Collection<SingleReadData>> result : results) {
+            Collection<SingleReadData> dataset = result.get();
+            for (SingleReadData rd : dataset) {
+                BamGenomeWindow w = openWindows.get(rd.getWindowStart());
+                w.addReadData(rd);
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Bunch of read analysis time(ms): " +  (endTime - startTime));
+
     }
 
     public static BamGenomeWindow initWindow(String name,long windowStart,long windowEnd, byte[]reference, boolean detailed, boolean verbose){
@@ -306,6 +362,7 @@ public class BamStatsAnalysis {
                                                      boolean detailed, boolean verbose) throws CloneNotSupportedException{
         // position is still far away
         while(position > lastWindow.getEnd() ) {
+            //finalizeWindowInSameThread(lastWindow);
             lastResult = finalizeWindow(lastWindow);
             /*try {
                 lastResult.get();
@@ -326,7 +383,16 @@ public class BamStatsAnalysis {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
-        return threadPool.submit( new FinalizeWindowTask(bamStats,window));
+        return workerThreadPool.submit( new FinalizeWindowTask(bamStats,window));
+    }
+
+
+    private Integer finalizeWindowInSameThread(BamGenomeWindow window) {
+        long windowStart = bamStats.getCurrentWindowStart();
+        openWindows.remove(windowStart);
+        bamStats.incProcessedWindows();
+        FinalizeWindowTask task = new FinalizeWindowTask(bamStats,window);
+        return task.call();
     }
 
 
@@ -403,5 +469,9 @@ public class BamStatsAnalysis {
 
     public boolean isPairedData() {
         return isPairedData;
+    }
+
+    public void setNumberOfWindows(int windowsNum) {
+        numberOfWindows = windowsNum;
     }
 }

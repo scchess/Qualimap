@@ -151,14 +151,14 @@ public class BamGenomeWindow {
 		numberOfAlignedBases = 0;
 
 		// working variables
-		charMap = new HashMap<String,Character>();
+		/*charMap = new HashMap<String,Character>();
 		charMap.put("M",'M');
 		charMap.put("I",'I');
 		charMap.put("D",'D');
 		charMap.put("P",'P');
 		charMap.put("N",'N');
 		charMap.put("S",'S');
-		charMap.put("H",'H');
+		charMap.put("H",'H');*/
 				
 		// instant creation
 		initTime = System.currentTimeMillis();
@@ -424,23 +424,7 @@ public class BamGenomeWindow {
 		meanInsertSize = acumInsertSize/(double)numberOfMappedBases;
 					
 		// ACTG absolute content
-		if(meanCoverage==0){
-			meanAContent = 0;
-			meanCContent = 0;
-			meanTContent = 0;
-			meanGContent = 0;
-			meanNContent = 0;
-			meanGcContent = 0;
-//			meanAtContent = 0;
-			// ACTG relative content
-			meanARelativeContent = 0;
-			meanCRelativeContent = 0;
-			meanTRelativeContent = 0;  
-			meanGRelativeContent = 0;
-			meanNRelativeContent = 0;
-			meanGcRelativeContent = 0;
-//			meanAtRelativeContent = 0;
-		} else {
+		if(meanCoverage > 0){
 			meanAContent = (double)numberOfAs/(double)meanCoverage;
 			meanCContent = (double)numberOfCs/(double)meanCoverage;
 			meanTContent = (double)numberOfTs/(double)meanCoverage;
@@ -1171,8 +1155,9 @@ public class BamGenomeWindow {
 
     public void addReadData(SingleReadData readData) {
 
-        numberOfProcessedReads += readData.numberOfProcessedReads;
-        numberOfOutOfBoundsReads += readData.numberOfOutOfBoundsReads;
+        //TODO: bug-110
+        //numberOfProcessedReads += readData.numberOfProcessedReads;
+        //numberOfOutOfBoundsReads += readData.numberOfOutOfBoundsReads;
 
         numberOfAlignedBases += readData.numberOfAlignedBases;
         numberOfMappedBases += readData.numberOfMappedBases;
@@ -1182,6 +1167,9 @@ public class BamGenomeWindow {
         numberOfCs += readData.numberOfCs;
         numberOfGs += readData.numberOfGs;
         numberOfTs += readData.numberOfTs;
+
+        acumInsertSize += readData.acumInsertSize;
+        correctInsertSizes += readData.correctInsertSizes;
 
 
     }

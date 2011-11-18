@@ -7,95 +7,93 @@ import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.beans.SingleReadData;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * User: kokonech
- * Date: 11/7/11
- * Time: 3:11 PM
+ * Created by kokonech
+ * Date: 11/15/11
+ * Time: 5:04 PM
  */
-
-public class ProcessReadTask implements Callable {
-
-    SAMRecord read;
+public class ProcessBunchOfReadsTask implements Callable {
+    List<SAMRecord> reads;
     BamStatsAnalysis ctx;
     BamGenomeWindow currentWindow;
     boolean computeInsertSize;
     long insertSize;
-    long position;
     boolean isPairedData;
     private static Object lock = new Object();
-    List<SingleReadData> taskResults;
+    HashMap<Long, SingleReadData> taskResults;
 
 
-    public ProcessReadTask(SAMRecord read, Long position, BamGenomeWindow window, BamStatsAnalysis ctx)  {
-        this.read = read;
-        this.position = position;
+    public ProcessBunchOfReadsTask(List<SAMRecord> reads, BamGenomeWindow window, BamStatsAnalysis ctx)  {
+        this.reads = reads;
         this.ctx = ctx;
         isPairedData = true;
         insertSize = -1;
         currentWindow = window;
-        taskResults = new ArrayList<SingleReadData> ();
+        taskResults = new HashMap<Long, SingleReadData>();
     }
 
-    public List<SingleReadData> call() {
 
-        //System.out.println("From ProcessReadTask: started analysis of read" + read.getHeader().toString());
-
-        // compute alignment
-        String alignment = BamGenomeWindow.computeAlignment(read);
-
-        //System.out.println("From ProcessReadTask: computed alignment for read" + read.getHeader().toString());
-
-
-        // insert size
-        try {
-            if(computeInsertSize && read.getProperPairFlag()){
-                insertSize = read.getInferredInsertSize();
-            }
-        } catch(IllegalStateException ise){
-            insertSize = -1;
-            isPairedData = false;
+    private SingleReadData getWindowData(Long windowStart) {
+        if (taskResults.containsKey(windowStart)) {
+            return taskResults.get(windowStart);
+        } else {
+            SingleReadData data = new SingleReadData(windowStart);
+            taskResults.put(windowStart, data);
+            return data;
         }
+    }
 
-        try {
-        // something strange has happened?
-        //if(position != -1 || currentWindow == null) {
+    public Collection<SingleReadData> call() {
 
-            // chromosome
-            /*if(computeChromosomeStats){
-                           if(position>currentChromosome.getEnd()){
-                               currentChromosome = finalizeAndGetNextWindow(position,currentChromosome,openChromosomeWindows,chromosomeStats,null,false,false);
-                             }
 
-                           if(currentChromosome!=null){
-                               // acum read
-                               outOfBounds = currentChromosome.acumRead(read,alignment,locator);
-                               if(outOfBounds) {
-                                   propagateRead(alignment,position,position+alignment.length()-1,read.getMappingQuality(),insertSize,currentChromosome,chromosomeStats,openChromosomeWindows,null,false,false);
-                               }
-               }
-            } */
+        for (SAMRecord read : reads) {
 
-            // acum read
-            boolean outOfBounds = processRead(currentWindow, read, alignment, ctx.getLocator());
-            //System.out.println("From ProcessReadTask: calculated stats for read" + read.getHeader().toString());
-            //synchronized (lock) {
+            long position = ctx.getLocator().getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentStart());
+            //System.out.println("From ProcessReadTask: started analysis of read" + read.getHeader().toString());
 
-            if(outOfBounds) {
-                //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
+            // compute alignment
+            String alignment = BamGenomeWindow.computeAlignment(read);
+
+            //System.out.println("From ProcessReadTask: computed alignment for read" + read.getHeader().toString());
+
+
+            // insert size
+            try {
+                if(computeInsertSize && read.getProperPairFlag()){
+                    insertSize = read.getInferredInsertSize();
+                }
+            } catch(IllegalStateException ise){
+                insertSize = -1;
+                isPairedData = false;
+            }
+
+            try {
+
+                // acum read
+                boolean outOfBounds = processRead(currentWindow, read, alignment, ctx.getLocator());
+                //System.out.println("From ProcessReadTask: calculated stats for read" + read.getHeader().toString());
+                //synchronized (lock) {
+
+                if(outOfBounds) {
+                    //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
                     propagateRead(alignment, position, position + alignment.length()-1, read.getMappingQuality(), insertSize,true,true);
+                    //}
+                }
                 //}
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.print("From ProcessReadTask: we are DOOMed!!! " + e.getMessage());
             }
-        //}
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.print("From ProcessReadTask: we are DOOMed!!! " + e.getMessage());
         }
 
-        return taskResults;
+
+        return taskResults.values();
     }
 
     protected boolean processRead(BamGenomeWindow window, SAMRecord read, String alignment, GenomeLocator locator){
@@ -110,7 +108,7 @@ public class ProcessReadTask implements Callable {
             long windowSize = window.getWindowSize();
             long windowStart = window.getStart();
 
-            SingleReadData readData = new SingleReadData(windowStart);
+            SingleReadData readData = getWindowData(windowStart);
 
             //boolean  selectedRegionsAvailable = window.isSelectedRegionsAvailable();
             //boolean[] selectedRegions = window.getSelectedRegions();
@@ -190,7 +188,7 @@ public class ProcessReadTask implements Callable {
                 }
             }
 
-            taskResults.add(readData);
+            //taskResults.add(readData);
 
             return outOfBounds;
         }
@@ -227,8 +225,6 @@ public class ProcessReadTask implements Callable {
 			index++;
 		}
     }
-
-
 
 
 }

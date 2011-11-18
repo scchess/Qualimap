@@ -13,7 +13,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	private long[] properlyPairedCoverageAcrossReference;
 		
 	// quality
-	private double[] mappingQualityAcrossReference;
+	private long[] mappingQualityAcrossReference;
 			
 	// A content
 	private long[] aContentAcrossReference;
@@ -37,7 +37,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 //	private double[] atContentAcrossReference;
 		
 	// insert size
-	private double[] insertSizeAcrossReference;
+	private long[] insertSizeAcrossReference;
 
     // required for calculation of global coverageData
     private long sumCoverageSquared;
@@ -61,16 +61,16 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 			coverageAcrossReference[i] = 0;
 		}
 
-		mappingQualityAcrossReference = new double[(int)this.windowSize];
+		mappingQualityAcrossReference = new long[(int)this.windowSize];
 //		sequencingQualityAcrossReference = new int[this.windowSize];
-		aContentAcrossReference = new long[(int)this.windowSize];
-		cContentAcrossReference = new long[(int)this.windowSize];
-		gContentAcrossReference = new long[(int)this.windowSize];
-		tContentAcrossReference = new long[(int)this.windowSize];
-		nContentAcrossReference = new long[(int)this.windowSize];
-		gcContentAcrossReference = new double[(int)this.windowSize];
+//		aContentAcrossReference = new long[(int)this.windowSize];
+//		cContentAcrossReference = new long[(int)this.windowSize];
+//		gContentAcrossReference = new long[(int)this.windowSize];
+//		tContentAcrossReference = new long[(int)this.windowSize];
+//		nContentAcrossReference = new long[(int)this.windowSize];
+//		gcContentAcrossReference = new double[(int)this.windowSize];
 //		atContentAcrossReference = new double[(int)this.windowSize];
-		insertSizeAcrossReference = new double[(int)this.windowSize];
+		insertSizeAcrossReference = new long[(int)this.windowSize];
 		
 	}
 	
@@ -141,10 +141,10 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
                 //atContentAcrossReference[i] = (float)(aContentAcrossReference[i] + tContentAcrossReference[i])/(float)coverageAcrossReference[i];
 				
 				// quality
-				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i]/(double)coverageAtPosition;
+				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i] / coverageAtPosition;
 //				System.err.println(properlyPairedCoverageAcrossReference[i]);
 //				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
-				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)coverageAtPosition;
+				insertSizeAcrossReference[i] = insertSizeAcrossReference[i] / coverageAtPosition;
 
                 sumCoverageSquared += coverageAtPosition*coverageAtPosition;
 				
@@ -169,6 +169,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
             int pos = cell.getPosition();
             int val = cell.getValue();
             mappingQualityAcrossReference[pos] += val;
+            super.acumMappingQuality += val;
         }
 
         for (SingleReadData.Cell cell : readData.insertSizeData) {
@@ -200,7 +201,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	/**
 	 * @return the mappingQualityAcrossReference
 	 */
-	public double[] getMappingQualityAcrossReference() {
+	public long[] getMappingQualityAcrossReference() {
 		return mappingQualityAcrossReference;
 	}
 
@@ -252,7 +253,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	/**
 	 * @return the insertSizeAcrossReference
 	 */
-	public double[] getInsertSizeAcrossReference() {
+	public long[] getInsertSizeAcrossReference() {
 		return insertSizeAcrossReference;
 	}
 

@@ -101,7 +101,8 @@ public class BamStats implements Serializable {
 	private List<Double> coverageAcrossReference;
 	private List<Double> stdCoverageAcrossReference;
 	private HashMap<Long,Long> coverageHistogramMap;
-	private XYVector coverageHistogram;
+	private long[] coverageHistogramCache;
+    private XYVector coverageHistogram;
 	private XYVector acumCoverageHistogram;
 	private int maxCoverageQuota;
 	private XYVector coverageQuotes;
@@ -109,7 +110,8 @@ public class BamStats implements Serializable {
 	// quality
 	private double meanMappingQualityPerWindow;
 	private List<Double> mappingQualityAcrossReference;
-	private HashMap<Integer,Long> mappingQualityHistogramMap;
+	private HashMap<Long,Long> mappingQualityHistogramMap;
+    private long[] mappingQualityHistogramCache;
 	private XYVector mappingQualityHistogram;
 	
 	// A content
@@ -174,6 +176,7 @@ public class BamStats implements Serializable {
 	private List<Double> insertSizeAcrossReference;
 	private XYVector insertSizeHistogram;
 	private HashMap<Long,Long> insertSizeHistogramMap;
+    private long[] insertSizeHistogramCache;
 	
 	// 
 	private int numberOfWindows;
@@ -193,6 +196,7 @@ public class BamStats implements Serializable {
 	private String coverageReportFile;
 	transient private PrintWriter coverageReport;
     private long sumCoverageSquared;
+    private final int CACHE_SIZE = 1000;
 
     public BamStats(String name, long referenceSize, int numberOfWindows){
 				
@@ -225,10 +229,13 @@ public class BamStats implements Serializable {
 		coverageAcrossReference = new ArrayList<Double>(numberOfWindows);
 		stdCoverageAcrossReference = new ArrayList<Double>(numberOfWindows);
 		coverageHistogramMap = new HashMap<Long,Long>(numberOfWindows);
+        coverageHistogramCache = new long[CACHE_SIZE];
+
 		
 		// quality
 		mappingQualityAcrossReference = new ArrayList<Double>(numberOfWindows);
-		mappingQualityHistogramMap = new HashMap<Integer,Long>(numberOfWindows);
+		mappingQualityHistogramMap = new HashMap<Long,Long>(numberOfWindows);
+        mappingQualityHistogramCache = new long[CACHE_SIZE];
 		
 		// ACTG across reference arrays		
 		aContentAcrossReference = new ArrayList<Double>(numberOfWindows);
@@ -249,6 +256,7 @@ public class BamStats implements Serializable {
 		// insert size
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);
 		insertSizeHistogramMap = new HashMap<Long,Long>(numberOfWindows);
+        insertSizeHistogramCache = new long[CACHE_SIZE];
 		
 		// others		
 		maxCoverageQuota = 50;
@@ -363,18 +371,23 @@ public class BamStats implements Serializable {
 	
 	public synchronized  void addWindowInformation(BamGenomeWindow window){
 
+        //TODO: bad design
+        boolean isInstanceOfBamGenomeWindow =  window instanceof BamDetailedGenomeWindow;
+
+
 		// global
 		numberOfMappedBases+=window.getNumberOfMappedBases();
 		numberOfSequencedBases+=window.getNumberOfSequencedBases();
 		numberOfAlignedBases+=window.getNumberOfAlignedBases();
-		
+
+
 		/*
 		* Reference
 		*/
 		
 		  // A
 		numberOfAsInReference+=window.getNumberOfAsInReference();
-		aContentInReference.add((double)window.getNumberOfAsInReference());	
+		aContentInReference.add((double)window.getNumberOfAsInReference());
 		aRelativeContentInReference.add(window.getaRelativeContentInReference());
 		  // C
 		numberOfCsInReference+=window.getNumberOfCsInReference();
@@ -406,14 +419,16 @@ public class BamStats implements Serializable {
 		// coverageData across reference
 		coverageAcrossReference.add(window.getMeanCoverage());
 		stdCoverageAcrossReference.add(window.getStdCoverage());
-        if(window instanceof BamDetailedGenomeWindow) {
+        if (isInstanceOfBamGenomeWindow) {
             sumCoverageSquared += ((BamDetailedGenomeWindow)window).getSumCoverageSquared();
             updateHistograms((BamDetailedGenomeWindow)window);
         }
 		
 		// quality
 		mappingQualityAcrossReference.add(window.getMeanMappingQuality());		
-		if(window instanceof BamDetailedGenomeWindow) updateHistogramFromDoubleVector(mappingQualityHistogramMap,((BamDetailedGenomeWindow)window).getMappingQualityAcrossReference());
+		/*if(isInstanceOfBamGenomeWindow) {
+            updateHistogramFromLongVector(mappingQualityHistogramMap,((BamDetailedGenomeWindow)window).getMappingQualityAcrossReference());
+        }*/
 
 		// A
 		numberOfAs+=window.getNumberOfAs();
@@ -451,13 +466,13 @@ public class BamStats implements Serializable {
 				
 		// insert size
 		insertSizeAcrossReference.add(window.getMeanInsertSize());
-		if(window instanceof BamDetailedGenomeWindow){
-			updateHistogramFromDoubleVector(insertSizeHistogramMap,((BamDetailedGenomeWindow)window).getInsertSizeAcrossReference());
-		}
+		/*if(isInstanceOfBamGenomeWindow){
+			updateHistogramFromLongVector(insertSizeHistogramMap,((BamDetailedGenomeWindow)window).getInsertSizeAcrossReference());
+		}*/
 		
 		// reporting
 		if(activeWindowReporting) reportWindow(window);
-		if(window instanceof BamDetailedGenomeWindow){
+		if(isInstanceOfBamGenomeWindow){
 			if(activeCoverageReporting) reportCoverage((BamDetailedGenomeWindow)window);
 		}
 	}
@@ -508,7 +523,8 @@ public class BamStats implements Serializable {
 		
 		// quality
 		meanMappingQualityPerWindow = MathUtils.mean(ListUtils.toDoubleArray(mappingQualityAcrossReference));
-		mappingQualityHistogram = computeVectorHistogram(mappingQualityHistogramMap);
+		addCacheDataToMap(mappingQualityHistogramCache,mappingQualityHistogramMap);
+        mappingQualityHistogram = computeVectorHistogram(mappingQualityHistogramMap);
 				
 		// A
 		meanAContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(aContentAcrossReference));		
@@ -534,7 +550,7 @@ public class BamStats implements Serializable {
 		meanNContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(nContentAcrossReference));
 		meanNRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(nRelativeContentAcrossReference));
 		meanNRelativeContent = ((double)numberOfNs/(double)numberOfSequencedBases)*100.0;
-		
+
 		// GC
 		meanGcContent = (double)(numberOfGs+numberOfCs)/(double)referenceSize;
 		meanGcContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gcContentAcrossReference));
@@ -550,8 +566,11 @@ public class BamStats implements Serializable {
 		// insert size
 		meanInsertSizePerWindow = MathUtils.mean(ListUtils.toDoubleArray(insertSizeAcrossReference));
 		meanInsertSize = meanInsertSizePerWindow;
+        addCacheDataToMap(insertSizeHistogramCache,insertSizeHistogramMap);
 		insertSizeHistogram = computeVectorHistogram(insertSizeHistogramMap);
-		
+
+        addCacheDataToMap(coverageHistogramCache, coverageHistogramMap);
+
 		// reporting
 		if(activeWindowReporting) closeWindowReporting();
 		if(activeCoverageReporting) closeCoverageReporting();
@@ -561,45 +580,47 @@ public class BamStats implements Serializable {
 	/*
 	 *  Histograms
 	 */
-	@SuppressWarnings("rawtypes")
-	public void updateHistogramFromDoubleVector(HashMap map, double[] vector){
-		for(int i=0; i<vector.length; i++){
-			updateHistogramValue(map,(int)Math.round(vector[i]));
-		}
-	}
-	
-	public void updateHistogramFromLongVector(HashMap map, long[] vector){
-		for(int i=0; i<vector.length; i++){
-			updateHistogramValue(map,(int)Math.round(vector[i]));
-		}
-	}
-	
+
+
 	public void updateHistograms(BamDetailedGenomeWindow window){
 		for(int i=0; i<window.getCoverageAcrossReference().length; i++){
 			// coverageData
-			incCoverageFrequency(window.getCoverageAcrossReference()[i]);
+			updateHistogramValue(coverageHistogramCache, coverageHistogramMap, window.getCoverageAcrossReference()[i]);
 			
 			// quality
-//			updateHistogramValue((HashMap)mappingQualityHistogramMap,(int)Math.round(window.getMappingQualityAcrossReference()[i]));
-		}
+			updateHistogramValue(mappingQualityHistogramCache, mappingQualityHistogramMap, window.getMappingQualityAcrossReference()[i]);
+
+            // insert size
+            updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, window.getInsertSizeAcrossReference()[i]);
+        }
 	}
 	
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	public void updateHistogramValue(@SuppressWarnings("rawtypes") HashMap map, int key){
 		if(!map.containsKey(key)){
-			map.put(key,(long)1);
+			map.put(key, Long.valueOf(1));
 		} else {
-			long last = (Long)map.get(key);
-			last++;		
+            long last = (Long)map.get(key);
+			last++;
 			map.put(key,last);
 		}
+	} */
+
+    public void updateHistogramValue(long[] cache, HashMap<Long,Long> map, long key){
+		if (key < CACHE_SIZE) {
+            cache[(int)key]++;
+        } else if(!map.containsKey(key)){
+			map.put(key, Long.valueOf(1));
+		} else {
+            map.put(key, map.get(key) + 1);
+    	}
 	}
-	
+
 	public void incCoverageFrequency(long coverage){
 		if(!coverageHistogramMap.containsKey(coverage)){
-			coverageHistogramMap.put(coverage,(long)1);
+			coverageHistogramMap.put(coverage, Long.valueOf(1));
 		} else {
-			long last = coverageHistogramMap.get(coverage);			
+			long last = coverageHistogramMap.get(coverage);
 			last++;		
 			coverageHistogramMap.put(coverage,last);
 		}
@@ -672,7 +693,7 @@ public class BamStats implements Serializable {
 		return coverageHistogram;
 	}
 
-	private XYVector computeVectorHistogram(@SuppressWarnings("rawtypes") HashMap map){
+	/*private XYVector computeVectorHistogram(@SuppressWarnings("rawtypes") HashMap map){
 		
 		double[] coverages = new double[map.size()];
 		double[] freqs = new double[map.size()];
@@ -699,6 +720,44 @@ public class BamStats implements Serializable {
 		
 		return vectorHistogram;
 		
+	}*/
+
+    private void addCacheDataToMap(long[] cache, HashMap<Long,Long> map) {
+        for (int i = 0; i < CACHE_SIZE; ++i) {
+            long val = cache[i];
+            if (val > 0) {
+                map.put((long)i,val);
+            }
+        }
+    }
+
+    private XYVector computeVectorHistogram(HashMap<Long,Long> map){
+
+		double[] coverages = new double[map.size()];
+		double[] freqs = new double[map.size()];
+
+		// read keys
+		Object[] raw = map.keySet().toArray();
+		long totalCoverage = 0;
+		for(int i=0; i<raw.length; i++) {
+			coverages[i] = (Long)raw[i];
+			freqs[i] = new Double(map.get(raw[i]));
+			totalCoverage+=freqs[i];
+		}
+
+		// sort coverageData
+		int[] index = ArrayUtils.order(coverages);
+		double[] sortedCoverages = ArrayUtils.ordered(coverages,index);
+		double[] sortedFreqs = ArrayUtils.ordered(freqs,index);
+
+		// fill output
+		XYVector vectorHistogram = new XYVector();
+		for(int i=0; i<sortedCoverages.length; i++){
+			vectorHistogram.addItem(new XYItem(sortedCoverages[i],sortedFreqs[i]));
+		}
+
+		return vectorHistogram;
+
 	}
 
 	public String getWindowName(int index){
@@ -2443,20 +2502,6 @@ public class BamStats implements Serializable {
 		this.coverageHistogramMap = coverageHistogramMap;
 	}
 
-	/**
-	 * @return the mappingQualityHistogramMap
-	 */
-	public HashMap<Integer, Long> getMappingQualityHistogramMap() {
-		return mappingQualityHistogramMap;
-	}
-
-	/**
-	 * @param mappingQualityHistogramMap the mappingQualityHistogramMap to set
-	 */
-	public void setMappingQualityHistogramMap(
-			HashMap<Integer, Long> mappingQualityHistogramMap) {
-		this.mappingQualityHistogramMap = mappingQualityHistogramMap;
-	}
 
 	/**
 	 * @return the meanInsertSize
@@ -2498,20 +2543,6 @@ public class BamStats implements Serializable {
 	 */
 	public void setInsertSizeAcrossReference(List<Double> insertSizeAcrossReference) {
 		this.insertSizeAcrossReference = insertSizeAcrossReference;
-	}
-
-	/**
-	 * @return the insertSizeHistogramMap
-	 */
-	public HashMap<Long, Long> getInsertSizeHistogramMap() {
-		return insertSizeHistogramMap;
-	}
-
-	/**
-	 * @param insertSizeHistogramMap the insertSizeHistogramMap to set
-	 */
-	public void setInsertSizeHistogramMap(HashMap<Long, Long> insertSizeHistogramMap) {
-		this.insertSizeHistogramMap = insertSizeHistogramMap;
 	}
 
 	/**
