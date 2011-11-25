@@ -86,7 +86,7 @@ public class ProcessReadTask implements Callable {
 
             if(outOfBounds) {
                 //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
-                    propagateRead(alignment, position, position + alignment.length()-1, read.getMappingQuality(), insertSize,true,true);
+                    propagateRead(alignment, position, position + alignment.length()-1, read.getMappingQuality(), insertSize,true);
                 //}
             }
         //}
@@ -196,7 +196,7 @@ public class ProcessReadTask implements Callable {
         }
 
 
-    private void propagateRead(String alignment,long readStart, long readEnd, int mappingQuality,long insertSize,boolean detailed,boolean verbose){
+    private void propagateRead(String alignment,long readStart, long readEnd, int mappingQuality,long insertSize,boolean detailed){
 		// init covering stat
 		long ws, we;
 		String name;
@@ -216,7 +216,7 @@ public class ProcessReadTask implements Callable {
                 if(openWindows.containsKey(ws)){
                     adjacentWindow = openWindows.get(ws);
                 } else {
-                    adjacentWindow = ctx.initWindow(name, ws, Math.min(we, bamStats.getReferenceSize()), ctx.getReference(), detailed, verbose);
+                    adjacentWindow = ctx.initWindow(name, ws, Math.min(we, bamStats.getReferenceSize()), ctx.getReference(), detailed);
                     bamStats.incInitializedWindows();
                     openWindows.put(ws,adjacentWindow);
                 }

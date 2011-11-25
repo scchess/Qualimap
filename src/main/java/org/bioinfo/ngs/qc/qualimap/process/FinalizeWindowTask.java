@@ -44,7 +44,6 @@ public class FinalizeWindowTask implements Callable {
         //log.flush();
         long startTime = System.currentTimeMillis();
 
-
         try {
             window.computeDescriptors();
             bamStats.addWindowInformation(window);
@@ -54,7 +53,8 @@ public class FinalizeWindowTask implements Callable {
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("From FinalizeWindowTask: finalized a window " + window.getName() + ", time (ms): " + (endTime - startTime));
+        System.out.println("From FinalizeWindowTask: finalized a window " + window.getName() + " " + window.getStart()
+                + "-" + window.getEnd() + ", time (ms): " + (endTime - startTime));
 
         //System.out.println("From FinalizeWindowTask: finished!");
 

@@ -30,7 +30,7 @@ public class GenomeLocator implements Externalizable {
 		}		
 	}
 		
-	public ContigRecord getContigCoordinates(int absolute){
+	public ContigRecord getContigCoordinates(long absolute){
 		// empty contig list
 		if(contigs.size()==0){
 			return null;
@@ -63,25 +63,12 @@ public class GenomeLocator implements Externalizable {
 	}
 
 	/**
-	 * @param contigs the contigs to set
-	 */
-	public void setContigs(List<ContigRecord> contigs) {
-		this.contigs = contigs;
-	}
-
-	/**
 	 * @return the totalSize
 	 */
 	public long getTotalSize() {
 		return totalSize;
 	}
 
-	/**
-	 * @param totalSize the totalSize to set
-	 */
-	public void setTotalSize(long totalSize) {
-		this.totalSize = totalSize;
-	}
 
     @Override
     public void writeExternal(ObjectOutput objectOutput) throws IOException {

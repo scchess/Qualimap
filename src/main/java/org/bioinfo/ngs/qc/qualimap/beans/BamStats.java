@@ -295,7 +295,26 @@ public class BamStats implements Serializable {
 		}
 		windowPositionsAvailable=true;
 	}
-	
+
+    public void setWindowReferences(String prefix, List<Long> windowPositions) {
+        windowNames = new String[numberOfWindows];
+        windowSizes = new long[numberOfWindows];
+        windowStarts = new long[numberOfWindows];
+        windowEnds = new long[numberOfWindows];
+
+        for (int i = 0; i < numberOfWindows; ++i) {
+            windowNames[i] = prefix = "_" + (i+1);
+            windowStarts[i] = windowPositions.get(i);
+            if (i + 1 == numberOfWindows ) {
+                windowEnds[i] = referenceSize;
+            } else {
+                windowEnds[i] = windowPositions.get(i+1) - 1;
+            }
+            windowSizes[i] = windowEnds[i] - windowStarts[i] + 1;
+        }
+    }
+
+
 	/*
 	 * 
 	 * Reporting
@@ -368,7 +387,9 @@ public class BamStats implements Serializable {
     public synchronized void incProcessedWindows() {
         numberOfProcessedWindows++;
     }
-	
+
+
+
 	public synchronized  void addWindowInformation(BamGenomeWindow window){
 
         //TODO: bad design
@@ -518,7 +539,14 @@ public class BamStats implements Serializable {
 		 */
 		
 		// coverageData
-		meanCoverage = (double)numberOfMappedBases/(double)referenceSize;		
+		meanCoverage = (double)numberOfMappedBases/(double)referenceSize;
+        System.out.println("numberOfMappedBases: " + numberOfMappedBases);
+        System.out.println("referenceSize: " + referenceSize);
+        System.out.println("numberOfSequencedBases: " + numberOfSequencedBases);
+        System.out.println("numberOfAs: " + numberOfAs);
+
+
+
 		stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) referenceSize - meanCoverage*meanCoverage);
 		
 		// quality
@@ -625,7 +653,13 @@ public class BamStats implements Serializable {
 			coverageHistogramMap.put(coverage,last);
 		}
 	}
-	
+
+
+    public void computeHistograms() {
+
+    }
+
+
 	public int getHistogramSize(){
 		// read keys
 		Object[] raw = coverageHistogramMap.keySet().toArray();

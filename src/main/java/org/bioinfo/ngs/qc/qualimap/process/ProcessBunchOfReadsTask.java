@@ -1,5 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import net.sf.samtools.SAMFormatException;
 import net.sf.samtools.SAMRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
@@ -51,14 +52,26 @@ public class ProcessBunchOfReadsTask implements Callable {
 
     public Collection<SingleReadData> call() {
 
+        //System.out.println("Started bunch of read analysis. The first read is" + reads.get(0).getReadName());
 
         for (SAMRecord read : reads) {
 
             long position = ctx.getLocator().getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentStart());
-            //System.out.println("From ProcessReadTask: started analysis of read" + read.getHeader().toString());
+            //System.out.println("From ProcessReadTask: started analysis of read " + read.getReadName() + ", size: " + read.getReadLength());
 
+            String alignment = null;
             // compute alignment
-            String alignment = BamGenomeWindow.computeAlignment(read);
+            try {
+                alignment = BamGenomeWindow.computeAlignment(read);
+            } catch (SAMFormatException e) {
+                System.err.println("Problem analyzing the read: " + read.getReadName());
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+
+            if (alignment == null || alignment.isEmpty()) {
+                continue;
+            }
 
             //System.out.println("From ProcessReadTask: computed alignment for read" + read.getHeader().toString());
 
@@ -73,24 +86,18 @@ public class ProcessBunchOfReadsTask implements Callable {
                 isPairedData = false;
             }
 
-            try {
 
-                // acum read
-                boolean outOfBounds = processRead(currentWindow, read, alignment, ctx.getLocator());
-                //System.out.println("From ProcessReadTask: calculated stats for read" + read.getHeader().toString());
-                //synchronized (lock) {
+            // acum read
+            boolean outOfBounds = processRead(currentWindow, read, alignment, ctx.getLocator());
+            //System.out.println("From ProcessReadTask: calculated stats for read" + read.getHeader().toString());
 
-                if(outOfBounds) {
-                    //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
-                    propagateRead(alignment, position, position + alignment.length()-1, read.getMappingQuality(), insertSize,true,true);
-                    //}
-                }
-                //}
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.print("From ProcessReadTask: we are DOOMed!!! " + e.getMessage());
+            if(outOfBounds) {
+                //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
+                propagateRead(alignment, position, position + alignment.length()-1, read.getMappingQuality(), insertSize,true);
             }
+
         }
+
 
 
         return taskResults.values();
@@ -194,7 +201,7 @@ public class ProcessBunchOfReadsTask implements Callable {
         }
 
 
-    private void propagateRead(String alignment,long readStart, long readEnd, int mappingQuality,long insertSize,boolean detailed,boolean verbose){
+    private void propagateRead(String alignment,long readStart, long readEnd, int mappingQuality,long insertSize,boolean detailed){
 		// init covering stat
 		long ws, we;
 		String name;
@@ -214,7 +221,7 @@ public class ProcessBunchOfReadsTask implements Callable {
                 if(openWindows.containsKey(ws)){
                     adjacentWindow = openWindows.get(ws);
                 } else {
-                    adjacentWindow = ctx.initWindow(name, ws, Math.min(we, bamStats.getReferenceSize()), ctx.getReference(), detailed, verbose);
+                    adjacentWindow = ctx.initWindow(name, ws, Math.min(we, bamStats.getReferenceSize()), ctx.getReference(), detailed);
                     bamStats.incInitializedWindows();
                     openWindows.put(ws,adjacentWindow);
                 }

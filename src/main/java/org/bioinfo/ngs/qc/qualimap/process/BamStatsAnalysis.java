@@ -5,11 +5,14 @@ import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.formats.core.sequence.Fasta;
 import org.bioinfo.formats.core.sequence.io.FastaReader;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -45,7 +48,6 @@ public class BamStatsAnalysis {
 	private int numberOfMappedReads;
 	private double percentageOfMappedReads;
     private int numberOfDuplicatedReads;
-    Future<Integer> lastResult;
 
 	// statistics
 	private BamStats bamStats;
@@ -72,8 +74,8 @@ public class BamStatsAnalysis {
 	private HashMap<Long,BamGenomeWindow> openInsideWindows;
 	private BamStats insideBamStats;
 	private int numberOfInsideMappedReads;
-    private final int threadNumber = 8;
-    private final int numReadsInBunch = 2000;
+    private int threadNumber;
+    private int numReadsInBunch;
 
 	// outside
 	private boolean computeOutsideStats;
@@ -95,6 +97,13 @@ public class BamStatsAnalysis {
 	// chromosome
 	private boolean computeChromosomeStats;
 	private BamStats chromosomeStats;
+    private BamGenomeWindow currentChromosome;
+    private ConcurrentMap<Long,BamGenomeWindow> openChromosomeWindows;
+    private HashMap<Long,ContigRecord> contigCache;
+    private ArrayList<Integer> chromosomeWindowIndexes;
+
+
+    private final int maxSizeOfTaskQueue = 100;
 
 	// reporting
 	private boolean activeReporting;
@@ -102,20 +111,27 @@ public class BamStatsAnalysis {
 	private boolean isPairedData;
     List<Future<Collection<SingleReadData>>> results;
 
-    private ExecutorService workerThreadPool, finalizeThreadPool;
+
+    private ExecutorService workerThreadPool;
 
     public BamStatsAnalysis(String bamFile){
 		this.bamFile = bamFile;
 		this.numberOfWindows = 400;
+        this.threadNumber = 4;
+        this.numReadsInBunch = 2000;
+        this.computeChromosomeStats = false;
+        this.outdir = ".";
 		logger = new Logger();
         workerThreadPool = Executors.newFixedThreadPool(threadNumber);
+        chromosomeWindowIndexes = new ArrayList<Integer>();
     }
 
     public void run() throws Exception{
 
+        long startTime = System.currentTimeMillis();
 
         // init reader
-		SAMFileReader reader = new SAMFileReader(new File(bamFile));
+        SAMFileReader reader = new SAMFileReader(new File(bamFile));
 
         // org.bioinfo.ntools.process header
 		String lastActionDone = "loading sam header header";
@@ -132,18 +148,29 @@ public class BamStatsAnalysis {
         logger.println(lastActionDone);
         loadReference();
 
-        long startTime = System.currentTimeMillis();
-
         // init window set
         windowSize = computeWindowSize(referenceSize,numberOfWindows);
-        effectiveNumberOfWindows = computeEffectiveNumberOfWindows(referenceSize,windowSize);
+        //effectiveNumberOfWindows = computeEffectiveNumberOfWindows(referenceSize,windowSize);
+        List<Long> windowPositions = computeWindowPositions(windowSize);
+        effectiveNumberOfWindows = windowPositions.size();
         bamStats = new BamStats("genome",referenceSize,effectiveNumberOfWindows);
         logger.println("effectiveNumberOfWindows " + effectiveNumberOfWindows);
         bamStats.setSourceFile(bamFile);
-        bamStats.setWindowReferences("w",windowSize);
+        //bamStats.setWindowReferences("w",windowSize);
+        bamStats.setWindowReferences("w", windowPositions);
         openWindows = new ConcurrentHashMap<Long,BamGenomeWindow>();
 
-        currentWindow = nextWindow(bamStats,openWindows,reference,true,true);
+        currentWindow = nextWindow(bamStats,openWindows,reference,true);
+
+
+        // chromosome stats
+		if(computeChromosomeStats){
+			chromosomeStats = new BamStats("chromosomes", referenceSize, numberOfReferenceContigs);
+			chromosomeStats.setWindowReferences(locator);
+			openChromosomeWindows = new ConcurrentHashMap<Long, BamGenomeWindow>();
+			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,reference,false);
+		    chromosomeStats.activateWindowReporting(outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES);
+        }
 
         // init working variables
 		isPairedData = true;
@@ -173,8 +200,7 @@ public class BamStatsAnalysis {
                  if (read.getDuplicateReadFlag()) {
                     numberOfDuplicatedReads++;
                  }
-
-				// accumulate only mapped reads
+                 // accumulate only mapped reads
 				if(!read.getReadUnmappedFlag()) {
                     numberOfMappedReads++;
                 }  else {
@@ -186,13 +212,19 @@ public class BamStatsAnalysis {
 			    // compute absolute position
 				long position = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 
+                if (computeChromosomeStats && position > currentChromosome.getEnd()) {
+                    collectAnalysisResults(readsBunch);
+                    currentChromosome = finalizeAndGetNextWindow(position, currentChromosome,
+                            openChromosomeWindows, chromosomeStats, reference, false);
+                }
+
                 // finalize current and get next window
 			    if(position > currentWindow.getEnd() ){
-                    analyzeReads(readsBunch);
+                    //analyzeReads(readsBunch);
+                    collectAnalysisResults(readsBunch);
                     //finalize
 				    currentWindow = finalizeAndGetNextWindow(position,currentWindow,openWindows,
-                            bamStats,reference,true,true);
-                    readsBunch.clear();
+                            bamStats,reference,true);
                 }
 
                 if (currentWindow == null) {
@@ -201,6 +233,17 @@ public class BamStatsAnalysis {
                 }
 
                 readsBunch.add(read);
+                if (readsBunch.size() >= numReadsInBunch) {
+                    if (results.size() >= maxSizeOfTaskQueue )  {
+                        System.out.println("Max size of task queue is exceeded!");
+                        collectAnalysisResults(readsBunch);
+                    } else {
+                        analyzeReadsBunch(readsBunch);
+                    }
+                }
+
+
+
                 numberOfValidReads++;
 
             }
@@ -215,17 +258,16 @@ public class BamStatsAnalysis {
         if (!readsBunch.isEmpty()) {
             int numWindows = bamStats.getNumberOfWindows();
             long lastPosition = bamStats.getWindowEnd(numWindows - 1) + 1;
-            analyzeReads(readsBunch);
+            //analyzeReads(readsBunch);
+            collectAnalysisResults(readsBunch);
             //finalize
-            finalizeAndGetNextWindow(lastPosition,currentWindow,openWindows,bamStats,reference,true,true);
-            readsBunch.clear();
-        }
-
-        if (lastResult != null) {
-            lastResult.get();
+            finalizeAndGetNextWindow(lastPosition,currentWindow,openWindows,bamStats,reference,true);
+            finalizeAndGetNextWindow(lastPosition,currentChromosome, openChromosomeWindows,
+                    chromosomeStats, reference, false);
         }
 
         workerThreadPool.shutdown();
+        workerThreadPool.awaitTermination(2, TimeUnit.MINUTES);
 
         long endTime = System.currentTimeMillis();
 
@@ -233,7 +275,7 @@ public class BamStatsAnalysis {
         logger.println("Number of mapped reads: " + numberOfMappedReads);
         logger.println("Number of valid reads: " + numberOfValidReads);
         logger.println("Number of dupliated reads: " + numberOfDuplicatedReads);
-        logger.println("Time taken: " + (endTime - startTime) / 1000);
+        logger.println("Time taken to analyze reads: " + (endTime - startTime) / 1000);
 
         // summarize
 		percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
@@ -250,28 +292,36 @@ public class BamStatsAnalysis {
 		logger.print("Computing histograms...");
 		bamStats.computeCoverageHistogram();
 
+        long overallTime = System.currentTimeMillis();
+        logger.println("Overall analysis time: " + (overallTime - startTime) / 1000);
+
+
+
     }
 
-    public void startReadAnalysis(SAMRecord read, ArrayList<SAMRecord> readsBunch) throws InterruptedException, ExecutionException {
+    public static List<SAMRecord> getShallowCopy(List<SAMRecord> list) {
+        ArrayList<SAMRecord> result = new ArrayList<SAMRecord>(list.size());
 
-        if (readsBunch.size() < numReadsInBunch) {
-            readsBunch.add(read);
-        } else {
-            List<SAMRecord> bunch = (List<SAMRecord>) readsBunch.clone(); // shallow copy
-            Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(bunch,currentWindow, this);
-            results.add( workerThreadPool.submit(task) );
-            readsBunch.clear();
+        for (SAMRecord r : list)  {
+            result.add(r);
         }
+
+        return result;
+
     }
 
+    private void analyzeReadsBunch( ArrayList<SAMRecord> readsBunch ) throws ExecutionException, InterruptedException {
+         List<SAMRecord> bunch = getShallowCopy(readsBunch);
+         Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(bunch,currentWindow, this);
+         Future<Collection<SingleReadData>> result = workerThreadPool.submit(task);
+         results.add( result );
+         readsBunch.clear();
+    }
 
-    public void finalizeAnalysis(ArrayList<SAMRecord> readsBunch ) throws InterruptedException, ExecutionException {
+    private void collectAnalysisResults(ArrayList<SAMRecord> readsBunch) throws InterruptedException, ExecutionException {
 
         // start last bunch
-        List<SAMRecord> bunch = (List<SAMRecord>) readsBunch.clone(); // shallow copy
-        Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(bunch,currentWindow, this);
-        results.add( workerThreadPool.submit(task) );
-        readsBunch.clear();
+        analyzeReadsBunch(readsBunch);
 
         // wait till all tasks are finished
         for (Future<Collection<SingleReadData>> result : results) {
@@ -279,46 +329,55 @@ public class BamStatsAnalysis {
             for (SingleReadData rd : dataset) {
                 BamGenomeWindow w = openWindows.get(rd.getWindowStart());
                 w.addReadData(rd);
+                if (computeChromosomeStats) {
+                    currentChromosome.addReadData(rd);
+                }
             }
         }
 
+        results.clear();
 
     }
 
+    /*private BamGenomeWindow getChromosomeWindow(Long pos) {
 
-    public void analyzeReads(List<SAMRecord> readList ) throws InterruptedException, ExecutionException {
+        BamGenomeWindow chrWindow;
 
-        List<Future<Collection<SingleReadData>>> results = new ArrayList<Future<Collection<SingleReadData>>>();
-        System.out.println("Number of reads to analyze: " + readList.size());
+        ContigRecord cr = contigCache.get(pos);
+        long startPos = cr.getStart();
+        long endPos = cr.getEnd();
 
-        long startTime = System.currentTimeMillis();
-
-        for (int fromIndex = 0; fromIndex < readList.size(); fromIndex += numReadsInBunch ) {
-            int toIndex = fromIndex + numReadsInBunch;
-            if (toIndex >= readList.size() ) {
-                toIndex = readList.size();
-            }
-            List<SAMRecord> readsBunch = readList.subList(fromIndex, toIndex);
-            Callable<Collection<SingleReadData>> task = new ProcessBunchOfReadsTask(readsBunch,currentWindow, this);
-            results.add( workerThreadPool.submit(task) );
+        if (openChromosomeWindows.containsKey(startPos)) {
+            chrWindow = openChromosomeWindows.get(startPos);
+        }else {
+            chrWindow = initWindow(cr.getName(), startPos, endPos, reference, false);
+            chromosomeStats.incInitializedWindows();
+            openChromosomeWindows.put(startPos,chrWindow);
         }
 
-        //List<Future<List<SingleReadData>>> results  = workerThreadPool.invokeAll(taskList, position, currentWindow, this);
-        // wait till all tasks are finished
-        for (Future<Collection<SingleReadData>> result : results) {
-            Collection<SingleReadData> dataset = result.get();
-            for (SingleReadData rd : dataset) {
-                BamGenomeWindow w = openWindows.get(rd.getWindowStart());
-                w.addReadData(rd);
-            }
-        }
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("Bunch of read analysis time(ms): " +  (endTime - startTime));
-
+        return chrWindow;
     }
 
-    public static BamGenomeWindow initWindow(String name,long windowStart,long windowEnd, byte[]reference, boolean detailed, boolean verbose){
+    private void initContigCache() {
+        contigCache = new HashMap<Long, ContigRecord>(bamStats.getNumberOfWindows());
+        List<ContigRecord> contigRecords = locator.getContigs();
+        long[] windowStarts = bamStats.getWindowStarts();
+        int i = 0;
+        for (long windowStart : windowStarts) {
+            ContigRecord contig = contigRecords.get(i);
+            if (windowStart > contig.getEnd()) {
+                contig = contigRecords.get(++i);
+            }
+            contigCache.put(windowStart,contig);
+
+        }
+
+
+    }*/
+
+
+    public static BamGenomeWindow initWindow(String name,long windowStart,long windowEnd, byte[]reference,
+                                             boolean detailed){
 		byte[]miniReference = null;
 		if(reference!=null) {
 			miniReference = new byte[(int)(windowEnd-windowStart+1)];
@@ -333,7 +392,7 @@ public class BamStatsAnalysis {
 	}
 
 
-    private static BamGenomeWindow nextWindow(BamStats bamStats, Map<Long,BamGenomeWindow> openWindows,byte[]reference,boolean detailed,boolean verbose){
+    private static BamGenomeWindow nextWindow(BamStats bamStats, Map<Long,BamGenomeWindow> openWindows,byte[]reference,boolean detailed){
 		// init new current
 		BamGenomeWindow currentWindow = null;
 
@@ -347,7 +406,7 @@ public class BamStatsAnalysis {
 					currentWindow = openWindows.get(windowStart);
 					//openWindows.remove(windowStart);
 				} else {
-					currentWindow = initWindow(bamStats.getCurrentWindowName(),windowStart,Math.min(windowEnd,bamStats.getReferenceSize()),reference,detailed,verbose);
+					currentWindow = initWindow(bamStats.getCurrentWindowName(),windowStart,Math.min(windowEnd,bamStats.getReferenceSize()),reference,detailed);
 					bamStats.incInitializedWindows();
                     openWindows.put(windowStart, currentWindow);
 				}
@@ -358,18 +417,14 @@ public class BamStatsAnalysis {
 	}
 
     private BamGenomeWindow finalizeAndGetNextWindow(long position, BamGenomeWindow lastWindow,
-                                                     Map<Long,BamGenomeWindow> openWindows,BamStats bamStats,byte[]reference,
-                                                     boolean detailed, boolean verbose) throws CloneNotSupportedException{
+                                                     Map<Long,BamGenomeWindow> openWindows,BamStats bamStats,
+                                                     byte[]reference, boolean detailed)
+            throws CloneNotSupportedException, ExecutionException, InterruptedException {
         // position is still far away
         while(position > lastWindow.getEnd() ) {
             //finalizeWindowInSameThread(lastWindow);
-            lastResult = finalizeWindow(lastWindow);
-            /*try {
-                lastResult.get();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }*/
-            lastWindow = nextWindow(bamStats,openWindows,reference,detailed,verbose);
+            finalizeWindow(lastWindow, bamStats, openWindows);
+            lastWindow = nextWindow(bamStats,openWindows,reference,detailed);
             if (lastWindow == null) {
                 break;
             }
@@ -379,7 +434,9 @@ public class BamStatsAnalysis {
         return lastWindow;
     }
 
-    private Future<Integer> finalizeWindow(BamGenomeWindow window) {
+
+    private Future<Integer> finalizeWindow(BamGenomeWindow window, BamStats bamStats,
+                                           Map<Long,BamGenomeWindow> openWindows) {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
@@ -387,7 +444,8 @@ public class BamStatsAnalysis {
     }
 
 
-    private Integer finalizeWindowInSameThread(BamGenomeWindow window) {
+    private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
+                                               Map<Long,BamGenomeWindow> openWindows) {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
@@ -410,7 +468,7 @@ public class BamStatsAnalysis {
 			FastaReader reader = new FastaReader(referenceFile);
 
 			// init buffer
-			StringBuffer referenceBuffer = new StringBuffer();
+			StringBuilder referenceBuffer = new StringBuilder();
 
 			numberOfReferenceContigs = 0;
 			Fasta contig;
@@ -451,6 +509,29 @@ public class BamStatsAnalysis {
 		return numberOfWindows;
 	}
 
+    private ArrayList<Long> computeWindowPositions(int windowSize){
+        List<ContigRecord> contigs = locator.getContigs();
+        ArrayList<Long> windowStarts = new ArrayList<Long>();
+
+        long startPos = 1;
+        int i = 0;
+        while (startPos < referenceSize) {
+            windowStarts.add(startPos);
+            startPos += windowSize;
+            long nextContigStart = contigs.get(i).getEnd() + 1;
+            if (startPos >= nextContigStart) {
+                if (startPos > nextContigStart) {
+                    System.out.println("Chromosome window break: " + (windowStarts.size() + 1));
+                    windowStarts.add(nextContigStart);
+                }
+                chromosomeWindowIndexes.add(i);
+                i++;
+            }
+        }
+        return windowStarts;
+    }
+
+
     public GenomeLocator getLocator() {
         return locator;
     }
@@ -474,4 +555,14 @@ public class BamStatsAnalysis {
     public void setNumberOfWindows(int windowsNum) {
         numberOfWindows = windowsNum;
     }
+
+    public void activeReporting(String outdir){
+		this.outdir = outdir;
+		this.activeReporting = true;
+	}
+
+    public void setComputeChromosomeStats(boolean computeChromosomeStats) {
+        this.computeChromosomeStats = computeChromosomeStats;
+    }
+
 }

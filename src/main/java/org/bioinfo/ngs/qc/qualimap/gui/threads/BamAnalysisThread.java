@@ -90,12 +90,12 @@ public class BamAnalysisThread extends Thread {
 			tabProperties.setGffSelected(true);
 		}
 
-		//bamQC.setComputeChromosomeStats(true);
+		bamQC.setComputeChromosomeStats(true);
 		//bamQC.setComputeOutsideStats(true);
 
 
 		// reporting
-		//bamQC.activeReporting(outputDirPath.toString());
+		bamQC.activeReporting(outputDirPath.toString());
 
 		openFilePanel.getProgressStream().setText("Starting bam qc....");
 

@@ -18,7 +18,6 @@ public class BamGenomeWindow {
 	protected long end;
 	protected long windowSize;
 	protected long numberOfCigarElements;
-	protected long initTime, endTime, processingTime;
 
 	// input reads
 	protected long numberOfProcessedReads;
@@ -35,7 +34,7 @@ public class BamGenomeWindow {
 	protected List<Region> selectedRegionList;	
 
 	// working variables	
-	protected HashMap<String,Character> charMap;
+	//protected HashMap<String,Character> charMap;
 	
 	/*
 	 * 
@@ -125,12 +124,7 @@ public class BamGenomeWindow {
 	protected int correctInsertSizes;
 	protected double acumInsertSize;
 	protected double meanInsertSize;
-	
-	
-	public BamGenomeWindow(String name, long start, long end){
-		this(name,start,end,null);		
-	}
-	
+
 	public BamGenomeWindow(String name, long start, long end, byte[] reference){
 		this.name = name;
 		
@@ -161,7 +155,6 @@ public class BamGenomeWindow {
 		charMap.put("H",'H');*/
 				
 		// instant creation
-		initTime = System.currentTimeMillis();
 	}
 	
 	public void processReference(byte[] reference){
@@ -348,7 +341,8 @@ public class BamGenomeWindow {
 		
 		// precompute total size of alignment
 		int totalSize = 0;
-		for(int i=0; i<cigar.numCigarElements(); i++){			
+        int numCigarElements = cigar.numCigarElements();
+		for(int i=0; i<numCigarElements; i++){
 			element = cigar.getCigarElement(i);
 			totalSize += element.getLength();
 		}
@@ -357,7 +351,7 @@ public class BamGenomeWindow {
 		char[] extended = new char[totalSize];		
 		int mpos = 0;
 		int npos;		
-		for(int i=0; i<cigar.numCigarElements(); i++){			
+		for(int i=0; i < numCigarElements; i++){
 			element = cigar.getCigarElement(i);
 			npos = mpos + element.getLength();
 			Arrays.fill(extended, mpos, npos, element.getOperator().name().charAt(0));
@@ -443,10 +437,6 @@ public class BamGenomeWindow {
 //			meanAtRelativeContent = meanARelativeContent + meanTRelativeContent;			
 		}
 			
-		// instant creation
-		endTime = System.currentTimeMillis();
-		processingTime = endTime - initTime;
-		
 	}
 	
 	/**
@@ -518,49 +508,7 @@ public class BamGenomeWindow {
 	public void setNumberOfCigarElements(long numberOfCigarElements) {
 		this.numberOfCigarElements = numberOfCigarElements;
 	}
-	
-	/**
-	 * @return the initTime
-	 */
-	public long getInitTime() {
-		return initTime;
-	}
-	
-	/**
-	 * @param initTime the initTime to set
-	 */
-	public void setInitTime(long initTime) {
-		this.initTime = initTime;
-	}
-	
-	/**
-	 * @return the endTime
-	 */
-	public long getEndTime() {
-		return endTime;
-	}
-	
-	/**
-	 * @param endTime the endTime to set
-	 */
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
-	}
-	
-	/**
-	 * @return the processingTime
-	 */
-	public long getProcessingTime() {
-		return processingTime;
-	}
-	
-	/**
-	 * @param processingTime the processingTime to set
-	 */
-	public void setProcessingTime(long processingTime) {
-		this.processingTime = processingTime;
-	}
-	
+
 	/**
 	 * @return the numberOfProcessedReads
 	 */
@@ -660,21 +608,7 @@ public class BamGenomeWindow {
 	public void setSelectedRegionList(List<Region> selectedRegionList) {
 		this.selectedRegionList = selectedRegionList;
 	}
-	
-	/**
-	 * @return the charMap
-	 */
-	public HashMap<String, Character> getCharMap() {
-		return charMap;
-	}
-	
-	/**
-	 * @param charMap the charMap to set
-	 */
-	public void setCharMap(HashMap<String, Character> charMap) {
-		this.charMap = charMap;
-	}
-	
+
 	/**
 	 * @return the referenceAvailable
 	 */

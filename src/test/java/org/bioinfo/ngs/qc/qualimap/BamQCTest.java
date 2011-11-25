@@ -44,8 +44,8 @@ public class BamQCTest {
 
         /*tests.add( new TestConfig("/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.bam",
                                "/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.properties"));
-        */
 
+        */
     }
 
     @Test
@@ -82,7 +82,7 @@ public class BamQCTest {
                 return;
             }
 
-            final List<String> keysToSkip = Arrays.asList("meanMappingQuality", "numWindows", "aPercent");
+            final List<String> keysToSkip = Arrays.asList("meanMappingQuality", "numWindows");
 
             for (String key : calculatedProps.stringPropertyNames()) {
                 if (keysToSkip.contains(key)) {
