@@ -66,7 +66,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	
 	public static String outputpath =File.separator+"tmp/outputs"+File.separator; 
 	
-	private static String title = "QualiMap v.1.0";
+	private static String title = "QualiMap v.1.0 parallel";
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 	public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
 	public static Font defaultFontItalic = new Font(Font.DIALOG, Font.ITALIC, 12);

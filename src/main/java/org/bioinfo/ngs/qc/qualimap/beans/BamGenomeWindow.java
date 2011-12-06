@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.BitSet;
 
 import net.sf.samtools.Cigar;
 import net.sf.samtools.CigarElement;
@@ -22,7 +23,8 @@ public class BamGenomeWindow {
 	// input reads
 	protected long numberOfProcessedReads;
 	protected long numberOfOutOfBoundsReads;
-		
+
+
 	// general 
 	protected long numberOfMappedBases;
 	protected long numberOfSequencedBases;
@@ -30,7 +32,7 @@ public class BamGenomeWindow {
 
 	// gff-like
 	protected boolean selectedRegionsAvailable;
-	protected boolean[] selectedRegions;
+	protected BitSet selectedRegions;
 	protected List<Region> selectedRegionList;	
 
 	// working variables	
@@ -154,7 +156,6 @@ public class BamGenomeWindow {
 		charMap.put("S",'S');
 		charMap.put("H",'H');*/
 				
-		// instant creation
 	}
 	
 	public void processReference(byte[] reference){
@@ -246,7 +247,7 @@ public class BamGenomeWindow {
 			} else if(relative>=windowSize){
 				//	System.err.println("WARNING: " + read.getReadName() + " is fuera del tiesto " + relative);
 			} else {
-				if(!selectedRegionsAvailable || (selectedRegionsAvailable && selectedRegions[(int)relative])) {
+				if(!selectedRegionsAvailable || (selectedRegionsAvailable && selectedRegions.get((int)relative))) {
 					nucleotide = alignment.charAt((int)pos);
 					 
 					// aligned bases
@@ -336,32 +337,31 @@ public class BamGenomeWindow {
             return new String();
         }
 
-		CigarElement element; 
 		Cigar cigar = read.getCigar();
 		
 		// precompute total size of alignment
 		int totalSize = 0;
+        List<CigarElement> elementList = cigar.getCigarElements();
         int numCigarElements = cigar.numCigarElements();
-		for(int i=0; i<numCigarElements; i++){
-			element = cigar.getCigarElement(i);
+		for(CigarElement element : elementList){
 			totalSize += element.getLength();
 		}
-		
+
 		// compute extended cigar
-		char[] extended = new char[totalSize];		
+		char[] extended = new char[totalSize];
 		int mpos = 0;
-		int npos;		
-		for(int i=0; i < numCigarElements; i++){
-			element = cigar.getCigarElement(i);
-			npos = mpos + element.getLength();
+		int npos;
+        for(CigarElement element : elementList){
+		    npos = mpos + element.getLength();
 			Arrays.fill(extended, mpos, npos, element.getOperator().name().charAt(0));
-			mpos = npos;			
+			mpos = npos;
 		}
 
 		// init extended cigar portion
 		char[] extendedCigarVector = extended; // Arrays.copyOfRange(extended,0,mpos);
 
 		char[] alignmentVector = new char[alignmentLength];
+
 		int readPos = 0;
 		int alignmentPos = 0;
 		char base;
@@ -413,7 +413,22 @@ public class BamGenomeWindow {
 	public void computeDescriptors() throws CloneNotSupportedException{			
 		
 		// org.bioinfo.ntools.process acums		
-		meanCoverage = (double)numberOfMappedBases/(double)windowSize;		
+
+
+        double effectiveWindowLength = windowSize;
+        if (selectedRegionsAvailable && numberOfMappedBases != 0) {
+            int len = 0;
+            for (int i = 0; i< windowSize; ++i )
+             {
+                if (selectedRegions.get(i)) {
+                    len++;
+                }
+            }
+            effectiveWindowLength = len;
+        }
+
+        meanCoverage = (double)numberOfMappedBases/ effectiveWindowLength;
+
 		meanMappingQuality = acumMappingQuality/(double)numberOfMappedBases;
 		meanInsertSize = acumInsertSize/(double)numberOfMappedBases;
 					
@@ -436,7 +451,7 @@ public class BamGenomeWindow {
 			meanGcRelativeContent = meanCRelativeContent + meanGRelativeContent;
 //			meanAtRelativeContent = meanARelativeContent + meanTRelativeContent;			
 		}
-			
+
 	}
 	
 	/**
@@ -507,7 +522,7 @@ public class BamGenomeWindow {
 	 */
 	public void setNumberOfCigarElements(long numberOfCigarElements) {
 		this.numberOfCigarElements = numberOfCigarElements;
-	}
+}
 
 	/**
 	 * @return the numberOfProcessedReads
@@ -584,14 +599,14 @@ public class BamGenomeWindow {
 	/**
 	 * @return the selectedRegions
 	 */
-	public boolean[] getSelectedRegions() {
+	public BitSet getSelectedRegions() {
 		return selectedRegions;
 	}
 	
 	/**
 	 * @param selectedRegions the selectedRegions to set
 	 */
-	public void setSelectedRegions(boolean[] selectedRegions) {
+	public void setSelectedRegions(BitSet selectedRegions) {
 		this.selectedRegions = selectedRegions;
 	}
 	
@@ -1086,6 +1101,11 @@ public class BamGenomeWindow {
 	public void setMeanInsertSize(double meanInsertSize) {
 		this.meanInsertSize = meanInsertSize;
 	}
+
+
+    public void inverseRegions() {
+        selectedRegions.flip(0, selectedRegions.size());
+    }
 
     public void addReadData(SingleReadData readData) {
 

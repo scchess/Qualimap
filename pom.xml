@@ -49,11 +49,16 @@
 			<version>0.4.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!--
-			<dependency> <groupId>es.blast2go</groupId>
-			<artifactId>blast2go</artifactId> <version>babel2</version>
-			</dependency>
-		-->
+        <dependency>
+            <groupId>net.sf.picard.sam</groupId>
+            <artifactId>picard</artifactId>
+            <version>1.44</version>
+        </dependency>
+        <!--
+              <dependency> <groupId>es.blast2go</groupId>
+              <artifactId>blast2go</artifactId> <version>babel2</version>
+              </dependency>
+          -->
 
 	</dependencies>
 

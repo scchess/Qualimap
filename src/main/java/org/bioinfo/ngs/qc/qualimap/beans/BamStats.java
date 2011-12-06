@@ -303,7 +303,7 @@ public class BamStats implements Serializable {
         windowEnds = new long[numberOfWindows];
 
         for (int i = 0; i < numberOfWindows; ++i) {
-            windowNames[i] = prefix = "_" + (i+1);
+            windowNames[i] = prefix + "_" + (i+1);
             windowStarts[i] = windowPositions.get(i);
             if (i + 1 == numberOfWindows ) {
                 windowEnds[i] = referenceSize;
@@ -388,8 +388,6 @@ public class BamStats implements Serializable {
         numberOfProcessedWindows++;
     }
 
-
-
 	public synchronized  void addWindowInformation(BamGenomeWindow window){
 
         //TODO: bad design
@@ -400,7 +398,6 @@ public class BamStats implements Serializable {
 		numberOfMappedBases+=window.getNumberOfMappedBases();
 		numberOfSequencedBases+=window.getNumberOfSequencedBases();
 		numberOfAlignedBases+=window.getNumberOfAlignedBases();
-
 
 		/*
 		* Reference
@@ -612,6 +609,11 @@ public class BamStats implements Serializable {
 
 	public void updateHistograms(BamDetailedGenomeWindow window){
 		for(int i=0; i<window.getCoverageAcrossReference().length; i++){
+			if ( window.selectedRegionsAvailable ) {
+                if (!window.getSelectedRegions().get(i)) {
+                    continue;
+                }
+            }
 			// coverageData
 			updateHistogramValue(coverageHistogramCache, coverageHistogramMap, window.getCoverageAcrossReference()[i]);
 			

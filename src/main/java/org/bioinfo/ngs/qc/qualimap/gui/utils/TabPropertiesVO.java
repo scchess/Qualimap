@@ -61,7 +61,8 @@ public class TabPropertiesVO {
 	 * the size, position, etc
 	 */
 	private JComponent leftSplitLastElement;	
-	private boolean isPairedData;	
+	private boolean isPairedData;
+    private boolean hasOutsideStats;
     private BamStats bamStats;
     private GenomeLocator genomeLocator;
 

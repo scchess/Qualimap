@@ -80,7 +80,8 @@ public class BamAnalysisThread extends Thread {
 
 		// Set the region file
 		if (openFilePanel.getRegionFile() != null) {
-		//	bamQC.setSelectedRegions(openFilePanel.getRegionFile().getAbsolutePath());
+			bamQC.setSelectedRegions(openFilePanel.getRegionFile().getAbsolutePath());
+            bamQC.setComputeOutsideStats(true);
 		}
 
 		// Put the gff variable to know if the user has added a region file only
@@ -130,7 +131,7 @@ public class BamAnalysisThread extends Thread {
 			// Set the reporter into the created tab
 			tabProperties.setReporter(reporter);
 	
-			/*if (openFilePanel.getRegionFile() != null) {
+			if (openFilePanel.getRegionFile() != null) {
 				BamQCRegionReporter insideReporter = new BamQCRegionReporter();
 				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 	
@@ -140,32 +141,32 @@ public class BamAnalysisThread extends Thread {
 	
 				// save stats
 				openFilePanel.getProgressStream().setText("   inside text report...");
-				insideReporter.loadReportData(bamQC.getInsideBamStats());
+				insideReporter.loadReportData(bamQC.getBamStats());
 				openFilePanel.getProgressStream().setText("OK");
-				increaseProgressBar(3.0, bamQC);
+				//increaseProgressBar(3.0, bamQC);
 	
 				// save charts
 				openFilePanel.getProgressStream().setText("   inside charts...");
-				insideReporter.computeChartsBuffers(bamQC.getInsideBamStats(), null, bamQC.isPairedData());
+				insideReporter.computeChartsBuffers(bamQC.getBamStats(), null, bamQC.isPairedData());
 				openFilePanel.getProgressStream().setText("OK");
-				increaseProgressBar(4.0, bamQC);
+				//increaseProgressBar(4.0, bamQC);
 	
 				// save stats
 				openFilePanel.getProgressStream().setText("   outside text report...");
 				outsideReporter.loadReportData(bamQC.getOutsideBamStats());
 				openFilePanel.getProgressStream().setText("OK");
-				increaseProgressBar(5.0, bamQC);
+				//increaseProgressBar(5.0, bamQC);
 	
 				// save charts
 				openFilePanel.getProgressStream().setText("   outside charts...");
 				outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), null, bamQC.isPairedData());
 				openFilePanel.getProgressStream().setText("OK");
-				increaseProgressBar(6.0, bamQC);
+				//increaseProgressBar(6.0, bamQC);
 	
 				// Set the reporters into the created tab
 				tabProperties.setInsideReporter(insideReporter);
 				tabProperties.setOutsideReporter(outsideReporter);
-			} */
+			}
 	
 			// Increment the pogress bar
 			openFilePanel.getProgressStream().setText("OK");

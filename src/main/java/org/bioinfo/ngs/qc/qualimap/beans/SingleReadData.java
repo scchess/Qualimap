@@ -91,7 +91,6 @@ public class SingleReadData {
 
 	public void acumMappingQuality(long relative, int mappingQuality){
 		//acumMappingQuality+=mappingQuality;
-        //TODO: check how the histogram is calculated!
         if (mappingQuality != 0) {
             mappingQualityData.add( new Cell((int)relative, mappingQuality) );
         }
