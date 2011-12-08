@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Constants {
-	public static final int DEFAULT_NUMBER_OF_WINDOWS = 200;
+	public static final int DEFAULT_NUMBER_OF_WINDOWS = 400;
 	public static final int REPORT_INPUT_BAM_FILE = 0;
 	public static final int REPORT_INSIDE_BAM_FILE = 1;
 	public static final int REPORT_OUTSIDE_BAM_FILE = 2;

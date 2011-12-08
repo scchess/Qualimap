@@ -6,13 +6,11 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import net.sf.picard.util.IntervalTree;
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.formats.core.feature.Gff;
 import org.bioinfo.formats.core.feature.io.GffReader;
 import org.bioinfo.formats.core.sequence.Fasta;
 import org.bioinfo.formats.core.sequence.io.FastaReader;
 import org.bioinfo.formats.exception.FileFormatException;
-import org.bioinfo.ngs.data.bamqc.beans.*;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.beans.BamDetailedGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
@@ -23,7 +21,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -57,8 +54,7 @@ public class BamStatsAnalysis {
 	private int numberOfValidReads;
 	private double percentageOfValidReads;
 	private int numberOfMappedReads;
-	private double percentageOfMappedReads;
-    private int numberOfDuplicatedReads;
+	private int numberOfDuplicatedReads;
 
 	// statistics
 	private BamStats bamStats;
@@ -79,29 +75,20 @@ public class BamStatsAnalysis {
 
 	// inside
 	private long insideReferenceSize;
-    private long numberOfInsideReads;
-	private int insideWindowSize;
-	private int effectiveInsideNumberOfWindows;
-	private BamGenomeWindow currentInsideWindow;
-	private HashMap<Long,BamGenomeWindow> openInsideWindows;
-	private BamStats insideBamStats;
-	private int numberOfInsideMappedReads;
     private int threadNumber;
     private int numReadsInBunch;
 
 	// outside
 	private boolean computeOutsideStats;
 	private long outsideReferenceSize;
-	private int outsideWindowSize;
-	private int effectiveOutsideNumberOfWindows;
 	private BamGenomeWindow currentOutsideWindow;
 	private HashMap<Long,BamGenomeWindow> openOutsideWindows;
 	private BamStats outsideBamStats;
 	private int numberOfOutsideMappedReads;
+    private int progress;
 
 	private long[] selectedRegionStarts;
 	private long[] selectedRegionEnds;
-	private long[] selectedRegionRelativePositions;
 
 	// insert size
 	private boolean computeInsertSize;
@@ -111,7 +98,6 @@ public class BamStatsAnalysis {
 	private BamStats chromosomeStats;
     private BamGenomeWindow currentChromosome;
     private ConcurrentMap<Long,BamGenomeWindow> openChromosomeWindows;
-    private HashMap<Long,ContigRecord> contigCache;
     private ArrayList<Integer> chromosomeWindowIndexes;
     IntervalTree<Integer> regionsTree;
 
@@ -123,15 +109,14 @@ public class BamStatsAnalysis {
 	private boolean isPairedData;
     List<Future<ProcessBunchOfReadsTask.Result>> results;
 
-
     private ExecutorService workerThreadPool;
 
-    public BamStatsAnalysis(String bamFile){
+    public BamStatsAnalysis(String bamFile) {
 		this.bamFile = bamFile;
 		this.numberOfWindows = 400;
         this.threadNumber = 4;
         this.numReadsInBunch = 2000;
-        this.maxSizeOfTaskQueue = 100;
+        this.maxSizeOfTaskQueue = 10;
         this.computeChromosomeStats = true;
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
@@ -170,6 +155,7 @@ public class BamStatsAnalysis {
         effectiveNumberOfWindows = windowPositions.size();
         bamStats = new BamStats("genome",referenceSize,effectiveNumberOfWindows);
         logger.println("effectiveNumberOfWindows " + effectiveNumberOfWindows);
+        logger.println("Number of threads: " + threadNumber);
         bamStats.setSourceFile(bamFile);
         //bamStats.setWindowReferences("w",windowSize);
         bamStats.setWindowReferences("w", windowPositions);
@@ -198,7 +184,8 @@ public class BamStatsAnalysis {
                     outsideBamStats.activateCoverageReporting(outdir + "/outside_coverage.txt");
                 }
 
-                // we have twice more data from the bunch
+                // We have twice more data from the bunch.
+                // TODO: Is this really required? look at bug-126
                 maxSizeOfTaskQueue /= 2;
             }
 
@@ -301,7 +288,7 @@ public class BamStatsAnalysis {
                 readsBunch.add(read);
                 if (readsBunch.size() >= numReadsInBunch) {
                     if (results.size() >= maxSizeOfTaskQueue )  {
-                        System.out.println("Max size of task queue is exceeded!");
+                        //System.out.println("Max size of task queue is exceeded!");
                         collectAnalysisResults(readsBunch);
                     } else {
                         analyzeReadsBunch(readsBunch);
@@ -361,7 +348,7 @@ public class BamStatsAnalysis {
 		bamStats.computeDescriptors();
         // compute histograms
 		logger.println("Computing histograms...");
-		bamStats.computeCoverageHistogram();
+		bamStats.computeHistograms();
 
         if(selectedRegionsAvailable && computeOutsideStats){
             outsideBamStats.setReferenceSize(referenceSize - insideReferenceSize);
@@ -371,7 +358,7 @@ public class BamStatsAnalysis {
             logger.println("Computing descriptors for outside regions...");
 		    outsideBamStats.computeDescriptors();
             logger.println("Computing histograms for outside regions...");
-		    outsideBamStats.computeCoverageHistogram();
+		    outsideBamStats.computeHistograms();
         }
 
         long overallTime = System.currentTimeMillis();
@@ -448,42 +435,6 @@ public class BamStatsAnalysis {
         return window;
     }
 
-
-    /*private BamGenomeWindow getChromosomeWindow(Long pos) {
-
-        BamGenomeWindow chrWindow;
-
-        ContigRecord cr = contigCache.get(pos);
-        long startPos = cr.getStart();
-        long endPos = cr.getEnd();
-
-        if (openChromosomeWindows.containsKey(startPos)) {
-            chrWindow = openChromosomeWindows.get(startPos);
-        }else {
-            chrWindow = initWindow(cr.getName(), startPos, endPos, reference, false);
-            chromosomeStats.incInitializedWindows();
-            openChromosomeWindows.put(startPos,chrWindow);
-        }
-
-        return chrWindow;
-    }
-
-    private void initContigCache() {
-        contigCache = new HashMap<Long, ContigRecord>(bamStats.getNumberOfWindows());
-        List<ContigRecord> contigRecords = locator.getContigs();
-        long[] windowStarts = bamStats.getWindowStarts();
-        int i = 0;
-        for (long windowStart : windowStarts) {
-            ContigRecord contig = contigRecords.get(i);
-            if (windowStart > contig.getEnd()) {
-                contig = contigRecords.get(++i);
-            }
-            contigCache.put(windowStart,contig);
-
-        }
-
-
-    }*/
 
     private void calculateRegionsLookUpTableForWindow(BamGenomeWindow w) {
 
@@ -566,6 +517,7 @@ public class BamStatsAnalysis {
             throws CloneNotSupportedException, ExecutionException, InterruptedException {
         // position is still far away
         while(position > lastWindow.getEnd() ) {
+            progress = (bamStats.getNumberOfProcessedWindows() * 100) / effectiveNumberOfWindows;
             //finalizeWindowInSameThread(lastWindow);
             finalizeWindow(lastWindow, bamStats, openWindows);
             lastWindow = nextWindow(bamStats,openWindows,reference,detailed);
@@ -640,7 +592,10 @@ public class BamStatsAnalysis {
 		GffReader gffReader = new GffReader(gffFile);
 		System.out.println("initializing regions from " + gffFile + ".....");
 		while((region = gffReader.read())!=null){
-			numberOfSelectedRegions++;
+			if (!region.getFeature().equalsIgnoreCase("exon")) {
+                continue;
+            }
+            numberOfSelectedRegions++;
 		}
 		gffReader.close();
 		if (numberOfSelectedRegions == 0) {
@@ -651,7 +606,7 @@ public class BamStatsAnalysis {
 
 		selectedRegionStarts = new long[numberOfSelectedRegions];
 		selectedRegionEnds = new long[numberOfSelectedRegions];
-		selectedRegionRelativePositions = new long[numberOfSelectedRegions];
+		//selectedRegionRelativePositions = new long[numberOfSelectedRegions];
         regionsTree = new IntervalTree<Integer>();
 
 		System.out.println("filling region references... ");
@@ -662,7 +617,10 @@ public class BamStatsAnalysis {
 		long lastEnd = 0;
         insideReferenceSize = 0;
 		while((region = gffReader.read())!=null){
-			pos = locator.getAbsoluteCoordinates(region.getSequenceName(),region.getStart());
+            if (!region.getFeature().equalsIgnoreCase("exon")) {
+                continue;
+            }
+            pos = locator.getAbsoluteCoordinates(region.getSequenceName(),region.getStart());
 	        int regionLength = region.getEnd() - region.getStart() + 1;
             insideReferenceSize += regionLength;
             selectedRegionStarts[index] = pos;
@@ -771,6 +729,14 @@ public class BamStatsAnalysis {
         numberOfWindows = windowsNum;
     }
 
+    public void setComputeInsertSize(boolean computeInsertSize) {
+        this.computeInsertSize = computeInsertSize;
+    }
+
+    public void setReferenceFile(String referenceFile) {
+        this.referenceFile = referenceFile;
+    }
+
     public void activeReporting(String outdir){
 		this.outdir = outdir;
 		this.activeReporting = true;
@@ -791,6 +757,14 @@ public class BamStatsAnalysis {
 
     public boolean getComputeOutsideStats() {
         return computeOutsideStats;
+    }
+
+    public void setNumberOfThreads(int threadNumber) {
+        this.threadNumber = threadNumber;
+    }
+
+    public int getProgress() {
+        return progress;
     }
 
 }

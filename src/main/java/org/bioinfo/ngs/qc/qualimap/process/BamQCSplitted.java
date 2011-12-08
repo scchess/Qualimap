@@ -25,7 +25,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 
 public class BamQCSplitted {
-	public static final int DEFAULT_NUMBER_OF_WINDOWS = 500;
+	public static final int DEFAULT_NUMBER_OF_WINDOWS = 400;
 	
 	// input data
 	private String bamFile;
@@ -274,7 +274,7 @@ public class BamQCSplitted {
                 }
 
 				// compute alignment
-				alignment = BamGenomeWindow.computeAlignment(read);
+				alignment = new String(BamGenomeWindow.computeAlignment(read));
 				
 				// isize
 	
@@ -464,11 +464,11 @@ public class BamQCSplitted {
 		
 		// compute histograms
 		logger.print("Computing histograms...");
-		bamStats.computeCoverageHistogram();
+		bamStats.computeHistograms();
 		if(selectedRegionsAvailable){
-			insideBamStats.computeCoverageHistogram();
+			insideBamStats.computeHistograms();
 			if(computeOutsideStats){
-				outsideBamStats.computeCoverageHistogram();
+				outsideBamStats.computeHistograms();
 			}
 		}
 		

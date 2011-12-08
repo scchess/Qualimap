@@ -18,17 +18,17 @@ public class NgsSmartMain {
 	 * @param args
 	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws Exception {
+
+    public static void main(String[] args) throws Exception {
 		Logger logger = new Logger();
-		
-		if(args.length==0){
-			error(logger,"No tool provided!!");
+        NgsSmartTool tool = null;
+
+		if(args.length == 0){
+			launchGUI(args,logger);
 		} else {
 						
 			String toolName = args[0];
-					
-			NgsSmartTool tool = null;
-			
+
 			// tools
 			if(toolName.equalsIgnoreCase("bamqc")){
 				tool = new BamQcTool();
@@ -47,7 +47,7 @@ public class NgsSmartMain {
 				logger.println("");
 				logger.println("Selected tool: " + toolName);
 				if(tool==null){
-					launchGUI(args,logger);		
+                    launchGUI(args,logger);
 				} else {
 					try {					
 						tool.run(args);
@@ -67,7 +67,7 @@ public class NgsSmartMain {
 	public static void launchGUI(String[] args, Logger logger) throws ParseException{
 		
 		// getting home folder
-		Options options = new Options();			
+		Options options = new Options();
 		options.addOption("home", true, "home path");
 		CommandLineParser parser = new PosixParser();
 		CommandLine commandLine = parser.parse(options, args, true);

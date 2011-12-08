@@ -1,24 +1,34 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
+
+import java.io.File;
 
 
 public class BamQcTool extends NgsSmartTool{
 	private String bamFile;
 	private String gffFile;
 	private String referenceFile;
-	private boolean referenceAvailable;
+    private boolean referenceAvailable;
 	private boolean selectedRegionsAvailable;
 	private int numberOfWindows;
-	private boolean saveCoverage;
+	private int numThreads;
+    private boolean saveCoverage;
 	private boolean paintChromosomeLimits;
 	private boolean computeChromosomeStats;
 	private boolean computeOutsideStats;
 	private boolean computeInsertSize;
-	private String qualimapFolder;
 
+    public BamQcTool(){
+        super();
+        toolName = "bamqc";
+        numThreads = Runtime.getRuntime().availableProcessors();
+    }
 
 	@Override
 	protected void initOptions() {
@@ -27,7 +37,9 @@ public class BamQcTool extends NgsSmartTool{
 		options.addOption("gff", true, "region file (gff format)");
 //		options.addOption("reference", true, "reference genome file (fasta format)");
 		
-		options.addOption("nw", true, "number of windows (advance)");
+		options.addOption("nw", true, "number of windows (advanced)");
+        options.addOption("nt", true, "number of threads (advanced)");
+
 		
 		options.addOption("paint_chromosome_limits", false, "paint chromosome limits inside charts");
 		options.addOption("outside_stats", false, "compute region outside stats (with -gff option)");
@@ -40,13 +52,6 @@ public class BamQcTool extends NgsSmartTool{
 	@Override
 	protected void checkOptions() throws ParseException {
 		
-		// home
-		if(!commandLine.hasOption("home")) throw new ParseException("qualimap folder required");
-		qualimapFolder = commandLine.getOptionValue("home");
-
-		// output folder
-		if(!commandLine.hasOption("o")) throw new ParseException("output folder required");
-
 		// input
 		if(!commandLine.hasOption("i")) throw new ParseException("input mapping file required");
 		bamFile = commandLine.getOptionValue("i");
@@ -70,7 +75,7 @@ public class BamQcTool extends NgsSmartTool{
 		}
 
 		// number of windows
-		numberOfWindows = BamQCSplitted.DEFAULT_NUMBER_OF_WINDOWS;
+		numberOfWindows = Constants.DEFAULT_NUMBER_OF_WINDOWS;
 		if(commandLine.hasOption("nw")) {
 			numberOfWindows = Integer.parseInt(commandLine.getOptionValue("nw"));
 		}
@@ -95,20 +100,41 @@ public class BamQcTool extends NgsSmartTool{
 			computeInsertSize = true;					
 		}
 
+        if (commandLine.hasOption("nt")) {
+            numThreads = Integer.parseInt(commandLine.getOptionValue("nt"));
+        }
+
 	}
 
 
+    @Override
+    protected void initOutputDir() {
+        if (outdir.isEmpty()) {
+            outdir = FilenameUtils.removeExtension(new File(bamFile).getAbsolutePath()) + "_stats";
+        }
+        super.initOutputDir();
+    }
+
 	@Override
 	protected void execute() throws Exception {
+
+        long memAvailable =  Runtime.getRuntime().totalMemory() / 1000000;
+		long memMax = Runtime.getRuntime().maxMemory() / 1000000;
+        System.out.println("Available memory (Mb): " +  memAvailable);
+        System.out.println("Max memory (Mb): " +  memMax);
 
 		// check outdir
 		initOutputDir();
 
 		// init bamqc
-		BamQCSplitted bamQC = referenceAvailable ? new BamQCSplitted(bamFile,referenceFile) :
-                  new BamQCSplitted(bamFile);
+		BamStatsAnalysis bamQC = new BamStatsAnalysis(bamFile);
 
-		if(selectedRegionsAvailable){
+		if (referenceAvailable) {
+            bamQC.setReferenceFile(referenceFile);
+        }
+
+
+        if(selectedRegionsAvailable){
 			bamQC.setSelectedRegions(gffFile);
 			bamQC.setComputeOutsideStats(computeOutsideStats);
 		}
@@ -121,12 +147,13 @@ public class BamQcTool extends NgsSmartTool{
 
 		// reporting
 		bamQC.activeReporting(outdir);
-		if(saveCoverage) bamQC.activeCoverageReporting();
+		//if(saveCoverage) bamQC.ctiveCoverageReporting();
 
 		logger.println("Starting bam qc....");
 
 		// number of windows
 		bamQC.setNumberOfWindows(numberOfWindows);
+        bamQC.setNumberOfThreads(numThreads);
 
 		// run evaluation
 		bamQC.run();
@@ -150,11 +177,11 @@ public class BamQcTool extends NgsSmartTool{
 		if(selectedRegionsAvailable){
 			// save stats
 			logger.print("   inside text report...");
-			reporter.writeReport(bamQC.getInsideBamStats(),outdir);
+			reporter.writeReport(bamQC.getBamStats(),outdir);
 			logger.println("OK");		
 			// save charts
 			logger.print("   inside charts...");
-			reporter.saveCharts(bamQC.getInsideBamStats(), outdir, null, bamQC.isPairedData());
+			reporter.saveCharts(bamQC.getBamStats(), outdir, null, bamQC.isPairedData());
 			logger.println("OK");
 
 			// save stats

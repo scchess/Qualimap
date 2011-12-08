@@ -1,17 +1,18 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import java.awt.Component;
-
-import javax.swing.*;
+import java.util.TimerTask;
+import java.util.Timer;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
+
+import javax.swing.*;
 
 /**
  * Class to manage a thread to do the Bam analysis to the input bam files and
@@ -37,6 +38,20 @@ public class BamAnalysisThread extends Thread {
 
 	/** Variables that contains the tab properties loaded in the thread */
 	TabPropertiesVO tabProperties;
+
+    private static class UpdateProgressTask extends TimerTask {
+        JProgressBar progressBar;
+        BamStatsAnalysis bamQC;
+        UpdateProgressTask(BamStatsAnalysis bamQC, JProgressBar progressBar) {
+            this.bamQC = bamQC;
+            this.progressBar = progressBar;
+        }
+
+        @Override
+        public void run() {
+            progressBar.setValue(bamQC.getProgress());
+        }
+    }
 
 	public BamAnalysisThread(String str, Component component, TabPropertiesVO tabProperties) {
 		super(str);
@@ -94,19 +109,23 @@ public class BamAnalysisThread extends Thread {
 		bamQC.setComputeChromosomeStats(true);
 		//bamQC.setComputeOutsideStats(true);
 
-
 		// reporting
 		bamQC.activeReporting(outputDirPath.toString());
 
-		openFilePanel.getProgressStream().setText("Starting bam qc....");
+		Timer timer = new Timer(true);
+        timer.schedule( new UpdateProgressTask(bamQC,openFilePanel.getProgressBar()), 100, 1000);
+
+        openFilePanel.getProgressStream().setText("Running BAM file analysis...");
 
 		try {
-	        bamQC.run();
-	        tabProperties.setPairedData(bamQC.isPairedData());
+
+            bamQC.run();
+	        timer.cancel();
+
+            tabProperties.setPairedData(bamQC.isPairedData());
             tabProperties.setBamStats(bamQC.getBamStats());
             tabProperties.setGenomeLocator(bamQC.getLocator());
 
-			// t.setThreadDone(true);
 			openFilePanel.getProgressStream().setText("End of bam qc");
 	
 			// report

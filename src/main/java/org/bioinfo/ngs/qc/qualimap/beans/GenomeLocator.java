@@ -23,9 +23,14 @@ public class GenomeLocator implements Externalizable {
 	}
 	
 	public Long getAbsoluteCoordinates(String name, int relative){
-		if(positions.get(name)!=null){
+
+        String simplifiedName = name.replace("chr","");
+
+        if(positions.containsKey(name)){
 			return positions.get(name) + (relative-1);
-		} else {
+		} else if (positions.containsKey(simplifiedName)){
+            return positions.get(simplifiedName) + (relative-1);
+        } else {
 			return (long)-1;
 		}		
 	}

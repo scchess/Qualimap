@@ -91,7 +91,7 @@ public class ProcessBunchOfReadsTask implements Callable {
             long position = ctx.getLocator().getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentStart());
             //System.out.println("From ProcessReadTask: started analysis of read " + read.getReadName() + ", size: " + read.getReadLength());
 
-            String alignment = null;
+            char[] alignment = null;
             // compute alignment
             try {
                 alignment = BamGenomeWindow.computeAlignment(read);
@@ -101,7 +101,7 @@ public class ProcessBunchOfReadsTask implements Callable {
                 e.printStackTrace();
             }
 
-            if (alignment == null || alignment.isEmpty()) {
+            if (alignment == null ) {
                 continue;
             }
 
@@ -117,7 +117,7 @@ public class ProcessBunchOfReadsTask implements Callable {
                 isPairedData = false;
             }
 
-            long readEnd = position + alignment.length() - 1;
+            long readEnd = position + alignment.length - 1;
 
             // acum read
 
@@ -140,7 +140,7 @@ public class ProcessBunchOfReadsTask implements Callable {
     }
 
 
-    private boolean processRead(BamGenomeWindow window, String alignment, long readStart, long readEnd,
+    private boolean processRead(BamGenomeWindow window, char[] alignment, long readStart, long readEnd,
                                 int mappingQuality, long insertSize) {
 
         long windowSize = window.getWindowSize();
@@ -152,7 +152,6 @@ public class ProcessBunchOfReadsTask implements Callable {
         boolean outOfBounds = false;
         long relative;
         int pos;
-        int numBasesInsideOfRegion = 0;
 
         if(readEnd < readStart){
             System.err.println("WARNING: read alignment start is greater than end: " + readStart + " > " + readEnd);
@@ -164,22 +163,12 @@ public class ProcessBunchOfReadsTask implements Callable {
             //readData.numberOfOutOfBoundsReads++;
         }
 
-        // TO FIX
-        if(readStart>= window.getStart()) {
+        // TODO: FIX?
+        //if(readStart>= window.getStart()) {
 //			numberOfSequencedBases+=read.getReadBases().length;
 //			numberOfCigarElements+=read.getCigar().numCigarElements();
-        }
+        //}
 
-        /*if (analyzeRegions) {
-            int rel = (int) (readStart - windowStart);
-            if (rel >= 0 && rel < windowSize) {
-                if (window.getSelectedRegions().get(rel))  {
-                    System.out.print("Read is in region. Start coord is"  + readStart );
-                }
-            }
-        }*/
-
-        char nucleotide;
         // run read
         for(long j=readStart; j<=readEnd; j++){
             relative = (int)(j - windowStart);
@@ -208,31 +197,47 @@ public class ProcessBunchOfReadsTask implements Callable {
                     }
                 }
 
-                nucleotide = alignment.charAt(pos);
+                char nucleotide = alignment[pos];
 
                 // aligned bases
                 readData.numberOfAlignedBases++;
 
                 // Any letter
-                if(nucleotide=='A' || nucleotide=='C' || nucleotide=='T' || nucleotide=='G'){
+                /*if(nucleotide=='A' || nucleotide=='C' || nucleotide=='T' || nucleotide=='G'){
+                    readData.acumBase(relative);
+                    if(insertSize!=-1){
+                        readData.acumProperlyPairedBase(relative);
+                    }
+                }*/
+
+                // ATCG content
+                if(nucleotide=='A'){
+                    readData.acumA(relative);
                     readData.acumBase(relative);
                     if(insertSize!=-1){
                         readData.acumProperlyPairedBase(relative);
                     }
                 }
-
-                // ATCG content
-                if(nucleotide=='A'){
-                    readData.acumA(relative);
-                }
                 else if(nucleotide=='C'){
                     readData.acumC(relative);
+                    readData.acumBase(relative);
+                    if(insertSize!=-1){
+                        readData.acumProperlyPairedBase(relative);
+                    }
                 }
                 else if(nucleotide=='T'){
                     readData.acumT(relative);
+                    readData.acumBase(relative);
+                    if(insertSize!=-1){
+                        readData.acumProperlyPairedBase(relative);
+                    }
                 }
                 else if(nucleotide=='G'){
                     readData.acumG(relative);
+                    readData.acumBase(relative);
+                    if(insertSize!=-1){
+                        readData.acumProperlyPairedBase(relative);
+                    }
                 }
                 else if(nucleotide=='-'){
                 }
@@ -253,7 +258,7 @@ public class ProcessBunchOfReadsTask implements Callable {
         return outOfBounds;
     }
 
-    private void propagateRead(String alignment,long readStart, long readEnd,
+    private void propagateRead(char[] alignment,long readStart, long readEnd,
                                int mappingQuality,long insertSize,boolean detailed ){
         // init covering stat
         BamStats bamStats = ctx.getBamStats();

@@ -25,6 +25,7 @@ public abstract class NgsSmartTool {
 	
 	// common params
 	protected String outdir;
+    protected String toolName;
 	
 	
 	public NgsSmartTool(){
@@ -33,13 +34,18 @@ public abstract class NgsSmartTool {
 		
 		// environment
 		homePath = System.getenv("QUALIMAP_HOME");
+        if (homePath == null) {
+            homePath = "";
+        }
 		if(homePath.endsWith(File.separator)){
 			homePath = homePath.substring(0,homePath.length()-1);
 		}
+
 		// arguments
 		options = new Options();
 		parser = new PosixParser();
-		
+		outdir = "";
+
 		initCommonOptions();
 		
 		initOptions();
@@ -86,33 +92,16 @@ public abstract class NgsSmartTool {
 	protected void printHelp(){
 		HelpFormatter h = new HelpFormatter();
 		h.setWidth(150);		
-		h.printHelp("ntools", options, true);
+		h.printHelp("qualimap " + toolName, options, true);
 		logger.println("");
 		logger.println("");
 		logger.println("");
 	}
 
-	protected int parseInt(String value, String errorMessage) throws ParseException{
-		try {
-			return Integer.parseInt(value);
-		} catch(NumberFormatException nfe){
-			throw new ParseException(errorMessage); 
-		}
-	}
-	
-	protected double parseDouble(String value, String errorMessage) throws ParseException{
-		try {
-			return Double.parseDouble(value);
-		} catch(NumberFormatException nfe){
-			throw new ParseException(errorMessage); 
-		}
-	}
-	
 	protected void initOutputDir(){
-		if(outdir==null){
-			logger.error("output folder has not been provided");
-		} else {
-			if(new File(outdir).exists()){
+
+        if(!outdir.isEmpty()){
+        	if(new File(outdir).exists()){
 				logger.warn("output folder already exists");
 			} else {
 				new File(outdir).mkdirs();
@@ -123,18 +112,5 @@ public abstract class NgsSmartTool {
 	protected boolean exists(String fileName){
 		return new File(fileName).exists();
 	}
-	
-	/**
-	 * @return the homePath
-	 */
-	public String getHomePath() {
-		return homePath;
-	}
 
-	/**
-	 * @param homePath the homePath to set
-	 */
-	public void setHomePath(String homePath) {
-		this.homePath = homePath;
-	}
 }

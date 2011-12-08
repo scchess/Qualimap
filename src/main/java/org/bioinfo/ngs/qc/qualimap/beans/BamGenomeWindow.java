@@ -198,7 +198,7 @@ public class BamGenomeWindow {
 	}
 	
 	public boolean acumRead(SAMRecord read, GenomeLocator locator){
-		String alignment = computeAlignment(read);
+		String  alignment = new String(computeAlignment(read));
 		return processRead(read,alignment,locator);
 	}
 	
@@ -329,12 +329,12 @@ public class BamGenomeWindow {
 		}
 	}
 	
-	public static String computeAlignment(SAMRecord read){
+	public static char[] computeAlignment(SAMRecord read){
 		// init read params
 		int alignmentLength = (read.getAlignmentEnd()-read.getAlignmentStart()+1);		
 
         if (alignmentLength < 0) {
-            return new String();
+            return null;
         }
 
 		Cigar cigar = read.getCigar();
@@ -342,7 +342,7 @@ public class BamGenomeWindow {
 		// precompute total size of alignment
 		int totalSize = 0;
         List<CigarElement> elementList = cigar.getCigarElements();
-        int numCigarElements = cigar.numCigarElements();
+        //int numCigarElements = cigar.numCigarElements();
 		for(CigarElement element : elementList){
 			totalSize += element.getLength();
 		}
@@ -406,7 +406,7 @@ public class BamGenomeWindow {
 			}
 		}
 	
-		return new String(alignmentVector);
+		return alignmentVector;
 	}
 	
 	
