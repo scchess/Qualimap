@@ -166,7 +166,6 @@ public class BamStatsAnalysis {
 
 			// load selected regions
             loadSelectedRegions();
-            //TODO: user must have an option for this
 
             // outside of regions stats
             if (computeOutsideStats) {
@@ -601,9 +600,9 @@ public class BamStatsAnalysis {
 		GffReader gffReader = new GffReader(gffFile);
 		System.out.println("initializing regions from " + gffFile + ".....");
 		while((region = gffReader.read())!=null){
-			if (!region.getFeature().equalsIgnoreCase("exon")) {
+			/*if (!region.getFeature().equalsIgnoreCase("exon")) {
                 continue;
-            }
+            }*/
             numberOfSelectedRegions++;
 		}
 		gffReader.close();
@@ -626,9 +625,9 @@ public class BamStatsAnalysis {
 		long lastEnd = 0;
         insideReferenceSize = 0;
 		while((region = gffReader.read())!=null){
-            if (!region.getFeature().equalsIgnoreCase("exon")) {
+            /*if (!region.getFeature().equalsIgnoreCase("exon")) {
                 continue;
-            }
+            }*/
             pos = locator.getAbsoluteCoordinates(region.getSequenceName(),region.getStart());
 	        int regionLength = region.getEnd() - region.getStart() + 1;
             insideReferenceSize += regionLength;

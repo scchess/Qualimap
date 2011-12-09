@@ -116,7 +116,7 @@ public class BamQCXYHistogramChart {
 		plot.setRangeGridlinePaint(new Color(214,139,74));
 		
 		// prepare series		
-		if(!zoomed) {
+		if(!zoomed && histograms.get(0).getSize() > 0) {
 			maxValue = histograms.get(0).get(histograms.get(0).getSize()-1).getX();
 		}
 		
@@ -144,8 +144,7 @@ public class BamQCXYHistogramChart {
 				total+=item.getY();
 //			}
 		}
-		double minDomainAxis = histograms.get(0).get(0).getX() - inc/2.0;
-		double maxDomainAxis = maxValue + inc/2.0;
+
 	
 		
 		XYSeries series = new XYSeries("frequencies");
@@ -172,7 +171,9 @@ public class BamQCXYHistogramChart {
 		plot.setRenderer(renderer);
 
 		// adjust axis limits
-		if(adjustDomainAxisLimits){
+		if(adjustDomainAxisLimits && histograms.get(0).getSize() > 0){
+            double minDomainAxis = histograms.get(0).get(0).getX() - inc/2.0;
+		    double maxDomainAxis = maxValue + inc/2.0;
 			chart.getXYPlot().getDomainAxis().setRange(minDomainAxis,maxDomainAxis); 
 		}
 	}

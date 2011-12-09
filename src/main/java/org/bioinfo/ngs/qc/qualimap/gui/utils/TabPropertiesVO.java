@@ -60,9 +60,8 @@ public class TabPropertiesVO {
 	 * Variable to manage the last Element of the left split that contains
 	 * the size, position, etc
 	 */
-	private JComponent leftSplitLastElement;	
 	private boolean isPairedData;
-    private boolean computeOutsideStats;
+    private boolean outsideStatsAvailable;
     private BamStats bamStats;
     private GenomeLocator genomeLocator;
 
@@ -92,13 +91,21 @@ public class TabPropertiesVO {
     	this.isPairedData = isPairedData;
     }
 
+    public void setOutsideStatsAvailable(boolean  outsideStatsAvailable) {
+        this.outsideStatsAvailable = outsideStatsAvailable;
+    }
+
+    public boolean getOutsideStatsAvailable() {
+        return outsideStatsAvailable;
+    }
+
 	public TabPropertiesVO(){
 		this.typeAnalysis = -1;
 		this.outputFolder = null;
 		this.gffSelected = false;
 		this.reporter = new BamQCRegionReporter();
-		this.insideReporter = new BamQCRegionReporter();
 		this.outsideReporter = new BamQCRegionReporter();
+        this.insideReporter = null;
 		this.graphicImage = new GraphicImagePanel();
 		this.rnaAnalysisVO = new RNAAnalysisVO();
 	}
@@ -181,13 +188,9 @@ public class TabPropertiesVO {
 		this.reporter = reporter;
 	}
 
-	public BamQCRegionReporter getInsideReporter() {
-		return insideReporter;
-	}
-
-	public void setInsideReporter(BamQCRegionReporter insideReporter) {
-		this.insideReporter = insideReporter;
-	}
+    public BamQCRegionReporter getInsideReporter() {
+        return insideReporter;
+    }
 
 	public BamQCRegionReporter getOutsideReporter() {
 		return outsideReporter;
@@ -217,7 +220,5 @@ public class TabPropertiesVO {
 		return rnaAnalysisVO;
 	}
 
-	public void setLeftSplitLastElement(JComponent leftSplitLastElement) {
-		this.leftSplitLastElement = leftSplitLastElement;
-	}
+
 }

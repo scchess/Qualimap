@@ -55,7 +55,7 @@ public class BamAnalysisThread extends Thread {
 	public BamAnalysisThread(String str, BamAnalysisDialog bamDialog, TabPropertiesVO tabProperties) {
 		super(str);
 		this.processedString = null;
-		this.loadPercent = new Double(0.0);
+		this.loadPercent = 0.0;
 		this.bamDialog = bamDialog;
         this.tabProperties = tabProperties;
 		logger = new Logger(this.getClass().getName());
@@ -67,9 +67,6 @@ public class BamAnalysisThread extends Thread {
 	 */
 	public void run() {
 		//BamQCSplitted bamQC = null;
-
-		//TODO:
-        //disable bamDlg ui
 
 		// Create the outputDir directory
 		StringBuilder outputDirPath = tabProperties.createDirectory();
@@ -88,15 +85,13 @@ public class BamAnalysisThread extends Thread {
 		// Set the region file
 		if (bamDialog.getRegionFile() != null) {
 			bamQC.setSelectedRegions(bamDialog.getRegionFile().getAbsolutePath());
-            bamQC.setComputeOutsideStats(true);
+            bamQC.setComputeOutsideStats(bamDialog.getComputeOutsideRegions());
 		}
 
 		// Put the gff variable to know if the user has added a region file only
 		// if we are analyzing the exome
-		tabProperties.setGffSelected(false);
-		if (bamDialog.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME) {
-			tabProperties.setGffSelected(true);
-		}
+		tabProperties.setGffSelected(bamDialog.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME);
+        tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
 		bamQC.setComputeChromosomeStats(true);
 		//bamQC.setComputeOutsideStats(true);
@@ -112,8 +107,6 @@ public class BamAnalysisThread extends Thread {
 
 		try {
 
-
-
             bamQC.run();
 	        timer.cancel();
 
@@ -122,6 +115,7 @@ public class BamAnalysisThread extends Thread {
             tabProperties.setGenomeLocator(bamQC.getLocator());
 
 			bamDialog.getProgressStream().setText("End of bam qc");
+            bamDialog.getProgressBar().setValue(100);
 	
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
@@ -145,24 +139,24 @@ public class BamAnalysisThread extends Thread {
 			// Set the reporter into the created tab
 			tabProperties.setReporter(reporter);
 	
-			if (bamDialog.getRegionFile() != null) {
-				BamQCRegionReporter insideReporter = new BamQCRegionReporter();
+			if ( bamDialog.getRegionFile() != null && bamDialog.getComputeOutsideRegions() ) {
+				//BamQCRegionReporter insideReporter = new BamQCRegionReporter();
 				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 	
 				// Draw the Chromosome Limits or not
-				insideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
+				//insideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 	
 				// save stats
-				bamDialog.getProgressStream().setText("   inside text report...");
-				insideReporter.loadReportData(bamQC.getBamStats());
-				bamDialog.getProgressStream().setText("OK");
+				//bamDialog.getProgressStream().setText("   inside text report...");
+				//insideReporter.loadReportData(bamQC.getBamStats());
+				//bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(3.0, bamQC);
 	
 				// save charts
-				bamDialog.getProgressStream().setText("   inside charts...");
-				insideReporter.computeChartsBuffers(bamQC.getBamStats(), null, bamQC.isPairedData());
-				bamDialog.getProgressStream().setText("OK");
+				//bamDialog.getProgressStream().setText("   inside charts...");
+				//insideReporter.computeChartsBuffers(bamQC.getBamStats(), null, bamQC.isPairedData());
+				//bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(4.0, bamQC);
 	
 				// save stats
@@ -173,12 +167,12 @@ public class BamAnalysisThread extends Thread {
 	
 				// save charts
 				bamDialog.getProgressStream().setText("   outside charts...");
-				outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), null, bamQC.isPairedData());
+				outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 				bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(6.0, bamQC);
 	
 				// Set the reporters into the created tab
-				tabProperties.setInsideReporter(insideReporter);
+				//tabProperties.setInsideReporter(insideReporter);
 				tabProperties.setOutsideReporter(outsideReporter);
 			}
 	

@@ -342,8 +342,13 @@ public class BamQCRegionReporter implements Serializable {
 		coverageHistogram.setNumberOfBins(Math.min(50,(int)bamStats.getCoverageHistogram().getMaxValue()));
 		coverageHistogram.setDomainAxisIntegerTicks(true);
 		coverageHistogram.render();
-		coverageHistogram.getChart().getXYPlot().getDomainAxis().setRange(bamStats.getCoverageHistogram().get(0).getX(),bamStats.getCoverageHistogram().get(bamStats.getCoverageHistogram().getSize()-1).getX());
-		mapCharts.put(
+		// TODO: move this code to render() method?
+        if (bamStats.getCoverageHistogram().getSize() > 0) {
+            double lower = bamStats.getCoverageHistogram().get(0).getX();
+            double upper = bamStats.getCoverageHistogram().get(bamStats.getCoverageHistogram().getSize()-1).getX();
+            coverageHistogram.getChart().getXYPlot().getDomainAxis().setRange(lower,upper);
+        }
+        mapCharts.put(
 				bamStats.getName() + "_coverage_histogram.png",
 				coverageHistogram.getChart());
 

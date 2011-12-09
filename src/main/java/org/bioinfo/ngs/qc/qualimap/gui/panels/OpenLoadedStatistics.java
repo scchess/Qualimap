@@ -98,127 +98,59 @@ public class OpenLoadedStatistics extends JPanel {
 	 */
 	private void fillLeftSplit() {
 
-        boolean showAditionalGraphicsInfo = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).isGffSelected();
-
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-		tabProperties.setLastLinkSelected(null);
+        boolean isGffSelected = tabProperties.isGffSelected();
+		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
+        tabProperties.setLastLinkSelected(null);
 
+        String sectionName = isGffSelected ? "Results inside of region" : "Results";
+        JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
+        leftPanel.add(checkFirstSection);
 
+        JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
+        leftPanel.add(j1_0);
+        initialLabel = j1_0;
 
+        JLabel j1_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
+        leftPanel.add(j1_1);
 
+        JLabel j1_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
+        j1_2.setToolTipText("Frequency histogram of the coverageData");
+        leftPanel.add(j1_2);
 
-        if (!showAditionalGraphicsInfo) {
+        JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
+        j1_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
+        leftPanel.add(j1_3);
 
-            JCheckBox checkFirstSection = createResultsCheckBox("Results");
-			leftPanel.add(checkFirstSection);
+        JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
+        j1_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
+        leftPanel.add(j1_4);
 
-            JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
-            leftPanel.add(j1_0);
-            initialLabel = j1_0;
+        JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
+        j1_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+        j1_5.setToolTipText("Mapping Quality Across Reference");
+        leftPanel.add(j1_5);
 
-			JLabel j1_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
-            leftPanel.add(j1_1);
+        JLabel j1_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
+        j1_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+        j1_6.setToolTipText("Frequency histogram of the mapping quality");
+        leftPanel.add(j1_6);
 
-            JLabel j1_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
-			j1_2.setToolTipText("Frequency histogram of the coverageData");
-			leftPanel.add(j1_2);
+        if(tabProperties.isPairedData()){
+            JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
+            j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+            j1_7.setToolTipText("Frequency histogram of the insert size");
+            leftPanel.add(j1_7);
 
-			JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
-			j1_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
-            leftPanel.add(j1_3);
+            JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
+            j1_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+            j1_8.setToolTipText("Frequency histogram of the insert size");
+            leftPanel.add(j1_8);
+        }
 
-			JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
-			j1_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
-			leftPanel.add(j1_4);
+        if (showOutsideStats) {
 
-			JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
-			j1_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-			j1_5.setToolTipText("Mapping Quality Across Reference");
-			leftPanel.add(j1_5);
-
-			JLabel j1_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
-			j1_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-			j1_6.setToolTipText("Frequency histogram of the mapping quality");
-			leftPanel.add(j1_6);
-
-            if(tabProperties.isPairedData()){
-				JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
-				j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-				j1_7.setToolTipText("Frequency histogram of the insert size");
-				leftPanel.add(j1_7);
-
-				JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
-				j1_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-				j1_8.setToolTipText("Frequency histogram of the insert size");
-				leftPanel.add(j1_8);
-			}
-
-			// JLabel j1_7 =
-			// fillLabelSubMenuGraphic("Nucleotide Rel. Content", j1_6,
-			// marginSubMenu,
-			// Constants.GRAPHIC_NAME_GENOME_NUCLEOTIDE_RELATIVE_CONTENT);
-			// j1_7.setIcon(new
-			// ImageIcon(getClass().getResource(Constants.pathImages +
-			// "bullet_purple.png")));
-			// j1_7.setToolTipText("Nucleotide Relative Content");
-			// leftPanel.add(j1_7);
-			//
-			// JLabel j1_8 =
-			// fillLabelSubMenuGraphic("GC/AT Relative Content", j1_7,
-			// marginSubMenu,
-			// Constants.GRAPHIC_NAME_GENOME_GC_AT_RELATIVE_CONTENT);
-			// j1_8.setIcon(new
-			// ImageIcon(getClass().getResource(Constants.pathImages +
-			// "bullet_purple.png")));
-			// leftPanel.add(j1_8);
-
-		} else {
-			JCheckBox checkFirstSection = createResultsCheckBox("Reads inside region");
-            leftPanel.add(checkFirstSection);
-
-			JLabel j2_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INSIDE_BAM_FILE);
-			j2_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
-			leftPanel.add(j2_0);
-            initialLabel = j2_0;
-
-			JLabel j2_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
-			leftPanel.add(j2_1);
-
-			JLabel j2_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
-			j2_2.setToolTipText("Frequency histogram of the coverageData");
-			leftPanel.add(j2_2);
-
-			JLabel j2_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
-			j2_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
-			leftPanel.add(j2_3);
-
-			JLabel j2_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
-			j2_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
-			leftPanel.add(j2_4);
-
-			JLabel j2_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
-			j2_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-			j2_5.setToolTipText("Mapping Quality Across Reference");
-			leftPanel.add(j2_5);
-
-			JLabel j2_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
-			j2_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-			j2_6.setToolTipText("Frequency histogram of the mapping quality");
-			leftPanel.add(j2_6);
-
-			if(tabProperties.isPairedData()){
-				JLabel j2_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
-				j2_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-				j2_7.setToolTipText("Frequency histogram of the insert size");
-				leftPanel.add(j2_7);
-				
-				JLabel j2_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
-				j2_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-				j2_8.setToolTipText("Frequency histogram of the insert size");
-				leftPanel.add(j2_8);
-			}
-
-			JCheckBox checkSecondSection = createResultsCheckBox("Reads outside region");
+			JCheckBox checkSecondSection = createResultsCheckBox("Results outside of region");
 			leftPanel.add(checkSecondSection);
 
 			JLabel summary = createSummaryLinkLabel("Summary", Constants.REPORT_OUTSIDE_BAM_FILE);
@@ -324,10 +256,9 @@ public class OpenLoadedStatistics extends JPanel {
 
     public void showInitialPage()
     {
-        if(Constants.TYPE_BAM_ANALYSIS_DNA ==  homeFrame.getTypeAnalysis() ){
+        if(Constants.TYPE_BAM_ANALYSIS_DNA ==  homeFrame.getTypeAnalysis() ||
+           Constants.TYPE_BAM_ANALYSIS_EXOME ==  homeFrame.getTypeAnalysis()){
 			showLeftSideSummaryInformation(Constants.TYPE_BAM_ANALYSIS_DNA, initialLabel);
-		}else if (Constants.TYPE_BAM_ANALYSIS_EXOME ==  homeFrame.getTypeAnalysis()){
-			showLeftSideSummaryInformation(Constants.TYPE_BAM_ANALYSIS_EXOME, initialLabel);
 		}else if (Constants.TYPE_BAM_ANALYSIS_RNA ==  homeFrame.getTypeAnalysis() ){
 			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel);
 		}
@@ -430,9 +361,8 @@ public class OpenLoadedStatistics extends JPanel {
         return checkBox;
     }
 
-	public void showLeftSideSummaryInformation(int typeReport, JLabel label) {
-		homeFrame.setTypeAnalysis(typeReport);
-        prepareHtmlSummary(getReport());
+	public void showLeftSideSummaryInformation(int typeAnalysis, JLabel label) {
+		prepareHtmlSummary(getReport(typeAnalysis));
 		fillColorLink(label);
 	}
 
@@ -443,14 +373,13 @@ public class OpenLoadedStatistics extends JPanel {
 		fillColorLink(label);
 	}
 	
-	private BamQCRegionReporter getReport(){
+	private BamQCRegionReporter getReport(int typeAnalysis){
 		// TODO: WTF? Another shitty method? What is the difference between this and new?
         BamQCRegionReporter reporter;
 		// Select the reporter that contains the data
-		if (homeFrame.getTypeAnalysis() == Constants.REPORT_INPUT_BAM_FILE) {
+		if (typeAnalysis == Constants.REPORT_INPUT_BAM_FILE ||
+                typeAnalysis == Constants.REPORT_INSIDE_BAM_FILE) {
 			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getReporter();
-		} else if (homeFrame.getTypeAnalysis() == Constants.REPORT_INSIDE_BAM_FILE) {
-			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getInsideReporter();
 		} else {
 			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getOutsideReporter();
 		}
@@ -465,9 +394,7 @@ public class OpenLoadedStatistics extends JPanel {
 				tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
 
 			// Select the reporter that contains the graphics
-			if (graphicName.startsWith("inside")) {
-				reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getInsideReporter();
-			} else if (graphicName.startsWith("outside")) {
+			if (graphicName.startsWith("outside")) {
 				reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getOutsideReporter();
 			} else {
 				reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getReporter();

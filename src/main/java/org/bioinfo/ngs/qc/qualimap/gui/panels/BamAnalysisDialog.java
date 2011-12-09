@@ -1,6 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
-import com.sun.org.apache.bcel.internal.classfile.Constant;
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
@@ -13,7 +12,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.ProgressBarUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +32,7 @@ public class BamAnalysisDialog extends JDialog {
     JTextField pathDataFile, pathGffFile, valueNw;
     JCheckBox drawChromosomeLimits, saveCoverage, computeOutsideStats, advancedInfoCheckBox;
     JProgressBar progressBar;
-    JLabel progressStream;
+    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile;
     HomeFrame homeFrame;
     File inputFile, regionFile;
     boolean  analyzeRegions;
@@ -72,7 +70,7 @@ public class BamAnalysisDialog extends JDialog {
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
-        JLabel labelPathDataFile = new JLabel();
+        labelPathDataFile = new JLabel();
         labelPathDataFile.setText("Select BAM file:");
         add(labelPathDataFile, "");
 
@@ -91,7 +89,7 @@ public class BamAnalysisDialog extends JDialog {
 		// exome analysis
 
         if (homeFrame.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
-            JLabel labelPathAditionalDataFile = new JLabel("Select GFF file:");
+            labelPathAditionalDataFile = new JLabel("Select GFF file:");
             add(labelPathAditionalDataFile, "");
 
             pathGffFile = new JTextField(40);
@@ -109,6 +107,7 @@ public class BamAnalysisDialog extends JDialog {
             computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             computeOutsideStats.addKeyListener(keyListener);
             computeOutsideStats.setToolTipText("Controls whether to calculate also statistic for outside regions");
+            computeOutsideStats.setSelected(true);
             add(computeOutsideStats, "wrap");
 
         }
@@ -176,7 +175,7 @@ public class BamAnalysisDialog extends JDialog {
 
         pack();
 
-        setTitle("Analyze genomic dataset");
+        setTitle(analyzeRegions ? "Analyze genomic region" : "Analyze genomic dataset");
         setResizable(false);
 
     }
@@ -390,18 +389,24 @@ public class BamAnalysisDialog extends JDialog {
     }
 
     public boolean getComputeOutsideRegions() {
-        return computeOutsideStats.isSelected();
+        if (analyzeRegions) {
+            return computeOutsideStats.isSelected();
+        } else {
+            return false;
+        }
     }
 
     public void setUiEnabled(boolean  enabled ) {
         startAnalysisButton.setEnabled(enabled);
         pathDataFile.setEnabled(enabled);
         pathDataFileButton.setEnabled(enabled);
+        labelPathDataFile.setEnabled(enabled);
 
         if (analyzeRegions) {
             pathGffFile.setEnabled(enabled);
             pathGffFileButton.setEnabled(enabled);
             computeOutsideStats.setEnabled(enabled);
+            labelPathAditionalDataFile.setEnabled(enabled);
         }
 
         advancedInfoCheckBox.setEnabled(enabled);
