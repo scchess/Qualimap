@@ -54,6 +54,11 @@
             <artifactId>picard</artifactId>
             <version>1.44</version>
         </dependency>
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout</artifactId>
+            <version>3.7.4</version>
+        </dependency>
         <!--
               <dependency> <groupId>es.blast2go</groupId>
               <artifactId>blast2go</artifactId> <version>babel2</version>

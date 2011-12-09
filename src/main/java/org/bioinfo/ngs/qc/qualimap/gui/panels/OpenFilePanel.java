@@ -770,9 +770,9 @@ public class OpenFilePanel extends JPanel {
 	private synchronized void loadStatistics(TabPropertiesVO tabProperties) {
 		BamAnalysisThread t;
 		tabProperties.setTypeAnalysis(homeFrame.getTypeAnalysis());
-		t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
+		//t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
 
-		t.start();
+		//t.start();
 	}
 
 	/**

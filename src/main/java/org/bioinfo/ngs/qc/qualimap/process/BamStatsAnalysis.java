@@ -517,7 +517,7 @@ public class BamStatsAnalysis {
             throws CloneNotSupportedException, ExecutionException, InterruptedException {
         // position is still far away
         while(position > lastWindow.getEnd() ) {
-            progress = (bamStats.getNumberOfProcessedWindows() * 100) / effectiveNumberOfWindows;
+            updateProgress();
             //finalizeWindowInSameThread(lastWindow);
             finalizeWindow(lastWindow, bamStats, openWindows);
             lastWindow = nextWindow(bamStats,openWindows,reference,detailed);
@@ -530,6 +530,15 @@ public class BamStatsAnalysis {
         return lastWindow;
     }
 
+
+    private void updateProgress() {
+        if (!computeOutsideStats) {
+            progress = (bamStats.getNumberOfProcessedWindows() * 100) / effectiveNumberOfWindows;
+        } else {
+            progress = ((bamStats.getNumberOfProcessedWindows() +
+                    outsideBamStats.getNumberOfProcessedWindows()) * 50) / (effectiveNumberOfWindows);
+        }
+    }
     private Future<Integer> finalizeWindow(BamGenomeWindow window, BamStats bamStats,
                                            Map<Long,BamGenomeWindow> openWindows) {
         long windowStart = bamStats.getCurrentWindowStart();

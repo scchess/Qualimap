@@ -1,12 +1,11 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import java.awt.Component;
 import java.util.TimerTask;
 import java.util.Timer;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
@@ -34,7 +33,7 @@ public class BamAnalysisThread extends Thread {
 	protected Logger logger;
 
 	/** Variable to manage the panel with the progressbar at the init */
-	private OpenFilePanel openFilePanel;
+	private BamAnalysisDialog bamDialog;
 
 	/** Variables that contains the tab properties loaded in the thread */
 	TabPropertiesVO tabProperties;
@@ -53,14 +52,12 @@ public class BamAnalysisThread extends Thread {
         }
     }
 
-	public BamAnalysisThread(String str, Component component, TabPropertiesVO tabProperties) {
+	public BamAnalysisThread(String str, BamAnalysisDialog bamDialog, TabPropertiesVO tabProperties) {
 		super(str);
 		this.processedString = null;
 		this.loadPercent = new Double(0.0);
-		if (component instanceof OpenFilePanel) {
-			this.openFilePanel = (OpenFilePanel) component;
-		}
-		this.tabProperties = tabProperties;
+		this.bamDialog = bamDialog;
+        this.tabProperties = tabProperties;
 		logger = new Logger(this.getClass().getName());
 	}
 
@@ -71,38 +68,33 @@ public class BamAnalysisThread extends Thread {
 	public void run() {
 		//BamQCSplitted bamQC = null;
 
-		// Show the ProgressBar and the Text Description
-		openFilePanel.getProgressStream().setVisible(true);
-		openFilePanel.getProgressBar().setVisible(true);
+		//TODO:
+        //disable bamDlg ui
 
 		// Create the outputDir directory
 		StringBuilder outputDirPath = tabProperties.createDirectory();
 
 		// Create a BamQCSplitted with a reference file or without it
-		/*if (openFilePanel.getFastaFile() != null) {
-			bamQC = new BamQCSplitted(openFilePanel.getInputFile().getAbsolutePath(), openFilePanel.getFastaFile().getAbsolutePath());
+		/*if (bamDialog.getFastaFile() != null) {
+			bamQC = new BamQCSplitted(bamDialog.getInputFile().getAbsolutePath(), bamDialog.getFastaFile().getAbsolutePath());
 		} else {
-			bamQC = new BamQCSplitted(openFilePanel.getInputFile().getAbsolutePath());
+			bamQC = new BamQCSplitted(bamDialog.getInputFile().getAbsolutePath());
 		}*/
-        BamStatsAnalysis bamQC = new BamStatsAnalysis(openFilePanel.getInputFile().getAbsolutePath());
+        BamStatsAnalysis bamQC = new BamStatsAnalysis(bamDialog.getInputFile().getAbsolutePath());
 
 		// Set the number of windows
-		if (!openFilePanel.getValueNw().getText().isEmpty()) {
-			bamQC.setNumberOfWindows(Integer.parseInt(openFilePanel.getValueNw().getText()));
-		} else {
-			bamQC.setNumberOfWindows(Constants.DEFAULT_NUMBER_OF_WINDOWS);
-		}
+		bamQC.setNumberOfWindows(bamDialog.getNumberOfWindows());
 
 		// Set the region file
-		if (openFilePanel.getRegionFile() != null) {
-			bamQC.setSelectedRegions(openFilePanel.getRegionFile().getAbsolutePath());
+		if (bamDialog.getRegionFile() != null) {
+			bamQC.setSelectedRegions(bamDialog.getRegionFile().getAbsolutePath());
             bamQC.setComputeOutsideStats(true);
 		}
 
 		// Put the gff variable to know if the user has added a region file only
 		// if we are analyzing the exome
 		tabProperties.setGffSelected(false);
-		if (openFilePanel.getHomeFrame().getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
+		if (bamDialog.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME) {
 			tabProperties.setGffSelected(true);
 		}
 
@@ -113,11 +105,14 @@ public class BamAnalysisThread extends Thread {
 		bamQC.activeReporting(outputDirPath.toString());
 
 		Timer timer = new Timer(true);
-        timer.schedule( new UpdateProgressTask(bamQC,openFilePanel.getProgressBar()), 100, 1000);
+        timer.schedule( new UpdateProgressTask(bamQC, bamDialog.getProgressBar()), 100, 1000);
 
-        openFilePanel.getProgressStream().setText("Running BAM file analysis...");
+        bamDialog.setUiEnabled(false);
+        bamDialog.getProgressStream().setText("Running BAM file analysis...");
 
 		try {
+
+
 
             bamQC.run();
 	        timer.cancel();
@@ -126,60 +121,60 @@ public class BamAnalysisThread extends Thread {
             tabProperties.setBamStats(bamQC.getBamStats());
             tabProperties.setGenomeLocator(bamQC.getLocator());
 
-			openFilePanel.getProgressStream().setText("End of bam qc");
+			bamDialog.getProgressStream().setText("End of bam qc");
 	
 			// report
-			openFilePanel.getProgressStream().setText("Computing report...");
+			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
 	
 			// Draw the Chromosome Limits or not
-			reporter.setPaintChromosomeLimits(openFilePanel.getDrawChromosomeLimits().isSelected());
+			reporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 	
-			openFilePanel.getProgressStream().setText("   text report...");
+			bamDialog.getProgressStream().setText("   text report...");
 			reporter.loadReportData(bamQC.getBamStats());
 			//increaseProgressBar(1.0, bamQC);
-			openFilePanel.getProgressStream().setText("OK");
+			bamDialog.getProgressStream().setText("OK");
 			tabProperties.setReporter(reporter);
 	
 			// Increment the pogress bar
-			openFilePanel.getProgressStream().setText("   charts...");
+			bamDialog.getProgressStream().setText("   charts...");
 			reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 			//increaseProgressBar(2.0, bamQC);
-			openFilePanel.getProgressStream().setText("OK");
+			bamDialog.getProgressStream().setText("OK");
 	
 			// Set the reporter into the created tab
 			tabProperties.setReporter(reporter);
 	
-			if (openFilePanel.getRegionFile() != null) {
+			if (bamDialog.getRegionFile() != null) {
 				BamQCRegionReporter insideReporter = new BamQCRegionReporter();
 				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 	
 				// Draw the Chromosome Limits or not
-				insideReporter.setPaintChromosomeLimits(openFilePanel.getDrawChromosomeLimits().isSelected());
-				outsideReporter.setPaintChromosomeLimits(openFilePanel.getDrawChromosomeLimits().isSelected());
+				insideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
+				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 	
 				// save stats
-				openFilePanel.getProgressStream().setText("   inside text report...");
+				bamDialog.getProgressStream().setText("   inside text report...");
 				insideReporter.loadReportData(bamQC.getBamStats());
-				openFilePanel.getProgressStream().setText("OK");
+				bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(3.0, bamQC);
 	
 				// save charts
-				openFilePanel.getProgressStream().setText("   inside charts...");
+				bamDialog.getProgressStream().setText("   inside charts...");
 				insideReporter.computeChartsBuffers(bamQC.getBamStats(), null, bamQC.isPairedData());
-				openFilePanel.getProgressStream().setText("OK");
+				bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(4.0, bamQC);
 	
 				// save stats
-				openFilePanel.getProgressStream().setText("   outside text report...");
+				bamDialog.getProgressStream().setText("   outside text report...");
 				outsideReporter.loadReportData(bamQC.getOutsideBamStats());
-				openFilePanel.getProgressStream().setText("OK");
+				bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(5.0, bamQC);
 	
 				// save charts
-				openFilePanel.getProgressStream().setText("   outside charts...");
+				bamDialog.getProgressStream().setText("   outside charts...");
 				outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), null, bamQC.isPairedData());
-				openFilePanel.getProgressStream().setText("OK");
+				bamDialog.getProgressStream().setText("OK");
 				//increaseProgressBar(6.0, bamQC);
 	
 				// Set the reporters into the created tab
@@ -188,28 +183,22 @@ public class BamAnalysisThread extends Thread {
 			}
 	
 			// Increment the pogress bar
-			openFilePanel.getProgressStream().setText("OK");
-			openFilePanel.getProgressBar().setValue(100);
+			bamDialog.getProgressStream().setText("OK");
+			bamDialog.getProgressBar().setValue(100);
 		} catch( OutOfMemoryError e) {
             JOptionPane.showMessageDialog(null, "<html><body align=\"center\">Out of memory!<br>Try increasing number of windows in Advanced Options" +
                     "<br>or changing Java virtual machine settings.</body></html>", "Calculate statistics", JOptionPane.ERROR_MESSAGE);
-            resetOpenFilePanel();
+            bamDialog.setUiEnabled(true);
             return;
         } catch (Exception e) {
 		    JOptionPane.showMessageDialog(null, "Analysis is failed. Reason: " + e.getMessage(), "Calculate statistics", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-            resetOpenFilePanel();
+            bamDialog.setUiEnabled(true);
             return;
 		}
-		openFilePanel.getHomeFrame().addNewPane(openFilePanel,tabProperties);
+		bamDialog.addNewPane(tabProperties);
 	}
 
-    private void resetOpenFilePanel() {
-        openFilePanel.getProgressBar().setValue(0);
-        openFilePanel.getProgressBar().setVisible(false);
-        openFilePanel.getProgressStream().setText("");
-        openFilePanel.getStartAnalysisButton().setEnabled(true);
-    }
     /**
 	 * Increase the progress bar in the percent depends on the number of the
 	 * element computed.
@@ -219,41 +208,15 @@ public class BamAnalysisThread extends Thread {
 	 */
 	private void increaseProgressBar(double numElem, BamQCSplitted bamQc) {
 		int result = 0;
-		if (openFilePanel.getRegionFile() != null) {
+		if (bamDialog.getRegionFile() != null) {
 			result = (int) Math.ceil(numElem * (100.0 / 6.0));
 		} else {
 			result = (int) (numElem * (100 / 2));
 		}
 		result = (int) Math.round(result * 0.15);
 
-		openFilePanel.getProgressBar().setValue((int) Math.round(bamQc.getProgress() * 0.85) + result);
+		bamDialog.getProgressBar().setValue((int) Math.round(bamQc.getProgress() * 0.85) + result);
 	}
 
-	// ******************************************************************************************
-	// ********************************* GETTERS / SETTERS
-	// **************************************
-	// ******************************************************************************************
-	public String getProcessedString() {
-		return processedString;
-	}
 
-	public void setProcessedString(String processedString) {
-		this.processedString = processedString;
-	}
-
-	public Double getLoadPercent() {
-		return loadPercent;
-	}
-
-	public void setLoadPercent(Double loadPercent) {
-		this.loadPercent = loadPercent;
-	}
-
-	public Logger getLogger() {
-		return logger;
-	}
-
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
 }

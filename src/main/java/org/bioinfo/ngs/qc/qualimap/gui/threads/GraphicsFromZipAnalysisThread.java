@@ -182,7 +182,8 @@ public class GraphicsFromZipAnalysisThread extends Thread {
                     BamStats bamStats = tabProperties.getBamStats();
                     GenomeLocator locator = tabProperties.getGenomeLocator();
                     tabProperties.getReporter().computeChartsBuffers(bamStats,locator,tabProperties.isPairedData());
-                    openFilePanel.getHomeFrame().addNewPane(openFilePanel, tabProperties);
+                    String inputFileName = openFilePanel.getInputFile().getName();
+                    openFilePanel.getHomeFrame().addNewPane(inputFileName, tabProperties);
 				}
 				// Stop the thread
 				join();

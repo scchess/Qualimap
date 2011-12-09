@@ -103,7 +103,11 @@ public class OpenLoadedStatistics extends JPanel {
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 		tabProperties.setLastLinkSelected(null);
 
-		if (!showAditionalGraphicsInfo) {
+
+
+
+
+        if (!showAditionalGraphicsInfo) {
 
             JCheckBox checkFirstSection = createResultsCheckBox("Results");
 			leftPanel.add(checkFirstSection);

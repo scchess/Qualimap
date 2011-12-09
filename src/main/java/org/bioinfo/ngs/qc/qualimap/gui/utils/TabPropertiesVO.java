@@ -62,7 +62,7 @@ public class TabPropertiesVO {
 	 */
 	private JComponent leftSplitLastElement;	
 	private boolean isPairedData;
-    private boolean hasOutsideStats;
+    private boolean computeOutsideStats;
     private BamStats bamStats;
     private GenomeLocator genomeLocator;
 

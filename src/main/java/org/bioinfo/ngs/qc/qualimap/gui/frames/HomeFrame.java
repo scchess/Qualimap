@@ -48,6 +48,7 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenLoadedStatistics;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -66,7 +67,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	
 	public static String outputpath =File.separator+"tmp/outputs"+File.separator; 
 	
-	private static String title = "QualiMap v.1.0 parallel";
+	private static String title = "QualiMap v.1.0.1";
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 	public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
 	public static Font defaultFontItalic = new Font(Font.DIALOG, Font.ITALIC, 12);
@@ -246,9 +247,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		return a;
 	}
 
-	public void addNewPane(final OpenFilePanel openFilePanel, final TabPropertiesVO tabProperties) {
+	public void addNewPane(final String inputFileName, final TabPropertiesVO tabProperties) {
 		
-		this.getPopUpDialog().setVisible(false);
+		//TODO: the dialog has to be closed where it was opened!
+        this.getPopUpDialog().setVisible(false);
 		this.remove(this.getPopUpDialog());
 		
 		final JScrollPane inputScrollPane = new JScrollPane();
@@ -258,7 +260,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			aTabbedPane = new JTabbedPane();
 		}
 		// Cutting the file name if necessary
-		String fileName = StringUtilsSwing.formatFileName(openFilePanel.getInputFile().getName());
+		String fileName = StringUtilsSwing.formatFileName(inputFileName);
 		ImageIcon ic = new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve.png"));
 		String prefix = "";
 		if(Constants.TYPE_BAM_ANALYSIS_DNA==typeAnalysis){
@@ -269,8 +271,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			prefix = "Counts: ";
 		}
 		
-		aTabbedPane.addTab(prefix + fileName, ic, inputScrollPane,prefix + openFilePanel.getInputFile().getName());
-		aTabbedPane.setTabComponentAt(aTabbedPane.indexOfComponent(inputScrollPane), new ButtonTabComponent(aTabbedPane, ic, prefix + openFilePanel.getInputFile().getName()));
+		aTabbedPane.addTab(prefix + fileName, ic, inputScrollPane,prefix + inputFileName);
+		aTabbedPane.setTabComponentAt(aTabbedPane.indexOfComponent(inputScrollPane),
+                new ButtonTabComponent(aTabbedPane, ic, prefix + inputFileName));
 		aTabbedPane.setSelectedIndex(aTabbedPane.getTabCount() - 1);
 		OpenLoadedStatistics op = new OpenLoadedStatistics(this);
         aTabbedPane.setComponentAt(aTabbedPane.getSelectedIndex(), op.getLoadedStatistics());
@@ -445,14 +448,25 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			popUpDialog.setLocationRelativeTo(HomeFrame.this);
 			popUpDialog.setVisible(true);
 	    }else if(e.getActionCommand().equalsIgnoreCase("genomic")){
-	    	runAnalysis(Constants.TYPE_BAM_ANALYSIS_DNA);
-	    }else if(e.getActionCommand().equalsIgnoreCase("genomicregion")){
-	    	runAnalysis(Constants.TYPE_BAM_ANALYSIS_EXOME);
+	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_DNA);
+        }else if(e.getActionCommand().equalsIgnoreCase("genomicregion")){
+	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_EXOME);
 	    }else if(e.getActionCommand().equalsIgnoreCase("counts")){
 	    	runAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
 	    }
     }
-	
+
+    private void runBamFileAnalysis(int type){
+    	//TODO: get rid of the typeAnalysis variable
+        HomeFrame.this.setTypeAnalysis(type);
+		popUpDialog = new BamAnalysisDialog(this);
+        popUpDialog.setModal(true);
+        popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        popUpDialog.setLocationRelativeTo(this);
+        popUpDialog.setVisible(true);
+
+	}
+
 	private void runAnalysis(int type){
     	//TODO: get rid of the typeAnalysis variable
         HomeFrame.this.setTypeAnalysis(type);

@@ -186,7 +186,8 @@ public class BamAnalysisRnaThread extends Thread {
             } catch (IOException e) {
 	            e.printStackTrace();
             }
-            openFilePanel.getHomeFrame().addNewPane(openFilePanel, tabProperties);
+            String inputFileName = openFilePanel.getInputFile().getName();
+            openFilePanel.getHomeFrame().addNewPane(inputFileName, tabProperties);
 	}
 
 	/**
