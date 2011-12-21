@@ -49,23 +49,38 @@
 			<version>0.4.0</version>
 			<scope>test</scope>
 		</dependency>
+            <dependency>
+       		<groupId>net.sf.picard.sam</groupId>
+        	<artifactId>picard</artifactId>
+           	<version>1.44</version>
+       	</dependency>
+       	<dependency>
+           	<groupId>com.miglayout</groupId>
+           	<artifactId>miglayout</artifactId>
+           	<version>3.7.4</version>
+       	</dependency>
         <dependency>
             <groupId>net.sf.picard.sam</groupId>
             <artifactId>picard</artifactId>
             <version>1.44</version>
         </dependency>
-        <dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
-            <version>3.7.4</version>
-        </dependency>
+
         <!--
-              <dependency> <groupId>es.blast2go</groupId>
-              <artifactId>blast2go</artifactId> <version>babel2</version>
-              </dependency>
-          -->
+            <dependency> <groupId>es.blast2go</groupId>
+            <artifactId>blast2go</artifactId> <version>babel2</version>
+            </dependency>
+        -->
 
 	</dependencies>
+	
+	<repositories>
+		<repository>
+			<id>biojava-maven-repo</id>
+			<name>BioJava repository</name>
+			<url>http://www.biojava.org/download/maven/</url>			
+		</repository>
+	</repositories>
+	
 
 	<build>
 
@@ -131,4 +146,3 @@
 
 
 </project>
-
