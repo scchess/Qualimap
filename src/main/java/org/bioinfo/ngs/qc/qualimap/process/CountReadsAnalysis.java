@@ -88,9 +88,9 @@ public class CountReadsAnalysis {
             //Debugging  purposes
             //System.out.print("ReadName: "+read.getReadName() );
             //System.out.println("ReadStart: "+read.getAlignmentStart() + ", ReadEnd: " + read.getAlignmentEnd());
-            if (read.getReadName().contains("SRR002320.11354625") ) {
-                System.out.println("BINGO!");
-            }
+            //if (read.getReadName().contains("SRR002320.11354625") ) {
+            //    System.out.println("BINGO!");
+            //}
 
             // Create intervals for read
             Cigar cigar = read.getCigar();
@@ -112,7 +112,6 @@ public class CountReadsAnalysis {
                 Iterator<IntervalTree.Node<Set<String>>> overlapIter = regionSet.overlappers(interval.getStart(), interval.getEnd() );
                 while (overlapIter.hasNext()) {
                     IntervalTree.Node<Set<String>> node = overlapIter.next();
-
 
                     if (CoordMath.encloses(node.getStart(), node.getEnd(), interval.getStart(), interval.getEnd()) ) {
 

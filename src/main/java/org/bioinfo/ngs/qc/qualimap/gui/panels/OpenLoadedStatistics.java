@@ -204,8 +204,7 @@ public class OpenLoadedStatistics extends JPanel {
 	 */
 	private void fillLeftRnaSplit() {
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-		boolean infoFileSelected = tabProperties.getRnaAnalysisVO().getInfoFileIsSet();
-		boolean speciesFileSelected = tabProperties.getRnaAnalysisVO().getSpecieFileIsSet();
+		boolean infoFileIsSet = tabProperties.getRnaAnalysisVO().getInfoFileIsSet();
 		tabProperties.setLastLinkSelected(null);
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
@@ -217,7 +216,7 @@ public class OpenLoadedStatistics extends JPanel {
 		leftPanel.add(j1_0);
 		initialLabel = j1_0;
 
-		if (infoFileSelected || speciesFileSelected) {
+		if (infoFileIsSet) {
 
 			JLabel j1_1 = createImageLinkLabel("Detection per group", Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS);
 			leftPanel.add(j1_1);

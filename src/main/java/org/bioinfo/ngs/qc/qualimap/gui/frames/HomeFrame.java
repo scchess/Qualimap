@@ -43,13 +43,11 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import com.sun.org.apache.bcel.internal.classfile.Constant;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenFilePanel;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenLoadedStatistics;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
@@ -452,7 +450,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }else if(e.getActionCommand().equalsIgnoreCase("genomicregion")){
 	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_EXOME);
 	    }else if(e.getActionCommand().equalsIgnoreCase("counts")){
-	    	runAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
+	    	//runAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
+            runCountsAnalysis();
 	    }
     }
 
@@ -466,6 +465,17 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setVisible(true);
 
 	}
+
+
+    private void runCountsAnalysis(){
+    	HomeFrame.this.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
+		popUpDialog = new CountsAnalysisDialog(this);
+        popUpDialog.setModal(true);
+        popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        popUpDialog.setLocationRelativeTo(this);
+        popUpDialog.setVisible(true);
+    }
+
 
 	private void runAnalysis(int type){
     	//TODO: get rid of the typeAnalysis variable
@@ -483,7 +493,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		}
 		else if(type==Constants.TYPE_BAM_ANALYSIS_RNA){
 			popUpDialog = inputDataBamAnalysisDialog.getOpenBamAnalysisRnaFilePanel(HomeFrame.this, dim, "Select Counts");
-		}
+
+        }
 		popUpDialog.setModal(true);
 		popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		popUpDialog.setLocationRelativeTo(HomeFrame.this);
