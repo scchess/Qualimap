@@ -19,7 +19,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
-import psidev.psi.mi.xml253.jaxb.EntrySet;
 
 /**
  * Class to manage a thread that do the analysis from RNA-Seq of the input files
@@ -84,6 +83,7 @@ public class CountsAnalysisThread extends Thread {
 
         if ( !openFilePanel.firstSampleCountsPrecalculated() ) {
             try {
+                openFilePanel.getProgressStream().setText("Calculating stats for first sample");
                 firstSampleDataPath = outputDirPath.toString() + "/1st_sample_counts.txt";
                 calculateCounts(openFilePanel.getFirstSampleDataPath(),
                         openFilePanel.getFirstSampleGffPath(), firstSampleDataPath);
@@ -100,9 +100,10 @@ public class CountsAnalysisThread extends Thread {
 
             if ( !openFilePanel.secondSampleCountsPrecalculated() ) {
                 try {
+                    openFilePanel.getProgressStream().setText("Calculating stats for second sample");
                     secondSampleDataPath = outputDirPath.toString() + "/2nd_sample_counts.txt";
                     calculateCounts(openFilePanel.getSecondSampleDataPath(),
-                            openFilePanel.getSecondSampleDataPath(), secondSampleDataPath);
+                            openFilePanel.getSecondSampleGffPath(), secondSampleDataPath);
                 } catch (Exception e) {
                     System.err.println("Error while calculating counts: " + e.getMessage());
                     e.printStackTrace();
@@ -142,7 +143,6 @@ public class CountsAnalysisThread extends Thread {
 
         command += " -o " + outputDirPath;
 
-        // TODO: understand WTF is going on here
         FileReader fr;
         try {
             fr = new FileReader(infoFilePath);

@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
@@ -43,17 +44,66 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     static final String INPUT_TYPE_BAM_FILE = "BAM file and GFF file";
     static final String INPUT_TYPE_COUNTS_FILE = "Precalculated file with counts";
 
+
+    static class BrowseDataButtonActionListener implements ActionListener {
+        JTextField pathEdit;
+        HomeFrame homeFrame;
+        JComboBox typeCombo;
+
+        public BrowseDataButtonActionListener(HomeFrame homeFrame, JTextField field, JComboBox typeCombo) {
+            this.homeFrame = homeFrame;
+            this.pathEdit = field;
+            this.typeCombo = typeCombo;
+        }
+
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (homeFrame.getFileOpenChooser() == null) {
+                homeFrame.setFileOpenChooser(new JFileChooser());
+            }
+            FileFilter filter = new FileFilter() {
+                public boolean accept(File fileShown) {
+
+                    String extension = typeCombo.getSelectedItem().toString().equals(INPUT_TYPE_COUNTS_FILE)
+                            ? "txt" : "bam";
+
+                    return (fileShown.getName().endsWith(extension) || fileShown.isDirectory());
+
+                }
+
+                public String getDescription() {
+                    return typeCombo.getSelectedItem().toString().equals(INPUT_TYPE_COUNTS_FILE)
+                            ? "File with counts" : "BAM files";
+                }
+            };
+            homeFrame.getFileOpenChooser().setFileFilter(filter);
+
+            int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
+
+            if (valor == JFileChooser.APPROVE_OPTION) {
+                pathEdit.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
+            }
+        }
+
+    }
+
     static class BrowseButtonActionListener implements ActionListener {
 
         JTextField pathEdit;
         HomeFrame homeFrame;
         String description;
+        String extention;
 
-        public BrowseButtonActionListener(HomeFrame homeFrame, JTextField field, String descripton) {
+        public BrowseButtonActionListener(HomeFrame homeFrame, JTextField field, String description, String extention) {
             this.homeFrame = homeFrame;
             this.pathEdit = field;
-            this.description = descripton;
+            this.description = description;
+            this.extention = extention;
         }
+
+
+
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             if (homeFrame.getFileOpenChooser() == null) {
@@ -61,14 +111,10 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 				}
 				FileFilter filter = new FileFilter() {
 					public boolean accept(File fileShown) {
-						/*boolean result = true;*/
 
-						/*if (!fileShown.isDirectory()) {
-							result = false;
-						}*/
+                        return (fileShown.getName().endsWith(extention) || fileShown.isDirectory());
 
-						return true;
-					}
+                    }
 
 					public String getDescription() {
 						return description;
@@ -117,8 +163,8 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 		//browseFileButton1.setAction(getActionLoadBamFile());
         browseFileButton1.setText("...");
 		browseFileButton1.addKeyListener(keyListener);
-        browseFileButton1.addActionListener( new BrowseButtonActionListener(homeFrame,
-                filePathEdit1, "All files"));
+        browseFileButton1.addActionListener( new BrowseDataButtonActionListener(homeFrame,
+                filePathEdit1, analysisTypeCombo1));
         add(browseFileButton1, "align center, wrap");
 
         gffLabel1 = new JLabel();
@@ -135,7 +181,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         browseGffButton1.setText("...");
 		browseGffButton1.addKeyListener(keyListener);
         browseGffButton1.addActionListener(new BrowseButtonActionListener(homeFrame,
-                gffPathEdit1, "GFF files (*.gff)"));
+                gffPathEdit1, "GFF files", "gff"));
         add(browseGffButton1, "align center, wrap");
 
         compartativeAnalysisCheckBox = new JCheckBox();
@@ -162,8 +208,8 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         browseFileButton2 = new JButton();
 		browseFileButton2.setText("...");
 		browseFileButton2.addKeyListener(keyListener);
-        browseFileButton2.addActionListener( new BrowseButtonActionListener(homeFrame,
-                        filePathEdit2, "All files"));
+        browseFileButton2.addActionListener(new BrowseDataButtonActionListener(homeFrame,
+                filePathEdit2, analysisTypeCombo2));
         add(browseFileButton2, "align center, wrap");
 
         gffLabel2 = new JLabel();
@@ -180,7 +226,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         browseGffButton2.setText("...");
 		browseGffButton2.addKeyListener(keyListener);
         browseGffButton2.addActionListener(new BrowseButtonActionListener(homeFrame,
-                        gffPathEdit2, "GFF files (*.gff)"));
+                        gffPathEdit2, "GFF files (*.gff)", "gff"));
         add(browseGffButton2, "align center, wrap");
 
         thresholdLabel = new JLabel();
@@ -206,7 +252,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
         browseInfoFileButton = new JButton("...");
         browseInfoFileButton.addActionListener( new BrowseButtonActionListener(homeFrame,
-                        infoFileEdit, "Species files (*.txt)"));
+                        infoFileEdit, "Species files", "txt"));
 
         add(browseInfoFileButton, "align center, wrap");
 
@@ -367,7 +413,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
         final CountsAnalysisDialog dlg = this;
 
-        ActionListener actionStartAnalysis = new ActionListener() {
+        return new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -375,35 +421,32 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 				TabPropertiesVO tabProperties = new TabPropertiesVO();
 
                 if (validateInput()) {
-                    CountsAnalysisThread t;
-		            tabProperties.setTypeAnalysis(homeFrame.getTypeAnalysis());
+                    tabProperties.setTypeAnalysis(homeFrame.getTypeAnalysis());
 		            tabProperties.getRnaAnalysisVO().setInfoFileIsSet(infoFileIsProvided());
 
-		            t = new CountsAnalysisThread("StatisticsRnaAnalysisProcessThread", dlg, tabProperties);
+		            CountsAnalysisThread t = new CountsAnalysisThread("StatisticsRnaAnalysisProcessThread", dlg, tabProperties);
 		            t.start();
 
-
-			    } else {
+                } else {
 				    JOptionPane.showMessageDialog(null, stringValidation.toString(), "Error", 0);
 				}
 			}
 
         };
 
-		return actionStartAnalysis;
-	}
+    }
 
     boolean validateInputFile(String pathToFile, String fileType, boolean  checkForMimeType) {
         File inputFile;
 
         if (pathToFile.isEmpty() || (inputFile = new File(pathToFile)) == null) {
-			stringValidation.append(" • The path of the " + fileType + " is required \n");
+			stringValidation.append(" • The path of the ").append(fileType).append(" is required \n");
             return false;
 		} else if (inputFile != null) {
             if (checkForMimeType) {
 			    String mimeType = new MimetypesFileTypeMap().getContentType(inputFile);
 			    if (mimeType == null) {
-				    stringValidation.append(" • Incorrect MimeType for the " + fileType + "\n");
+				    stringValidation.append(" • Incorrect MimeType for the ").append(fileType).append("\n");
 			        return false;
                 }
             }
@@ -412,7 +455,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 			try {
 				FileUtils.checkFile(inputFile);
 			} catch (IOException e) {
-				stringValidation.append(" • " + e.getMessage() + " \n");
+				stringValidation.append(" • ").append(e.getMessage()).append(" \n");
 			}
             return false;
 		}

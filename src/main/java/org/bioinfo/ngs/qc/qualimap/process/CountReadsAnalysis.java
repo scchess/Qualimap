@@ -141,9 +141,9 @@ public class CountReadsAnalysis {
             if (features.size()  == 0) {
                 noFeature++;
             } else if (features.size()  == 1) {
-                if (features.iterator().next().contains("ENSG00000124222"))  {
+                //if (features.iterator().next().contains("ENSG00000124222"))  {
                 //    System.out.println(read.getReadName());
-                }
+                //}
                 String geneName = features.iterator().next();
                 long count = readCounts.get(geneName);
                 readCounts.put(geneName, ++count);
@@ -159,7 +159,7 @@ public class CountReadsAnalysis {
     void loadRegions() throws IOException, NoSuchMethodException, FileFormatException {
 
         GtfParser gtfParser = new GtfParser(pathToGffFile);
-		System.out.println("initializing regions from " + pathToGffFile + ".....");
+		System.out.println("initializing regions from " + pathToGffFile + "...");
 
         chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
         readCounts = new HashMap<String, Long>();
