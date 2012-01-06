@@ -77,7 +77,9 @@ public class OpenLoadedStatistics extends JPanel {
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
 			fillLeftRnaSplit();
-		} else {
+		} else if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI) {
+            fillEpiSplit();
+        } else {
 			fillLeftSplit();
 		}
 		
@@ -91,6 +93,23 @@ public class OpenLoadedStatistics extends JPanel {
 		leftScrollPane.validate();
 
         return statisticsContainer;
+    }
+
+    private void fillEpiSplit() {
+
+        TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
+		tabProperties.setLastLinkSelected(null);
+
+        JCheckBox checkFirstSection = createResultsCheckBox("Results");
+		leftPanel.add(checkFirstSection);
+
+        Map<String,BufferedImage> imageMap = tabProperties.getReporter().getImageMap();
+
+        for (Map.Entry<String,BufferedImage> entry : imageMap.entrySet() ) {
+            JLabel j = createImageLinkLabel(entry.getKey().toString(), entry.getKey().toString() );
+            leftPanel.add(j);
+        }
+
     }
 
     /**
@@ -454,14 +473,26 @@ public class OpenLoadedStatistics extends JPanel {
 
 			GraphicImagePanel panelImage = tabProperties.getGraphicImage();
 
+            //JScrollPane scrollPane = new JScrollPane();
+            //scrollPane.add(panelImage);
+
+
+
 			// Set the image with the file image get
 			panelImage.setImage((BufferedImage) imageToDisplay);
 
-			// Scale the image
-			panelImage.resizeImage(rightScrollPane.getWidth(), rightScrollPane.getHeight());
+            // Scale the image
+			if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI ) {
+                        int width = ((BufferedImage) imageToDisplay).getWidth();
+                        int height  = ((BufferedImage) imageToDisplay).getHeight();
+                        panelImage.setPreferredSize(new Dimension(width, height));
+                        panelImage.resizeImage(width, height);
+            } else {
+                panelImage.resizeImage(rightScrollPane.getWidth(), rightScrollPane.getHeight());
+            }
 
-			rightScrollPane.setViewportView(panelImage);
-		}
+            rightScrollPane.setViewportView(panelImage);
+        }
 	}
 
 	/**

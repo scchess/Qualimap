@@ -212,6 +212,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
 		analysisMenu.add(addMenuItem("Genomic Region", "genomicregion", "chart_curve_add.png", "ctrl pressed R"));
 		analysisMenu.add(addMenuItem("Counts", "counts", "chart_curve_add.png", "ctrl pressed C"));
+        analysisMenu.add(addMenuItem("Epigenetics", "epigenetics", "chart_curve_add.png", "ctrl pressed E"));
 		analysisMenu.addSeparator();
 		analysisMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
 		
@@ -261,14 +262,16 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		String fileName = StringUtilsSwing.formatFileName(inputFileName);
 		ImageIcon ic = new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve.png"));
 		String prefix = "";
-		if(Constants.TYPE_BAM_ANALYSIS_DNA==typeAnalysis){
+		if(Constants.TYPE_BAM_ANALYSIS_DNA == typeAnalysis){
 			prefix = "Genomic: ";
-		}else if (Constants.TYPE_BAM_ANALYSIS_EXOME==typeAnalysis){
+		}else if (Constants.TYPE_BAM_ANALYSIS_EXOME == typeAnalysis){
 			prefix = "Region: ";
-		}else if (Constants.TYPE_BAM_ANALYSIS_RNA==typeAnalysis){
+		}else if (Constants.TYPE_BAM_ANALYSIS_RNA == typeAnalysis){
 			prefix = "Counts: ";
-		}
-		
+        }else if (Constants.TYPE_BAM_ANALYSIS_EPI == typeAnalysis) {
+            prefix = "Epigenetics: ";
+        }
+
 		aTabbedPane.addTab(prefix + fileName, ic, inputScrollPane,prefix + inputFileName);
 		aTabbedPane.setTabComponentAt(aTabbedPane.indexOfComponent(inputScrollPane),
                 new ButtonTabComponent(aTabbedPane, ic, prefix + inputFileName));
@@ -452,7 +455,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    }else if(e.getActionCommand().equalsIgnoreCase("counts")){
 	    	//runAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
             runCountsAnalysis();
-	    }
+	    }else if(e.getActionCommand().equals("epigenetics")) {
+            runEpigeneticsAnalysis();
+        }
     }
 
     private void runBamFileAnalysis(int type){
@@ -475,6 +480,16 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setLocationRelativeTo(this);
         popUpDialog.setVisible(true);
     }
+
+    private void runEpigeneticsAnalysis(){
+            HomeFrame.this.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_EPI);
+            popUpDialog = new EpigeneticAnalysisDialog(this);
+            popUpDialog.setModal(true);
+            popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            popUpDialog.setLocationRelativeTo(this);
+            popUpDialog.setVisible(true);
+        }
+
 
 
 	private void runAnalysis(int type){

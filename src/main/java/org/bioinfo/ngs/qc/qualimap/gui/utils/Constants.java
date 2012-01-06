@@ -221,6 +221,7 @@ public final class Constants {
 	public static final Integer TYPE_BAM_ANALYSIS_DNA = 0;
 	public static final Integer TYPE_BAM_ANALYSIS_EXOME = 1;
 	public static final Integer TYPE_BAM_ANALYSIS_RNA = 2;
+    public static final Integer TYPE_BAM_ANALYSIS_EPI = 3;
 	
 	//******************************************************************************************
 	//*********************************** TYPES OF SPECIES *************************************

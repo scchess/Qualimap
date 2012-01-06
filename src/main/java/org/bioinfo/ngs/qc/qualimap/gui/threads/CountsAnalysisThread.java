@@ -19,6 +19,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
+import psidev.psi.mi.xml253.jaxb.EntrySet;
 
 /**
  * Class to manage a thread that do the analysis from RNA-Seq of the input files
@@ -103,7 +104,7 @@ public class CountsAnalysisThread extends Thread {
                     openFilePanel.getProgressStream().setText("Calculating stats for second sample");
                     secondSampleDataPath = outputDirPath.toString() + "/2nd_sample_counts.txt";
                     calculateCounts(openFilePanel.getSecondSampleDataPath(),
-                            openFilePanel.getSecondSampleGffPath(), secondSampleDataPath);
+                            openFilePanel.getSecondSampleDataPath(), secondSampleDataPath);
                 } catch (Exception e) {
                     System.err.println("Error while calculating counts: " + e.getMessage());
                     e.printStackTrace();
@@ -143,6 +144,7 @@ public class CountsAnalysisThread extends Thread {
 
         command += " -o " + outputDirPath;
 
+        // TODO: understand WTF is going on here
         FileReader fr;
         try {
             fr = new FileReader(infoFilePath);
@@ -208,7 +210,7 @@ public class CountsAnalysisThread extends Thread {
 
     /**
 	 * Function to load the images into a map of buffered images
-	 * 
+	 *
 	 */
 	private void loadBufferedImages() throws IOException {
 		BamQCRegionReporter reporter = tabProperties.getReporter();
