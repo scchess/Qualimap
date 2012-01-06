@@ -13,6 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -49,13 +50,45 @@ public class EpigeneticsAnalysisThread extends Thread {
     static final String TAG_FRAGMENT = "fragment";
     static final String TAG_DIR_OUT ="dirOut";
 
+
+    static class OutputParsingThread extends Thread {
+
+        BufferedReader outputReader;
+        EpigeneticAnalysisDialog parentDialog;
+
+
+        OutputParsingThread(BufferedReader outputReader, EpigeneticAnalysisDialog parentDialog) {
+            this.outputReader = outputReader;
+            this.parentDialog = parentDialog;
+
+        }
+
+        public void run() {
+            String line;
+            try {
+                while ((line = outputReader.readLine()) != null) {
+                    System.out.println(line);
+                    if (line.contains("STATUS:")) {
+                        parentDialog.setProgressStatus(line.split(":")[1]);
+                    }
+                }
+
+            } catch (IOException e) {
+                System.err.println("Failed to parse output stream.");
+
+            }
+
+
+        }
+
+    }
+
     public EpigeneticsAnalysisThread(EpigeneticAnalysisDialog settingsDialog, TabPropertiesVO tabProperties) {
         super("EpigeneticsAnalysisThread");
         this.settingsDialog = settingsDialog;
         this.tabProperties = tabProperties;
 
     }
-
 
     public void run()  {
 
@@ -64,6 +97,7 @@ public class EpigeneticsAnalysisThread extends Thread {
         StringBuilder outputDir = tabProperties.createDirectory();
 
         try {
+
 
             settingsDialog.setProgressStatus("Generating configuration file...");
             createConfigFile(outputDir.toString(), "config.xml");
@@ -76,11 +110,16 @@ public class EpigeneticsAnalysisThread extends Thread {
             commandString += " --fileConfig=" + outputDir.toString() + "config.xml";
             commandString += " --homedir=" + settingsDialog.getHomeFrame().getQualimapFolder() + "scripts";
 
-            Command cmd = new Command(commandString);
             System.out.println(commandString);
-            SingleProcess process = new SingleProcess(cmd);
             settingsDialog.setProgressStatus("Running Rscript command...");
-            process.getRunnableProcess().run();
+            Process p = Runtime.getRuntime().exec(commandString);
+
+            BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
+            OutputParsingThread outputParser= new OutputParsingThread( outputReader, settingsDialog ) ;
+
+            outputParser.start();
+            p.waitFor();
+            outputParser.join();
 
             settingsDialog.setProgressStatus("Loading images...");
             //if (!loadBufferedImages("/home/kokonech/result") ) {
@@ -240,8 +279,7 @@ public class EpigeneticsAnalysisThread extends Thread {
 
         xmlWriter.writeCharacters("\n\n\t");
         xmlWriter.writeStartElement(TAG_FRAGMENT);
-        // TODO: add fragmentation?
-        xmlWriter.writeCharacters("300");
+        xmlWriter.writeCharacters(settingsDialog.getReadSmoothingLength());
 
         xmlWriter.writeEndElement();
 

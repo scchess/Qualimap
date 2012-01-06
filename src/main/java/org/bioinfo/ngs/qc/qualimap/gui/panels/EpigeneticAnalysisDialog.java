@@ -1,5 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
+import com.sun.corba.se.spi.presentation.rmi.IDLNameTranslator;
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditEpigeneticsInputDataDialog;
@@ -27,7 +28,7 @@ import java.util.List;
 public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
     JTextField geneSelectionField, microArrayPathField, thresholdsField, clustersField;
-    JSpinner columnSpinner, leftOffsetSpinner, rightOffsetSpinner, stepSpinner;
+    JSpinner columnSpinner, leftOffsetSpinner, rightOffsetSpinner, stepSpinner, smoothingLengthSpinner;
     JButton browseGeneSelectionButton, browseMicroArrayDataButton;
     JButton startAnalysisButton, addSampleButton, removeSampleButton, editSampleButton;
     JCheckBox microArrayCheckBox;
@@ -276,6 +277,15 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
+        add(new JLabel("Clusters"));
+        clustersField = new JTextField((20));
+        clustersField.setText("10,15,20,25,50,75,100");
+        add(clustersField, "wrap");
+
+        add(new JLabel("Read smoothing length:"));
+        smoothingLengthSpinner = new JSpinner(new SpinnerNumberModel(300, 100,500,1));
+        add(smoothingLengthSpinner, "wrap");
+
         microArrayCheckBox = new JCheckBox("Micro array data available");
         microArrayCheckBox.addActionListener(this);
         add(microArrayCheckBox, "wrap");
@@ -294,15 +304,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         add(thresholdsLabel);
         thresholdsField = new JTextField((20));
         thresholdsField.setText("1.1, 1.2, 1.3, 1.4, 1.5");
-        add(thresholdsField, "wrap");
-
-        add(new JLabel("Clusters"));
-        clustersField = new JTextField((20));
-        clustersField.setText("10,15,20,25,50,75,100");
-        add(clustersField, "wrap 30px");
-
-        JPanel progressPanel = new JPanel();
-        progressPanel.setLayout(new MigLayout("insets 0"));
+        add(thresholdsField, "wrap 30px");
 
         UIManager.put("ProgressBar.selectionBackground", Color.black);
         UIManager.put("ProgressBar.selectionForeground", Color.black);
@@ -315,8 +317,6 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         progressBar.setBorderPainted(true);
         progressBar.setForeground(new Color(244, 200, 120));
         add(progressBar, "grow, wrap 30px");
-
-        //add(progressPanel, "align center, span, grow, wrap 30px");
 
         startAnalysisButton = new JButton();
         startAnalysisButton.setText(">>> Run Analysis");
@@ -501,14 +501,33 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
                 return "Microarray data path is not valid!";
             }
 
-            if (getMicroArrayThresholds().length == 0) {
-                // TODO: better check -> each threshold should be casted to Int
+            String[] thresholds = getMicroArrayThresholds();
+
+            if (thresholds.length == 0) {
                 return "Thresholds are not provided";
+            } else {
+                for (String threshold : thresholds) {
+                    try {
+                        Double.parseDouble(threshold);
+                    } catch (NumberFormatException e) {
+                        return "Can not parse threshold value: " + threshold;
+                    }
+                }
             }
         }
 
-        if (getClusterNumbers().length == 0) {
+        String[] clusterNumbers = getClusterNumbers();
+
+        if (clusterNumbers.length == 0) {
             return "Cluster numbers are not provided!";
+        } else {
+             for (String clusterNumber : clusterNumbers) {
+                    try {
+                        Integer.parseInt(clusterNumber);
+                    } catch (NumberFormatException e) {
+                        return "Can not parse number of clusters: " + clusterNumber;
+                    }
+                }
         }
 
         if (sampleTableModel.getRowCount() == 0) {
@@ -519,9 +538,13 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
     }
 
-
     public void setProgressStatus(String message) {
         progressStream.setText(message);
     }
+
+    public String getReadSmoothingLength() {
+        return smoothingLengthSpinner.getValue().toString();
+    }
+
 
 }
