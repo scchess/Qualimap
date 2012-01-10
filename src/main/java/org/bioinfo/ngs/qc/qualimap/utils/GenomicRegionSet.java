@@ -13,7 +13,28 @@ import java.util.*;
  * Time: 12:43 PM
  */
 public class GenomicRegionSet {
-    IntervalTree<Set<String>> intervalTree;
+
+    public static class Feature {
+
+        String name;
+        boolean positiveStrand;
+
+        public Feature(String name, boolean positiveStrand) {
+            this.name = name;
+            this.positiveStrand = positiveStrand;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isPositiveStrand() {
+            return positiveStrand;
+        }
+    }
+
+
+    IntervalTree<Set<Feature>> intervalTree;
     MultiMap<String,Interval> featureIntervalMap;
     Set<Interval> ambiguousRegions;
 
@@ -25,7 +46,7 @@ public class GenomicRegionSet {
     }
 
     public GenomicRegionSet() {
-        intervalTree =  new IntervalTree<Set<String>>();
+        intervalTree =  new IntervalTree<Set<Feature>>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
         ambiguousRegions = new HashSet<Interval>();
     }
@@ -43,35 +64,15 @@ public class GenomicRegionSet {
     public void addRegion(GtfParser.Record r) {
 
         String featureName = r.getGeneId();
+        boolean featureStrand = r.getStrand();
 
         Interval newInterval = new Interval(r.getSeqName(), r.getStart(), r.getEnd(), r.getStrand(), featureName);
         List<Interval> toRemove = new ArrayList<Interval>();
 
-        /*if (intervalIsAmbiguous(newInterval.getStart(), newInterval.getEnd())) {
-            System.out.println(featureName);
-            return;
-        }*/
-
-
-        /*if (dublicateInterval != null) {
-            String iv = dublicateInterval.getValue();
-            if ( !iv.equals( featureName ) ) {
-                // The interval tree has the following limitation:
-                // there can not be 2 regions with same coordinates but different values
-                // To work around this limitation we filter such regions at earlier stage of analysis
-                ambiguousRegions.add(newInterval);
-                // remove ambiguous region
-                //intervalTree.remove(r.getStart(), r.getEnd());
-                //System.out.println(featureName);
-            }
-            return;
-        }*/
-
-
         if (featureIntervalMap.containsKey(featureName)) {
             Collection<Interval> intervals = featureIntervalMap.get(featureName);
             for (Interval interval: intervals ) {
-                // TODO: check strand also!
+                // TODO: check strand also?
                 if (newInterval.intersects(interval)) {
                     if (newInterval.getStart() == interval.getStart() && newInterval.getEnd() == interval.getEnd()) {
                         // interval is already present for this feature
@@ -88,24 +89,20 @@ public class GenomicRegionSet {
             intervalTree.remove(iv.getStart(), iv.getEnd());
         }
 
-        IntervalTree.Node<Set<String>> dublicateInterval = intervalTree.find(newInterval.getStart(), newInterval.getEnd());
+        IntervalTree.Node<Set<Feature>> dublicateInterval = intervalTree.find(newInterval.getStart(), newInterval.getEnd());
         if (dublicateInterval != null ) {
-            Set<String> intervalFeatures = dublicateInterval.getValue();
-            intervalFeatures.add(featureName);
-            /*if (!intervalFeatures.contains(featureName)) {
-                // Single interval contains a number of features
-                intervalFeatures.add(featureName);
-            }*/
+            Set<Feature> intervalFeatures = dublicateInterval.getValue();
+            intervalFeatures.add(new Feature(featureName, featureStrand) );
             return;
         } else {
-            Set<String> intervalFeatures = new HashSet<String>();
-            intervalFeatures.add(featureName);
+            Set<Feature> intervalFeatures = new HashSet<Feature>();
+            intervalFeatures.add(new Feature(featureName, featureStrand));
             intervalTree.put(newInterval.getStart(), newInterval.getEnd(), intervalFeatures);
             featureIntervalMap.put(r.getGeneId(), newInterval);
         }
     }
 
-    public  Iterator<IntervalTree.Node<Set<String>>> overlappers(int start, int end ) {
+    public  Iterator<IntervalTree.Node<Set<Feature>>> overlappers(int start, int end ) {
         return intervalTree.overlappers(start, end);
     }
 

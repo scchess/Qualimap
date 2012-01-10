@@ -26,15 +26,21 @@ public class CountReadsAnalysis {
     Map<String, GenomicRegionSet> chromosomeRegionSetMap;
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
+    String strandType;
 
     String pathToBamFile, pathToGffFile;
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
 
+    public static final String NON_STRANDED = "Non-stranded";
+    public static final String FORWARD_STRAND = "Forward-stranded";
+    public static final String REVERSE_STRAND = "Reverse-stranded";
+
 
     public CountReadsAnalysis(String pathToBamFile, String pathToGffFile) {
         this.pathToBamFile = pathToBamFile;
         this.pathToGffFile = pathToGffFile;
+        strandType = NON_STRANDED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
     }
@@ -43,6 +49,9 @@ public class CountReadsAnalysis {
         allowedFeatureList.add(featureName);
     }
 
+    public void setStrandType(String strandType) {
+        this.strandType =  strandType;
+    }
 
     public void run() throws FileFormatException, IOException, NoSuchMethodException {
 
@@ -57,6 +66,8 @@ public class CountReadsAnalysis {
         SAMFileReader reader = new SAMFileReader(new File(pathToBamFile));
 
         SAMRecordIterator iter = reader.iterator();
+
+        boolean strandSpecificAnalysis = !strandType.equals(NON_STRANDED);
 
         while (iter.hasNext()) {
 
@@ -74,9 +85,8 @@ public class CountReadsAnalysis {
                 continue;
             }
 
-            // TODO: analyze paired-mapped together!
-
             String chrName = read.getReferenceName();
+            boolean pairedRead = read.getReadPairedFlag();
 
             GenomicRegionSet regionSet = chromosomeRegionSetMap.get(chrName);
 
@@ -99,8 +109,17 @@ public class CountReadsAnalysis {
             int offset = read.getAlignmentStart();
             for (CigarElement cigarElement : cigarElements) {
                 int length = cigarElement.getLength();
+                boolean strand = read.getReadNegativeStrandFlag();
+                if (pairedRead) {
+                    boolean firstOfPair = read.getFirstOfPairFlag();
+                    if ( (strandType.equals(FORWARD_STRAND) && !firstOfPair) ||
+                            (strandType.equals(REVERSE_STRAND) && firstOfPair) ) {
+                        strand = !strand;
+                    }
+                }
+
                 if (cigarElement.getOperator().equals(CigarOperator.M) ) {
-                    intervals.add(new Interval(chrName, offset, offset + length - 1));
+                    intervals.add(new Interval(chrName, offset, offset + length - 1, strand, "" ));
                 }
                 offset += length;
             }
@@ -109,26 +128,34 @@ public class CountReadsAnalysis {
             int intIndex = 0;
 
             for (Interval interval : intervals) {
-                Iterator<IntervalTree.Node<Set<String>>> overlapIter = regionSet.overlappers(interval.getStart(), interval.getEnd() );
+                Iterator<IntervalTree.Node<Set<GenomicRegionSet.Feature>>> overlapIter = regionSet.overlappers(interval.getStart(), interval.getEnd() );
                 while (overlapIter.hasNext()) {
-                    IntervalTree.Node<Set<String>> node = overlapIter.next();
+                    IntervalTree.Node<Set<GenomicRegionSet.Feature>> node = overlapIter.next();
 
                     if (CoordMath.encloses(node.getStart(), node.getEnd(), interval.getStart(), interval.getEnd()) ) {
 
-                        Set<String> features = node.getValue();
-                        for (String feature : features) {
-                            BitSet intervalBits = featureIntervalMap.get(feature);
+                        Set<GenomicRegionSet.Feature> features = node.getValue();
+                        for (GenomicRegionSet.Feature feature : features) {
+                            String featureName = feature.getName();
+
+                            BitSet intervalBits = featureIntervalMap.get(featureName);
                             if (intervalBits == null) {
                                 intervalBits = new BitSet(intervals.size());
-                                featureIntervalMap.put(feature, intervalBits);
+                                featureIntervalMap.put(feature.getName(), intervalBits);
                             }
-                            intervalBits.set(intIndex, true);
+
+                            boolean includeInterval = true;
+                            if (strandSpecificAnalysis) {
+                                boolean featureStrand = feature.isPositiveStrand();
+                                includeInterval = featureStrand == interval.isPositiveStrand();
+                            }
+
+                            intervalBits.set(intIndex, includeInterval);
                         }
                     }
                 }
                 intIndex++;
             }
-
 
             Set<String> features = new HashSet<String>();
 

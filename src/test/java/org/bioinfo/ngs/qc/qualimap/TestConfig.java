@@ -15,6 +15,7 @@ public class TestConfig {
     private String pathToValiationOptions;
     private String pathToRegionFile;
     private boolean computeOutsideRegions;
+    HashMap<String,String> attributes;
 
     private final String BAM_FILE_ATTR = "bamfile";
     private final String RESULTS_FILE_ATTR = "result";
@@ -39,7 +40,7 @@ public class TestConfig {
 
     public TestConfig(String pathToConfig) throws IOException {
         BufferedReader fileReader = new BufferedReader( new FileReader(pathToConfig));
-        HashMap<String,String> attributes = parseConfigFile(fileReader);
+        attributes = parseConfigFile(fileReader);
 
         pathToBamFile = attributes.get(BAM_FILE_ATTR);
         pathToValiationOptions = attributes.get(RESULTS_FILE_ATTR);
@@ -52,6 +53,9 @@ public class TestConfig {
 
     }
 
+
+
+    public String getSpecificAttribute(String attrName) { return attributes.get(attrName); }
     public String getPathToBamFile() { return pathToBamFile; }
     public String getPathToValiationOptions() { return pathToValiationOptions; }
     public String getPathToRegionFile() { return pathToRegionFile; }

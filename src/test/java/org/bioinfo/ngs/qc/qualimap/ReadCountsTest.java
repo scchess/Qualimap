@@ -24,12 +24,13 @@ public class ReadCountsTest {
 
 
     public ReadCountsTest() throws IOException {
+
         tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test001.txt"));
         tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test002.txt"));
         tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test003.txt"));
         tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test004.txt"));
-        //tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test005.txt"));
-
+        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test005.txt"));
+        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test006.txt"));
 
     }
 
@@ -68,6 +69,11 @@ public class ReadCountsTest {
             }
 
             CountReadsAnalysis countReadsAnalysis = new CountReadsAnalysis(pathToBamFile, pathToRegionFile);
+
+            String strandType = test.getSpecificAttribute("strand");
+            if (strandType != null) {
+                countReadsAnalysis.setStrandType(strandType);
+            }
 
             try {
                 countReadsAnalysis.run();
