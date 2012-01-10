@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import com.sun.org.apache.bcel.internal.classfile.Constant;
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.commons.io.utils.FileUtils;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisRnaThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsAnalysisThread;
@@ -28,107 +29,20 @@ import java.io.IOException;
  */
 public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
-    JButton startAnalysisButton, browseFileButton1, browseGffButton1, browseFileButton2, browseGffButton2;
-    JTextField  filePathEdit1, gffPathEdit1,filePathEdit2, gffPathEdit2, thresholdEdit;
-    JComboBox analysisTypeCombo1, analysisTypeCombo2, speciesCombo;
+    JButton startAnalysisButton, browseFileButton1, browseFileButton2;
+    JTextField  filePathEdit1, filePathEdit2, thresholdEdit;
+    JComboBox speciesCombo;
     JCheckBox compartativeAnalysisCheckBox;
     JProgressBar progressBar;
-    JLabel fileLabel1, gffLabel1, fileLabel2, gffLabel2;
-    JLabel comboLabel1, comboLabel2, thresholdLabel;
-    JLabel progressStream;
+    JLabel fileLabel1, fileLabel2, thresholdLabel, progressStream;
     JTextField infoFileEdit;
-    JButton browseInfoFileButton;
+    JButton browseInfoFileButton, calcCountsButton;
     JRadioButton infoFileButton, speciesButton;
     HomeFrame homeFrame;
     StringBuilder stringValidation;
-    static final String INPUT_TYPE_BAM_FILE = "BAM file and GFF file";
-    static final String INPUT_TYPE_COUNTS_FILE = "Precalculated file with counts";
+    static final String inputFileToolTip = "To calculate feature counts from BAM file and GFF file " +
+            "use menu item Tools->Calculate Counts or button below.\n";
 
-
-    static class BrowseDataButtonActionListener implements ActionListener {
-        JTextField pathEdit;
-        HomeFrame homeFrame;
-        JComboBox typeCombo;
-
-        public BrowseDataButtonActionListener(HomeFrame homeFrame, JTextField field, JComboBox typeCombo) {
-            this.homeFrame = homeFrame;
-            this.pathEdit = field;
-            this.typeCombo = typeCombo;
-        }
-
-
-        @Override
-        public void actionPerformed(ActionEvent actionEvent) {
-            if (homeFrame.getFileOpenChooser() == null) {
-                homeFrame.setFileOpenChooser(new JFileChooser());
-            }
-            FileFilter filter = new FileFilter() {
-                public boolean accept(File fileShown) {
-
-                    String extension = typeCombo.getSelectedItem().toString().equals(INPUT_TYPE_COUNTS_FILE)
-                            ? "txt" : "bam";
-
-                    return (fileShown.getName().endsWith(extension) || fileShown.isDirectory());
-
-                }
-
-                public String getDescription() {
-                    return typeCombo.getSelectedItem().toString().equals(INPUT_TYPE_COUNTS_FILE)
-                            ? "File with counts" : "BAM files";
-                }
-            };
-            homeFrame.getFileOpenChooser().setFileFilter(filter);
-
-            int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
-
-            if (valor == JFileChooser.APPROVE_OPTION) {
-                pathEdit.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
-            }
-        }
-
-    }
-
-    static class BrowseButtonActionListener implements ActionListener {
-
-        JTextField pathEdit;
-        HomeFrame homeFrame;
-        String description;
-        String extention;
-
-        public BrowseButtonActionListener(HomeFrame homeFrame, JTextField field, String description, String extention) {
-            this.homeFrame = homeFrame;
-            this.pathEdit = field;
-            this.description = description;
-            this.extention = extention;
-        }
-
-
-
-        @Override
-        public void actionPerformed(ActionEvent actionEvent) {
-            if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
-				FileFilter filter = new FileFilter() {
-					public boolean accept(File fileShown) {
-
-                        return (fileShown.getName().endsWith(extention) || fileShown.isDirectory());
-
-                    }
-
-					public String getDescription() {
-						return description;
-					}
-				};
-				homeFrame.getFileOpenChooser().setFileFilter(filter);
-
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
-
-				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathEdit.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
-				}
-        }
-    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -142,92 +56,40 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
-        comboLabel1 = new JLabel("First sample input type:");
-        add(comboLabel1, "");
-        analysisTypeCombo1 = new JComboBox();
-        analysisTypeCombo1.addItem(INPUT_TYPE_BAM_FILE);
-        analysisTypeCombo1.addItem(INPUT_TYPE_COUNTS_FILE);
-        analysisTypeCombo1.addActionListener(this);
-        add(analysisTypeCombo1, "wrap");
-
-        fileLabel1 = new JLabel();
-        fileLabel1.setText("Input file:");
+        fileLabel1 = new JLabel("First sample (feature counts):");
         add(fileLabel1, "");
 
         filePathEdit1 = new JTextField(40);
         filePathEdit1.addKeyListener(keyListener);
-        filePathEdit1.setToolTipText("Path to BAM alignment file");
+        filePathEdit1.setToolTipText(inputFileToolTip);
         add(filePathEdit1, "grow");
 
         browseFileButton1 = new JButton();
-		//browseFileButton1.setAction(getActionLoadBamFile());
-        browseFileButton1.setText("...");
+		browseFileButton1.setText("...");
 		browseFileButton1.addKeyListener(keyListener);
-        browseFileButton1.addActionListener( new BrowseDataButtonActionListener(homeFrame,
-                filePathEdit1, analysisTypeCombo1));
+        browseFileButton1.addActionListener( new BrowseButtonActionListener(this,
+                filePathEdit1, "File with counts"));
         add(browseFileButton1, "align center, wrap");
-
-        gffLabel1 = new JLabel();
-        gffLabel1.setText("Input GFF file:");
-        add(gffLabel1, "");
-
-        gffPathEdit1 = new JTextField(40);
-        gffPathEdit1.addKeyListener(keyListener);
-        gffPathEdit1.setToolTipText("Path to regions file");
-        add(gffPathEdit1, "grow");
-
-        browseGffButton1 = new JButton();
-		//browseFileButton1.setAction(getActionLoadBamFile());
-        browseGffButton1.setText("...");
-		browseGffButton1.addKeyListener(keyListener);
-        browseGffButton1.addActionListener(new BrowseButtonActionListener(homeFrame,
-                gffPathEdit1, "GFF files", "gff"));
-        add(browseGffButton1, "align center, wrap");
 
         compartativeAnalysisCheckBox = new JCheckBox();
         compartativeAnalysisCheckBox.setText("Perform comparison with other sample");
         compartativeAnalysisCheckBox.addActionListener(this);
         add(compartativeAnalysisCheckBox, "wrap");
 
-        comboLabel2 = new JLabel("Second sample input type:");
-        add(comboLabel2, "");
-        analysisTypeCombo2 = new JComboBox();
-        analysisTypeCombo2.addItem(INPUT_TYPE_BAM_FILE);
-        analysisTypeCombo2.addItem(INPUT_TYPE_COUNTS_FILE);
-        analysisTypeCombo2.addActionListener(this);
-        add(analysisTypeCombo2, "wrap");
-
-        fileLabel2 = new JLabel();
-        fileLabel2.setText("Input file:");
+        fileLabel2 = new JLabel("Second sample (feature counts):");
         add(fileLabel2, "");
 
         filePathEdit2 = new JTextField(40);
         filePathEdit2.addKeyListener(keyListener);
+        filePathEdit2.setToolTipText(inputFileToolTip);
         add(filePathEdit2, "grow");
 
         browseFileButton2 = new JButton();
 		browseFileButton2.setText("...");
 		browseFileButton2.addKeyListener(keyListener);
-        browseFileButton2.addActionListener(new BrowseDataButtonActionListener(homeFrame,
-                filePathEdit2, analysisTypeCombo2));
+        browseFileButton2.addActionListener(new BrowseButtonActionListener(homeFrame,
+                filePathEdit2, "File with counts"));
         add(browseFileButton2, "align center, wrap");
-
-        gffLabel2 = new JLabel();
-        gffLabel2.setText("Input GFF file:");
-        add(gffLabel2, "");
-
-        gffPathEdit2 = new JTextField(40);
-        gffPathEdit2.addKeyListener(keyListener);
-        gffPathEdit2.setToolTipText("Path to regions file");
-        add(gffPathEdit2, "grow");
-
-        browseGffButton2 = new JButton();
-		//browseFileButton1.setAction(getActionLoadBamFile());
-        browseGffButton2.setText("...");
-		browseGffButton2.addKeyListener(keyListener);
-        browseGffButton2.addActionListener(new BrowseButtonActionListener(homeFrame,
-                        gffPathEdit2, "GFF files (*.gff)", "gff"));
-        add(browseGffButton2, "align center, wrap");
 
         thresholdLabel = new JLabel();
         thresholdLabel.setText("Threshold:");
@@ -288,13 +150,22 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         add(progressBar, "grow, wrap 30px");
 
 
+        calcCountsButton = new JButton("Calculate counts...");
+        final Component frame = this;
+        calcCountsButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                HomeFrame.showCountReadsDialog(frame);
+            }
+        });
+        add(calcCountsButton);
+
         startAnalysisButton = new JButton();
         startAnalysisButton.addActionListener(getActionListenerRunAnalysis());
         startAnalysisButton.setText(">>> Run Analysis");
         startAnalysisButton.addKeyListener(keyListener);
 
-        add(new JLabel(""), "span 2");
-        add(startAnalysisButton, "wrap");
+        add(startAnalysisButton, "span2, align right, wrap");
 
         pack();
 
@@ -308,22 +179,10 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     void updateState() {
 
         boolean secondFileIsEnabled = compartativeAnalysisCheckBox.isSelected();
-        boolean bamFileModeIsEnabled1 = analysisTypeCombo1.getSelectedItem().toString().equals(INPUT_TYPE_BAM_FILE);
-        boolean bamFileModeIsEnabled2 = analysisTypeCombo2.getSelectedItem().toString().equals(INPUT_TYPE_BAM_FILE);
 
-        filePathEdit1.setToolTipText(bamFileModeIsEnabled1 ? "Path to BAM alignment file" : "Path to file with counts");
-        gffLabel1.setEnabled(bamFileModeIsEnabled1);
-        gffPathEdit1.setEnabled(bamFileModeIsEnabled1);
-        browseGffButton1.setEnabled(bamFileModeIsEnabled1);
-        comboLabel2.setEnabled(secondFileIsEnabled);
         fileLabel2.setEnabled(secondFileIsEnabled);
         filePathEdit2.setEnabled(secondFileIsEnabled);
-        filePathEdit2.setToolTipText(bamFileModeIsEnabled2 ? "Path to BAM alignment file" : "Path to file with counts");
-        analysisTypeCombo2.setEnabled(secondFileIsEnabled);
         browseFileButton2.setEnabled(secondFileIsEnabled);
-        gffLabel2.setEnabled(secondFileIsEnabled && bamFileModeIsEnabled2);
-        gffPathEdit2.setEnabled(secondFileIsEnabled && bamFileModeIsEnabled2);
-        browseGffButton2.setEnabled(secondFileIsEnabled && bamFileModeIsEnabled2);
 
         infoFileEdit.setEnabled(infoFileButton.isSelected());
         browseInfoFileButton.setEnabled(infoFileButton.isSelected());
@@ -352,16 +211,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         return "Sample 2";
     }
 
-
-    public boolean firstSampleCountsPrecalculated() {
-        return analysisTypeCombo1.getSelectedItem().toString().equals(INPUT_TYPE_COUNTS_FILE);
-    }
-
-    public boolean secondSampleCountsPrecalculated() {
-        return analysisTypeCombo2.getSelectedItem().toString().equals(INPUT_TYPE_COUNTS_FILE);
-    }
-
-
     public boolean infoFileIsProvided() {
         return infoFileButton.isSelected();
     }
@@ -386,15 +235,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     public String getFirstSampleDataPath() {
         return filePathEdit1.getText();
     }
-
-    public String getFirstSampleGffPath() {
-        return gffPathEdit1.getText();
-    }
-
-    public String getSecondSampleGffPath() {
-        return gffPathEdit2.getText();
-    }
-
 
     public String getSecondSampleDataPath() {
         return filePathEdit2.getText();
@@ -474,23 +314,12 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
             return false;
         }
 
-        if (!firstSampleCountsPrecalculated()) {
-            if (!validateInputFile(gffPathEdit1.getText(), "GFF File 1",  true))  {
-                return false;
-            }
-        }
-
 		// Validation for the second data file
 		if (secondSampleIsProvided()) {
             if (!validateInputFile(filePathEdit2.getText(), "Input File 2",  true)) {
                 return false;
             }
-            if (!secondSampleCountsPrecalculated()) {
-                if (!validateInputFile(gffPathEdit2.getText(), "GFF File 2",  true)) {
-                    return false;
-                }
-            }
-		}
+        }
 
 		// the name of the 2 experiments must be different
 		//TODO: add names

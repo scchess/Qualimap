@@ -72,7 +72,7 @@ public class ReadCountsTest {
 
             String strandType = test.getSpecificAttribute("strand");
             if (strandType != null) {
-                countReadsAnalysis.setStrandType(strandType);
+                countReadsAnalysis.setProtocol(strandType);
             }
 
             try {

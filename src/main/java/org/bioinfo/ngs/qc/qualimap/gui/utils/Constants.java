@@ -236,4 +236,8 @@ public final class Constants {
 	public static final String FILE_SPECIES_GROUPS_HUMAN = "human.biotypes.groups.txt";
 	public static final String FILE_SPECIES_INFO_MOUSE = "mouse.61.genes.biotypes.txt";
 	public static final String FILE_SPECIES_GROUPS_MOUSE = "mouse.biotypes.groups.txt";
+
+    public static final String OK_COMMAND = "ok";
+    public static final String CANCEL_COMMAND = "cancel";
+
 }

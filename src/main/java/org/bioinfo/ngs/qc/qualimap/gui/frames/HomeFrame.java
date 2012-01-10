@@ -1,13 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.gui.frames;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -47,6 +40,7 @@ import com.sun.org.apache.bcel.internal.classfile.Constant;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.CountReadsDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -207,11 +201,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		setJMenuBar( new JMenuBar());
 		JMenu analysisMenu = getMenu("Analysis",KeyEvent.VK_A);
 		JMenu fileMenu = getMenu("Project",KeyEvent.VK_F);
-		JMenu helpMenu = getMenu("Help",KeyEvent.VK_H);
+		JMenu toolsMenu = getMenu("Tools", KeyEvent.VK_T);
+        JMenu helpMenu = getMenu("Help",KeyEvent.VK_H);
+
 		
 		analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
 		analysisMenu.add(addMenuItem("Genomic Region", "genomicregion", "chart_curve_add.png", "ctrl pressed R"));
-		analysisMenu.add(addMenuItem("Counts", "counts", "chart_curve_add.png", "ctrl pressed C"));
+		analysisMenu.add(addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C"));
         analysisMenu.add(addMenuItem("Epigenetics", "epigenetics", "chart_curve_add.png", "ctrl pressed E"));
 		analysisMenu.addSeparator();
 		analysisMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
@@ -221,7 +217,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		fileMenu.add(addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P"));
 		fileMenu.addSeparator();
 		fileMenu.add(addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A"));
-		
+
+        toolsMenu.add(addMenuItem("Caclulate counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
+
 		helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","ctrl pressed H"));
 		helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "help.png",null));
 		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "help.png",null));
@@ -457,6 +455,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             runCountsAnalysis();
 	    }else if(e.getActionCommand().equals("epigenetics")) {
             runEpigeneticsAnalysis();
+        } else if (e.getActionCommand().equals("calc-counts")) {
+            showCountReadsDialog(this);
         }
     }
 
@@ -480,6 +480,15 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setLocationRelativeTo(this);
         popUpDialog.setVisible(true);
     }
+
+    static public void showCountReadsDialog(Component parent) {
+        CountReadsDialog dlg = new CountReadsDialog();
+        dlg.setModal(true);
+        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dlg.setLocationRelativeTo(parent);
+        dlg.setVisible(true);
+    }
+
 
     private void runEpigeneticsAnalysis(){
             HomeFrame.this.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_EPI);

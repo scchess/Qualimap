@@ -26,21 +26,20 @@ public class CountReadsAnalysis {
     Map<String, GenomicRegionSet> chromosomeRegionSetMap;
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
-    String strandType;
+    String protocol;
 
     String pathToBamFile, pathToGffFile;
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
 
-    public static final String NON_STRANDED = "Non-stranded";
+    public static final String NON_STRAND_SPECIFIC = "Non-strand-specific";
     public static final String FORWARD_STRAND = "Forward-stranded";
     public static final String REVERSE_STRAND = "Reverse-stranded";
-
 
     public CountReadsAnalysis(String pathToBamFile, String pathToGffFile) {
         this.pathToBamFile = pathToBamFile;
         this.pathToGffFile = pathToGffFile;
-        strandType = NON_STRANDED;
+        protocol = NON_STRAND_SPECIFIC;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
     }
@@ -49,8 +48,8 @@ public class CountReadsAnalysis {
         allowedFeatureList.add(featureName);
     }
 
-    public void setStrandType(String strandType) {
-        this.strandType =  strandType;
+    public void setProtocol(String protocol) {
+        this.protocol =  protocol;
     }
 
     public void run() throws FileFormatException, IOException, NoSuchMethodException {
@@ -62,16 +61,15 @@ public class CountReadsAnalysis {
             // default feature to consider
             addSupportedFeatureType("exon");
         }
+        System.out.println("Starting BAM file processing...");
 
         SAMFileReader reader = new SAMFileReader(new File(pathToBamFile));
 
         SAMRecordIterator iter = reader.iterator();
 
-        boolean strandSpecificAnalysis = !strandType.equals(NON_STRANDED);
+        boolean strandSpecificAnalysis = !protocol.equals(NON_STRAND_SPECIFIC);
 
         while (iter.hasNext()) {
-
-            // TODO: think of strands!
 
             SAMRecord read = iter.next();
 
@@ -112,8 +110,8 @@ public class CountReadsAnalysis {
                 boolean strand = read.getReadNegativeStrandFlag();
                 if (pairedRead) {
                     boolean firstOfPair = read.getFirstOfPairFlag();
-                    if ( (strandType.equals(FORWARD_STRAND) && !firstOfPair) ||
-                            (strandType.equals(REVERSE_STRAND) && firstOfPair) ) {
+                    if ( (protocol.equals(FORWARD_STRAND) && !firstOfPair) ||
+                            (protocol.equals(REVERSE_STRAND) && firstOfPair) ) {
                         strand = !strand;
                     }
                 }
@@ -249,6 +247,12 @@ public class CountReadsAnalysis {
     }
 
 
+    public long getTotalReadCounts() {
+        long totalCount = 0;
+        for ( Long count: readCounts.values()) {
+            totalCount += count;
+        }
 
-
+        return totalCount;
+    }
 }

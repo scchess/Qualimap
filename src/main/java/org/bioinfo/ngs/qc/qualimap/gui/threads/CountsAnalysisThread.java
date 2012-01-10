@@ -82,38 +82,10 @@ public class CountsAnalysisThread extends Thread {
         // Create the outputDir directory
         StringBuilder outputDirPath = tabProperties.createDirectory();
 
-        if ( !openFilePanel.firstSampleCountsPrecalculated() ) {
-            try {
-                openFilePanel.getProgressStream().setText("Calculating stats for first sample");
-                firstSampleDataPath = outputDirPath.toString() + "/1st_sample_counts.txt";
-                calculateCounts(openFilePanel.getFirstSampleDataPath(),
-                        openFilePanel.getFirstSampleGffPath(), firstSampleDataPath);
-            } catch (Exception e) {
-                System.err.println("Error while calculating counts: " + e.getMessage());
-                e.printStackTrace();
-                return;
-            }
-        } else {
-            firstSampleDataPath = openFilePanel.getFirstSampleDataPath();
-        }
+        firstSampleDataPath = openFilePanel.getFirstSampleDataPath();
 
         if (openFilePanel.secondSampleIsProvided()) {
-
-            if ( !openFilePanel.secondSampleCountsPrecalculated() ) {
-                try {
-                    openFilePanel.getProgressStream().setText("Calculating stats for second sample");
-                    secondSampleDataPath = outputDirPath.toString() + "/2nd_sample_counts.txt";
-                    calculateCounts(openFilePanel.getSecondSampleDataPath(),
-                            openFilePanel.getSecondSampleDataPath(), secondSampleDataPath);
-                } catch (Exception e) {
-                    System.err.println("Error while calculating counts: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-            } else {
-                secondSampleDataPath = openFilePanel.getSecondSampleDataPath();
-            }
-
+            secondSampleDataPath = openFilePanel.getSecondSampleDataPath();
         }
 
         if (openFilePanel.infoFileIsProvided())  {
