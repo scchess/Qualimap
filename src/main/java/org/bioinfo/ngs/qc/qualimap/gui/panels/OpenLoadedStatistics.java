@@ -2,6 +2,8 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -30,7 +32,7 @@ import org.jfree.chart.JFreeChart;
  * 
  * @author Luis Miguel Cruz
  */
-public class OpenLoadedStatistics extends JPanel {
+public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	private static final long serialVersionUID = -6408484044729636203L;
 	HomeFrame homeFrame;
 	protected Logger logger;
@@ -74,6 +76,8 @@ public class OpenLoadedStatistics extends JPanel {
 		rightScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
+        tabProperties.getGraphicImage().addComponentListener(this);
+
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
 			fillLeftRnaSplit();
@@ -637,4 +641,30 @@ public class OpenLoadedStatistics extends JPanel {
 			}
 		};
 }
+
+    @Override
+    public void componentResized(ComponentEvent componentEvent) {
+        Component c = componentEvent.getComponent();
+        TabPropertiesVO tabProperties =  homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
+        GraphicImagePanel imagePanel = tabProperties.getGraphicImage();
+        if (c == imagePanel && tabProperties.getTypeAnalysis() != Constants.TYPE_BAM_ANALYSIS_EPI) {
+            imagePanel.resizeImage(c.getWidth(), c.getHeight());
+            rightScrollPane.setViewportView(imagePanel);
+        }
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent componentEvent) {
+        //Do nothing
+    }
+
+    @Override
+    public void componentShown(ComponentEvent componentEvent) {
+        //Do nothing
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent componentEvent) {
+        //Do nothing
+    }
 }
