@@ -90,7 +90,7 @@ public class BamAnalysisThread extends Thread {
 
 		// Put the gff variable to know if the user has added a region file only
 		// if we are analyzing the exome
-		tabProperties.setGffSelected(bamDialog.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME);
+		tabProperties.setGffSelected(tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME);
         tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
 		bamQC.setComputeChromosomeStats(true);

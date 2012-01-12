@@ -110,7 +110,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         Map<String,BufferedImage> imageMap = tabProperties.getReporter().getImageMap();
 
         for (Map.Entry<String,BufferedImage> entry : imageMap.entrySet() ) {
-            JLabel j = createImageLinkLabel(entry.getKey().toString(), entry.getKey().toString() );
+            JLabel j = createImageLinkLabel(entry.getKey(), entry.getKey() );
             leftPanel.add(j);
         }
 
@@ -276,12 +276,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
     }
 
-    public void showInitialPage()
+    public void showInitialPage(TabPropertiesVO tabProperties)
     {
-        if(Constants.TYPE_BAM_ANALYSIS_DNA ==  homeFrame.getTypeAnalysis() ||
-           Constants.TYPE_BAM_ANALYSIS_EXOME ==  homeFrame.getTypeAnalysis()){
+        if(Constants.TYPE_BAM_ANALYSIS_DNA ==  tabProperties.getTypeAnalysis() ||
+           Constants.TYPE_BAM_ANALYSIS_EXOME ==  tabProperties.getTypeAnalysis()){
 			showLeftSideSummaryInformation(Constants.TYPE_BAM_ANALYSIS_DNA, initialLabel);
-		}else if (Constants.TYPE_BAM_ANALYSIS_RNA ==  homeFrame.getTypeAnalysis() ){
+		}else if (Constants.TYPE_BAM_ANALYSIS_RNA ==  tabProperties.getTypeAnalysis() ){
 			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel);
 		}
 
@@ -481,11 +481,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			panelImage.setImage((BufferedImage) imageToDisplay);
 
             // Scale the image
-			if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI ) {
-                        int width = ((BufferedImage) imageToDisplay).getWidth();
-                        int height  = ((BufferedImage) imageToDisplay).getHeight();
-                        panelImage.setPreferredSize(new Dimension(width, height));
-                        panelImage.resizeImage(width, height);
+            if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI ) {
+                int width = ((BufferedImage) imageToDisplay).getWidth();
+                int height  = ((BufferedImage) imageToDisplay).getHeight();
+                panelImage.setPreferredSize(new Dimension(width, height));
+                panelImage.resizeImage(width, height);
             } else {
                 panelImage.resizeImage(rightScrollPane.getWidth(), rightScrollPane.getHeight());
             }

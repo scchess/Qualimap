@@ -261,7 +261,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 				TabPropertiesVO tabProperties = new TabPropertiesVO();
 
                 if (validateInput()) {
-                    tabProperties.setTypeAnalysis(homeFrame.getTypeAnalysis());
+                    tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
 		            tabProperties.getRnaAnalysisVO().setInfoFileIsSet(infoFileIsProvided());
 
 		            CountsAnalysisThread t = new CountsAnalysisThread("StatisticsRnaAnalysisProcessThread", dlg, tabProperties);

@@ -178,7 +178,6 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 
 					JOptionPane.showMessageDialog(null, " • Cannot load all the needed files, review the zip file structure", "Error", 0);
 				} else {
-                    openFilePanel.getHomeFrame().setTypeAnalysis(tabProperties.getTypeAnalysis());
                     BamStats bamStats = tabProperties.getBamStats();
                     GenomeLocator locator = tabProperties.getGenomeLocator();
                     tabProperties.getReporter().computeChartsBuffers(bamStats,locator,tabProperties.isPairedData());

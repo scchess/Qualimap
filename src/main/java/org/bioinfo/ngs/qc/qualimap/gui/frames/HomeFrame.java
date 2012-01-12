@@ -90,11 +90,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	/** Dialog to show beside the window */
 	private JDialog popUpDialog;
 
-	/**
-	 * Variable to store the type of analysis to do
-	 */
-	private Integer typeAnalysis;
-	
 	JFileChooser fileOpenChooser, fileSaveChooser;
 
 	public boolean isWebStart;
@@ -256,6 +251,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		if (aTabbedPane == null) {
 			aTabbedPane = new JTabbedPane();
 		}
+
+        int typeAnalysis = tabProperties.getTypeAnalysis();
+
 		// Cutting the file name if necessary
 		String fileName = StringUtilsSwing.formatFileName(inputFileName);
 		ImageIcon ic = new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve.png"));
@@ -283,7 +281,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		this.validate();
         this.pack();
 		
-		op.showInitialPage();
+		op.showInitialPage(tabProperties);
 		aTabbedPane.validate();
 		inputScrollPane.validate();
 		op.leftPanel.validate();
@@ -460,10 +458,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }
     }
 
-    private void runBamFileAnalysis(int type){
-    	//TODO: get rid of the typeAnalysis variable
-        HomeFrame.this.setTypeAnalysis(type);
-		popUpDialog = new BamAnalysisDialog(this);
+    private void runBamFileAnalysis(int typeAnalysis){
+
+        popUpDialog = new BamAnalysisDialog(this, typeAnalysis);
         popUpDialog.setModal(true);
         popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         popUpDialog.setLocationRelativeTo(this);
@@ -473,8 +470,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 
     private void runCountsAnalysis(){
-    	HomeFrame.this.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
-		popUpDialog = new CountsAnalysisDialog(this);
+
+        popUpDialog = new CountsAnalysisDialog(this);
         popUpDialog.setModal(true);
         popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         popUpDialog.setLocationRelativeTo(this);
@@ -491,41 +488,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 
     private void runEpigeneticsAnalysis(){
-            HomeFrame.this.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_EPI);
-            popUpDialog = new EpigeneticAnalysisDialog(this);
-            popUpDialog.setModal(true);
-            popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            popUpDialog.setLocationRelativeTo(this);
-            popUpDialog.setVisible(true);
-        }
+        popUpDialog = new EpigeneticAnalysisDialog(this);
+        popUpDialog.setModal(true);
+        popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        popUpDialog.setLocationRelativeTo(this);
+        popUpDialog.setVisible(true);
+    }
 
-
-
-	private void runAnalysis(int type){
-    	//TODO: get rid of the typeAnalysis variable
-        HomeFrame.this.setTypeAnalysis(type);
-		OpenFilePanel inputDataBamAnalysisDialog = new OpenFilePanel();
-
-		if(type==Constants.TYPE_BAM_ANALYSIS_DNA){
-			//popUpDialog = new GenomicAnalysisDialog(this,dim,"Select Genomic Dataset");
-			popUpDialog = inputDataBamAnalysisDialog.getOpenBamAnalysisDnaFilePanel(HomeFrame.this, dim, "Select Genomic Dataset");
-		}
-		else if(type==Constants.TYPE_BAM_ANALYSIS_EXOME){
-			//popUpDialog = new GenomicAnalysisDialog(this,dim,"Select Genomic Region Dataset");
-			
-			popUpDialog = inputDataBamAnalysisDialog.getOpenBamAnalysisDnaFilePanel(HomeFrame.this, dim, "Select Genomic Region Dataset");
-		}
-		else if(type==Constants.TYPE_BAM_ANALYSIS_RNA){
-			popUpDialog = inputDataBamAnalysisDialog.getOpenBamAnalysisRnaFilePanel(HomeFrame.this, dim, "Select Counts");
-
-        }
-		popUpDialog.setModal(true);
-		popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		popUpDialog.setLocationRelativeTo(HomeFrame.this);
-		popUpDialog.setVisible(true);
-	}
-	
-	
 	public JFrame getCurrentInstance() {
 		return this;
 	}
@@ -549,14 +518,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	public void setPopUpDialog(JDialog popUpDialog) {
 		this.popUpDialog = popUpDialog;
-	}
-
-	public Integer getTypeAnalysis() {
-		return typeAnalysis;
-	}
-
-	public void setTypeAnalysis(Integer typeAnalysis) {
-		this.typeAnalysis = typeAnalysis;
 	}
 
 	public JFileChooser getFileOpenChooser() {

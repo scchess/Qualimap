@@ -40,6 +40,7 @@ public class BamAnalysisDialog extends JDialog {
     StringBuilder stringValidation;
 
     final String startButtonText = ">>> Start analysis";
+    private int typeAnalysis;
 
     static class ItemStateChangeAction implements ActionListener {
 
@@ -62,10 +63,11 @@ public class BamAnalysisDialog extends JDialog {
     }
 
 
-    public BamAnalysisDialog(HomeFrame homeFrame) {
+    public BamAnalysisDialog(HomeFrame homeFrame, int typeAnalysis) {
 
         this.homeFrame = homeFrame;
-        analyzeRegions = homeFrame.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME;
+        this.typeAnalysis = typeAnalysis;
+        analyzeRegions = typeAnalysis == Constants.TYPE_BAM_ANALYSIS_EXOME;
 
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
@@ -88,7 +90,7 @@ public class BamAnalysisDialog extends JDialog {
         // The gff file (region file) can only be available if we are doing the
 		// exome analysis
 
-        if (homeFrame.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
+        if (analyzeRegions) {
             labelPathAditionalDataFile = new JLabel("Select GFF file:");
             add(labelPathAditionalDataFile, "");
 
@@ -253,7 +255,7 @@ public class BamAnalysisDialog extends JDialog {
 	 * @return AbstractAction with the event
 	 */
 	private AbstractAction getActionLoadAdditionalFile() {
-		AbstractAction actionLoadFile = new AbstractAction() {
+		return new AbstractAction() {
 			private static final long serialVersionUID = -1601146976209876607L;
 
 			public void actionPerformed(ActionEvent evt) {
@@ -284,8 +286,7 @@ public class BamAnalysisDialog extends JDialog {
 			}
 		};
 
-		return actionLoadFile;
-	}
+    }
 
     /**
 	 * Test if the input data correct.
@@ -316,7 +317,7 @@ public class BamAnalysisDialog extends JDialog {
 		}
 
 		// Validation for the region file
-		if (this.homeFrame.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
+		if (analyzeRegions) {
 			if (!pathGffFile.getText().isEmpty() && (regionFile = new File(pathGffFile.getText())) != null) {
 				String mimeType = new MimetypesFileTypeMap().getContentType(regionFile);
 				String extension = regionFile.getName().substring(regionFile.getName().lastIndexOf(".") + 1);
@@ -331,7 +332,7 @@ public class BamAnalysisDialog extends JDialog {
 				try {
 					FileUtils.checkFile(regionFile);
 				} catch (IOException e) {
-					stringValidation.append(" • " + e.getMessage() + " \n");
+					stringValidation.append(" • ").append(e.getMessage()).append("\n");
 				}
 			}
 		}
@@ -344,13 +345,13 @@ public class BamAnalysisDialog extends JDialog {
 		return validate;
 	}
 
-    /**
+    /*
 	 * Function that execute the quality map program an show the results from
 	 * the input data files
 	 */
 	private synchronized void runAnalysis(TabPropertiesVO tabProperties) {
 		BamAnalysisThread t;
-		tabProperties.setTypeAnalysis(homeFrame.getTypeAnalysis());
+		tabProperties.setTypeAnalysis(typeAnalysis);
 		t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
 
 		t.start();
@@ -380,20 +381,12 @@ public class BamAnalysisDialog extends JDialog {
         return regionFile;
     }
 
-    public int getTypeAnalysis() {
-        return homeFrame.getTypeAnalysis();
-    }
-
     public boolean getDrawChromosomeLimits() {
         return drawChromosomeLimits.isSelected();
     }
 
     public boolean getComputeOutsideRegions() {
-        if (analyzeRegions) {
-            return computeOutsideStats.isSelected();
-        } else {
-            return false;
-        }
+        return analyzeRegions && computeOutsideStats.isSelected();
     }
 
     public void setUiEnabled(boolean  enabled ) {
