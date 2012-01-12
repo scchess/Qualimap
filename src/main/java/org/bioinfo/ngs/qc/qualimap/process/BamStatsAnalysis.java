@@ -670,19 +670,27 @@ public class BamStatsAnalysis {
 
         long startPos = 1;
         int i = 0;
+        int numContigs  = contigs.size();
         while (startPos < referenceSize) {
             windowStarts.add(startPos);
             startPos += windowSize;
-            long nextContigStart = contigs.get(i).getEnd() + 1;
-            if (startPos >= nextContigStart) {
-                if (startPos > nextContigStart) {
-                    //System.out.println("Chromosome window break: " + (windowStarts.size() + 1));
-                    windowStarts.add(nextContigStart);
+
+            while (i < numContigs) {
+                long nextContigStart =  contigs.get(i).getEnd() + 1;
+                if (startPos >= nextContigStart ) {
+                    if (startPos > nextContigStart && nextContigStart < referenceSize) {
+                        //System.out.println("Chromosome window break: " + (windowStarts.size() + 1));
+                        windowStarts.add(nextContigStart);
+                        System.out.println("window start: " + nextContigStart);
+                    }
+                    chromosomeWindowIndexes.add(i);
+                    i++;
+                } else {
+                    break;
                 }
-                chromosomeWindowIndexes.add(i);
-                i++;
             }
         }
+
         return windowStarts;
     }
 

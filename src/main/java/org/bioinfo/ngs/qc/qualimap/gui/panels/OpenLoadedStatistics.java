@@ -477,12 +477,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 			GraphicImagePanel panelImage = tabProperties.getGraphicImage();
 
-            //JScrollPane scrollPane = new JScrollPane();
-            //scrollPane.add(panelImage);
-
-
-
-			// Set the image with the file image get
+  			// Set the image with the file image get
 			panelImage.setImage((BufferedImage) imageToDisplay);
 
             // Scale the image
