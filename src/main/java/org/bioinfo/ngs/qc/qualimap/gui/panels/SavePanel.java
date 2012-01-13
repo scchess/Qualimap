@@ -220,7 +220,7 @@ public class SavePanel extends javax.swing.JPanel {
 	 */
 	private void createZipFile(String path){
 		SaveZipThread t = new SaveZipThread("Save to Zip Thread", this,
-			homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()), path); 
+			homeFrame.getSelectedTabPropertiesVO(), path);
 		
 		t.start();
 	}
@@ -230,12 +230,10 @@ public class SavePanel extends javax.swing.JPanel {
 	 * and save it into the disk.
 	 */
 	private void createPdfFile(String path){
-		TabPropertiesVO tabProperties = 
-			this.homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
+		TabPropertiesVO tabProperties = homeFrame.getSelectedTabPropertiesVO();
 		
 		SavePdfThread t = 
-			new SavePdfThread("Save to Pdf Thread", this,
-				homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()), path);
+			new SavePdfThread("Save to Pdf Thread", this, tabProperties, path);
 		
 		t.start();
 	}

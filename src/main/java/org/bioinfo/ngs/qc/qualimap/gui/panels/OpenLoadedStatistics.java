@@ -24,6 +24,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.GraphicImagePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.JLabelMouseListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
@@ -44,10 +45,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	/** Variable to manage the left panel that contains the links to the results */
 	public JPanel leftPanel;
     private JLabel initialLabel;
+    TabPropertiesVO tabProperties;
 
-	public OpenLoadedStatistics(HomeFrame homeFrame) {
+	public OpenLoadedStatistics(HomeFrame homeFrame, TabPropertiesVO tabProperties) {
 		super();
 		this.homeFrame = homeFrame;
+        this.tabProperties = tabProperties;
 		treeMinusIcon = new ImageIcon(homeFrame.getClass().getResource(Constants.pathImages + "minus_blue.png"));
         treePlusIcon = new ImageIcon(homeFrame.getClass().getResource(Constants.pathImages + "add.png"));
 	}
@@ -75,8 +78,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		rightScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		rightScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-        tabProperties.getGraphicImage().addComponentListener(this);
+		tabProperties.getGraphicImage().addComponentListener(this);
 
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
@@ -96,13 +98,14 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		statisticsContainer.validate();
 		leftScrollPane.validate();
 
+        validate();
+
         return statisticsContainer;
     }
 
     private void fillEpiSplit() {
 
-        TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-		tabProperties.setLastLinkSelected(null);
+        tabProperties.setLastLinkSelected(null);
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
@@ -121,8 +124,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 */
 	private void fillLeftSplit() {
 
-		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-        boolean isGffSelected = tabProperties.isGffSelected();
+		boolean isGffSelected = tabProperties.isGffSelected();
 		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
         tabProperties.setLastLinkSelected(null);
 
@@ -226,8 +228,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 * RNA-sqe
 	 */
 	private void fillLeftRnaSplit() {
-		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-		boolean infoFileIsSet = tabProperties.getRnaAnalysisVO().getInfoFileIsSet();
+
+        boolean infoFileIsSet = tabProperties.getRnaAnalysisVO().getInfoFileIsSet();
 		tabProperties.setLastLinkSelected(null);
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
@@ -396,34 +398,34 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	}
 	
 	private BamQCRegionReporter getReport(int typeAnalysis){
-		// TODO: WTF? Another shitty method? What is the difference between this and new?
+		// TODO: WTF? Another shitty method? What is the difference between this and getReporterNew()?
         BamQCRegionReporter reporter;
 		// Select the reporter that contains the data
 		if (typeAnalysis == Constants.REPORT_INPUT_BAM_FILE ||
                 typeAnalysis == Constants.REPORT_INSIDE_BAM_FILE) {
-			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getReporter();
+			reporter = tabProperties.getReporter();
 		} else {
-			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getOutsideReporter();
+			reporter = tabProperties.getOutsideReporter();
 		}
 		return reporter;
 	}
+
 	
 	private BamQCRegionReporter getReporterNew(String graphicName){
 		BamQCRegionReporter reporter;
-		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
-		
+
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || 
 				tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
 
 			// Select the reporter that contains the graphics
 			if (graphicName.startsWith("outside")) {
-				reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getOutsideReporter();
+				reporter = tabProperties.getOutsideReporter();
 			} else {
-				reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getReporter();
+				reporter = tabProperties.getReporter();
 			}
 
 		} else {
-			reporter = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getReporter();
+			reporter = tabProperties.getReporter();
 			
 		}
 		return reporter;
@@ -436,7 +438,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 *            label to set the colors
 	 */
 	private void fillColorLink(JLabel label) {
-		TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
+		//TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 
 		if (tabProperties.getLastLinkSelected() != null) {
 			tabProperties.getLastLinkSelected().setBackground(null);
@@ -473,7 +475,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			rightScrollPane.setViewportView(panelImage);
 		} else if (imageToDisplay instanceof BufferedImage) {
 			// Get a Singleton to manage the image to display
-			TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 
 			GraphicImagePanel panelImage = tabProperties.getGraphicImage();
 
@@ -557,7 +558,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean Mapping Quality:" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanMappingQuality()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
-		if (homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex()).getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
+		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
 			summaryHtml.append(HtmlJPanel.BR);
 			summaryHtml.append("<b>Chromosomes:</b>" + HtmlJPanel.BR);
 			summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
@@ -572,10 +573,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 	private String fillHtmlTableFromFile(String fileName) {
 		StringBuffer htmlTable = new StringBuffer("");
-		TabPropertiesVO tabPropertiesVO = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(new File(HomeFrame.outputpath + tabPropertiesVO.getOutputFolder() + fileName)));
+			br = new BufferedReader(new FileReader(new File(HomeFrame.outputpath + tabProperties.getOutputFolder() + fileName)));
 			String strLine;
 			// Iterate the file reading the lines
 			while ((strLine = br.readLine()) != null) {
@@ -640,7 +640,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     @Override
     public void componentResized(ComponentEvent componentEvent) {
         Component c = componentEvent.getComponent();
-        TabPropertiesVO tabProperties =  homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
+        //TabPropertiesVO tabProperties =  homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
         GraphicImagePanel imagePanel = tabProperties.getGraphicImage();
         if (c == imagePanel && tabProperties.getTypeAnalysis() != Constants.TYPE_BAM_ANALYSIS_EPI) {
             imagePanel.resizeImage(c.getWidth(), c.getHeight());

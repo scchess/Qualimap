@@ -1,13 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.frames;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,25 +12,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import com.sun.org.apache.bcel.internal.classfile.Constant;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
@@ -54,7 +36,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
  * @author Luis Miguel Cruz
  */
 
-public class HomeFrame extends JFrame implements WindowListener, ActionListener, MouseListener{
+public class HomeFrame extends JFrame implements WindowListener, ActionListener, MouseListener {
 	private static final long serialVersionUID = -3290549319383957609L;
 	
 	public static String outputpath =File.separator+"tmp/outputs"+File.separator; 
@@ -67,7 +49,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private static final int FRAME_HEIGHT = 600;
 	private int screenHeight;
 	private int screenWidth;
-	
+
+    // Menu items with configurable state
+    JMenuItem saveReportItem, exportToPdfItem, openReportItem, closeAllTabsItem;
 	
 	/** Logger to print information */
 	protected Logger logger;
@@ -85,7 +69,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	 * Variable that contains the list of paths from the output folders for each
 	 * tab in the program
 	 */
-	private List<TabPropertiesVO> listTabsProperties;
+	private Map<Component,TabPropertiesVO> tabsPropertiesMap;
 
 	/** Dialog to show beside the window */
 	private JDialog popUpDialog;
@@ -94,6 +78,33 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	public boolean isWebStart;
     private SplashWindow splashWindow;
+
+    private static class TabbedPaneListener implements ContainerListener, ChangeListener {
+
+        HomeFrame homeFrame;
+
+        TabbedPaneListener(HomeFrame homeFrame) {
+            this.homeFrame = homeFrame;
+        }
+
+        @Override
+        public void stateChanged(ChangeEvent changeEvent) {
+            homeFrame.updateMenuBar();
+        }
+
+        @Override
+        public void componentAdded(ContainerEvent containerEvent) {
+            homeFrame.updateMenuBar();
+        }
+
+        @Override
+        public void componentRemoved(ContainerEvent containerEvent) {
+            Component componentToRemove = containerEvent.getChild();
+            homeFrame.tabsPropertiesMap.remove(componentToRemove);
+            homeFrame.updateMenuBar();
+        }
+    }
+
 
     public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -172,6 +183,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	}
 
 	public void initGUI() {
+        this.tabsPropertiesMap = new HashMap<Component, TabPropertiesVO>();
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
 		if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
@@ -183,10 +195,19 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		} catch (NullPointerException e) {
 			logger.error("Incorrect path of the icon image");
 		}
+
 		setMainFrameSize();
 		createMenuBar();
-		this.listTabsProperties = new LinkedList<TabPropertiesVO>();
-		this.pack();
+		updateMenuBar();
+
+        aTabbedPane = new JTabbedPane();
+        TabbedPaneListener tabbedPaneListener = new TabbedPaneListener(this);
+        aTabbedPane.addMouseListener(this);
+        aTabbedPane.addContainerListener(tabbedPaneListener);
+        aTabbedPane.addChangeListener(tabbedPaneListener);
+        this.getContentPane().add(aTabbedPane);
+
+        this.pack();
 		this.validate();
 	}
 	
@@ -195,7 +216,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private void createMenuBar() {
 		setJMenuBar( new JMenuBar());
 		JMenu analysisMenu = getMenu("Analysis",KeyEvent.VK_A);
-		JMenu fileMenu = getMenu("Project",KeyEvent.VK_F);
+		JMenu fileMenu = getMenu("Report",KeyEvent.VK_F);
 		JMenu toolsMenu = getMenu("Tools", KeyEvent.VK_T);
         JMenu helpMenu = getMenu("Help",KeyEvent.VK_H);
 
@@ -206,19 +227,24 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         analysisMenu.add(addMenuItem("Epigenetics", "epigenetics", "chart_curve_add.png", "ctrl pressed E"));
 		analysisMenu.addSeparator();
 		analysisMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
-		
-		fileMenu.add(addMenuItem("Open Project (.zip)", "openproject", "open_folder.png", "ctrl pressed O"));
-		fileMenu.add(addMenuItem("Save Project", "saveproject", "save_zip.png", "ctrl pressed S"));
-		fileMenu.add(addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P"));
+
+        openReportItem = addMenuItem("Open Report (.zip)", "openproject", "open_folder.png", "ctrl pressed O");
+		fileMenu.add(openReportItem);
+		saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
+        fileMenu.add(saveReportItem);
+		exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
+        fileMenu.add(exportToPdfItem);
 		fileMenu.addSeparator();
-		fileMenu.add(addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A"));
+		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");
+        fileMenu.add(closeAllTabsItem);
 
         toolsMenu.add(addMenuItem("Caclulate counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
 
 		helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","ctrl pressed H"));
 		helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "help.png",null));
 		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "help.png",null));
-	}
+
+   }
 	
 	private JMenu getMenu(String name, int vkH) {
 		JMenu m = new JMenu();
@@ -245,14 +271,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         this.getPopUpDialog().setVisible(false);
 		this.remove(this.getPopUpDialog());
 		
-		final JScrollPane inputScrollPane = new JScrollPane();
-		inputScrollPane.setViewportView(null);
-		listTabsProperties.add(tabProperties);
-		if (aTabbedPane == null) {
-			aTabbedPane = new JTabbedPane();
-		}
-
-        int typeAnalysis = tabProperties.getTypeAnalysis();
+	    int typeAnalysis = tabProperties.getTypeAnalysis();
 
 		// Cutting the file name if necessary
 		String fileName = StringUtilsSwing.formatFileName(inputFileName);
@@ -268,43 +287,36 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             prefix = "Epigenetics: ";
         }
 
-		aTabbedPane.addTab(prefix + fileName, ic, inputScrollPane,prefix + inputFileName);
-		aTabbedPane.setTabComponentAt(aTabbedPane.indexOfComponent(inputScrollPane),
-                new ButtonTabComponent(aTabbedPane, ic, prefix + inputFileName));
-		aTabbedPane.setSelectedIndex(aTabbedPane.getTabCount() - 1);
-		OpenLoadedStatistics op = new OpenLoadedStatistics(this);
-        aTabbedPane.setComponentAt(aTabbedPane.getSelectedIndex(), op.getLoadedStatistics());
-		aTabbedPane.setToolTipText(fileName);
-		aTabbedPane.addMouseListener(this);
-		this.getContentPane().add(aTabbedPane);
-		aTabbedPane.validate();
-		this.validate();
-        this.pack();
-		
-		op.showInitialPage(tabProperties);
-		aTabbedPane.validate();
-		inputScrollPane.validate();
-		op.leftPanel.validate();
-    }
+        OpenLoadedStatistics op = new OpenLoadedStatistics(this,tabProperties);
+        JSplitPane statisticsPane = op.getLoadedStatistics();
+        tabsPropertiesMap.put(statisticsPane, tabProperties);
+
+        aTabbedPane.addTab(null, statisticsPane);
+        aTabbedPane.setTabComponentAt( aTabbedPane.indexOfComponent(statisticsPane),
+                new ButtonTabComponent(aTabbedPane, ic, prefix + fileName) );
+
+        aTabbedPane.setSelectedComponent(statisticsPane);
+
+        op.showInitialPage(tabProperties);
+
+	}
 	
 	/**
 	 * Private function that erase from the disk the temporal directories that
 	 * contains the output data generated by the application.
 	 */
 	private void deleteOutputFolders() {
-		TabPropertiesVO tabProperties;
 		File dir = new File(HomeFrame.outputpath);
 
-		if (dir != null && dir.isDirectory()) {
-			for (int i = 0; i < listTabsProperties.size(); i++) {
-				tabProperties = listTabsProperties.get(i);
-
+		if (dir.isDirectory()) {
+            Collection<TabPropertiesVO> tabPropertiesVOList = tabsPropertiesMap.values();
+			for (TabPropertiesVO tabProperties : tabPropertiesVOList) {
 				deleteOutputIndivifualFolder(tabProperties);
 			}
 		}
 	}
 
-	/**
+	/*
 	 * Private function that erase from the disk the temporal directory
 	 * specified
 	 */
@@ -316,7 +328,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			File outputDir = new File(path);
 			FileUtils.deleteDirectory(outputDir);
 		} catch (IOException e) {
-			logger.debug("Cannot delete directory " + path.toString() + ". It does not exists");
+			logger.debug("Cannot delete directory " + path + ". It does not exists");
 		}
 	}
 
@@ -397,7 +409,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			}
 	    }else if(e.getActionCommand().equalsIgnoreCase("exportpdf")){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
-				TabPropertiesVO tabProperties = listTabsProperties.get(aTabbedPane.getSelectedIndex());
+				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
 
 				// We test if this tab has result values or is an input tab
 				if (tabProperties != null && tabProperties.getReporter() != null && tabProperties.getReporter().getBamFileName() != null && tabProperties.getReporter().getBamFileName().length() > 0) {
@@ -414,7 +426,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    else if(e.getActionCommand().equalsIgnoreCase("saveproject")){
 	    	// First of all, we test if there is a tab selected
 			if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
-				TabPropertiesVO tabProperties = listTabsProperties.get(aTabbedPane.getSelectedIndex());
+				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
 				// We test if this tab has result values or is an input tab
 				if (tabProperties != null && tabProperties.getReporter() != null) {
 					if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
@@ -449,8 +461,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }else if(e.getActionCommand().equalsIgnoreCase("genomicregion")){
 	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_EXOME);
 	    }else if(e.getActionCommand().equalsIgnoreCase("counts")){
-	    	//runAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
-            runCountsAnalysis();
+	        runCountsAnalysis();
 	    }else if(e.getActionCommand().equals("epigenetics")) {
             runEpigeneticsAnalysis();
         } else if (e.getActionCommand().equals("calc-counts")) {
@@ -495,6 +506,38 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setVisible(true);
     }
 
+    void updateMenuBar() {
+
+        boolean activeTabsAvailable = aTabbedPane != null && aTabbedPane.getTabCount() > 0;
+        boolean canSaveReportToZip = false;
+        if (activeTabsAvailable) {
+            TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
+            if (tabProperties != null ) {
+
+                int typeAnalysis = tabProperties.getTypeAnalysis();
+                canSaveReportToZip = typeAnalysis== Constants.TYPE_BAM_ANALYSIS_EXOME ||
+                        typeAnalysis == Constants.TYPE_BAM_ANALYSIS_DNA;
+
+            }
+        }
+
+        exportToPdfItem.setEnabled(activeTabsAvailable);
+        closeAllTabsItem.setEnabled(activeTabsAvailable);
+        saveReportItem.setEnabled(canSaveReportToZip);
+
+    }
+
+    public TabPropertiesVO getSelectedTabPropertiesVO() {
+        Component selectedComponent = aTabbedPane.getSelectedComponent();
+        if (selectedComponent != null) {
+            return tabsPropertiesMap.get(selectedComponent);
+        } else {
+            return null;
+        }
+
+    }
+
+
 	public JFrame getCurrentInstance() {
 		return this;
 	}
@@ -506,10 +549,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	public void setQualimapFolder(String qualimapFolder) {
 		this.qualimapFolder = qualimapFolder;
 		System.out.println("QualiMapHome: "+qualimapFolder);
-	}
-
-	public JTabbedPane getTabbedPane() {
-		return aTabbedPane;
 	}
 
 	public JDialog getPopUpDialog() {
@@ -536,9 +575,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		this.fileSaveChooser = fileSaveChooser;
 	}
 
-	public List<TabPropertiesVO> getListTabsProperties() {
-	    return this.listTabsProperties;
-    }
 
 	@Override
     public void mouseClicked(MouseEvent event) {
@@ -602,4 +638,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             } catch (IOException e) {}
 		}
 	}
+
+
 }
