@@ -104,9 +104,7 @@ public class TabPropertiesVO {
 		this.outputFolder = null;
 		this.gffSelected = false;
 		this.reporter = new BamQCRegionReporter();
-		this.outsideReporter = new BamQCRegionReporter();
-        this.insideReporter = null;
-		this.graphicImage = new GraphicImagePanel();
+        this.graphicImage = new GraphicImagePanel();
 		this.rnaAnalysisVO = new RNAAnalysisVO();
 	}
 	

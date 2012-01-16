@@ -90,14 +90,25 @@ public class SavePdfThread extends Thread{
 	    	numSavedFiles = 0;
 	    	
 	    	// Number of items to save into the PDF file (graphics + 3 files of properties + Header + Footer)
-	    	int numItemsToSave = tabProperties.getReporter().getMapCharts().size() + 3;
-	    	
-	    	if(tabProperties.getInsideReporter().getBamFileName() != null &&
+	    	int numItemsToSave;
+	    	boolean addStats = false;
+
+            if  (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME ||
+                    tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_DNA ) {
+                numItemsToSave = tabProperties.getReporter().getMapCharts().size() + 3;
+                addStats = true;
+            } else {
+                numItemsToSave = tabProperties.getReporter().getImageMap().size() + 2;
+            }
+
+
+	    	/*if(tabProperties.getInsideReporter().getBamFileName() != null &&
 					!tabProperties.getInsideReporter().getBamFileName().isEmpty()){
 	    		loadInsideReporter = true;
 	    		numItemsToSave += tabProperties.getInsideReporter().getMapCharts().size() + 1;
-	    	}
-	    	if(tabProperties.getOutsideReporter().getBamFileName() != null &&
+	    	}*/
+
+	    	if(tabProperties.getOutsideReporter() != null &&
 					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
 	    		loadOutsideReporter = true;
 	    		numItemsToSave += tabProperties.getOutsideReporter().getMapCharts().size() + 1;
@@ -111,19 +122,13 @@ public class SavePdfThread extends Thread{
 			
 			// Add the first Page of the PDF with the Header & Footer
 			this.addInitialConfiguration(document);
-			
-			boolean success = addFilesToPdf(document, reporter, 1);
-			
-			// Add the files of the second reporter
-			if(success && loadInsideReporter){
-				reporter = tabProperties.getInsideReporter();
-				success = addFilesToPdf(document, reporter, 2);
-			}
-			
+
+			boolean success = addFilesToPdf(document, reporter, 1, addStats);
+
 			// Add the files of the third reporter
 			if(success && loadOutsideReporter){
 				reporter = tabProperties.getOutsideReporter();
-				success = addFilesToPdf(document, reporter, 3);
+				success = addFilesToPdf(document, reporter, 2, true);
 			}
  
             document.close();
@@ -147,6 +152,7 @@ public class SavePdfThread extends Thread{
 		} catch (Exception e) {
 			savePanel.getProgressBar().setVisible(false);
 			savePanel.getProgressStream().setVisible(false);
+            e.printStackTrace();
 			JOptionPane.showMessageDialog(null,
 					"Unable to create the pdf file \n", "Error", JOptionPane.ERROR_MESSAGE);
 		}
@@ -217,10 +223,11 @@ public class SavePdfThread extends Thread{
      * @throws IOException 
      * @throws MalformedURLException 
      */
-    private boolean addFilesToPdf(Document document, BamQCRegionReporter reporter, int numChapter) 
+    private boolean addFilesToPdf(Document document, BamQCRegionReporter reporter, int numChapter, boolean saveStats)
     		throws DocumentException, MalformedURLException{
     	boolean result = true;
-    	Iterator<?> it = reporter.getMapCharts().entrySet().iterator();
+    	Iterator<?> it = saveStats ? reporter.getMapCharts().entrySet().iterator()
+                : reporter.getImageMap().entrySet().iterator();
     	BufferedImage bufImage = null;
     	String fileName = null;
     	
@@ -228,34 +235,31 @@ public class SavePdfThread extends Thread{
         	// Start a new page
         	document.newPage();
         	
-        	Section section;
-    		
         	// Create the new Chapter
     		Paragraph paragraph = null;
     		if(numChapter == 1){
     			paragraph = new Paragraph("Charts");
     		} else if (numChapter == 2){
-    			paragraph = new Paragraph("Reads Inside Region");
-    		} else if (numChapter == 3){
     			paragraph = new Paragraph("Reads Outside Region");
     		}
     		Chapter chapter = new Chapter(paragraph, numChapter);
     		
     		// Generate the Output values
-    		numChapter = addOutputsToPDF(reporter, chapter, numChapter);
-    		
+            int numberDepth = 2;
+            if (saveStats) {
+                addOutputsToPDF(reporter, chapter, numberDepth);
+            }
+
 	    	// Generate the Graphics images
-    		com.lowagie.text.Image image;
-			while(it.hasNext() && result){
+    	 	while(it.hasNext() && result){
 				@SuppressWarnings("unchecked")
 				Map.Entry<String, Object> entry = (Map.Entry<String, Object>)it.next();
 	
 				fileName = entry.getKey();
 				paragraph = new Paragraph(fileName);
-			
-				section = chapter.addSection(paragraph, numChapter);
-				section.setNumberDepth(2);
-				
+
+				Section section = chapter.addSection(paragraph, numberDepth);
+
 				if(entry.getValue() instanceof JFreeChart){
 					bufImage = ((JFreeChart)entry.getValue()).createBufferedImage(
 							Constants.GRAPHIC_TO_SAVE_WIDTH,
@@ -264,7 +268,7 @@ public class SavePdfThread extends Thread{
 					bufImage = (BufferedImage)entry.getValue();
 				}
 				
-				image = 
+		        com.lowagie.text.Image image =
 					com.lowagie.text.Image.getInstance(
 							bufImage.getScaledInstance(
 								Constants.GRAPHIC_TO_SAVE_WIDTH,
@@ -276,7 +280,7 @@ public class SavePdfThread extends Thread{
 				section.add(image);
 				
 				increaseProgressBar(numSavedFiles, fileName);
-				numChapter++;
+				//numChapter++;
 			}
 			document.add(chapter);
     	} catch (IOException e) {
@@ -286,15 +290,14 @@ public class SavePdfThread extends Thread{
         return result;
     }
     
-    private int addOutputsToPDF(BamQCRegionReporter reporter, Chapter chapter, int numChapter){
+    private void addOutputsToPDF(BamQCRegionReporter reporter, Chapter chapter, int numberDepth){
     	StringUtilsSwing sdf = new StringUtilsSwing();
     	
     	Paragraph paragraph = new Paragraph("Summary");
-		Section section = chapter.addSection(paragraph, numChapter);
-		section.setNumberDepth(2);
+		Section section = chapter.addSection(paragraph, numberDepth);
+		//section.setNumberDepth(2);
 		addEmptyLine(paragraph, 2);
-		numChapter++;
-		
+
 		
 		// *********************************************
     	// Create the first table of 2 subtables
@@ -419,8 +422,7 @@ public class SavePdfThread extends Thread{
 		section.add(tableGlobal);
 		section.newPage();
 		
-		return numChapter;
-    }
+	}
     
     /**
      * Increase the progress bar in the percent depends on the

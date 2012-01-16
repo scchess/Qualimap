@@ -412,7 +412,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
 
 				// We test if this tab has result values or is an input tab
-				if (tabProperties != null && tabProperties.getReporter() != null && tabProperties.getReporter().getBamFileName() != null && tabProperties.getReporter().getBamFileName().length() > 0) {
+				if (tabProperties != null && tabProperties.getReporter() != null) {
 					SavePanel pathSaveDialog = new SavePanel();
 
 					popUpDialog = pathSaveDialog.getSaveFilePanel(HomeFrame.this, Constants.FILE_EXTENSION_PDF_FILE);
@@ -420,7 +420,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 					popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 					popUpDialog.setLocationRelativeTo(HomeFrame.this);
 					popUpDialog.setVisible(true);
-				}
+				} else {
+                    JOptionPane.showMessageDialog(this, "Can not export PDF!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
 			}
 	    }
 	    else if(e.getActionCommand().equalsIgnoreCase("saveproject")){
