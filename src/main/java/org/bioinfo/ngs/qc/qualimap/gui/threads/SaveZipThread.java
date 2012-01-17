@@ -80,13 +80,13 @@ public class SaveZipThread extends Thread {
 
 				success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_PROPERTIES_IN_ZIP_FILE, tabProperties);
 			} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
-				int numFilesToSave = tabProperties.getInsideReporter().getMapCharts().size() + tabProperties.getOutsideReporter().getMapCharts().size() + 2;
+				int numFilesToSave =  tabProperties.getOutsideReporter().getMapCharts().size() + 2;
 
 				percentLoad = (100.0 / numFilesToSave);
 
 				// Add the files of the inside region
-				BamQCRegionReporter reporter = tabProperties.getInsideReporter();
-				success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_INSIDE_PROPERTIES_IN_ZIP_FILE, tabProperties);
+				BamQCRegionReporter reporter = tabProperties.getReporter();
+				success = addFilesToZip(zipFile, reporter, Constants.NAME_OF_PROPERTIES_IN_ZIP_FILE, tabProperties);
 
 				// Add the files of the third reporter
 				if (success) {
@@ -146,8 +146,6 @@ public class SaveZipThread extends Thread {
 	 */
 	private boolean addFilesToZip(ZipOutputStream zipFile, BamQCRegionReporter reporter, String namePropFile, TabPropertiesVO tabProperties) {
 		boolean result = true;
-		//BufferedImage bufImage = null;
-		String fileName = namePropFile;
 
         try {
             Properties prop = new Properties();
@@ -185,24 +183,12 @@ public class SaveZipThread extends Thread {
             ObjectOutput out2 = new ObjectOutputStream(zipFile);
             out2.writeObject(tabProperties.getBamStats());
 
-            // TODO: use this code for export to html
-            //for (Map.Entry<String, JFreeChart> entry : chartMap.entrySet() ) {
-            //if (entry.getValue() instanceof JFreeChart) {
-				//	bufImage = ((JFreeChart) entry.getValue()).createBufferedImage(Constants.GRAPHIC_TO_SAVE_WIDTH, Constants.GRAPHIC_TO_SAVE_HEIGHT);
-				//}
-                /*
-                else {
-					bufImage = (BufferedImage) entry.getValue();
-				} */
-				//ImageIO.write(bufImage, fileName.substring(fileName.lastIndexOf(".") + 1), zipFile);
-			    //increaseProgressBar(numSavedFiles, fileName);
-			//}
 			savePanel.getProgressBar().setValue(100);
 		} catch (IOException e) {
 			result = false;
 			savePanel.getProgressBar().setVisible(false);
 			savePanel.getProgressStream().setVisible(false);
-			JOptionPane.showMessageDialog(null, "Can not create the zip file (error compressing the file) " + fileName + " \n", "Error", 0);
+			JOptionPane.showMessageDialog(null, "Can not create the zip file (error compressing the file) " + namePropFile + " \n", "Error", 0);
 		}
 
 		return result;

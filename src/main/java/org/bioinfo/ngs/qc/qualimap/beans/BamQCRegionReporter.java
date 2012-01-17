@@ -508,7 +508,9 @@ public class BamQCRegionReporter implements Serializable {
         }
     }
 
-	public Map<String, JFreeChart> getMapCharts() {
+	//TODO: getMapCharts() and get getImageMap() should be somehow replace by generic functions
+    // For example it is possible to introduce generic class ChartImage and hide impl details
+    public Map<String, JFreeChart> getMapCharts() {
 		return mapCharts;
 	}
 

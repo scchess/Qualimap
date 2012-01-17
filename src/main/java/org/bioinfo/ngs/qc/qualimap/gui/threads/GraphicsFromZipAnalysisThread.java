@@ -119,9 +119,6 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 					if (fileName.equalsIgnoreCase(Constants.NAME_OF_PROPERTIES_IN_ZIP_FILE)) {
 						insertTextIntoReporter(entry, tabProperties.getReporter());
 						increaseProgressBar(numLoadedFiles, fileName);
-					} else if (fileName.equalsIgnoreCase(Constants.NAME_OF_INSIDE_PROPERTIES_IN_ZIP_FILE)) {
-						insertTextIntoReporter(entry, tabProperties.getInsideReporter());
-						increaseProgressBar(numLoadedFiles, fileName);
 					} else if (fileName.equalsIgnoreCase(Constants.NAME_OF_OUTSIDE_PROPERTIES_IN_ZIP_FILE)) {
 						insertTextIntoReporter(entry, tabProperties.getOutsideReporter());
 						increaseProgressBar(numLoadedFiles, fileName);
@@ -204,11 +201,11 @@ public class GraphicsFromZipAnalysisThread extends Thread {
 		Integer size = null;
 		boolean result = false;
 
+        // TODO: check if it is working with regions
+
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
 			size = 4; //tabProperties.getReporter().getMapCharts().size() + 2;
-		} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
-			size = tabProperties.getInsideReporter().getMapCharts().size() + tabProperties.getOutsideReporter().getMapCharts().size() + 2;
-		} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
+		}  else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
 			size = tabProperties.getReporter().getMapCharts().size() + 1;
 		}
 

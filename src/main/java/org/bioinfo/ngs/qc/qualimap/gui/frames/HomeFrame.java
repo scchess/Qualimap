@@ -51,7 +51,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private int screenWidth;
 
     // Menu items with configurable state
-    JMenuItem saveReportItem, exportToPdfItem, openReportItem, closeAllTabsItem;
+    JMenuItem saveReportItem, exportToPdfItem, exportToHtmlItem, openReportItem, closeAllTabsItem;
 	
 	/** Logger to print information */
 	protected Logger logger;
@@ -232,6 +232,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		fileMenu.add(openReportItem);
 		saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
         fileMenu.add(saveReportItem);
+        exportToHtmlItem = addMenuItem("Export as HTML", "exporthtml", "save_zip.png", "ctrl pressed H");
+        fileMenu.add(exportToHtmlItem);
 		exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
 		fileMenu.addSeparator();
@@ -407,7 +409,24 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 				aTabbedPane = new JTabbedPane();
 				this.validate();
 			}
-	    }else if(e.getActionCommand().equalsIgnoreCase("exportpdf")){
+	    }else if(e.getActionCommand().equalsIgnoreCase("exporthtml")){
+	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
+
+                TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
+
+				// We test if this tab has result values or is an input tab
+				if (tabProperties != null && tabProperties.getReporter() != null) {
+					SavePanel pathSaveDialog = new SavePanel();
+                    popUpDialog = pathSaveDialog.getExportToHtmlFilePanel(this);
+                    popUpDialog.setModal(true);
+					popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					popUpDialog.setLocationRelativeTo(this);
+					popUpDialog.setVisible(true);
+				} else {
+                    JOptionPane.showMessageDialog(this, "Can not export to HTML!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+			}
+	    } else if(e.getActionCommand().equalsIgnoreCase("exportpdf")){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
 				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
 
@@ -525,6 +544,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
         exportToPdfItem.setEnabled(activeTabsAvailable);
         closeAllTabsItem.setEnabled(activeTabsAvailable);
+        exportToHtmlItem.setEnabled(activeTabsAvailable);
         saveReportItem.setEnabled(canSaveReportToZip);
 
     }

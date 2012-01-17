@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +20,11 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import net.miginfocom.swing.MigLayout;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SaveZipThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -179,6 +182,105 @@ public class SavePanel extends javax.swing.JPanel {
 		
 		return resultContainer;
 	}
+
+
+    public JDialog getExportToHtmlFilePanel(final HomeFrame homeFrame) {
+
+        this.homeFrame = homeFrame;
+
+		resultContainer = new JDialog();
+
+        KeyListener keyListener = new PopupKeyListener(homeFrame, resultContainer, progressBar);
+
+        resultContainer.getContentPane().setLayout( new MigLayout("insets 20") );
+
+		// Input folder
+		JLabel label = new JLabel();
+		label.setText("Output folder");
+		resultContainer.add(label);
+
+		pathDataDir = new JTextField(40);
+		pathDataDir.addKeyListener(keyListener);
+		resultContainer.add(pathDataDir, "grow");
+
+		JButton pathDirButton = new JButton();
+		pathDirButton.setText("...");
+		pathDirButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if(homeFrame.getFileSaveChooser() == null){
+					homeFrame.setFileSaveChooser(new JFileChooser());
+				}
+				homeFrame.getFileSaveChooser().setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+				int valor = homeFrame.getFileSaveChooser().showOpenDialog(homeFrame
+						.getCurrentInstance());
+
+				if (valor == JFileChooser.APPROVE_OPTION) {
+					pathDataDir.setText(homeFrame.getFileSaveChooser().getSelectedFile()
+							.getPath());
+				}
+            }
+        });
+		pathDirButton.addKeyListener(keyListener);
+		resultContainer.add(pathDirButton, "wrap");
+
+        // Action done while the statistics graphics are loaded
+        progressStream = new JLabel();
+        progressStream.setVisible(false);
+        resultContainer.add(progressStream);
+
+        // Progress Bar to show while the statistics graphics are loaded
+		UIManager.put("ProgressBar.selectionBackground", Color.black);
+		UIManager.put("ProgressBar.selectionForeground", Color.black);
+		progressBar = new JProgressBar(0, 100);
+		progressBar.setVisible(false);
+		progressBar.setStringPainted(true);
+		progressBar.setBorderPainted(true);
+		progressBar.setForeground(new Color(244, 200, 120));
+		resultContainer.add(progressBar, "span 2, align center, wrap");
+
+
+		JButton saveButton = new JButton();
+		saveButton.setText("Save");
+
+        saveButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                if (pathDataDir.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(resultContainer,
+                            "Output folder is not set!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Try if the file exists
+                File file = new File(pathDataDir.getText());
+
+                if (file.exists() && !file.isDirectory())  {
+                    JOptionPane.showMessageDialog(resultContainer,
+                            "Invalid output folder path: file already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // If the file doesn't exists or exits and the user want to replace it
+                if (!file.exists() || (file.exists() && JOptionPane.showConfirmDialog(null,
+                        "The folder " + file.getPath() + "already exists. " +
+                                "Do you want to save report to existing directory?",
+                        "Confirm", JOptionPane.OK_OPTION) == 0)) {
+                    exportToHtml(file.getAbsolutePath());
+                }
+            }
+        });
+
+        saveButton.addKeyListener(keyListener);
+		resultContainer.add(saveButton, "span, align right, wrap");
+
+        resultContainer.pack();
+		resultContainer.setResizable(false);
+
+		return resultContainer;
+	}
 	
 	
 	/**
@@ -202,11 +304,11 @@ public class SavePanel extends javax.swing.JPanel {
 		}
 		
 		// Check the file input name
-		if(fileName.getText() == null || fileName.getText().isEmpty()){
-			stringValidacion.append(" • The name of the Output Data File is required \n");
-		}
-		
-		// Check the validation string
+        if(fileName.getText() == null || fileName.getText().isEmpty()){
+            stringValidacion.append(" • The name of the Output Data File is required \n");
+        }
+
+        // Check the validation string
 		if(stringValidacion.length() > 0){
 			validate = false;
 		}
@@ -238,7 +340,15 @@ public class SavePanel extends javax.swing.JPanel {
 		t.start();
 	}
 	
-	
+	private void exportToHtml(String dirPath) {
+        TabPropertiesVO tabPropertiesVO = homeFrame.getSelectedTabPropertiesVO();
+
+        ExportHtmlThread t =
+                new ExportHtmlThread("Export to Html Thread", this, tabPropertiesVO, dirPath);
+
+        t.start();
+    }
+
 	
 	// ***************************************************************************************
 	// ************************************** LISTENERS **************************************

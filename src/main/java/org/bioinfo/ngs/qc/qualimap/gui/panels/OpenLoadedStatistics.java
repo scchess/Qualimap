@@ -495,23 +495,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         }
 	}
 
-	/**
-	 * Show into the split of the selected tab the text values selected.
-	 * 
-	 * @param reporter
-	 *            BamQCRegionReporter data input values
-	 */
-	private void prepareHtmlSummary(BamQCRegionReporter reporter) {
-		HtmlJPanel panelDerecha = new HtmlJPanel();
-		panelDerecha.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
-		panelDerecha.setFont(HomeFrame.defaultFont);
-		StringUtilsSwing sdf = new StringUtilsSwing();
 
-		StringBuffer summaryHtml = new StringBuffer("");
-		int width = rightScrollPane.getWidth() - 100;
+    public static StringBuffer prepareHtmlReport(BamQCRegionReporter reporter, TabPropertiesVO tabProperties, int width) {
+        StringUtilsSwing sdf = new StringUtilsSwing();
 
-		summaryHtml.append(HtmlJPanel.getHeader());
-		summaryHtml.append("<p align=center><b>Summary of: " + new File(reporter.getBamFileName()).getName() + "</b></p>" + HtmlJPanel.BR);
+        StringBuffer summaryHtml = new StringBuffer("");
+
+		summaryHtml.append("<p align=center><a name=\"summary\"> <b>Summary of: " + new File(reporter.getBamFileName()).getName() + "</b></p>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
 		summaryHtml.append(HtmlJPanel.COLSTART + "<b>Globals:</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
@@ -562,20 +552,45 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			summaryHtml.append(HtmlJPanel.BR);
 			summaryHtml.append("<b>Chromosomes:</b>" + HtmlJPanel.BR);
 			summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-			summaryHtml.append(fillHtmlTableFromFile(Constants.NAME_OF_FILE_CHROMOSOMES));
+            String pathToChromosomeStats =HomeFrame.outputpath + tabProperties.getOutputFolder() + Constants.NAME_OF_FILE_CHROMOSOMES;
+			summaryHtml.append(fillHtmlTableFromFile(pathToChromosomeStats));
 			summaryHtml.append(HtmlJPanel.getTableFooter());
 		}
 		summaryHtml.append(HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
-		panelDerecha.setHtmlPage(summaryHtml.toString());
+
+        return summaryHtml;
+
+
+    }
+
+	/**
+	 * Show into the split of the selected tab the text values selected.
+	 * 
+	 * @param reporter
+	 *            BamQCRegionReporter data input values
+	 */
+	private void prepareHtmlSummary(BamQCRegionReporter reporter) {
+		HtmlJPanel panelDerecha = new HtmlJPanel();
+		panelDerecha.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
+		panelDerecha.setFont(HomeFrame.defaultFont);
+        int width = rightScrollPane.getWidth() - 100;
+
+        StringBuffer summaryHtml = new StringBuffer();
+
+        summaryHtml.append( HtmlJPanel.getHeader() );
+        summaryHtml.append( prepareHtmlReport(reporter, tabProperties, width) );
+        summaryHtml.append( HtmlJPanel.getHeadFooter() );
+
+        panelDerecha.setHtmlPage(summaryHtml.toString());
 		rightScrollPane.setViewportView(panelDerecha);
 	}
 
-	private String fillHtmlTableFromFile(String fileName) {
+	private static String fillHtmlTableFromFile(String pathToChromosomeStats) {
 		StringBuffer htmlTable = new StringBuffer("");
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(new File(HomeFrame.outputpath + tabProperties.getOutputFolder() + fileName)));
+			br = new BufferedReader(new FileReader(new File(pathToChromosomeStats)));
 			String strLine;
 			// Iterate the file reading the lines
 			while ((strLine = br.readLine()) != null) {
