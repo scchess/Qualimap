@@ -1,11 +1,13 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
+import java.io.File;
 import java.util.TimerTask;
 import java.util.Timer;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
@@ -120,7 +122,8 @@ public class BamAnalysisThread extends Thread {
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
-	
+            reporter.setInputDescription(prepareInputDescription());
+
 			// Draw the Chromosome Limits or not
 			reporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 	
@@ -142,6 +145,8 @@ public class BamAnalysisThread extends Thread {
 			if ( bamDialog.getRegionFile() != null && bamDialog.getComputeOutsideRegions() ) {
 				//BamQCRegionReporter insideReporter = new BamQCRegionReporter();
 				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
+
+                outsideReporter.setInputDescription(prepareInputDescription());
 	
 				// Draw the Chromosome Limits or not
 				//insideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
@@ -192,6 +197,50 @@ public class BamAnalysisThread extends Thread {
 		}
 		bamDialog.addNewPane(tabProperties);
 	}
+
+
+    private static String boolToStr(boolean yes) {
+        return yes ? "yes\n" : "no\n";
+    }
+
+    private String prepareInputDescription() {
+        StringBuffer inputDesc = new StringBuffer();
+
+        int width = 700;
+
+        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters </b></p>" + HtmlJPanel.BR);
+        inputDesc.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
+
+        inputDesc.append(HtmlJPanel.COLSTART + "<b>Alignment:</b>");
+
+        inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
+        inputDesc.append(HtmlJPanel.COLSTARTFIX + "BAM file: " + HtmlJPanel.COLMID
+                + bamDialog.getInputFile() + HtmlJPanel.COLEND);
+        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Number of windows: " + HtmlJPanel.COLMID
+                + bamDialog.getNumberOfWindows() + HtmlJPanel.COLEND);
+        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Draw chromosome limits: " + HtmlJPanel.COLMID
+                + boolToStr(bamDialog.getDrawChromosomeLimits()) + HtmlJPanel.COLEND);
+        inputDesc.append(HtmlJPanel.getTableFooter());
+
+
+        if (bamDialog.getRegionFile() != null) {
+            inputDesc.append(HtmlJPanel.COLSTART + "<b>Region:</b>");
+            inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
+            inputDesc.append(HtmlJPanel.COLSTARTFIX + "GFF file: " + HtmlJPanel.COLMID
+                    + bamDialog.getRegionFile() + HtmlJPanel.COLEND);
+            inputDesc.append(HtmlJPanel.COLSTARTFIX + "Outside statistics: " + HtmlJPanel.COLMID
+                    + boolToStr(bamDialog.getComputeOutsideRegions()) + HtmlJPanel.COLEND);
+            inputDesc.append(HtmlJPanel.getTableFooter());
+
+        }
+
+
+        inputDesc.append(HtmlJPanel.getTableFooter());
+
+
+        return inputDesc.toString();
+
+    }
 
     /**
 	 * Increase the progress bar in the percent depends on the number of the

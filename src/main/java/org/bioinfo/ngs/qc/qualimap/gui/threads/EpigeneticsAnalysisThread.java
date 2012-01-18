@@ -1,7 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import org.bioinfo.commons.exec.SingleProcess;
-import org.bioinfo.commons.exec.Command;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -13,7 +11,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -150,7 +147,7 @@ public class EpigeneticsAnalysisThread extends Thread {
 
         FileOutputStream stream = new FileOutputStream(outDir + configFileName);
 
-        Set<String>  sampleNames = settingsDialog.getSampleNames();
+        Set<String>  sampleNames = settingsDialog.getSampleIds();
 
         XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter xmlWriter = outputFactory.createXMLStreamWriter(stream);
@@ -320,12 +317,43 @@ public class EpigeneticsAnalysisThread extends Thread {
         BamQCRegionReporter reporter = tabProperties.getReporter();
         reporter.setImageMap(imageMap);
 
+        reporter.setInputDescription(prepareInputDescription());
+
 
         return true;
 
     }
 
+    private String prepareInputDescription() {
+        StringBuffer inputDesc = new StringBuffer();
 
+        inputDesc.append("<h2 align=center>Input data & parameters</h2>\n");
+        inputDesc.append("<h3>Gene selection</h3>\n");
+        inputDesc.append("<br>Gene selection file: ").append(settingsDialog.getGeneSelectionPath()).append("\n");
+        inputDesc.append("<br>Gene selection file column: ").append(settingsDialog.getGeneSelectionColumn()).append("\n");
+        inputDesc.append("<br><b>Relative location</b>\n");
+        inputDesc.append("<br>Left offset: ").append(settingsDialog.getLeftOffset()).append("\n");
+        inputDesc.append("<br>Right offset: ").append(settingsDialog.getRightOffset()).append("\n");
+        inputDesc.append("<br>Step offset: ").append(settingsDialog.getStep()).append("\n");
+
+        inputDesc.append("<br>Analyzed genomic region: ");
+        inputDesc.append("<h3>Samples</h3>\n");
+
+        Set<String>  sampleIds = settingsDialog.getSampleIds();
+
+        for (String sampleId : sampleIds) {
+            inputDesc.append("<h5>").append(sampleId).append("</h5>\n");
+            List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems(sampleId);
+            for (EpigeneticAnalysisDialog.DataItem item : sampleItems) {
+                inputDesc.append("<br>Sample name: ").append(item.name).append("\n");
+                inputDesc.append("<br>Input path: ").append(item.inputPath).append("\n");
+                inputDesc.append("<br>Medip path: ").append(item.medipPath).append("\n");
+            }
+        }
+
+
+        return inputDesc.toString();
+    }
 
 
 }

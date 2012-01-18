@@ -15,11 +15,11 @@ import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.CountsAnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
-import psidev.psi.mi.xml253.jaxb.EntrySet;
 
 /**
  * Class to manage a thread that do the analysis from RNA-Seq of the input files
@@ -40,7 +40,7 @@ public class CountsAnalysisThread extends Thread {
 	protected Logger logger;
 
 	/** Variable to manage the panel with the progressbar at the init */
-	private CountsAnalysisDialog openFilePanel;
+	private CountsAnalysisDialog settingsDlg;
 
 	/** Variable to control the percent of each iteration of the progress bar */
 	private double percentLoad;
@@ -64,7 +64,7 @@ public class CountsAnalysisThread extends Thread {
 		this.processedString = null;
 		this.loadPercent = 0.0;
 		this.currentStepLoaded = 0;
-		this.openFilePanel = countsAnalysisDialog;
+		this.settingsDlg = countsAnalysisDialog;
         this.tabProperties = tabProperties;
 		logger = new Logger(this.getClass().getName());
 	}
@@ -75,24 +75,24 @@ public class CountsAnalysisThread extends Thread {
      */
     public void run() {
 
-        openFilePanel.setUiEnabled(false);
+        settingsDlg.setUiEnabled(false);
 
         RNAAnalysisVO rnaAnalysisVO = tabProperties.getRnaAnalysisVO();
 
         // Create the outputDir directory
         StringBuilder outputDirPath = tabProperties.createDirectory();
 
-        firstSampleDataPath = openFilePanel.getFirstSampleDataPath();
+        firstSampleDataPath = settingsDlg.getFirstSampleDataPath();
 
-        if (openFilePanel.secondSampleIsProvided()) {
-            secondSampleDataPath = openFilePanel.getSecondSampleDataPath();
+        if (settingsDlg.secondSampleIsProvided()) {
+            secondSampleDataPath = settingsDlg.getSecondSampleDataPath();
         }
 
-        if (openFilePanel.infoFileIsProvided())  {
-            infoFilePath = openFilePanel.getInfoFilePath();
+        if (settingsDlg.infoFileIsProvided())  {
+            infoFilePath = settingsDlg.getInfoFilePath();
         } else {
-            infoFilePath =  openFilePanel.getHomeFrame().getQualimapFolder() + "species" +
-                    File.separator + openFilePanel.getSelectedSpecies();
+            infoFilePath =  settingsDlg.getHomeFrame().getQualimapFolder() + "species" +
+                    File.separator + settingsDlg.getSelectedSpecies();
             rnaAnalysisVO.setInfoFileIsSet(true);
         }
 
@@ -100,19 +100,20 @@ public class CountsAnalysisThread extends Thread {
         increaseProgressBar(currentStepLoaded, "Building Rscript sentence");
 
         // Create the string to execute
-        String command = "Rscript " + openFilePanel.getHomeFrame().getQualimapFolder()
+        String command = "Rscript " + settingsDlg.getHomeFrame().getQualimapFolder()
                 + "scripts"+File.separator+"qualimapRscript.r";
 
-        command += " --homesrc " + openFilePanel.getHomeFrame().getQualimapFolder() + "scripts";
+        command += " --homesrc " + settingsDlg.getHomeFrame().getQualimapFolder() + "scripts";
         command += " --data1 " + firstSampleDataPath;
-        command += " --name1 " + openFilePanel.getName1().replace(" ", "_");
+        command += " --name1 " + settingsDlg.getName1().replace(" ", "_");
 
-        if (openFilePanel.secondSampleIsProvided()) {
+        if (settingsDlg.secondSampleIsProvided()) {
             command += " --data2 " + secondSampleDataPath;
-            command += " --name2 " + openFilePanel.getName2().replace(" ", "_");
+            command += " --name2 " + settingsDlg.getName2().replace(" ", "_");
         }
 
         command += " --info " + infoFilePath;
+        command += " --threshold " + settingsDlg.getThreshold();
 
         command += " -o " + outputDirPath;
 
@@ -158,8 +159,8 @@ public class CountsAnalysisThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String inputFileName = openFilePanel.getInputDataName();
-        openFilePanel.getHomeFrame().addNewPane(inputFileName, tabProperties);
+        String inputFileName = settingsDlg.getInputDataName();
+        settingsDlg.getHomeFrame().addNewPane(inputFileName, tabProperties);
 	}
 
 
@@ -186,6 +187,7 @@ public class CountsAnalysisThread extends Thread {
 	 */
 	private void loadBufferedImages() throws IOException {
 		BamQCRegionReporter reporter = tabProperties.getReporter();
+        reporter.setInputDescription(prepareInputDescription());
 		reporter.setImageMap(new HashMap<String, BufferedImage>());
 		increaseProgressBar(currentStepLoaded, "Loading graphic: Global Saturation");
 		// Insert in the tab the graphic of the Global Saturations
@@ -207,11 +209,50 @@ public class CountsAnalysisThread extends Thread {
 				addImage(reporter,aux.getKey()+"_boxplot.png");
 			}
 			addImage(reporter,"unknown.png");
-			addImage(reporter,"unknown_boxplot.png");			
+			addImage(reporter,"unknown_boxplot.png");
 		}
 	}
-	
-	private void addImage(BamQCRegionReporter reporter, String name){
+
+    private String prepareInputDescription() {
+        StringBuffer inputDesc = new StringBuffer();
+
+        int width = 700;
+
+        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters </b></p>" + HtmlJPanel.BR);
+        inputDesc.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
+
+        inputDesc.append(HtmlJPanel.COLSTART + "<b>" + settingsDlg.getName1() + "</b>");
+
+        inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
+        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Path: " + HtmlJPanel.COLMID
+                + settingsDlg.getFirstSampleDataPath() + HtmlJPanel.COLEND);
+        inputDesc.append(HtmlJPanel.getTableFooter());
+
+
+        if (settingsDlg.secondSampleIsProvided()) {
+            inputDesc.append(HtmlJPanel.COLSTART + "<b>" + settingsDlg.getName2() + "</b>");
+
+            inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
+            inputDesc.append(HtmlJPanel.COLSTARTFIX + "Path: " + HtmlJPanel.COLMID
+                    + settingsDlg.getFirstSampleDataPath() + HtmlJPanel.COLEND);
+            inputDesc.append( HtmlJPanel.getTableFooter() );
+        }
+
+        inputDesc.append(HtmlJPanel.COLSTART + "<b> Options </b>");
+
+        inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
+        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Species info: " + HtmlJPanel.COLMID
+                + infoFilePath + HtmlJPanel.COLEND);
+        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Threshold: " + HtmlJPanel.COLMID
+                        + settingsDlg.getThreshold() + HtmlJPanel.COLEND);
+        inputDesc.append(HtmlJPanel.getTableFooter());
+
+        inputDesc.append(HtmlJPanel.getTableFooter());
+
+        return inputDesc.toString();
+    }
+
+    private void addImage(BamQCRegionReporter reporter, String name){
 		String path = HomeFrame.outputpath + tabProperties.getOutputFolder().toString() + name;
 		BufferedImage imageToDisplay = null;
         try {
@@ -238,9 +279,9 @@ public class CountsAnalysisThread extends Thread {
 		currentStepLoaded++;
 		// Increase the progress bar value
 		result = (int) Math.ceil(numElem * percentLoad);
-		openFilePanel.getProgressBar().setValue(result);
+		settingsDlg.getProgressBar().setValue(result);
 		if (action != null) {
-			openFilePanel.getProgressStream().setText(action);
+			settingsDlg.getProgressStream().setText(action);
 		}
 	}
 

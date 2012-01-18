@@ -110,6 +110,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
 
+        JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", 0);
+		j1_0_1.setToolTipText("Input data description");
+        j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+        leftPanel.add(j1_0_1);
+
         Map<String,BufferedImage> imageMap = tabProperties.getReporter().getImageMap();
 
         for (Map.Entry<String,BufferedImage> entry : imageMap.entrySet() ) {
@@ -135,6 +140,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
         leftPanel.add(j1_0);
         initialLabel = j1_0;
+
+        JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", Constants.REPORT_INPUT_BAM_FILE);
+		j1_0_1.setToolTipText("Input data description");
+        j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+        leftPanel.add(j1_0_1);
 
         JLabel j1_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
         leftPanel.add(j1_1);
@@ -179,9 +189,14 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			leftPanel.add(checkSecondSection);
 
 			JLabel summary = createSummaryLinkLabel("Summary", Constants.REPORT_OUTSIDE_BAM_FILE);
-			summary.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
 			summary.setToolTipText("Basic information and statistics for the alignment sequencing input");
             leftPanel.add(summary);
+
+            JLabel inputDesc = createInputDescriptionLinkLabel("Input", Constants.REPORT_OUTSIDE_BAM_FILE);
+			inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+			inputDesc.setToolTipText("Input data description");
+            leftPanel.add(inputDesc);
+
 
 			JLabel j3_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
 			leftPanel.add(j3_1);
@@ -235,7 +250,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
 
-		JLabel j1_0 = createImageLinkLabel("Global Saturation", Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
+		JLabel inputDesc = createInputDescriptionLinkLabel("Input", 0 );
+        inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+        leftPanel.add(inputDesc);
+
+        JLabel j1_0 = createImageLinkLabel("Global Saturation", Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
 		j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
 		j1_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
 		leftPanel.add(j1_0);
@@ -351,11 +370,22 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         return label;
     }
 
-    JLabel createSummaryLinkLabel(final String labelText, final int analysisType) {
+    JLabel createSummaryLinkLabel(final String labelText, final int reporterIndex) {
         final JLabel label = createLinkLabel(labelText);
         label.addMouseListener(new JLabelMouseListener() {
             public void mouseClicked(MouseEvent arg0) {
-                showLeftSideSummaryInformation(analysisType, label);
+                showLeftSideSummaryInformation(reporterIndex, label);
+            }
+        });
+
+        return label;
+    }
+
+     JLabel createInputDescriptionLinkLabel(final String labelText, final int reporterIndex) {
+        final JLabel label = createLinkLabel(labelText);
+        label.addMouseListener(new JLabelMouseListener() {
+            public void mouseClicked(MouseEvent arg0) {
+                showLeftSideInputDescription(reporterIndex, label);
             }
         });
 
@@ -385,34 +415,38 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         return checkBox;
     }
 
-	public void showLeftSideSummaryInformation(int typeAnalysis, JLabel label) {
-		prepareHtmlSummary(getReport(typeAnalysis));
+	public void showLeftSideSummaryInformation(int reporterIndex, JLabel label) {
+		prepareHtmlSummary(getReporter(reporterIndex));
 		fillColorLink(label);
 	}
 
+    public void showLeftSideInputDescription(int reporterIndex, JLabel label) {
+        prepareHtmlInputDescription(getReporter(reporterIndex));
+        fillColorLink(label);
+    }
+
 	private void showLeftSideInformation(String graphicName, JLabel label) {
 		if (graphicName != null) {
-			openGraphic(graphicName, getReporterNew(graphicName));
+			openGraphic(graphicName, getReporterByName(graphicName));
 		}
 		fillColorLink(label);
 	}
 	
-	private BamQCRegionReporter getReport(int typeAnalysis){
-		// TODO: WTF? Another shitty method? What is the difference between this and getReporterNew()?
-        BamQCRegionReporter reporter;
+	private BamQCRegionReporter getReporter(int reporterIndex){
+		BamQCRegionReporter reporter;
 		// Select the reporter that contains the data
-		if (typeAnalysis == Constants.REPORT_INPUT_BAM_FILE ||
-                typeAnalysis == Constants.REPORT_INSIDE_BAM_FILE) {
-			reporter = tabProperties.getReporter();
-		} else {
+		if (reporterIndex == Constants.REPORT_OUTSIDE_BAM_FILE) {
 			reporter = tabProperties.getOutsideReporter();
+		} else {
+			reporter = tabProperties.getReporter();
 		}
 		return reporter;
 	}
 
 	
-	private BamQCRegionReporter getReporterNew(String graphicName){
-		BamQCRegionReporter reporter;
+	private BamQCRegionReporter getReporterByName(String graphicName){
+		// TODO: replace this method with getReporter(int index)
+        BamQCRegionReporter reporter;
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || 
 				tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
@@ -501,7 +535,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         StringBuffer summaryHtml = new StringBuffer("");
 
-		summaryHtml.append("<p align=center><a name=\"summary\"> <b>Summary of: " + new File(reporter.getBamFileName()).getName() + "</b></p>" + HtmlJPanel.BR);
+		summaryHtml.append("<p align=center><a name=\"summary\"> <b>Summary</b></p>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
 		summaryHtml.append(HtmlJPanel.COLSTART + "<b>Globals:</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
@@ -579,12 +613,29 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         StringBuffer summaryHtml = new StringBuffer();
 
         summaryHtml.append( HtmlJPanel.getHeader() );
-        summaryHtml.append( prepareHtmlReport(reporter, tabProperties, width) );
+        summaryHtml.append(prepareHtmlReport(reporter, tabProperties, width));
         summaryHtml.append( HtmlJPanel.getHeadFooter() );
 
         panelDerecha.setHtmlPage(summaryHtml.toString());
 		rightScrollPane.setViewportView(panelDerecha);
 	}
+
+    private void prepareHtmlInputDescription(BamQCRegionReporter reporter) {
+        HtmlJPanel htmlPanel = new HtmlJPanel();
+		htmlPanel.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
+		htmlPanel.setFont(HomeFrame.defaultFont);
+        //int width = rightScrollPane.getWidth() - 100;
+
+        StringBuffer inputDesc = new StringBuffer();
+        inputDesc.append( HtmlJPanel.getHeader() );
+        inputDesc.append( reporter.getInputDescription() );
+        inputDesc.append( HtmlJPanel.getHeadFooter() );
+
+        htmlPanel.setHtmlPage(inputDesc.toString());
+
+        rightScrollPane.setViewportView(htmlPanel);
+    }
+
 
 	private static String fillHtmlTableFromFile(String pathToChromosomeStats) {
 		StringBuffer htmlTable = new StringBuffer("");

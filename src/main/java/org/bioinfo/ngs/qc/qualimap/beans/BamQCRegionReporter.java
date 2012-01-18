@@ -35,7 +35,7 @@ public class BamQCRegionReporter implements Serializable {
     private Map<String, BufferedImage> imageMap;
 
 	/** Variable that contains the input files names */
-	private String bamFileName, referenceFileName;
+	private String bamFileName, referenceFileName, inputDescription;
 
 	private Integer numWindows, numMappedReads;
 
@@ -48,6 +48,11 @@ public class BamQCRegionReporter implements Serializable {
 	gcPercent, atPercent, percentMappedReads, meanMappingQuality,
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
+
+    public BamQCRegionReporter() {
+        inputDescription = "No input description available";
+    }
+
 
 	public void writeReport(BamStats bamStats, String outdir) throws IOException{
 		// init report		
@@ -141,6 +146,16 @@ public class BamQCRegionReporter implements Serializable {
 
 		report.close();
 	}
+
+
+    public String getInputDescription() {
+        return inputDescription;
+    }
+
+    public void setInputDescription(String inputDescription) {
+        this.inputDescription = inputDescription;
+    }
+
 
     private XYToolTipGenerator createTooltipGenerator(List<Double> windowReferences, GenomeLocator locator ) {
 

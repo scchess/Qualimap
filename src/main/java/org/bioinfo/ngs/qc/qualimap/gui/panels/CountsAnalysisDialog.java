@@ -362,5 +362,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     }
 
 
-
+    public int getThreshold() {
+        return Integer.parseInt( thresholdEdit.getText() );
+    }
 }

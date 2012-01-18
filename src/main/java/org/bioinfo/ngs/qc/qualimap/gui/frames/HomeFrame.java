@@ -257,7 +257,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		return m;
     }
 
-	private JMenuItem addMenuItem(String text, String command, String icon, String keys){
+    private JMenuItem addMenuItem(String text, String command, String icon, String keys){
 		JMenuItem a = new JMenuItem();
 		a.setText(text);
 		a.setActionCommand(command);

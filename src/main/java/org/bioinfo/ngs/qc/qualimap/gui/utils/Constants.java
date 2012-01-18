@@ -218,11 +218,12 @@ public final class Constants {
 	//******************************************************************************************
 	//******************************** TYPES OF BAM ANALYSIS ***********************************
 	//******************************************************************************************
-	public static final Integer TYPE_BAM_ANALYSIS_DNA = 0;
-	public static final Integer TYPE_BAM_ANALYSIS_EXOME = 1;
-	public static final Integer TYPE_BAM_ANALYSIS_RNA = 2;
-    public static final Integer TYPE_BAM_ANALYSIS_EPI = 3;
-	
+
+    public static final int TYPE_BAM_ANALYSIS_DNA = 0;
+	public static final int TYPE_BAM_ANALYSIS_EXOME = 1;
+	public static final int TYPE_BAM_ANALYSIS_RNA = 2;
+    public static final int TYPE_BAM_ANALYSIS_EPI = 3;
+
 	//******************************************************************************************
 	//*********************************** TYPES OF SPECIES *************************************
 	//******************************************************************************************

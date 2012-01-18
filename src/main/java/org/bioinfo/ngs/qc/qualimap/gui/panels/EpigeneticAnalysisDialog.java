@@ -70,7 +70,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         return stepSpinner.getValue().toString();
     }
 
-    public Set<String> getSampleNames() {
+    public Set<String> getSampleIds() {
 
         List<DataItem> items = sampleTableModel.getItems();
         Set<String> result = new HashSet<String>();

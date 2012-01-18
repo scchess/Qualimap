@@ -45,7 +45,7 @@ public class ExportHtmlThread extends Thread{
 	/** Variables that contains the tab properties loaded in the thread*/
 	TabPropertiesVO tabProperties;
 
-    static final int WIDTH = 800;
+    static final int WIDTH = 700;
 
 
 	public ExportHtmlThread(String str, Component component, TabPropertiesVO tabProperties, String dirPath) {
@@ -120,6 +120,8 @@ public class ExportHtmlThread extends Thread{
                 htmlReport.append(  OpenLoadedStatistics.prepareHtmlReport(reporter,tabProperties,WIDTH) );
             }
 
+            htmlReport.append( "<br><br>").append( reporter.getInputDescription() ).append("<br><br>");
+
             boolean success = saveImages(htmlReport, reporter, genomicAnalysis);
 
 			// Add the files of the third reporter
@@ -147,20 +149,17 @@ public class ExportHtmlThread extends Thread{
 				JOptionPane.showMessageDialog(null,
 						"Html Report Created Successfully \n", "Success", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				// If the file could not generate correctly
-				File f = new File(dirPath);
-				f.delete();
 				savePanel.getProgressBar().setVisible(false);
 				savePanel.getProgressStream().setVisible(false);
 				JOptionPane.showMessageDialog(null,
-						"Unable to create the pdf file \n", "Error", JOptionPane.ERROR_MESSAGE);
+						"Failed to create the htmlfile \n", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e) {
 			savePanel.getProgressBar().setVisible(false);
 			savePanel.getProgressStream().setVisible(false);
             e.printStackTrace();
 			JOptionPane.showMessageDialog(null,
-					"Unable to create the pdf file \n", "Error", JOptionPane.ERROR_MESSAGE);
+					"Unable to create the html file \n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
     }
 
@@ -175,6 +174,9 @@ public class ExportHtmlThread extends Thread{
             contents.append("<li> <a class=\"content\" href=\"report.html#summary\">").
                     append("Summary of: ").append(fileName).append("</a>");
         }
+        contents.append("<li> <a class=\"content\" href=\"report.html#input\">").
+                       append("Input data & parameters").append("</a>");
+
 
         Set<String> names = genomicAnalysis ? reporter.getMapCharts().keySet() :
                 reporter.getImageMap().keySet();
