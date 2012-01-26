@@ -106,6 +106,7 @@ public class EpigeneticsAnalysisThread extends Thread {
 
             commandString += " --fileConfig=" + outputDir.toString() + "config.xml";
             commandString += " --homedir=" + settingsDialog.getHomeFrame().getQualimapFolder() + "scripts";
+            commandString += " --vizType=" + settingsDialog.getVisuzliationType();
 
             System.out.println(commandString);
             settingsDialog.setProgressStatus("Running Rscript command...");
@@ -146,8 +147,6 @@ public class EpigeneticsAnalysisThread extends Thread {
     public void createConfigFile(String outDir, String configFileName) throws FileNotFoundException, XMLStreamException {
 
         FileOutputStream stream = new FileOutputStream(outDir + configFileName);
-
-        Set<String>  sampleNames = settingsDialog.getSampleIds();
 
         XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter xmlWriter = outputFactory.createXMLStreamWriter(stream);
@@ -207,11 +206,10 @@ public class EpigeneticsAnalysisThread extends Thread {
         // samples
         xmlWriter.writeStartElement(TAG_SAMPLES);
 
-        for (String sampleId : sampleNames) {
             xmlWriter.writeCharacters("\n\t\t");
-            xmlWriter.writeStartElement(sampleId);
-            xmlWriter.writeAttribute("name", settingsDialog.getSampleName(sampleId));
-            List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems(sampleId);
+            xmlWriter.writeStartElement("sample1");
+            xmlWriter.writeAttribute("name", settingsDialog.getSampleName());
+            List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems();
             for (EpigeneticAnalysisDialog.DataItem item : sampleItems) {
                 xmlWriter.writeCharacters("\n\t\t\t");
                 xmlWriter.writeStartElement(TAG_REPLICATE);
@@ -234,12 +232,13 @@ public class EpigeneticsAnalysisThread extends Thread {
             xmlWriter.writeCharacters("\n\t\t");
             xmlWriter.writeEndElement();
 
-        }
+
 
         xmlWriter.writeCharacters("\n\t");
         xmlWriter.writeEndElement();
 
-        if (settingsDialog.microArrayDataAvailable()) {
+        // MAYBE WILL BE INCLUDED IN FUTURE VERSIONS
+        /*if (settingsDialog.microArrayDataAvailable()) {
             xmlWriter.writeCharacters("\n\n\t");
             xmlWriter.writeStartElement(TAG_MICROARRAY);
 
@@ -258,7 +257,7 @@ public class EpigeneticsAnalysisThread extends Thread {
             }
             xmlWriter.writeCharacters("\n\t");
             xmlWriter.writeEndElement();
-        }
+        }*/
 
         xmlWriter.writeCharacters("\n\n\t");
         xmlWriter.writeStartElement(TAG_CLUSTERS);
@@ -339,9 +338,8 @@ public class EpigeneticsAnalysisThread extends Thread {
         inputDesc.append("<br>Analyzed genomic region: ");
         inputDesc.append("<h3>Samples</h3>\n");
 
-        Set<String>  sampleIds = settingsDialog.getSampleIds();
 
-        for (String sampleId : sampleIds) {
+        /*for (String sampleId : sampleIds) {
             inputDesc.append("<h5>").append(sampleId).append("</h5>\n");
             List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems(sampleId);
             for (EpigeneticAnalysisDialog.DataItem item : sampleItems) {
@@ -349,7 +347,7 @@ public class EpigeneticsAnalysisThread extends Thread {
                 inputDesc.append("<br>Input path: ").append(item.inputPath).append("\n");
                 inputDesc.append("<br>Medip path: ").append(item.medipPath).append("\n");
             }
-        }
+        }*/
 
 
         return inputDesc.toString();

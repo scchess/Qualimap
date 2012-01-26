@@ -7,6 +7,14 @@ checkChild <- function(node,name, fileXML="fileConfig"){
 
 }
 
+#hasChild <- function(node, name, fileXML="fileConfig") {
+#  if (is.null(node[[name]])) {
+#    return TRUE;
+#  } else {
+#    return FALSE;
+#  }
+#}
+
 parseReplicate <- function(replicate){
 	checkChild(replicate, "medips")
 	medips = as.character(xmlValue(replicate[["medips"]]))
@@ -124,19 +132,22 @@ parseConfig <- function(fileXML){
 	l.param <- xmlChildren(r)
 
 	
-	
 	samples <-l.param[["samples"]]
-	
 	checkChild(samples,"sample1",fileXML)
-	checkChild(samples,"sample2",fileXML)
-	
+ 
 	l.samples <- xmlChildren(samples)
-	df.sample1 <- parseSample(l.samples[["sample1"]],ord.sample=1)
+  
+  #if (hasChild(samples,"sample2",fileXML)) {
+  #  df.sample2 <- parseSample(l.samples[["sample2"]],ord.sample=2)
+  #} 
+  
+  
+  df.sample1 <- parseSample(l.samples[["sample1"]],ord.sample=1)
+	
 	#print(df.sample1$medips)
 	#print(df.sample1$input)	
 	
-	df.sample2 <- parseSample(l.samples[["sample2"]],ord.sample=2)
-        #print(df.sample2$medips)
+	      #print(df.sample2$medips)
         #print(df.sample2$input) 
 	
 	l.microarray <- l.param[["microarray"]]	
@@ -168,10 +179,11 @@ parseConfig <- function(fileXML){
 	
 	
 	parsed <- matrix(list(), nrow=1, ncol=9)
-	colnames(parsed) <- c("sample1", "sample2", "clusters", "microarray","geneSelection","dirOut","expID","location","fragment")
-	#print(df.geneSelection)
+	#colnames(parsed) <- c("sample1", "sample2", "clusters", "microarray","geneSelection","dirOut","expID","location","fragment")
+	colnames(parsed) <- c("sample1", "mr.empty", "clusters", "microarray","geneSelection","dirOut","expID","location","fragment")
+  #print(df.geneSelection)
 	parsed[[1,"sample1"]] <- df.sample1
-	parsed[[1,"sample2"]] <- df.sample2
+	#parsed[[1,"sample2"]] <- df.sample2
 	parsed[[1,"clusters"]] <- if (!is.null(df.clusters)) df.clusters else NA
 	parsed[[1,"microarray"]] <- if (!is.null(df.microarray)) df.microarray else NA
 	parsed[[1,"geneSelection"]] <- if(!is.null(df.geneSelection)) df.geneSelection else NA

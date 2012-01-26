@@ -89,26 +89,31 @@ buildFeatureScores <- function(grl.stored=NULL, sample1=NULL, sample2=NULL, desi
 	sample.types <- c(getDataFromMatrix(sample1,c("sample.name")))
 	input.files1 <- getDataFromMatrix(sample1,c("input"))
 	sample.types <- c(sample.types, rep(paste(getDataFromMatrix(sample1,c("sample.name"))[1],"input",sep="-"),length(input.files1)))
-	medips.files2 <- getDataFromMatrix(sample2,c("medips"))
-	sample.types <- c(sample.types, getDataFromMatrix(sample2,c("sample.name")))
-	input.files2 <- getDataFromMatrix(sample2,c("input"))
-	sample.types <- c(sample.types, rep(paste(getDataFromMatrix(sample2,c("sample.name"))[1],"input",sep="-"),length(input.files1)))
+	#medips.files2 <- getDataFromMatrix(sample2,c("medips"))
+	#sample.types <- c(sample.types, getDataFromMatrix(sample2,c("sample.name")))
+	#input.files2 <- getDataFromMatrix(sample2,c("input"))
+	#sample.types <- c(sample.types, rep(paste(getDataFromMatrix(sample2,c("sample.name"))[1],"input",sep="-"),length(input.files1)))
 	print("sample.types")
 	print(sample.types)
 
-	bam.files <- c(medips.files1,input.files1,medips.files2,input.files2)
+	#bam.files <- c(medips.files1,input.files1,medips.files2,input.files2)
+
+  bam.files <- c(medips.files1,input.files1)
 
 	#bam.files <- c(getDataFromMatrix(sample1,c("medips","input")),getDataFromMatrix(sample2,c("medips","input")))
 	print("STATUS:Loading BAM files:")
 	print(bam.files)
-	bam.names <- c(getDataFromMatrix(sample1,c("replicate.name")),getDataFromMatrix(sample2,c("replicate.name")))
-	print("bam.names")
+	#bam.names <- c(getDataFromMatrix(sample1,c("replicate.name")),getDataFromMatrix(sample2,c("replicate.name")))
+	bam.names <- c( getDataFromMatrix(sample1,c("replicate.name") ) ) 
+  
+  print("bam.names")
 	print(bam.names)
     granges <- lapply(bam.files,BAM2GRanges)
     grl <- mergeReplicates(GRangesList(granges),sample.types)
     names(grl) <- unique(sample.types) # With unique we remove the keep only one name per replicate
-	sample.names <- c(getDataFromMatrix(sample1,c("sample.name"))[1],getDataFromMatrix(sample2,c("sample.name"))[1])
-	print("sample.names")
+	#sample.names <- c(getDataFromMatrix(sample1,c("sample.name"))[1],getDataFromMatrix(sample2,c("sample.name"))[1])
+  sample.names <- c(getDataFromMatrix(sample1,c("sample.name"))[1])
+  print("sample.names")
 	print(sample.names)
   }
     print("STATUS:Building feature scores:")
@@ -116,10 +121,12 @@ buildFeatureScores <- function(grl.stored=NULL, sample1=NULL, sample2=NULL, desi
 
 fs <- featureScores(grl,annot,up=up,down=down,freq=freq,s.width=s.width,verbose=TRUE,dist=dist)
 
-
+  print("STATUS: Builded features scores")
   if (is.null(design)){
     print("TODO! Remove this. Right now it does the default behaviour (substract 1-2 and 3-4)")
-    l.forScores <- list(tables(fs)[[1]] - tables(fs)[[2]], tables(fs)[[3]] - tables(fs)[[4]])
+    #l.forScores <- list(tables(fs)[[1]] - tables(fs)[[2]], tables(fs)[[3]] - tables(fs)[[4]])
+    l.forScores <- list(tables(fs)[[1]] - tables(fs)[[2]])
+ 
     fs@scores <- l.forScores
 	names(fs) <- sample.names 
   }else{
@@ -129,7 +136,8 @@ fs <- featureScores(grl,annot,up=up,down=down,freq=freq,s.width=s.width,verbose=
 }
 
 
-heatmapCluster <- function(featureScores=NULL,grl.stored=NULL,design=NULL,ma.file=NULL,expr.threshold=NULL,n.clusters=c(25),dirOut,expName,transcripts=NULL){
+heatmapCluster <- function(featureScores=NULL,grl.stored=NULL,design=NULL,ma.file=NULL,
+                           expr.threshold=NULL,n.clusters=c(25),dirOut,expName,transcripts=NULL, plot.type='heatmap'){
   
   if (!is.null(grl.stored)){
     if (!is.null(transcripts)){
@@ -158,17 +166,30 @@ heatmapCluster <- function(featureScores=NULL,grl.stored=NULL,design=NULL,ma.fil
 			    	expr=NULL
 			}
 
-  
-		  	if (is.null(design)){
+        if (is.null(design)){
 				#l.forScores <- list(tables(featureScores)[[1]] - tables(featureScores)[[2]], tables(featureScores)[[3]] - tables(featureScores)[[4]])
 				#featureScores@scores <- l.forScores
 				file.name <- paste(expName,th,cl,sep="-")
 				print(paste("Creating",file.path(dirOut,paste(file.name,".jpg",sep=""))))
 				jpeg(file.path(dirOut,paste(file.name,".jpg",sep="")),quality=100,h=2400,w=800)
-				cp=clusterPlots(fs,n.clusters=cl,expr=expr,plot.type='heatmap',t.name=file.name)
+				cp=clusterPlots(fs,n.clusters=cl,expr=expr,plot.type=plot.type,t.name=file.name)
 				dev.off()
-				cl <- as.data.frame(getClusters(cp))
-			}
+        browser()
+				#cl <- as.data.frame(getClusters(cp))
+        report.path <- file.path(dirOut,paste(file=paste(file.name,".txt",sep="")))
+        cluster.levels = levels(clusters(cp))
+        for ( cluster.level in cluster.levels ) {
+          write("START", report.path, append = TRUE)
+          write(paste("CLUSTER=",cluster.level), report.path, append = TRUE )
+          t <- attr(annot[which(clusters(cp) == cluster.level)], "elementMetadata")
+          lapply(t, write, report.path, append=TRUE, ncolumns=1000)
+          write("END\n", report.path, append = TRUE)
+        }
+        print(report.path)
+        #print(cl)
+        #readline()
+        # write.table(cl, report.path) 
+ 			}
 			cl
 		}
 	}
@@ -183,6 +204,9 @@ getClusters <- function(cp){
   an
 }
 
+printClusters <- function() {
+  write(cl, c)
+}
 
 # From functions.R of the NAR paper
 unfactor=function(var){

@@ -2,7 +2,6 @@ package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
-import sun.management.FileSystem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +16,6 @@ import java.io.File;
  */
 public class EditEpigeneticsInputDataDialog extends JDialog {
 
-    JComboBox sampleComboBox;
     JTextField replicateName, medipDataField, inputDataField;
     JButton okButton, cancelButton, browseMedipDataButton, browseInputDataButton;
     Component frame;
@@ -43,7 +41,6 @@ public class EditEpigeneticsInputDataDialog extends JDialog {
         initComponents();
 
         EpigeneticAnalysisDialog.DataItem itemToModify = parentDlg.getDataItem(itemIndex);
-        sampleComboBox.setSelectedItem(itemToModify.sampleId);
         replicateName.setText(itemToModify.name);
         medipDataField.setText(itemToModify.medipPath);
         inputDataField.setText(itemToModify.inputPath);
@@ -53,76 +50,70 @@ public class EditEpigeneticsInputDataDialog extends JDialog {
     void initComponents() {
         frame = this;
 
-                getContentPane().setLayout(new MigLayout("insets 20"));
-                add(new JLabel("Sample number: "));
-                sampleComboBox = new JComboBox();
-                sampleComboBox.addItem(EpigeneticAnalysisDialog.ID_SAMPLE_ONE);
-                sampleComboBox.addItem(EpigeneticAnalysisDialog.ID_SAMPLE_TWO);
-                add(sampleComboBox, "wrap");
+        getContentPane().setLayout(new MigLayout("insets 20"));
 
-                add(new JLabel("Replicate name:"));
-                replicateName = new JTextField(30);
-                add(replicateName, "wrap");
+        add(new JLabel("Replicate name:"));
+        replicateName = new JTextField(30);
+        add(replicateName, "wrap");
 
-                add(new JLabel("Medip file"));
-                medipDataField = new JTextField(30);
-                add(medipDataField);
-                browseMedipDataButton = new JButton("...");
-                browseMedipDataButton.addActionListener(new BrowseButtonActionListener(this,medipDataField,
-                        "BAM files", "bam"));
-                add(browseMedipDataButton, "wrap");
+        add(new JLabel("Medip file"));
+        medipDataField = new JTextField(30);
+        add(medipDataField);
+        browseMedipDataButton = new JButton("...");
+        browseMedipDataButton.addActionListener(new BrowseButtonActionListener(this,medipDataField,
+                "BAM files", "bam"));
+        add(browseMedipDataButton, "wrap");
 
-                add(new JLabel("Control file"));
-                inputDataField = new JTextField(30);
-                add(inputDataField);
-                browseInputDataButton = new JButton("...");
-                browseInputDataButton.addActionListener( new BrowseButtonActionListener(this, inputDataField,
-                        "BAM files", "bam"));
-                add(browseInputDataButton, "wrap");
+        add(new JLabel("Control file"));
+        inputDataField = new JTextField(30);
+        add(inputDataField);
+        browseInputDataButton = new JButton("...");
+        browseInputDataButton.addActionListener( new BrowseButtonActionListener(this, inputDataField,
+                "BAM files", "bam"));
+        add(browseInputDataButton, "wrap");
 
-                JPanel buttonPanel = new JPanel();
-                buttonPanel.setLayout(new MigLayout("insets 10"));
-                okButton = new JButton("Ok");
-                okButton.addActionListener( new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        String errorMessage  = validateInputData();
-                        if (errorMessage.isEmpty()) {
-                            EpigeneticAnalysisDialog.DataItem item = new EpigeneticAnalysisDialog.DataItem();
-                                    item.sampleId = sampleComboBox.getSelectedItem().toString();
-                                    item.name = replicateName.getText();
-                                    item.inputPath = inputDataField.getText();
-                                    item.medipPath = medipDataField.getText();
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new MigLayout("insets 10"));
+        okButton = new JButton("Ok");
+        okButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String errorMessage  = validateInputData();
+                if (errorMessage.isEmpty()) {
+                    EpigeneticAnalysisDialog.DataItem item = new EpigeneticAnalysisDialog.DataItem();
+                    item.name = replicateName.getText();
+                    item.inputPath = inputDataField.getText();
+                    item.medipPath = medipDataField.getText();
 
-                            if (editMode) {
-                                parentDlg.replaceDataItem(itemIndex, item);
-                            } else {
-                                parentDlg.addDataItem(item);
-                            }
-                            setVisible(false);
-                        } else {
-                            JOptionPane.showMessageDialog(frame, errorMessage, "Input error", JOptionPane.ERROR_MESSAGE);
-                        }
+                    if (editMode) {
+                        parentDlg.replaceDataItem(itemIndex, item);
+                    } else {
+                        parentDlg.addDataItem(item);
                     }
-                });
+                    setVisible(false);
+                } else {
+                    JOptionPane.showMessageDialog(frame, errorMessage, "Input error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
-                cancelButton = new JButton("Cancel");
-                cancelButton.addActionListener( new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        setVisible(false);
-                    }
-                });
+        cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                setVisible(false);
+            }
+        });
 
-                buttonPanel.add(okButton);
-                buttonPanel.add(cancelButton, "wrap");
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton, "wrap");
 
-                add(buttonPanel, "align right, span, wrap");
+        add(buttonPanel, "align right, span, wrap");
 
 
-                pack();
-                setTitle("Input sample data");
-                setResizable(false);
+        pack();
+        setTitle("Input sample data");
+        setResizable(false);
 
     }
 
