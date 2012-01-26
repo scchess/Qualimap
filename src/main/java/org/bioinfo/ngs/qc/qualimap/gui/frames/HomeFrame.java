@@ -23,6 +23,7 @@ import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.CountReadsDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ExportGeneListDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -51,7 +52,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private int screenWidth;
 
     // Menu items with configurable state
-    JMenuItem saveReportItem, exportToPdfItem, exportToHtmlItem, openReportItem, closeAllTabsItem;
+    JMenuItem saveReportItem, exportToPdfItem, exportToHtmlItem, openReportItem, exportGeneListItem, closeAllTabsItem;
 	
 	/** Logger to print information */
 	protected Logger logger;
@@ -236,7 +237,11 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.add(exportToHtmlItem);
 		exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
-		fileMenu.addSeparator();
+		exportGeneListItem = addMenuItem("Export gene list", "exportgenelist", "save_zip.png", null);
+        fileMenu.add(exportGeneListItem);
+
+        fileMenu.addSeparator();
+
 		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");
         fileMenu.add(closeAllTabsItem);
 
@@ -443,8 +448,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                     JOptionPane.showMessageDialog(this, "Can not export PDF!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 			}
-	    }
-	    else if(e.getActionCommand().equalsIgnoreCase("saveproject")){
+	    } else if(e.getActionCommand().equalsIgnoreCase("saveproject")){
 	    	// First of all, we test if there is a tab selected
 			if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
 				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
@@ -487,7 +491,32 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             runEpigeneticsAnalysis();
         } else if (e.getActionCommand().equals("calc-counts")) {
             showCountReadsDialog(this);
+        } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
+            showExportGenesDialog();
         }
+    }
+
+    private void showExportGenesDialog() {
+        ExportGeneListDialog dlg;
+        try {
+            TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
+            String exprName = tabProperties.getLoadedGraphicName();
+            if (exprName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "There is no active graph! Please select some graph.",
+                        "Export gene list", JOptionPane.ERROR_MESSAGE);
+            }
+            String path = HomeFrame.outputpath + tabProperties.getOutputFolder() + "/" +
+                            tabProperties.getLoadedGraphicName() + ".txt";
+            dlg = new ExportGeneListDialog(exprName, path);
+            dlg.setModal(true);
+            dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            dlg.setLocationRelativeTo(this);
+            dlg.setVisible(true);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Can not prepare gene list! "+ e.getMessage(),
+                    "Export genes list", JOptionPane.ERROR_MESSAGE);
+        }
+
     }
 
     private void runBamFileAnalysis(int typeAnalysis){
@@ -527,10 +556,11 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setVisible(true);
     }
 
-    void updateMenuBar() {
+    public void updateMenuBar() {
 
         boolean activeTabsAvailable = aTabbedPane != null && aTabbedPane.getTabCount() > 0;
         boolean canSaveReportToZip = false;
+        boolean canExportGeneList = false;
         if (activeTabsAvailable) {
             TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
             if (tabProperties != null ) {
@@ -539,6 +569,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                 canSaveReportToZip = typeAnalysis== Constants.TYPE_BAM_ANALYSIS_EXOME ||
                         typeAnalysis == Constants.TYPE_BAM_ANALYSIS_DNA;
 
+                canExportGeneList = typeAnalysis == Constants.TYPE_BAM_ANALYSIS_EPI &&
+                    !tabProperties.getLoadedGraphicName().isEmpty();
+
             }
         }
 
@@ -546,6 +579,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         closeAllTabsItem.setEnabled(activeTabsAvailable);
         exportToHtmlItem.setEnabled(activeTabsAvailable);
         saveReportItem.setEnabled(canSaveReportToZip);
+        exportGeneListItem.setEnabled(canExportGeneList);
+
+
 
     }
 

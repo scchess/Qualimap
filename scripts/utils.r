@@ -179,15 +179,12 @@ heatmapCluster <- function(featureScores=NULL,grl.stored=NULL,design=NULL,ma.fil
         report.path <- file.path(dirOut,paste(file=paste(file.name,".txt",sep="")))
         cluster.levels = levels(clusters(cp))
         for ( cluster.level in cluster.levels ) {
-          write("START", report.path, append = TRUE)
-          write(paste("CLUSTER=",cluster.level), report.path, append = TRUE )
+          write(paste("START_CLUSTER=",cluster.level), report.path, append = TRUE )
           t <- attr(annot[which(clusters(cp) == cluster.level)], "elementMetadata")
           lapply(t, write, report.path, append=TRUE, ncolumns=1000)
-          write("END\n", report.path, append = TRUE)
+          write("END_CLUSTER\n", report.path, append = TRUE)
         }
         print(report.path)
-        #print(cl)
-        #readline()
         # write.table(cl, report.path) 
  			}
 			cl

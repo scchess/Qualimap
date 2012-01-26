@@ -25,13 +25,11 @@ public class CountReadsDialog extends JDialog implements ActionListener{
     JTextField bamPathEdit, gffPathEdit, outputPathField;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
     JComboBox strandTypeCombo;
-    CountReadsDialog frame;
     Thread countReadsThread;
 
 
     public CountReadsDialog() {
 
-        frame = this;
         getContentPane().setLayout(new MigLayout("insets 20"));
 
 
@@ -106,6 +104,8 @@ public class CountReadsDialog extends JDialog implements ActionListener{
                 JOptionPane.showMessageDialog(this, errMsg, "Calculate counts", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            final CountReadsDialog frame = this;
+
             countReadsThread = new Thread()  {
                 public void run() {
 

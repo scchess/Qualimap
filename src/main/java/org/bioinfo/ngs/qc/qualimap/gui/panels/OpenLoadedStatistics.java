@@ -1,10 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
@@ -80,6 +79,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 		tabProperties.getGraphicImage().addComponentListener(this);
 
+        tabProperties.setLastLinkSelected(null);
+        tabProperties.setLoadedGraphicName("");
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
 			fillLeftRnaSplit();
@@ -105,8 +106,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
     private void fillEpiSplit() {
 
-        tabProperties.setLastLinkSelected(null);
-
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
 
@@ -131,7 +130,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 		boolean isGffSelected = tabProperties.isGffSelected();
 		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
-        tabProperties.setLastLinkSelected(null);
 
         String sectionName = isGffSelected ? "Results inside of region" : "Results";
         JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
@@ -245,7 +243,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	private void fillLeftRnaSplit() {
 
         boolean infoFileIsSet = tabProperties.getRnaAnalysisVO().getInfoFileIsSet();
-		tabProperties.setLastLinkSelected(null);
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
@@ -404,6 +401,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		return label;
     }
 
+
     JCheckBox createResultsCheckBox(String text) {
         JCheckBox checkBox = new JCheckBox(text);
         checkBox.setSelected(true);
@@ -427,7 +425,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 	private void showLeftSideInformation(String graphicName, JLabel label) {
 		if (graphicName != null) {
-			openGraphic(graphicName, getReporterByName(graphicName));
+			showGraphic(graphicName, getReporterByName(graphicName));
 		}
 		fillColorLink(label);
 	}
@@ -495,10 +493,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 * @param reporter
 	 *            BamQCRegionReporter graphic input values
 	 */
-	private void openGraphic(String name, BamQCRegionReporter reporter) {
+	private void showGraphic(String name, BamQCRegionReporter reporter) {
 
         Object imageToDisplay = reporter.getChart(name);
 
+		tabProperties.setLoadedGraphicName(name);
 		// The image can be a JFreeChart generated of come from a file like a
 		// BufferedImage
 		if (imageToDisplay instanceof JFreeChart) {
@@ -527,7 +526,10 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
             rightScrollPane.setViewportView(panelImage);
         }
-	}
+        //TODO: better approach -> add event listener to homeframe
+        homeFrame.updateMenuBar();
+
+    }
 
 
     public static StringBuffer prepareHtmlReport(BamQCRegionReporter reporter, TabPropertiesVO tabProperties, int width) {

@@ -229,7 +229,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
         add(new JLabel("Clusters"));
         clustersField = new JTextField((20));
-        clustersField.setText("10,15,20,25,50,75,100");
+        clustersField.setText("10,15,20,25,30");
         add(clustersField, "wrap");
 
         add(new JLabel("Read smoothing length:"));
