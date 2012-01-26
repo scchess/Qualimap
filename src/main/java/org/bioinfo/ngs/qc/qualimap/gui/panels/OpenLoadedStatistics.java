@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.filechooser.FileFilter;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
@@ -26,6 +28,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import sun.awt.image.BufferedImageDevice;
 
 /**
  * Class to manage the statistics loaded from a determinate file
@@ -45,6 +48,86 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	public JPanel leftPanel;
     private JLabel initialLabel;
     TabPropertiesVO tabProperties;
+
+    static class RightPanelListener extends MouseAdapter {
+
+        TabPropertiesVO tabProperties;
+        JComponent parent;
+
+        public RightPanelListener(JComponent parent, TabPropertiesVO tabProperties) {
+            this.parent = parent;
+            this.tabProperties=tabProperties;
+        }
+
+        public void mousePressed(MouseEvent e) {
+               maybeShowPopup(e);
+        }
+
+        public void mouseReleased(MouseEvent e) {
+             maybeShowPopup(e);
+        }
+
+           private void maybeShowPopup(MouseEvent e) {
+               if (e.isPopupTrigger()) {
+                   JPopupMenu popup = new JPopupMenu();
+                   final String graphicName = tabProperties.getLoadedGraphicName();
+                   if (!graphicName.isEmpty())  {
+                        JMenuItem savePictureItem = new JMenuItem("Save picture...");
+                        savePictureItem.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent actionEvent) {
+                                JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setFileFilter( new FileFilter() {
+                                    @Override
+                                    public boolean accept(File file) {
+                                        return true;
+                                    }
+
+                                    @Override
+                                    public String getDescription() {
+                                        return "PNG images";
+                                    }
+                                });
+                                int res = fileChooser.showDialog(parent, "Save");
+                                if (res == JFileChooser.APPROVE_OPTION) {
+					                String path = fileChooser.getSelectedFile().getAbsolutePath();
+                                    if (path.endsWith(".png")) {
+                                        path = path + ".png";
+                                    }
+                                    BufferedImage image = tabProperties.getReporter().getImageMap().get(graphicName);
+                                    try {
+                                        ImageIO.write(image, "png", new File(path));
+                                    } catch (IOException e1) {
+                                        JOptionPane.showMessageDialog(parent, "Failed to save image!",
+                                                "Save image", JOptionPane.ERROR_MESSAGE);
+                                    }
+
+                                }
+                            }
+                        });
+                        popup.add(savePictureItem);
+
+                        // TODO: Each reporter should add own items to the popup menu.
+                        if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI) {
+                            JMenuItem exportGeneListItem = new JMenuItem("Export gene list...");
+                            exportGeneListItem.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent actionEvent) {
+                                    HomeFrame.showExportGenesDialog(parent, tabProperties);
+                                }
+                            });
+                            popup.addSeparator();
+                            popup.add(exportGeneListItem);
+                        }
+                   }
+
+                   popup.show(e.getComponent(),
+                              e.getX(), e.getY());
+               }
+           }
+
+
+    }
 
 	public OpenLoadedStatistics(HomeFrame homeFrame, TabPropertiesVO tabProperties) {
 		super();
@@ -93,6 +176,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		JPanel rightPanel = new JPanel();
 		rightPanel.setLayout(new GroupLayout(rightPanel));
 		rightScrollPane.setViewportView(rightPanel);
+        rightScrollPane.addMouseListener(new RightPanelListener(rightPanel,tabProperties));
 
 		statisticsContainer.setLeftComponent(leftScrollPane);
 		statisticsContainer.setRightComponent(rightScrollPane);
@@ -414,11 +498,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     }
 
 	public void showLeftSideSummaryInformation(int reporterIndex, JLabel label) {
-		prepareHtmlSummary(getReporter(reporterIndex));
+		tabProperties.setLoadedGraphicName("");
+        prepareHtmlSummary(getReporter(reporterIndex));
 		fillColorLink(label);
 	}
 
     public void showLeftSideInputDescription(int reporterIndex, JLabel label) {
+        tabProperties.setLoadedGraphicName("");
         prepareHtmlInputDescription(getReporter(reporterIndex));
         fillColorLink(label);
     }

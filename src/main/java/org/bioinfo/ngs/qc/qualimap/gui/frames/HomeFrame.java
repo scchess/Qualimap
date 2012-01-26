@@ -492,17 +492,16 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         } else if (e.getActionCommand().equals("calc-counts")) {
             showCountReadsDialog(this);
         } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
-            showExportGenesDialog();
+            showExportGenesDialog(this, getSelectedTabPropertiesVO() );
         }
     }
 
-    private void showExportGenesDialog() {
+    public static void showExportGenesDialog(Component frame, TabPropertiesVO tabProperties) {
         ExportGeneListDialog dlg;
         try {
-            TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
             String exprName = tabProperties.getLoadedGraphicName();
             if (exprName.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "There is no active graph! Please select some graph.",
+                JOptionPane.showMessageDialog(frame, "There is no active graph! Please select some graph.",
                         "Export gene list", JOptionPane.ERROR_MESSAGE);
             }
             String path = HomeFrame.outputpath + tabProperties.getOutputFolder() + "/" +
@@ -510,10 +509,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             dlg = new ExportGeneListDialog(exprName, path);
             dlg.setModal(true);
             dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dlg.setLocationRelativeTo(this);
+            dlg.setLocationRelativeTo(frame);
             dlg.setVisible(true);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Can not prepare gene list! "+ e.getMessage(),
+            JOptionPane.showMessageDialog(frame, "Can not prepare gene list! "+ e.getMessage(),
                     "Export genes list", JOptionPane.ERROR_MESSAGE);
         }
 
