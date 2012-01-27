@@ -25,8 +25,7 @@ public class BamQcTool extends NgsSmartTool{
 	private boolean computeInsertSize;
 
     public BamQcTool(){
-        super();
-        toolName = "bamqc";
+        super("bamqc");
         numThreads = Runtime.getRuntime().availableProcessors();
     }
 

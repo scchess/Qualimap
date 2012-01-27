@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -29,6 +30,7 @@ public class NgsSmartMain {
 						
 			String toolName = args[0];
 
+			// TODO: use factories map to create tools
 			// tools
 			if(toolName.equalsIgnoreCase("bamqc")){
 				tool = new BamQcTool();
@@ -38,7 +40,16 @@ public class NgsSmartMain {
 				tool = new RNAseqTool();
 			}
 
+            if (toolName.equals("counts")) {
+                tool = new CountReadsTool();
+            }
+
+            if (toolName.equals("epi")) {
+                tool = new EpiTool();
+            }
+
             if (toolName.equalsIgnoreCase("run-tests")) {
+                System.out.println("Supposed to run tests...");
                 //runTests();
             } else if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help") || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
 				logger.println("");
@@ -47,6 +58,7 @@ public class NgsSmartMain {
 				logger.println("");
 				logger.println("Selected tool: " + toolName);
 				if(tool==null){
+                    logger.println("No proper tool name is provided. Launching GUI...");
                     launchGUI(args,logger);
 				} else {
 					try {					
@@ -66,19 +78,12 @@ public class NgsSmartMain {
 	
 	public static void launchGUI(String[] args, Logger logger) throws ParseException{
 		
-		// getting home folder
-		Options options = new Options();
-		options.addOption("home", true, "home path");
-		CommandLineParser parser = new PosixParser();
-		CommandLine commandLine = parser.parse(options, args, true);
-		String home =  commandLine.getOptionValue("home");
-		
+
 		// launching GUI
 		System.setProperty("java.awt.headless", "false");
 		HomeFrame inst = new HomeFrame();
-		if(home.endsWith("."))home=home.substring(0,home.length()-1);
-		inst.setQualimapFolder(home);
-		inst.setLocationRelativeTo(null);
+        inst.setQualimapFolder(System.getenv("QUALIMAP_HOME"));
+        inst.setLocationRelativeTo(null);
 		inst.setVisible(true);		
 		
 	}

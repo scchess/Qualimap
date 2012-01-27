@@ -122,8 +122,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		if(isWebStart){
 			copyFilesFromResourcesToFolder();
 		}
-		if(this.getQualimapFolder()==null)this.setQualimapFolder(new File("").getAbsolutePath()+File.separator);
-		logger = new Logger(this.getClass().getName());
+		if(this.getQualimapFolder()==null){
+            this.setQualimapFolder(new File("").getAbsolutePath()+File.separator);
+        }
+        logger = new Logger(this.getClass().getName());
 		initGUI();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
@@ -501,8 +503,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         try {
             String exprName = tabProperties.getLoadedGraphicName();
             if (exprName.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "There is no active graph! Please select some graph.",
+                JOptionPane.showMessageDialog(frame, "There is no chart selected! Please select chart.",
                         "Export gene list", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             String path = HomeFrame.outputpath + tabProperties.getOutputFolder() + "/" +
                             tabProperties.getLoadedGraphicName() + ".txt";

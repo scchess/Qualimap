@@ -3,9 +3,11 @@ usage: qualimap <tool> [options]
 		
 Available tools:
 
-	bamqc                         Evaluates ngs mapping to a reference genome
-	rna-seq			      RNA-seq analysis
+	bamqc                   Evaluates ngs mapping to a reference genome
+	rna-seq                 RNA-seq analysis
+	epi                     Epigenetics Analysis
+	counts                  Gene counts
 
-2011 - Qualimap tools 
+2012 - Qualimap tools
 
 .

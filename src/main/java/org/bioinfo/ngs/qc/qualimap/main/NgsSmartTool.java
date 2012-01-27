@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.File;
 
+import EDU.oswego.cs.dl.util.concurrent.FJTask;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -9,6 +10,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.tool.OptionFactory;
 
 public abstract class NgsSmartTool {
 	
@@ -26,11 +28,15 @@ public abstract class NgsSmartTool {
 	// common params
 	protected String outdir;
     protected String toolName;
+    protected boolean outDirIsRequired;
+
 	
-	
-	public NgsSmartTool(){
+	public NgsSmartTool(String toolName){
+
+		this.toolName = toolName;
 		// log
 		logger = new Logger();
+        outDirIsRequired = true;
 		
 		// environment
 		homePath = System.getenv("QUALIMAP_HOME");
@@ -52,8 +58,10 @@ public abstract class NgsSmartTool {
 	}
 	
 	private void initCommonOptions(){
-		options.addOption("home", true, "qualimap folder");
-		options.addOption("o", true, "output folder");
+		options.addOption(OptionFactory.createOption("home", "Qualimap home folder", false, true));
+		if (outDirIsRequired) {
+            options.addOption( OptionFactory.createOption("outdir", "Output folder", false, true) );
+        }
 	}
 	
 	// init options
@@ -65,8 +73,8 @@ public abstract class NgsSmartTool {
 		commandLine = parser.parse(options, args);
 	
 		// fill common options
-		if(commandLine.hasOption("o")){
-			outdir = commandLine.getOptionValue("o");
+		if(commandLine.hasOption("outdir")){
+			outdir = commandLine.getOptionValue("outdir");
 		}
 	}
 	

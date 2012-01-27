@@ -32,9 +32,9 @@ public class CountReadsAnalysis {
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
 
-    public static final String NON_STRAND_SPECIFIC = "Non-strand-specific";
-    public static final String FORWARD_STRAND = "Forward-stranded";
-    public static final String REVERSE_STRAND = "Reverse-stranded";
+    public static final String NON_STRAND_SPECIFIC = "non-strand-specific";
+    public static final String FORWARD_STRAND = "forward-stranded";
+    public static final String REVERSE_STRAND = "reverse-stranded";
 
     public CountReadsAnalysis(String pathToBamFile, String pathToGffFile) {
         this.pathToBamFile = pathToBamFile;

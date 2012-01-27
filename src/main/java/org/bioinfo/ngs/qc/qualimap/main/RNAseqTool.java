@@ -30,7 +30,8 @@ public class RNAseqTool extends NgsSmartTool{
 	private static final String RFUNCTIONS_FOLDER = "scripts";
 	
 	public RNAseqTool(){
-		RNAseqTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.61.genes.biotypes.txt";
+		super("rna-seq");
+        RNAseqTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.61.genes.biotypes.txt";
 		RNAseqTool.GROUPS_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.biotypes.groups.txt";
 		RNAseqTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.61.genes.biotypes.txt";
 		RNAseqTool.GROUPS_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.biotypes.groups.txt";
