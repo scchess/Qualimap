@@ -81,6 +81,7 @@ public class CountsAnalysisThread extends Thread {
 
         // Create the outputDir directory
         StringBuilder outputDirPath = tabProperties.createDirectory();
+        String homePath = settingsDlg.getHomeFrame().getQualimapFolder() + File.separator;
 
         firstSampleDataPath = settingsDlg.getFirstSampleDataPath();
 
@@ -91,7 +92,7 @@ public class CountsAnalysisThread extends Thread {
         if (settingsDlg.infoFileIsProvided())  {
             infoFilePath = settingsDlg.getInfoFilePath();
         } else {
-            infoFilePath =  settingsDlg.getHomeFrame().getQualimapFolder() + "species" +
+            infoFilePath =  homePath + "species" +
                     File.separator + settingsDlg.getSelectedSpecies();
             rnaAnalysisVO.setInfoFileIsSet(true);
         }
@@ -100,10 +101,9 @@ public class CountsAnalysisThread extends Thread {
         increaseProgressBar(currentStepLoaded, "Building Rscript sentence");
 
         // Create the string to execute
-        String command = "Rscript " + settingsDlg.getHomeFrame().getQualimapFolder()
-                + "scripts"+File.separator+"qualimapRscript.r";
+        String command = "Rscript " + homePath + "scripts"+File.separator+"qualimapRscript.r";
 
-        command += " --homesrc " + settingsDlg.getHomeFrame().getQualimapFolder() + "scripts";
+        command += " --homesrc " + homePath + "scripts";
         command += " --data1 " + firstSampleDataPath;
         command += " --name1 " + settingsDlg.getName1().replace(" ", "_");
 

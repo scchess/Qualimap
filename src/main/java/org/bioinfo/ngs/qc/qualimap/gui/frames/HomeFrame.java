@@ -79,6 +79,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	public boolean isWebStart;
     private SplashWindow splashWindow;
+    private boolean rIsAvailable;
 
     private static class TabbedPaneListener implements ContainerListener, ChangeListener {
 
@@ -171,6 +172,26 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }
 	}
 
+    private String checkForRScript()  {
+
+        String errMsg = "";
+
+        try {
+            Process p = Runtime.getRuntime().exec("Rscript --version");
+            int res = p.waitFor();
+            if (res != 0) {
+                return "Rscript process resulted with non-zero exit code";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to launch RScript: " + e.getMessage();
+        }
+
+        return errMsg;
+    }
+
+
 	private static boolean isRunningJavaWebStart() {
     	String jwsVersion = System.getProperty("javawebstart.version", null);
     	if(jwsVersion!=null) System.out.println("Java Web Start Version: "+ jwsVersion);
@@ -189,7 +210,19 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         this.tabsPropertiesMap = new HashMap<Component, TabPropertiesVO>();
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
-		if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
+
+        String errMsg = checkForRScript();
+        rIsAvailable = errMsg.isEmpty();
+        if (!rIsAvailable) {
+            logger.error(errMsg);
+            JOptionPane.showMessageDialog(this,
+                    "" + "Some features of Qualimap, relying on the R language, will be disabled.\n" +
+                    "To enable them please install R v2.14 and\nmake sure the Rscript command is available" +
+                            " from PATH.", "Rscript is not found",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
 			splashWindow = new SplashWindow(this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png"), this, 4000);
 		}
 		try {
@@ -226,8 +259,12 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		
 		analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
 		analysisMenu.add(addMenuItem("Genomic Region", "genomicregion", "chart_curve_add.png", "ctrl pressed R"));
-		analysisMenu.add(addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C"));
-        analysisMenu.add(addMenuItem("Epigenetics", "epigenetics", "chart_curve_add.png", "ctrl pressed E"));
+	    JMenuItem rnaSeqItem =   addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C");
+        rnaSeqItem.setEnabled(rIsAvailable);
+		analysisMenu.add(rnaSeqItem);
+        JMenuItem epiMenuItem =  addMenuItem("Epigenetics", "epigenetics", "chart_curve_add.png", "ctrl pressed E");
+        epiMenuItem.setEnabled(rIsAvailable);
+        analysisMenu.add(epiMenuItem);
 		analysisMenu.addSeparator();
 		analysisMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
 

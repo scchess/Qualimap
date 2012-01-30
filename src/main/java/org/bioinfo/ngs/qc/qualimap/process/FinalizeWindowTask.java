@@ -20,7 +20,7 @@ public class FinalizeWindowTask implements Callable {
     BamStats bamStats;
     BamGenomeWindow window;
 
-    static private PrintStream getLogger() {
+    /*static private PrintStream getLogger() {
         OutputStream log = null;
         try {
             log = new BufferedOutputStream(new FileOutputStream("/home/kokonech/final.log")) ;
@@ -31,6 +31,7 @@ public class FinalizeWindowTask implements Callable {
     }
 
     static private PrintStream log = getLogger();
+    */
 
     public FinalizeWindowTask(BamStats bamStats, BamGenomeWindow windowToFinalize) {
         this.bamStats = bamStats;
