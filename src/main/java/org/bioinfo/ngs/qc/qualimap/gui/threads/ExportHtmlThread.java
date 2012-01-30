@@ -120,7 +120,7 @@ public class ExportHtmlThread extends Thread{
                 htmlReport.append(  OpenLoadedStatistics.prepareHtmlReport(reporter,tabProperties,WIDTH) );
             }
 
-            htmlReport.append( "<br><br>").append( reporter.getInputDescription() ).append("<br><br>");
+            htmlReport.append( "<br><br>").append( reporter.getInputDescription(800) ).append("<br><br>");
 
             boolean success = saveImages(htmlReport, reporter, genomicAnalysis);
 
@@ -133,7 +133,6 @@ public class ExportHtmlThread extends Thread{
                 success = saveImages( htmlReport, outsideReporter, true);
 
             }
-
 
             addFooter(htmlReport);
 
@@ -247,9 +246,12 @@ public class ExportHtmlThread extends Thread{
             }
 
             String imagePath = dirPath + "/" + entry.getKey();
+            String extension = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+            if (!extension.equalsIgnoreCase("png")) {
+                imagePath += ".png";
+            }
             File imageFile = new File(imagePath);
-            String imageFormat = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
-            success = ImageIO.write(bufImage, imageFormat, imageFile);
+            success = ImageIO.write(bufImage, "PNG", imageFile);
 
             htmlReport.append("<br><br><p align=\"center\">\n<b>").append("<a name=\"")
                     .append(entry.getKey()).append("\">")

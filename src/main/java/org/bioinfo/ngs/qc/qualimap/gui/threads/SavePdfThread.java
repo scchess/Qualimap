@@ -10,9 +10,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
+import javax.swing.text.html.parser.ParserDelegator;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
@@ -250,6 +252,8 @@ public class SavePdfThread extends Thread{
                 addOutputsToPDF(reporter, chapter, numberDepth);
             }
 
+            addInputDescriptionToPDF(reporter, chapter, numberDepth);
+
 	    	// Generate the Graphics images
     	 	while(it.hasNext() && result){
 				@SuppressWarnings("unchecked")
@@ -423,7 +427,41 @@ public class SavePdfThread extends Thread{
 		section.newPage();
 		
 	}
-    
+
+    private void addInputDescriptionToPDF(BamQCRegionReporter reporter, Chapter chapter, int numberDepth){
+    	StringUtilsSwing sdf = new StringUtilsSwing();
+
+    	Paragraph paragraph = new Paragraph("Input data & parameters");
+		Section section = chapter.addSection(paragraph, numberDepth);
+		//section.setNumberDepth(2);
+		addEmptyLine(paragraph, 1);
+
+        List<BamQCRegionReporter.InputDataSection> inputDescr = reporter.getInputDataSections();
+
+        for (BamQCRegionReporter.InputDataSection inputSection : inputDescr) {
+
+            Paragraph tablePara = new Paragraph(inputSection.getName());
+            section.addSection( tablePara, numberDepth + 1);
+
+            addEmptyLine( tablePara, 2 );
+
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(100);
+            table.setHorizontalAlignment(Element.ALIGN_LEFT);
+
+            for ( Map.Entry<String,String> entry : inputSection.getData().entrySet()  ) {
+                table.addCell(entry.getKey());
+                PdfPCell column = new PdfPCell(new Phrase(entry.getValue()));
+		        column.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		        table.addCell(column);
+            }
+
+            section.add(table);
+
+		}
+
+    }
+
     /**
      * Increase the progress bar in the percent depends on the
      * number of the element computed.

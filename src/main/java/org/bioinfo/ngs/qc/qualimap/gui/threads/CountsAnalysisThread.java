@@ -187,7 +187,7 @@ public class CountsAnalysisThread extends Thread {
 	 */
 	private void loadBufferedImages() throws IOException {
 		BamQCRegionReporter reporter = tabProperties.getReporter();
-        reporter.setInputDescription(prepareInputDescription());
+        prepareInputDescription(reporter);
 		reporter.setImageMap(new HashMap<String, BufferedImage>());
 		increaseProgressBar(currentStepLoaded, "Loading graphic: Global Saturation");
 		// Insert in the tab the graphic of the Global Saturations
@@ -213,8 +213,25 @@ public class CountsAnalysisThread extends Thread {
 		}
 	}
 
-    private String prepareInputDescription() {
-        StringBuffer inputDesc = new StringBuffer();
+    private void prepareInputDescription(BamQCRegionReporter reporter) {
+
+        HashMap<String,String> sample1Params = new HashMap<String, String>();
+        sample1Params.put("Path: ", settingsDlg.getFirstSampleDataPath());
+        reporter.addInputDataSection(settingsDlg.getName1(), sample1Params);
+
+        if (settingsDlg.secondSampleIsProvided()) {
+            HashMap<String,String> sample2Params = new HashMap<String, String>();
+            sample2Params.put("Path: ", settingsDlg.getSecondSampleDataPath());
+            reporter.addInputDataSection(settingsDlg.getName2(), sample2Params);
+        }
+
+        HashMap<String,String> otherParams = new HashMap<String, String>();
+        otherParams.put("Species info: ", infoFilePath);
+        otherParams.put("Threshold: ", "" + settingsDlg.getThreshold() );
+        reporter.addInputDataSection("Options", otherParams);
+
+
+        /*StringBuffer inputDesc = new StringBuffer();
 
         int width = 700;
 
@@ -247,9 +264,8 @@ public class CountsAnalysisThread extends Thread {
                         + settingsDlg.getThreshold() + HtmlJPanel.COLEND);
         inputDesc.append(HtmlJPanel.getTableFooter());
 
-        inputDesc.append(HtmlJPanel.getTableFooter());
+        inputDesc.append(HtmlJPanel.getTableFooter());*/
 
-        return inputDesc.toString();
     }
 
     private void addImage(BamQCRegionReporter reporter, String name){

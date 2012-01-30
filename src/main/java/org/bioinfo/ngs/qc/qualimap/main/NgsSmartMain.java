@@ -82,7 +82,10 @@ public class NgsSmartMain {
 		// launching GUI
 		System.setProperty("java.awt.headless", "false");
 		HomeFrame inst = new HomeFrame();
-        inst.setQualimapFolder(System.getenv("QUALIMAP_HOME"));
+        String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");
+        if (qualimapHomeDir != null) {
+            inst.setQualimapFolder(qualimapHomeDir);
+        }
         inst.setLocationRelativeTo(null);
 		inst.setVisible(true);		
 		

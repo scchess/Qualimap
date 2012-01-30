@@ -315,18 +315,51 @@ public class EpigeneticsAnalysisThread extends Thread {
 
         BamQCRegionReporter reporter = tabProperties.getReporter();
         reporter.setImageMap(imageMap);
-
-        reporter.setInputDescription(prepareInputDescription());
+        prepareInputDescription(reporter);
 
 
         return true;
 
     }
 
-    private String prepareInputDescription() {
-        StringBuffer inputDesc = new StringBuffer();
+    private static String join(String[] strings, char sep) {
+        String res = "";
+        for (String string : strings) {
+            res += string + sep;
+        }
 
-        inputDesc.append("<h2 align=center>Input data & parameters</h2>\n");
+        return res.substring(0, res.length() - 2);
+    }
+
+    private void prepareInputDescription(BamQCRegionReporter reporter) {
+
+        HashMap<String,String> selectionParams = new HashMap<String, String>();
+        selectionParams.put("Path: ", settingsDialog.getGeneSelectionPath().toString());
+        selectionParams.put("Column: ", settingsDialog.getGeneSelectionColumn() );
+        reporter.addInputDataSection("Gene selection", selectionParams);
+
+        HashMap<String,String> locationParams = new HashMap<String, String>();
+        locationParams.put("Left offset: ", settingsDialog.getGeneSelectionPath().toString() );
+        locationParams.put("Right offset: ", settingsDialog.getGeneSelectionColumn());
+        locationParams.put("Step: ", settingsDialog.getGeneSelectionColumn());
+        reporter.addInputDataSection("Location: ",  locationParams);
+
+        List<EpigeneticAnalysisDialog.DataItem> items = settingsDialog.getSampleItems();
+
+        for ( EpigeneticAnalysisDialog.DataItem item : items ) {
+            HashMap<String,String> sampleParams = new HashMap<String, String>();
+            sampleParams.put("Medip path: ", item.medipPath );
+            sampleParams.put("Control path: ", item.medipPath );
+            reporter.addInputDataSection("Sample " + item.name, sampleParams);
+        }
+
+        HashMap<String,String> otherParams = new HashMap<String, String>();
+        otherParams.put("Thresholds: ", join( settingsDialog.getClusterNumbers(), ',' ) );
+        otherParams.put("Smoothing length: ", settingsDialog.getReadSmoothingLength());
+        otherParams.put("Visualization: ", settingsDialog.getVisuzliationType() );
+        reporter.addInputDataSection("Options", otherParams);
+
+        /* inputDesc.append("<h2 align=center>Input data & parameters</h2>\n");
         inputDesc.append("<h3>Gene selection</h3>\n");
         inputDesc.append("<br>Gene selection file: ").append(settingsDialog.getGeneSelectionPath()).append("\n");
         inputDesc.append("<br>Gene selection file column: ").append(settingsDialog.getGeneSelectionColumn()).append("\n");
@@ -339,7 +372,7 @@ public class EpigeneticsAnalysisThread extends Thread {
         inputDesc.append("<h3>Samples</h3>\n");
 
 
-        /*for (String sampleId : sampleIds) {
+        for (String sampleId : sampleIds) {
             inputDesc.append("<h5>").append(sampleId).append("</h5>\n");
             List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems(sampleId);
             for (EpigeneticAnalysisDialog.DataItem item : sampleItems) {
@@ -350,7 +383,6 @@ public class EpigeneticsAnalysisThread extends Thread {
         }*/
 
 
-        return inputDesc.toString();
     }
 
 

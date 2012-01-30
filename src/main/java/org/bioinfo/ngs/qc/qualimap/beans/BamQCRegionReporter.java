@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYAnnotation;
-import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
@@ -26,7 +25,29 @@ import org.jfree.ui.RectangleInsets;
 public class BamQCRegionReporter implements Serializable {
 	
 	
-	private boolean paintChromosomeLimits;
+	static public class InputDataSection {
+        String sectionName;
+        Map<String, String> data;
+
+        InputDataSection(String sectionName) {
+            this.sectionName = sectionName;
+        }
+
+        public String getName() {
+            return sectionName;
+        }
+
+        public void setData(Map<String, String> paramsMap) {
+            data = paramsMap;
+        }
+
+        public Map<String,String> getData() {
+            return data;
+        }
+    }
+
+
+    private boolean paintChromosomeLimits;
 
 	/** Variable to contain the Charts generated in the class */
 	private Map<String, JFreeChart> mapCharts;
@@ -49,8 +70,11 @@ public class BamQCRegionReporter implements Serializable {
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
+    List<InputDataSection> inputDataSections;
+
     public BamQCRegionReporter() {
         inputDescription = "No input description available";
+        inputDataSections = new ArrayList<InputDataSection>();
     }
 
 
@@ -146,16 +170,6 @@ public class BamQCRegionReporter implements Serializable {
 
 		report.close();
 	}
-
-
-    public String getInputDescription() {
-        return inputDescription;
-    }
-
-    public void setInputDescription(String inputDescription) {
-        this.inputDescription = inputDescription;
-    }
-
 
     private XYToolTipGenerator createTooltipGenerator(List<Double> windowReferences, GenomeLocator locator ) {
 
@@ -502,6 +516,46 @@ public class BamQCRegionReporter implements Serializable {
 	}
 
 
+    public void addInputDataSection(String name, Map<String,String> paramsMap) {
+
+        InputDataSection section = new InputDataSection(name);
+        section.setData(paramsMap);
+
+        inputDataSections.add(section);
+    }
+
+    public String getInputDescription(int tableWidth) {
+
+
+        if (inputDataSections.isEmpty()) {
+            return "No input description is available";
+        }
+
+        StringBuilder inputDesc = new StringBuilder();
+
+        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters </b></p>" + HtmlJPanel.BR);
+        inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "EEEEEE"));
+
+
+        for (InputDataSection section : inputDataSections) {
+            inputDesc.append(HtmlJPanel.COLSTART + "<b>" + section.getName() +  "</b>");
+            Map<String,String> paramsMap = section.getData();
+            inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "FFFFFF"));
+            for ( Map.Entry<String,String> entry: paramsMap.entrySet() ) {
+                 inputDesc.append(HtmlJPanel.COLSTARTFIX + entry.getKey() + HtmlJPanel.COLMID
+                    + entry.getValue() + HtmlJPanel.COLEND);
+            }
+            inputDesc.append(HtmlJPanel.getTableFooter());
+            inputDesc.append(HtmlJPanel.COLEND);
+        }
+
+        inputDesc.append(HtmlJPanel.getTableFooter());
+
+        return inputDesc.toString();
+
+    }
+
+
 	// ******************************************************************************************
 	// ********************************* GETTERS / SETTERS **************************************
 	// ******************************************************************************************
@@ -830,5 +884,8 @@ public class BamQCRegionReporter implements Serializable {
 		this.stdCoverage = stdCoverage;
 	}
 
+    public List<InputDataSection> getInputDataSections() {
+        return inputDataSections;
+    }
 
 }

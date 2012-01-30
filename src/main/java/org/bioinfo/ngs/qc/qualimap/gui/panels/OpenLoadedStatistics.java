@@ -712,11 +712,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         HtmlJPanel htmlPanel = new HtmlJPanel();
 		htmlPanel.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
 		htmlPanel.setFont(HomeFrame.defaultFont);
-        //int width = rightScrollPane.getWidth() - 100;
+        int width = rightScrollPane.getWidth() - 100;
 
         StringBuffer inputDesc = new StringBuffer();
         inputDesc.append( HtmlJPanel.getHeader() );
-        inputDesc.append( reporter.getInputDescription() );
+        inputDesc.append( reporter.getInputDescription(width) );
         inputDesc.append( HtmlJPanel.getHeadFooter() );
 
         htmlPanel.setHtmlPage(inputDesc.toString());

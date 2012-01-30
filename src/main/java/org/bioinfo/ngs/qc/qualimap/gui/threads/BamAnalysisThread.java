@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
 
@@ -122,7 +123,7 @@ public class BamAnalysisThread extends Thread {
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
-            reporter.setInputDescription(prepareInputDescription());
+            prepareInputDescription(reporter);
 
 			// Draw the Chromosome Limits or not
 			reporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
@@ -146,7 +147,7 @@ public class BamAnalysisThread extends Thread {
 				//BamQCRegionReporter insideReporter = new BamQCRegionReporter();
 				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 
-                outsideReporter.setInputDescription(prepareInputDescription());
+                prepareInputDescription(outsideReporter);
 	
 				// Draw the Chromosome Limits or not
 				//insideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
@@ -203,42 +204,20 @@ public class BamAnalysisThread extends Thread {
         return yes ? "yes\n" : "no\n";
     }
 
-    private String prepareInputDescription() {
-        StringBuffer inputDesc = new StringBuffer();
+    private void prepareInputDescription(BamQCRegionReporter reporter) {
 
-        int width = 700;
-
-        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters </b></p>" + HtmlJPanel.BR);
-        inputDesc.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
-
-        inputDesc.append(HtmlJPanel.COLSTART + "<b>Alignment:</b>");
-
-        inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-        inputDesc.append(HtmlJPanel.COLSTARTFIX + "BAM file: " + HtmlJPanel.COLMID
-                + bamDialog.getInputFile() + HtmlJPanel.COLEND);
-        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Number of windows: " + HtmlJPanel.COLMID
-                + bamDialog.getNumberOfWindows() + HtmlJPanel.COLEND);
-        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Draw chromosome limits: " + HtmlJPanel.COLMID
-                + boolToStr(bamDialog.getDrawChromosomeLimits()) + HtmlJPanel.COLEND);
-        inputDesc.append(HtmlJPanel.getTableFooter());
-
+        HashMap<String,String> alignParams = new HashMap<String, String>();
+        alignParams.put("BAM file: ", bamDialog.getInputFile().toString());
+        alignParams.put("Number of windows: ", new Integer(bamDialog.getNumberOfWindows()).toString());
+        alignParams.put("Draw chromosome limits: ", boolToStr(bamDialog.getDrawChromosomeLimits()));
+        reporter.addInputDataSection("Alignment", alignParams);
 
         if (bamDialog.getRegionFile() != null) {
-            inputDesc.append(HtmlJPanel.COLSTART + "<b>Region:</b>");
-            inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-            inputDesc.append(HtmlJPanel.COLSTARTFIX + "GFF file: " + HtmlJPanel.COLMID
-                    + bamDialog.getRegionFile() + HtmlJPanel.COLEND);
-            inputDesc.append(HtmlJPanel.COLSTARTFIX + "Outside statistics: " + HtmlJPanel.COLMID
-                    + boolToStr(bamDialog.getComputeOutsideRegions()) + HtmlJPanel.COLEND);
-            inputDesc.append(HtmlJPanel.getTableFooter());
-
+            HashMap<String,String> regionParams = new HashMap<String, String>();
+            regionParams.put("GFF file: ", bamDialog.getRegionFile().toString());
+            regionParams.put("Outside statistics: ", boolToStr(bamDialog.getComputeOutsideRegions()));
+            reporter.addInputDataSection("GFF region", regionParams);
         }
-
-
-        inputDesc.append(HtmlJPanel.getTableFooter());
-
-
-        return inputDesc.toString();
 
     }
 
