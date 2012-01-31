@@ -1,11 +1,9 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.ParseException;
-import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.tool.OptionFactory;
 
-import javax.swing.*;
-import javax.swing.text.html.Option;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -21,9 +19,9 @@ public class CountReadsTool extends NgsSmartTool {
     String bamFile, gffFile, outFile, protocol;
 
     static String getProtocolTypes() {
-        return  CountReadsAnalysis.FORWARD_STRAND + ","
-                + CountReadsAnalysis.REVERSE_STRAND + " or "
-                + CountReadsAnalysis.NON_STRAND_SPECIFIC;
+        return  ComputeCountsTask.FORWARD_STRAND + ","
+                + ComputeCountsTask.REVERSE_STRAND + " or "
+                + ComputeCountsTask.NON_STRAND_SPECIFIC;
     }
 
     public CountReadsTool() {
@@ -53,13 +51,13 @@ public class CountReadsTool extends NgsSmartTool {
 
         if(commandLine.hasOption("protocol")) {
 		    protocol = commandLine.getOptionValue("stranded");
-            if ( !(protocol == CountReadsAnalysis.FORWARD_STRAND ||
-                    protocol == CountReadsAnalysis.NON_STRAND_SPECIFIC ||
-                    protocol == CountReadsAnalysis.NON_STRAND_SPECIFIC) ) {
+            if ( !(protocol == ComputeCountsTask.FORWARD_STRAND ||
+                    protocol == ComputeCountsTask.NON_STRAND_SPECIFIC ||
+                    protocol == ComputeCountsTask.NON_STRAND_SPECIFIC) ) {
                 throw  new ParseException("wrong protocol type! supported types: " + getProtocolTypes());
             }
         } else {
-            protocol = CountReadsAnalysis.FORWARD_STRAND;
+            protocol = ComputeCountsTask.FORWARD_STRAND;
         }
 
         if (commandLine.hasOption("outfile")) {
@@ -73,8 +71,8 @@ public class CountReadsTool extends NgsSmartTool {
     @Override
     protected void execute() throws Exception {
 
-        CountReadsAnalysis  countReadsAnalysis = new CountReadsAnalysis(bamFile, gffFile);
-        countReadsAnalysis.setProtocol(protocol);
+        ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamFile, gffFile);
+        computeCountsTask.setProtocol(protocol);
 
         PrintWriter outWriter = outFile.isEmpty() ?
                 new PrintWriter(new OutputStreamWriter(System.out)) :
@@ -82,9 +80,9 @@ public class CountReadsTool extends NgsSmartTool {
 
 
         try {
-            countReadsAnalysis.run();
+            computeCountsTask.run();
 
-            Map<String,Long> counts = countReadsAnalysis.getReadCounts();
+            Map<String,Long> counts = computeCountsTask.getReadCounts();
             for (Map.Entry<String,Long> entry: counts.entrySet()) {
                 String str = entry.getKey() + "\t" + entry.getValue().toString();
                 outWriter.println(str);
@@ -97,10 +95,10 @@ public class CountReadsTool extends NgsSmartTool {
             return;
         }
 
-        long totalCounted = countReadsAnalysis.getTotalReadCounts();
-        long noFeature = countReadsAnalysis.getNoFeatureNumber();
-        long notUnique = countReadsAnalysis.getAlignmentNotUniqueNumber();
-        long ambiguous = countReadsAnalysis.getAmbiguousNumber();
+        long totalCounted = computeCountsTask.getTotalReadCounts();
+        long noFeature = computeCountsTask.getNoFeatureNumber();
+        long notUnique = computeCountsTask.getAlignmentNotUniqueNumber();
+        long ambiguous = computeCountsTask.getAmbiguousNumber();
 
         StringBuilder message = new StringBuilder();
         message.append("Calculation successful!\n");

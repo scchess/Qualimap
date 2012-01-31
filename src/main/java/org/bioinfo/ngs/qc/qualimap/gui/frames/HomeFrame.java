@@ -14,7 +14,7 @@ import javax.swing.event.ChangeListener;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.dialogs.CountReadsDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ComputeCountsDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ExportGeneListDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
@@ -606,7 +606,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     }
 
     static public void showCountReadsDialog(Component parent) {
-        CountReadsDialog dlg = new CountReadsDialog();
+        ComputeCountsDialog dlg = new ComputeCountsDialog();
         dlg.setModal(true);
         dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dlg.setLocationRelativeTo(parent);

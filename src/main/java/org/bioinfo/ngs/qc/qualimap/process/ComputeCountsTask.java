@@ -20,7 +20,7 @@ import java.util.*;
  * Time: 2:52 PM
  */
 
-public class CountReadsAnalysis {
+public class ComputeCountsTask  {
 
     Map<String,Long> readCounts;
     Map<String, GenomicRegionSet> chromosomeRegionSetMap;
@@ -36,7 +36,7 @@ public class CountReadsAnalysis {
     public static final String FORWARD_STRAND = "forward-stranded";
     public static final String REVERSE_STRAND = "reverse-stranded";
 
-    public CountReadsAnalysis(String pathToBamFile, String pathToGffFile) {
+    public ComputeCountsTask(String pathToBamFile, String pathToGffFile) {
         this.pathToBamFile = pathToBamFile;
         this.pathToGffFile = pathToGffFile;
         protocol = NON_STRAND_SPECIFIC;

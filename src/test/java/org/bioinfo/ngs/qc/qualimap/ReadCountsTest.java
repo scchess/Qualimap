@@ -1,11 +1,10 @@
 package org.bioinfo.ngs.qc.qualimap;
 
-import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -68,26 +67,26 @@ public class ReadCountsTest {
 
             }
 
-            CountReadsAnalysis countReadsAnalysis = new CountReadsAnalysis(pathToBamFile, pathToRegionFile);
+            ComputeCountsTask computeCountsTask = new ComputeCountsTask(pathToBamFile, pathToRegionFile);
 
             String strandType = test.getSpecificAttribute("strand");
             if (strandType != null) {
-                countReadsAnalysis.setProtocol(strandType);
+                computeCountsTask.setProtocol(strandType);
             }
 
             try {
-                countReadsAnalysis.run();
-                Map<String,Long> readCounts = countReadsAnalysis.getReadCounts();
+                computeCountsTask.run();
+                Map<String,Long> readCounts = computeCountsTask.getReadCounts();
                 List<String> geneNames = asSortedList(readCounts.keySet());
 
                 /*for (String key : geneNames) {
                     System.out.println(key + ":" + readCounts.get(key));
                 }*/
 
-                System.out.println("No feature: " + countReadsAnalysis.getNoFeatureNumber());
-                System.out.println("Not unique alignment: " + countReadsAnalysis.getAlignmentNotUniqueNumber());
-                System.out.println("Not aligned: " + countReadsAnalysis.getNotAlignedNumber());
-                System.out.println("Ambiguous: " + countReadsAnalysis.getAmbiguousNumber());
+                System.out.println("No feature: " + computeCountsTask.getNoFeatureNumber());
+                System.out.println("Not unique alignment: " + computeCountsTask.getAlignmentNotUniqueNumber());
+                System.out.println("Not aligned: " + computeCountsTask.getNotAlignedNumber());
+                System.out.println("Ambiguous: " + computeCountsTask.getAmbiguousNumber());
 
 
                 loadExpectedResults(pathToExpectedResults) ;

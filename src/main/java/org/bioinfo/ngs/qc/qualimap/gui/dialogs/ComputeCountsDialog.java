@@ -2,7 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ import java.util.Map;
  * Date: 1/10/12
  * Time: 3:03 PM
  */
-public class CountReadsDialog extends JDialog implements ActionListener{
+public class ComputeCountsDialog extends JDialog implements ActionListener{
 
 
     JTextField bamPathEdit, gffPathEdit, outputPathField;
@@ -28,7 +28,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
     Thread countReadsThread;
 
 
-    public CountReadsDialog() {
+    public ComputeCountsDialog() {
 
         getContentPane().setLayout(new MigLayout("insets 20"));
 
@@ -58,9 +58,9 @@ public class CountReadsDialog extends JDialog implements ActionListener{
 
 
         add(new JLabel("Protocol:"));
-        String[] comboItems = {CountReadsAnalysis.NON_STRAND_SPECIFIC,
-                CountReadsAnalysis.FORWARD_STRAND,
-                CountReadsAnalysis.REVERSE_STRAND};
+        String[] comboItems = {ComputeCountsTask.NON_STRAND_SPECIFIC,
+                ComputeCountsTask.FORWARD_STRAND,
+                ComputeCountsTask.REVERSE_STRAND};
         strandTypeCombo = new JComboBox(comboItems);
         add(strandTypeCombo,"wrap");
 
@@ -105,7 +105,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
                 JOptionPane.showMessageDialog(this, errMsg, getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            final CountReadsDialog frame = this;
+            final ComputeCountsDialog frame = this;
 
             countReadsThread = new Thread()  {
                 public void run() {
@@ -113,15 +113,15 @@ public class CountReadsDialog extends JDialog implements ActionListener{
                     frame.setUiEnabled(false);
                     String bamPath = bamPathEdit.getText();
                     String gffPath = gffPathEdit.getText();
-                    CountReadsAnalysis  countReadsAnalysis = new CountReadsAnalysis(bamPath, gffPath);
-                    countReadsAnalysis.setProtocol(strandTypeCombo.getSelectedItem().toString());
+                    ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamPath, gffPath);
+                    computeCountsTask.setProtocol(strandTypeCombo.getSelectedItem().toString());
 
                     try {
-                        countReadsAnalysis.run();
+                        computeCountsTask.run();
 
                         PrintWriter outWriter = new PrintWriter(new FileWriter(outputPathField.getText()));
 
-                        Map<String,Long> counts = countReadsAnalysis.getReadCounts();
+                        Map<String,Long> counts = computeCountsTask.getReadCounts();
                         for (Map.Entry<String,Long> entry: counts.entrySet()) {
                             String str = entry.getKey() + "\t" + entry.getValue().toString();
                             outWriter.println(str);
@@ -136,10 +136,10 @@ public class CountReadsDialog extends JDialog implements ActionListener{
                     }
 
 
-                    long totalCounted = countReadsAnalysis.getTotalReadCounts();
-                    long noFeature = countReadsAnalysis.getNoFeatureNumber();
-                    long notUnique = countReadsAnalysis.getAlignmentNotUniqueNumber();
-                    long ambiguous = countReadsAnalysis.getAmbiguousNumber();
+                    long totalCounted = computeCountsTask.getTotalReadCounts();
+                    long noFeature = computeCountsTask.getNoFeatureNumber();
+                    long notUnique = computeCountsTask.getAlignmentNotUniqueNumber();
+                    long ambiguous = computeCountsTask.getAmbiguousNumber();
 
                     StringBuilder message = new StringBuilder();
                     message.append("Calculation succesful!\n");
