@@ -36,6 +36,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     JTable inputDataTable;
     JPanel buttonPanel, locationPanel;
     JProgressBar  progressBar;
+    JTextArea logArea;
     SampleDataTableModel sampleTableModel;
     HomeFrame homeFrame;
 
@@ -45,7 +46,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
-    static final boolean DEBUG = false;
+    static final boolean DEBUG = true;
 
     public String getGeneSelectionPath() {
         return geneSelectionField.getText();
@@ -84,6 +85,10 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         return sampleName.getText();
     }
 
+    public JTextArea getLogArea() {
+        return logArea;
+    }
+
     static public class DataItem {
         public String name;
         public String medipPath;
@@ -93,7 +98,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     static class SampleDataTableModel extends AbstractTableModel {
 
         List<DataItem> sampleDataList;
-        final String[] columnNames = { "Name", "Medip Path", "Input Path"};
+        final String[] columnNames = { "Replicate Name", "Sample BAM file", "Control BAM file"};
 
         public SampleDataTableModel() {
             sampleDataList = new ArrayList<DataItem>();
@@ -163,46 +168,12 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, null);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
-        // Gene selection
-        add(new JLabel("Gene selection:"));
-
-        geneSelectionField = new JTextField(30);
-        geneSelectionField.setToolTipText("Path to gene selection file");
-        add(geneSelectionField, "grow");
-
-        browseGeneSelectionButton = new JButton();
-		browseGeneSelectionButton.setText("...");
-		browseGeneSelectionButton.addKeyListener(keyListener);
-        browseGeneSelectionButton.addActionListener(
-                new BrowseButtonActionListener(this, geneSelectionField,"Gene selection files", "txt"));
-        add(browseGeneSelectionButton, "align center, wrap");
-
-        add(new JLabel("Column:"));
-        columnSpinner = new JSpinner(new SpinnerNumberModel(1, 1,20,1));
-        add(columnSpinner, "wrap");
-
-        add(new JLabel("Relative location:"), "span 2, wrap");
-
-        locationPanel = new JPanel();
-        locationPanel.setLayout(new MigLayout("insets 5"));
-
-        locationPanel.add(new JLabel("Left offset:"));
-        leftOffsetSpinner = new JSpinner(new SpinnerNumberModel(500, 1,1000000,1));
-        locationPanel.add(leftOffsetSpinner, "");
-        locationPanel.add(new JLabel("Right offset:"));
-        rightOffsetSpinner = new JSpinner(new SpinnerNumberModel(500, 1,10000000,1));
-        locationPanel.add(rightOffsetSpinner, "");
-        locationPanel.add(new JLabel("Step:"));
-        stepSpinner = new JSpinner(new SpinnerNumberModel(100, 1,10000,1));
-        locationPanel.add(stepSpinner, "wrap");
-        add(locationPanel, "span, wrap");
-
         add(new JLabel("Sample name: "), "");
         sampleName = new JTextField(20);
         sampleName.setText("Sample 1");
         add(sampleName, "wrap");
 
-        add(new JLabel("MEDIP input data:"), "span 2, wrap");
+        add(new JLabel("Alignment data:"), "span 2, wrap");
 
         sampleTableModel = new SampleDataTableModel();
         inputDataTable = new JTable(sampleTableModel);
@@ -227,20 +198,63 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
+        // Gene selection
+        add(new JLabel("Transcript IDs:"));
+
+        geneSelectionField = new JTextField(30);
+        geneSelectionField.setToolTipText("Path to gene selection file");
+        add(geneSelectionField, "grow");
+
+        browseGeneSelectionButton = new JButton();
+		browseGeneSelectionButton.setText("...");
+		browseGeneSelectionButton.addKeyListener(keyListener);
+        browseGeneSelectionButton.addActionListener(
+                new BrowseButtonActionListener(this, geneSelectionField,"Gene selection files", "txt"));
+        add(browseGeneSelectionButton, "align center, wrap");
+
+        add(new JLabel("Column of the transcript IDs:"));
+        columnSpinner = new JSpinner(new SpinnerNumberModel(1, 1,20,1));
+        columnSpinner.setToolTipText("Select in which column of the input file the transcript IDs can be found");
+        add(columnSpinner, "wrap");
+
+        add(new JLabel("Region of interest"), "span 2, wrap");
+
+        locationPanel = new JPanel();
+        locationPanel.setLayout(new MigLayout("insets 5"));
+
+        locationPanel.add(new JLabel("Left offset:"));
+        leftOffsetSpinner = new JSpinner(new SpinnerNumberModel(2000, 1,1000000,1));
+        locationPanel.add(leftOffsetSpinner, "");
+        locationPanel.add(new JLabel("Right offset:"));
+        rightOffsetSpinner = new JSpinner(new SpinnerNumberModel(500, 1,10000000,1));
+        locationPanel.add(rightOffsetSpinner, "");
+        locationPanel.add(new JLabel("Bin size (bp):"));
+        stepSpinner = new JSpinner(new SpinnerNumberModel(100, 1,10000,1));
+        locationPanel.add(stepSpinner, "wrap");
+        add(locationPanel, "span, wrap");
+
         add(new JLabel("Clusters"));
         clustersField = new JTextField((20));
         clustersField.setText("10,15,20,25,30");
         add(clustersField, "wrap");
 
-        add(new JLabel("Read smoothing length:"));
+        add(new JLabel("Fragment length:"));
         smoothingLengthSpinner = new JSpinner(new SpinnerNumberModel(300, 100,500,1));
         add(smoothingLengthSpinner, "wrap");
 
         String[] vizTypes = { "Heatmap", "Line" };
         vizTypeBox = new JComboBox(vizTypes);
-        add(new JLabel("Visuzliation type:"), "");
+        add(new JLabel("Visualization type:"), "");
         add(vizTypeBox, "wrap 30px");
 
+        add(new JLabel("Log"), "wrap");
+        logArea = new JTextArea(10,40);
+        logArea.setEditable(false);
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setViewportView(logArea);
+        add(scrollPane, "span, grow, wrap 30px");
 
         UIManager.put("ProgressBar.selectionBackground", Color.black);
         UIManager.put("ProgressBar.selectionForeground", Color.black);
@@ -264,7 +278,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
         pack();
 
-        setTitle("MEDIP samples comparison");
+        setTitle("Epigenomics");
         setResizable(false);
 
         if (DEBUG) {

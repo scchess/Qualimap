@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -68,6 +69,9 @@ public class EpigeneticsAnalysisThread extends Thread {
                     if (line.contains("STATUS:")) {
                         parentDialog.setProgressStatus(line.split(":")[1]);
                     }
+                    JTextArea logArea = parentDialog.getLogArea();
+                    logArea.append(line + "\n");
+                    logArea.setCaretPosition(logArea.getText().length());
                 }
 
             } catch (IOException e) {
@@ -90,6 +94,7 @@ public class EpigeneticsAnalysisThread extends Thread {
     public void run()  {
 
         settingsDialog.setUiEnabled(false);
+        settingsDialog.getLogArea().setText("");
 
         StringBuilder outputDir = tabProperties.createDirectory();
 
@@ -112,15 +117,21 @@ public class EpigeneticsAnalysisThread extends Thread {
             settingsDialog.setProgressStatus("Running Rscript command...");
             Process p = Runtime.getRuntime().exec(commandString);
 
-            BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
-            OutputParsingThread outputParser= new OutputParsingThread( outputReader, settingsDialog ) ;
+            BufferedReader outputReader = new BufferedReader( new InputStreamReader(
+                    new SequenceInputStream( p.getInputStream(), p.getErrorStream() )
+            ) );
 
-            outputParser.start();
-            p.waitFor();
-            outputParser.join();
+            OutputParsingThread outputParsingThread= new OutputParsingThread( outputReader, settingsDialog ) ;
+            outputParsingThread.start();
+            int res = p.waitFor();
+            outputParsingThread.join();
+
+            if (res != 0) {
+                throw new RuntimeException("The RScript process finished with error.\n" +
+                        " Check log for details.");
+            }
 
             settingsDialog.setProgressStatus("Loading images...");
-            //if (!loadBufferedImages("/home/kokonech/result") ) {
             if (!loadBufferedImages(outputDir.toString()) ) {
                 throw new RuntimeException("No images generated.");
             }
