@@ -6,6 +6,8 @@ import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -21,7 +23,7 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
 
     JTextField outputPathField;
     JTextArea genesTextArea;
-    JButton okButton, cancelButton;
+    JButton okButton, cancelButton, copyButton;
     JComboBox clusterNumberBox;
     JScrollPane scrollPane;
     HashMap<Integer, String[]> geneListMap;
@@ -79,6 +81,10 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 20"));
 
+        copyButton = new JButton("Copy");
+        copyButton.setActionCommand("COPY");
+        copyButton.addActionListener(this);
+
         okButton = new JButton("OK");
         okButton.setActionCommand(Constants.OK_COMMAND);
         okButton.addActionListener(this);
@@ -88,7 +94,8 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
         cancelButton.addActionListener(this);
         buttonPanel.add(cancelButton);
 
-        add(buttonPanel, "span, align right, wrap");
+        add( copyButton, "align left" );
+        add (buttonPanel, "span 2, align right, wrap");
 
         pack();
 
@@ -148,11 +155,18 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
                         "Calculate counts", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            setVisible(false);
 
 
+        } else if (actionEvent.getActionCommand().equals(Constants.CANCEL_COMMAND)) {
+            setVisible(false);
+        } else if (actionEvent.getActionCommand().equals("COPY")) {
+            String selection = genesTextArea.getText();
+            StringSelection data = new StringSelection(selection);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(data, data);
         }
 
-        setVisible(false);
 
 
 
