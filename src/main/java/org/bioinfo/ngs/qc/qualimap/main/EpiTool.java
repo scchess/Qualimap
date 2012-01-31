@@ -28,7 +28,7 @@ public class EpiTool extends NgsSmartTool {
     }
 
     public EpiTool() {
-        super("epigenetics");
+        super("epigenomics");
     }
 
     @Override

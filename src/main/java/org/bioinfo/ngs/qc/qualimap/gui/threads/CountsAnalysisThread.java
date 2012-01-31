@@ -8,18 +8,13 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.bioinfo.commons.exec.Command;
-import org.bioinfo.commons.exec.SingleProcess;
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.CountsAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
 
 /**
  * Class to manage a thread that do the analysis from RNA-Seq of the input files
@@ -150,36 +145,24 @@ public class CountsAnalysisThread extends Thread {
         percentLoad = (100.0 / numStepsRnaToDo);
 
         increaseProgressBar(currentStepLoaded, "Running Rscript command... ");
-        Command cmd = new Command(command);
-        System.out.println(command);
-        SingleProcess process = new SingleProcess(cmd);
-        process.getRunnableProcess().run();
+
         try {
+
+            Process p = Runtime.getRuntime().exec(command);
+            int res = p.waitFor();
+            if (res != 0) {
+                throw new RuntimeException("The process returned non-zero status!");
+            }
+
             loadBufferedImages();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            //TODO: show an error message and reset UI
             e.printStackTrace();
+            return;
         }
         String inputFileName = settingsDlg.getInputDataName();
         settingsDlg.getHomeFrame().addNewPane(inputFileName, tabProperties);
 	}
-
-
-    void calculateCounts(String pathToBamFile, String pathToGffFile, String outpath) throws FileFormatException, IOException, NoSuchMethodException {
-
-        CountReadsAnalysis countReadsAnalysis = new CountReadsAnalysis(pathToBamFile, pathToGffFile);
-        countReadsAnalysis.run();
-
-        PrintWriter outWriter = new PrintWriter(new FileWriter(outpath));
-
-        Map<String,Long>  counts = countReadsAnalysis.getReadCounts();
-        for (Map.Entry<String,Long> entry: counts.entrySet()) {
-            String str = entry.getKey() + "\t" + entry.getValue().toString();
-            outWriter.println(str);
-        }
-
-        outWriter.flush();
-
-    }
 
     /**
 	 * Function to load the images into a map of buffered images
@@ -229,42 +212,6 @@ public class CountsAnalysisThread extends Thread {
         otherParams.put("Species info: ", infoFilePath);
         otherParams.put("Threshold: ", "" + settingsDlg.getThreshold() );
         reporter.addInputDataSection("Options", otherParams);
-
-
-        /*StringBuffer inputDesc = new StringBuffer();
-
-        int width = 700;
-
-        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters </b></p>" + HtmlJPanel.BR);
-        inputDesc.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
-
-        inputDesc.append(HtmlJPanel.COLSTART + "<b>" + settingsDlg.getName1() + "</b>");
-
-        inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Path: " + HtmlJPanel.COLMID
-                + settingsDlg.getFirstSampleDataPath() + HtmlJPanel.COLEND);
-        inputDesc.append(HtmlJPanel.getTableFooter());
-
-
-        if (settingsDlg.secondSampleIsProvided()) {
-            inputDesc.append(HtmlJPanel.COLSTART + "<b>" + settingsDlg.getName2() + "</b>");
-
-            inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-            inputDesc.append(HtmlJPanel.COLSTARTFIX + "Path: " + HtmlJPanel.COLMID
-                    + settingsDlg.getFirstSampleDataPath() + HtmlJPanel.COLEND);
-            inputDesc.append( HtmlJPanel.getTableFooter() );
-        }
-
-        inputDesc.append(HtmlJPanel.COLSTART + "<b> Options </b>");
-
-        inputDesc.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Species info: " + HtmlJPanel.COLMID
-                + infoFilePath + HtmlJPanel.COLEND);
-        inputDesc.append(HtmlJPanel.COLSTARTFIX + "Threshold: " + HtmlJPanel.COLMID
-                        + settingsDlg.getThreshold() + HtmlJPanel.COLEND);
-        inputDesc.append(HtmlJPanel.getTableFooter());
-
-        inputDesc.append(HtmlJPanel.getTableFooter());*/
 
     }
 

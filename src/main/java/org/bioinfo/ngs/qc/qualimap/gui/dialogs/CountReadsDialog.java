@@ -33,7 +33,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
         getContentPane().setLayout(new MigLayout("insets 20"));
 
 
-        add(new JLabel("Input BAM:"), "");
+        add(new JLabel("BAM file:"), "");
 
         bamPathEdit = new JTextField(40);
         bamPathEdit.setToolTipText("Path to BAM alignment file");
@@ -44,7 +44,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
                 bamPathEdit, "BAM files", "bam"));
         add(browseBamButton, "align center, wrap");
 
-        add(new JLabel("Input GFF file:"), "");
+        add(new JLabel("GFF file with annotations:"), "");
 
         gffPathEdit = new JTextField(40);
         gffPathEdit.setToolTipText("Path to regions file");
@@ -67,6 +67,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
         add(new JLabel("Output:"), "");
 
         outputPathField = new JTextField(40);
+        outputPathField.setText("bam.file.counts");
         add(outputPathField, "grow");
 
         JButton browseOutputPathButton = new JButton("...");
@@ -91,7 +92,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
 
         pack();
 
-        setTitle("Calculate read counts");
+        setTitle("Compute counts");
 
 
     }
@@ -101,7 +102,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
         if (actionEvent.getActionCommand().equals(Constants.OK_COMMAND)) {
             String errMsg = validateInput();
             if (!errMsg.isEmpty()) {
-                JOptionPane.showMessageDialog(this, errMsg, "Calculate counts", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, errMsg, getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
             final CountReadsDialog frame = this;
@@ -129,7 +130,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
 
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(frame, e.getMessage(),
-                                "Calculate counts", JOptionPane.ERROR_MESSAGE);
+                                getTitle(), JOptionPane.ERROR_MESSAGE);
                         frame.setUiEnabled(true);
                         return;
                     }
@@ -149,7 +150,7 @@ public class CountReadsDialog extends JDialog implements ActionListener{
                     message.append("Result is saved to file ").append(outputPathField.getText());
 
                     JOptionPane.showMessageDialog(frame, message.toString(),
-                            "Calculate counts", JOptionPane.INFORMATION_MESSAGE);
+                            getTitle(), JOptionPane.INFORMATION_MESSAGE);
 
                     frame.setUiEnabled(true);
 
@@ -189,11 +190,15 @@ public class CountReadsDialog extends JDialog implements ActionListener{
 
         File outputFile = new File(outputPathField.getText());
         try {
-           outputFile.createNewFile();
+           if (!outputFile.createNewFile()) {
+               throw new IOException();
+           }
         } catch (IOException e) {
             return "Output file path is not valid!";
         }
-        outputFile.delete();
+        if (!outputFile.delete()) {
+            return "Output path is not valid! Deleting probing directory failed.";
+        }
 
         return "";
     }

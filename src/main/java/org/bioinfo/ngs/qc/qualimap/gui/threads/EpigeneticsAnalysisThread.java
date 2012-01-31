@@ -3,7 +3,6 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by kokonech
@@ -41,8 +39,8 @@ public class EpigeneticsAnalysisThread extends Thread {
     static final String TAG_MEDIPS = "medips";
     static final String TAG_NAME = "name";
     static final String TAG_INPUT = "input";
-    static final String TAG_MICROARRAY = "microarray";
-    static final String TAG_THRESHOLD = "threshold";
+    //static final String TAG_MICROARRAY = "microarray";
+    //static final String TAG_THRESHOLD = "threshold";
     static final String TAG_CLUSTERS = "clusters";
     static final String TAG_NUM = "num";
     static final String TAG_FRAGMENT = "fragment";
@@ -91,6 +89,17 @@ public class EpigeneticsAnalysisThread extends Thread {
 
     }
 
+    String createCommand(String outputDir) {
+        String commandString = "Rscript " + settingsDialog.getHomeFrame().getQualimapFolder()
+                + "scripts"+ File.separator + "paintLocation.r";
+
+        commandString += " --fileConfig=" + outputDir + "config.xml";
+        commandString += " --homedir=" + settingsDialog.getHomeFrame().getQualimapFolder() + "scripts";
+        commandString += " --vizType=" + settingsDialog.getVisuzliationType();
+
+        return commandString;
+    }
+
     public void run()  {
 
         settingsDialog.setUiEnabled(false);
@@ -104,17 +113,12 @@ public class EpigeneticsAnalysisThread extends Thread {
             settingsDialog.setProgressStatus("Generating configuration file...");
             createConfigFile(outputDir.toString(), "config.xml");
 
-
             // Create the command to execute
-            String commandString = "Rscript " + settingsDialog.getHomeFrame().getQualimapFolder()
-                     + "scripts"+ File.separator + "paintLocation.r";
-
-            commandString += " --fileConfig=" + outputDir.toString() + "config.xml";
-            commandString += " --homedir=" + settingsDialog.getHomeFrame().getQualimapFolder() + "scripts";
-            commandString += " --vizType=" + settingsDialog.getVisuzliationType();
-
+            String commandString = createCommand(outputDir.toString());
             System.out.println(commandString);
+
             settingsDialog.setProgressStatus("Running Rscript command...");
+
             Process p = Runtime.getRuntime().exec(commandString);
 
             BufferedReader outputReader = new BufferedReader( new InputStreamReader(
@@ -345,12 +349,12 @@ public class EpigeneticsAnalysisThread extends Thread {
     private void prepareInputDescription(BamQCRegionReporter reporter) {
 
         HashMap<String,String> selectionParams = new HashMap<String, String>();
-        selectionParams.put("Path: ", settingsDialog.getGeneSelectionPath().toString());
+        selectionParams.put("Path: ", settingsDialog.getGeneSelectionPath());
         selectionParams.put("Column: ", settingsDialog.getGeneSelectionColumn() );
         reporter.addInputDataSection("Gene selection", selectionParams);
 
         HashMap<String,String> locationParams = new HashMap<String, String>();
-        locationParams.put("Left offset: ", settingsDialog.getGeneSelectionPath().toString() );
+        locationParams.put("Left offset: ", settingsDialog.getGeneSelectionPath() );
         locationParams.put("Right offset: ", settingsDialog.getGeneSelectionColumn());
         locationParams.put("Step: ", settingsDialog.getGeneSelectionColumn());
         reporter.addInputDataSection("Location: ",  locationParams);
@@ -369,30 +373,6 @@ public class EpigeneticsAnalysisThread extends Thread {
         otherParams.put("Smoothing length: ", settingsDialog.getReadSmoothingLength());
         otherParams.put("Visualization: ", settingsDialog.getVisuzliationType() );
         reporter.addInputDataSection("Options", otherParams);
-
-        /* inputDesc.append("<h2 align=center>Input data & parameters</h2>\n");
-        inputDesc.append("<h3>Gene selection</h3>\n");
-        inputDesc.append("<br>Gene selection file: ").append(settingsDialog.getGeneSelectionPath()).append("\n");
-        inputDesc.append("<br>Gene selection file column: ").append(settingsDialog.getGeneSelectionColumn()).append("\n");
-        inputDesc.append("<br><b>Relative location</b>\n");
-        inputDesc.append("<br>Left offset: ").append(settingsDialog.getLeftOffset()).append("\n");
-        inputDesc.append("<br>Right offset: ").append(settingsDialog.getRightOffset()).append("\n");
-        inputDesc.append("<br>Step offset: ").append(settingsDialog.getStep()).append("\n");
-
-        inputDesc.append("<br>Analyzed genomic region: ");
-        inputDesc.append("<h3>Samples</h3>\n");
-
-
-        for (String sampleId : sampleIds) {
-            inputDesc.append("<h5>").append(sampleId).append("</h5>\n");
-            List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems(sampleId);
-            for (EpigeneticAnalysisDialog.DataItem item : sampleItems) {
-                inputDesc.append("<br>Sample name: ").append(item.name).append("\n");
-                inputDesc.append("<br>Input path: ").append(item.inputPath).append("\n");
-                inputDesc.append("<br>Medip path: ").append(item.medipPath).append("\n");
-            }
-        }*/
-
 
     }
 

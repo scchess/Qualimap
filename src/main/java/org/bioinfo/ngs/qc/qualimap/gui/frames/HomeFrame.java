@@ -2,18 +2,10 @@ package org.bioinfo.ngs.qc.qualimap.gui.frames;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -154,24 +146,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	}
 
 
-	public void copyFile(InputStream from ,File to){
-		InputStreamReader asd = new InputStreamReader(from);
-		FileReader in =  (FileReader)asd;
-		FileWriter out;
-        try {
-	        out = new FileWriter(to);
-	        int c;
-
-	        while ((c = in.read()) != -1)
-	        	out.write(c);
-
-	        in.close();
-	        out.close();
-        } catch (Exception e) {
-	        e.printStackTrace();
-        }
-	}
-
     private String checkForRScript()  {
 
         String errMsg = "";
@@ -191,6 +165,50 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         return errMsg;
     }
 
+    private String checkForRDependencies() {
+
+        String path = getQualimapFolder() + File.separator;
+
+        try {
+            final Process p = Runtime.getRuntime().exec("Rscript " + path + "scripts/init.r");
+            final StringBuilder missingPackages = new StringBuilder();
+            Thread outputReadingThread = new Thread(new Runnable() { public void run() {
+                BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
+                String line;
+                try {
+                    while ((line = outputReader.readLine()) != null) {
+                        if (line.contains("ERROR!")) {
+                            String packageName = line.split(":")[1].trim();
+                            System.out.println(packageName);
+                            missingPackages.append(" - ").append(packageName).append("\n");
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } } );
+            outputReadingThread.start();
+            int res = p.waitFor();
+            outputReadingThread.join();
+
+            if (res != 0) {
+                return "Failed to check for R dependencies! RScript process finished with errors.";
+            }
+
+            if (missingPackages.length() > 0) {
+                return "The following R packages are missing:\n" + missingPackages.toString() +
+                       "Some features are dependent on these packages.\n" +
+                       "To enable them please install the missing packages.\n";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to check for R dependencies! RScript process finished with errors.";
+         }
+
+        return "";
+
+    }
 
 	private static boolean isRunningJavaWebStart() {
     	String jwsVersion = System.getProperty("javawebstart.version", null);
@@ -222,9 +240,17 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
+        String missingPackagesMsg = checkForRDependencies();
+        if (!missingPackagesMsg.isEmpty() ) {
+            JOptionPane.showMessageDialog(this, missingPackagesMsg, "Checking for required R packages",
+                    JOptionPane.INFORMATION_MESSAGE);
+            rIsAvailable = false;
+        }
+
         if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
 			splashWindow = new SplashWindow(this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png"), this, 4000);
 		}
+
 		try {
 			Image iconImage = new ImageIcon(getClass().getResource(Constants.pathImages + "dna.png")).getImage();
 			this.setIconImage(iconImage);
@@ -250,7 +276,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	
 
 	private void createMenuBar() {
-		setJMenuBar( new JMenuBar());
+
+        setJMenuBar( new JMenuBar());
 		JMenu analysisMenu = getMenu("Analysis",KeyEvent.VK_A);
 		JMenu fileMenu = getMenu("Report",KeyEvent.VK_F);
 		JMenu toolsMenu = getMenu("Tools", KeyEvent.VK_T);
@@ -262,7 +289,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    JMenuItem rnaSeqItem =   addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C");
         rnaSeqItem.setEnabled(rIsAvailable);
 		analysisMenu.add(rnaSeqItem);
-        JMenuItem epiMenuItem =  addMenuItem("Epigenetics", "epigenetics", "chart_curve_add.png", "ctrl pressed E");
+        JMenuItem epiMenuItem =  addMenuItem("Epigenomics", "epigenomics", "chart_curve_add.png", "ctrl pressed E");
         epiMenuItem.setEnabled(rIsAvailable);
         analysisMenu.add(epiMenuItem);
 		analysisMenu.addSeparator();
@@ -284,7 +311,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");
         fileMenu.add(closeAllTabsItem);
 
-        toolsMenu.add(addMenuItem("Caclulate counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
+        toolsMenu.add(addMenuItem("Compute counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
 
 		helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","ctrl pressed H"));
 		helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "help.png",null));
@@ -526,8 +553,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_EXOME);
 	    }else if(e.getActionCommand().equalsIgnoreCase("counts")){
 	        runCountsAnalysis();
-	    }else if(e.getActionCommand().equals("epigenetics")) {
-            runEpigeneticsAnalysis();
+	    }else if(e.getActionCommand().equals("epigenomics")) {
+            runEpigenomicsAnalysis();
         } else if (e.getActionCommand().equals("calc-counts")) {
             showCountReadsDialog(this);
         } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
@@ -587,7 +614,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     }
 
 
-    private void runEpigeneticsAnalysis(){
+    private void runEpigenomicsAnalysis(){
         popUpDialog = new EpigeneticAnalysisDialog(this);
         popUpDialog.setModal(true);
         popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

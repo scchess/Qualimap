@@ -1,11 +1,9 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
-import com.sun.org.apache.bcel.internal.classfile.Constant;
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisRnaThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
@@ -13,13 +11,11 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
@@ -40,9 +36,15 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     JRadioButton infoFileButton, speciesButton;
     HomeFrame homeFrame;
     StringBuilder stringValidation;
-    static final String inputFileToolTip = "To calculate feature counts from BAM file and GFF file " +
-            "use menu item Tools->Calculate Counts or button below.\n";
+    JTextArea logArea;
 
+    static final String INPUT_FILE_TOOLTIP = "To compute feature counts from BAM file and GFF file " +
+            "use menu item Tools->Compute Counts or button below.";
+
+    static final String INFO_FILE_TOOLTIP = "File containing the biological classification of features in the count files.";
+
+    static final String SPECIES_ITEM_TOOLTIP = "If the Info File is not given by the user, " +
+            "Qualimap provides the Ensemble biotype classification for certain species";
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -56,12 +58,12 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
-        fileLabel1 = new JLabel("First sample (feature counts):");
+        fileLabel1 = new JLabel("First sample (counts):");
         add(fileLabel1, "");
 
         filePathEdit1 = new JTextField(40);
         filePathEdit1.addKeyListener(keyListener);
-        filePathEdit1.setToolTipText(inputFileToolTip);
+        filePathEdit1.setToolTipText(INPUT_FILE_TOOLTIP);
         add(filePathEdit1, "grow");
 
         browseFileButton1 = new JButton();
@@ -72,16 +74,16 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         add(browseFileButton1, "align center, wrap");
 
         compartativeAnalysisCheckBox = new JCheckBox();
-        compartativeAnalysisCheckBox.setText("Perform comparison with other sample");
+        compartativeAnalysisCheckBox.setText("Compare with other sample");
         compartativeAnalysisCheckBox.addActionListener(this);
         add(compartativeAnalysisCheckBox, "wrap");
 
-        fileLabel2 = new JLabel("Second sample (feature counts):");
+        fileLabel2 = new JLabel("Second sample (counts):");
         add(fileLabel2, "");
 
         filePathEdit2 = new JTextField(40);
         filePathEdit2.addKeyListener(keyListener);
-        filePathEdit2.setToolTipText(inputFileToolTip);
+        filePathEdit2.setToolTipText(INPUT_FILE_TOOLTIP);
         add(filePathEdit2, "grow");
 
         browseFileButton2 = new JButton();
@@ -106,10 +108,11 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         infoFileButton = new JRadioButton("Info file:");
         infoFileButton.addActionListener(this);
         infoFileButton.setSelected(true);
+        infoFileButton.setToolTipText(INFO_FILE_TOOLTIP);
         add(infoFileButton, "");
 
         infoFileEdit = new JTextField(10);
-        infoFileEdit.setToolTipText("File containing the biological classification of features in the count files.");
+        infoFileEdit.setToolTipText(INFO_FILE_TOOLTIP);
         add(infoFileEdit, "grow");
 
         browseInfoFileButton = new JButton("...");
@@ -121,6 +124,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         speciesButton = new JRadioButton("Species: ");
         speciesButton.setSelected(false);
         speciesButton.addActionListener(this);
+        speciesButton.setToolTipText(SPECIES_ITEM_TOOLTIP);
         add(speciesButton);
 
         ButtonGroup group = new ButtonGroup();
@@ -129,9 +133,21 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
         String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN, Constants.TYPE_COMBO_SPECIES_MOUSE };
         speciesCombo = new JComboBox(speicesComboItems);
-        speciesButton.setToolTipText("If the Info File is not given by the user, Qualimap provides the Ensembl " +
-                "biotype classification for certain species");
+        speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
         add(speciesCombo, "grow, wrap 30px");
+
+
+        /*
+        TODO: provide better logging
+        add(new JLabel("Log"), "wrap");
+        logArea = new JTextArea(10,40);
+        logArea.setEditable(false);
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setViewportView(logArea);
+        add(scrollPane, "span, grow, wrap 30px");
+        */
 
         // Action done while the statistics graphics are loaded
         progressStream = new JLabel();
@@ -150,7 +166,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         add(progressBar, "grow, wrap 30px");
 
 
-        calcCountsButton = new JButton("Calculate counts...");
+        calcCountsButton = new JButton("Compute counts...");
         final Component frame = this;
         calcCountsButton.addActionListener( new ActionListener() {
             @Override
@@ -364,5 +380,9 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
     public int getThreshold() {
         return Integer.parseInt( thresholdEdit.getText() );
+    }
+
+    public JTextArea getLogArea() {
+        return logArea;
     }
 }

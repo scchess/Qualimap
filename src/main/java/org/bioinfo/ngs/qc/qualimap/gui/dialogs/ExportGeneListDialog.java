@@ -2,7 +2,6 @@ package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.process.CountReadsAnalysis;
 
 import javax.swing.*;
 import java.awt.*;
@@ -144,7 +143,7 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
         if (actionEvent.getActionCommand().equals(Constants.OK_COMMAND)) {
             String errMsg = validateInput();
             if (!errMsg.isEmpty()) {
-                JOptionPane.showMessageDialog(this, errMsg, "Calculate counts", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, errMsg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -152,7 +151,7 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
                 genesTextArea.write(new FileWriter(outputPathField.getText()));
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Failed writing to output file.",
-                        "Calculate counts", JOptionPane.ERROR_MESSAGE);
+                        this.getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
             setVisible(false);
