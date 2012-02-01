@@ -298,7 +298,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
 
         analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
-        analysisMenu.add(addMenuItem("Genomic Region", "genomicregion", "chart_curve_add.png", "ctrl pressed R"));
         JMenuItem rnaSeqItem =   addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C");
         rnaSeqItem.setEnabled(rIsAvailable);
         analysisMenu.add(rnaSeqItem);
@@ -355,7 +354,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		}else if (Constants.TYPE_BAM_ANALYSIS_RNA == typeAnalysis){
 			prefix = "Counts: ";
         }else if (Constants.TYPE_BAM_ANALYSIS_EPI == typeAnalysis) {
-            prefix = "Epigenetics: ";
+            prefix = "Epigenomics: ";
         }
 
         OpenLoadedStatistics op = new OpenLoadedStatistics(this,tabProperties);
@@ -546,17 +545,15 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			popUpDialog.setLocationRelativeTo(HomeFrame.this);
 			popUpDialog.setVisible(true);
 	    }else if(e.getActionCommand().equalsIgnoreCase("genomic")){
-	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_DNA);
-        }else if(e.getActionCommand().equalsIgnoreCase("genomicregion")){
-	    	runBamFileAnalysis(Constants.TYPE_BAM_ANALYSIS_EXOME);
-	    }else if(e.getActionCommand().equalsIgnoreCase("counts")){
+	    	runGenomicAnalysis();
+        }else if(e.getActionCommand().equalsIgnoreCase("counts")){
 	        runCountsAnalysis();
 	    }else if(e.getActionCommand().equals("epigenomics")) {
             runEpigenomicsAnalysis();
         } else if (e.getActionCommand().equals("calc-counts")) {
             showCountReadsDialog(this);
         } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
-            showExportGenesDialog(this, getSelectedTabPropertiesVO() );
+            showExportGenesDialog(this, getSelectedTabPropertiesVO());
         }
     }
 
@@ -583,9 +580,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     }
 
-    private void runBamFileAnalysis(int typeAnalysis){
+    private void runGenomicAnalysis(){
 
-        popUpDialog = new BamAnalysisDialog(this, typeAnalysis);
+        popUpDialog = new BamAnalysisDialog(this);
         popUpDialog.setModal(true);
         popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         popUpDialog.setLocationRelativeTo(this);

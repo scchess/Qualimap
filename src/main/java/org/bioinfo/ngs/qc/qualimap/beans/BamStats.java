@@ -496,6 +496,7 @@ public class BamStats implements Serializable {
 	}
 	
 	public void computeDescriptors(){
+
 		//TODO: this can be parallel!
 
 		/* Reference */
@@ -524,13 +525,7 @@ public class BamStats implements Serializable {
 		meanGcContentInReference = (double)(numberOfGsInReference+numberOfCsInReference)/(double)referenceSize;
 		meanGcContentPerWindowInReference = MathUtils.mean(ListUtils.toDoubleArray(gcContentInReference));
 		meanGcRelativeContentPerWindowInReference = MathUtils.mean(ListUtils.toDoubleArray(gcRelativeContentInReference));
-		
-//		// AT
-//		meanAtContentInReference = (double)(numberOfAsInReference+numberOfTsInReference)/(double)referenceSize;
-//		meanAtContentPerWindowInReference = MathUtils.mean(ListUtils.toDoubleArray(atContentInReference));
-//		meanAtRelativeContentPerWindowInReference = MathUtils.mean(ListUtils.toDoubleArray(atRelativeContentInReference));
-		
-		
+
 		/*
 		 * Sample  
 		 */
@@ -542,57 +537,59 @@ public class BamStats implements Serializable {
         System.out.println("numberOfSequencedBases: " + numberOfSequencedBases);
         System.out.println("numberOfAs: " + numberOfAs);
 
+        if (numberOfSequencedBases != 0) {
+
+            stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) referenceSize - meanCoverage*meanCoverage);
+
+            // quality
+            meanMappingQualityPerWindow = MathUtils.mean(ListUtils.toDoubleArray(mappingQualityAcrossReference));
 
 
-		stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) referenceSize - meanCoverage*meanCoverage);
-		
-		// quality
-		meanMappingQualityPerWindow = MathUtils.mean(ListUtils.toDoubleArray(mappingQualityAcrossReference));
+            // A
+            meanAContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(aContentAcrossReference));
+            meanARelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(aRelativeContentAcrossReference));
+            meanARelativeContent = ((double)numberOfAs/(double)numberOfSequencedBases)*100.0;
 
-		// A
-		meanAContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(aContentAcrossReference));		
-		meanARelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(aRelativeContentAcrossReference));
-		meanARelativeContent = ((double)numberOfAs/(double)numberOfSequencedBases)*100.0;
-					
-		// C
-		meanCContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(cContentAcrossReference));
-		meanCRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(cRelativeContentAcrossReference));
-		meanCRelativeContent = ((double)numberOfCs/(double)numberOfSequencedBases)*100.0;
-		
-		// T
-		meanTContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(tContentAcrossReference));
-		meanTRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(tRelativeContentAcrossReference));
-		meanTRelativeContent = ((double)numberOfTs/(double)numberOfSequencedBases)*100.0;
-		
-		// G
-		meanGContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gContentAcrossReference));
-		meanGRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gRelativeContentAcrossReference));
-		meanGRelativeContent = ((double)numberOfGs/(double)numberOfSequencedBases)*100.0;
-		
-		// N
-		meanNContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(nContentAcrossReference));
-		meanNRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(nRelativeContentAcrossReference));
-		meanNRelativeContent = ((double)numberOfNs/(double)numberOfSequencedBases)*100.0;
+            // C
+            meanCContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(cContentAcrossReference));
+            meanCRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(cRelativeContentAcrossReference));
+            meanCRelativeContent = ((double)numberOfCs/(double)numberOfSequencedBases)*100.0;
 
-		// GC
-		meanGcContent = (double)(numberOfGs+numberOfCs)/(double)referenceSize;
-		meanGcContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gcContentAcrossReference));
-		meanGcRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gcRelativeContentAcrossReference));
-		meanGcRelativeContent = ((double)(numberOfGs+numberOfCs)/(double)numberOfSequencedBases)*100.0;
-		
-//		// AT
-//		meanAtContent = (double)(numberOfAs+numberOfTs)/(double)referenceSize;
-//		meanAtContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(atContentAcrossReference));
-//		meanAtRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(atRelativeContentAcrossReference));
-//		meanAtRelativeContent = ((double)(numberOfAs+numberOfTs)/(double)numberOfSequencedBases)*100.0;
-		
+            // T
+            meanTContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(tContentAcrossReference));
+            meanTRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(tRelativeContentAcrossReference));
+            meanTRelativeContent = ((double)numberOfTs/(double)numberOfSequencedBases)*100.0;
+
+            // G
+            meanGContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gContentAcrossReference));
+            meanGRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gRelativeContentAcrossReference));
+            meanGRelativeContent = ((double)numberOfGs/(double)numberOfSequencedBases)*100.0;
+
+            // N
+            meanNContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(nContentAcrossReference));
+            meanNRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(nRelativeContentAcrossReference));
+            meanNRelativeContent = ((double)numberOfNs/(double)numberOfSequencedBases)*100.0;
+
+            // GC
+            meanGcContent = (double)(numberOfGs+numberOfCs)/(double)referenceSize;
+            meanGcContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gcContentAcrossReference));
+            meanGcRelativeContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(gcRelativeContentAcrossReference));
+            meanGcRelativeContent = ((double)(numberOfGs+numberOfCs)/(double)numberOfSequencedBases)*100.0;
+
+        }
+
 		// insert size
 		meanInsertSizePerWindow = MathUtils.mean(ListUtils.toDoubleArray(insertSizeAcrossReference));
 		meanInsertSize = meanInsertSizePerWindow;
 
 		// reporting
-		if(activeWindowReporting) closeWindowReporting();
-		if(activeCoverageReporting) closeCoverageReporting();
+		if(activeWindowReporting) {
+            closeWindowReporting();
+        }
+
+        if(activeCoverageReporting) {
+            closeCoverageReporting();
+        }
 		
 	}
 	

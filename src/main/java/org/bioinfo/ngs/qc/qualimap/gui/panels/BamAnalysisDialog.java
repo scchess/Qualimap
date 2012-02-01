@@ -26,48 +26,23 @@ import java.util.List;
  * Date: 12/8/11
  * Time: 11:18 AM
  */
-public class BamAnalysisDialog extends JDialog {
+public class BamAnalysisDialog extends JDialog implements ActionListener {
 
     JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
-    JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox;
+    JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JProgressBar progressBar;
-    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile;
+    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw;
     HomeFrame homeFrame;
     File inputFile, regionFile;
-    boolean  analyzeRegions;
 
     StringBuilder stringValidation;
 
     final String startButtonText = ">>> Start analysis";
-    private int typeAnalysis;
 
-    static class ItemStateChangeAction implements ActionListener {
-
-        List<Component> items;
-        ItemStateChangeAction() {
-            items = new ArrayList<Component>();
-        }
-
-        void addItem(Component item) {
-            items.add(item);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent actionEvent) {
-            for (Component item : items)  {
-                item.setEnabled(!item.isEnabled());
-            }
-
-        }
-    }
-
-
-    public BamAnalysisDialog(HomeFrame homeFrame, int typeAnalysis) {
+    public BamAnalysisDialog(HomeFrame homeFrame) {
 
         this.homeFrame = homeFrame;
-        this.typeAnalysis = typeAnalysis;
-        analyzeRegions = typeAnalysis == Constants.TYPE_BAM_ANALYSIS_EXOME;
 
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
@@ -87,32 +62,30 @@ public class BamAnalysisDialog extends JDialog {
 		pathDataFileButton.addKeyListener(keyListener);
         add(pathDataFileButton, "align center, wrap");
 
-        // The gff file (region file) can only be available if we are doing the
-		// exome analysis
+        analyzeRegionsCheckBox = new JCheckBox("Analyze regions");
+        analyzeRegionsCheckBox.addActionListener(this);
+        add(analyzeRegionsCheckBox, "wrap");
 
-        if (analyzeRegions) {
-            labelPathAditionalDataFile = new JLabel("Select GFF file:");
-            add(labelPathAditionalDataFile, "");
+        labelPathAditionalDataFile = new JLabel("Path to GFF file:");
+        add(labelPathAditionalDataFile, "");
 
-            pathGffFile = new JTextField(40);
-            pathGffFile.addKeyListener(keyListener);
-            pathGffFile.setToolTipText("Path to GFF file containing regions of interest");
-            add(pathGffFile, "grow");
+        pathGffFile = new JTextField(40);
+        pathGffFile.addKeyListener(keyListener);
+        pathGffFile.setToolTipText("Path to GFF file containing regions of interest");
+        add(pathGffFile, "grow");
 
-            pathGffFileButton = new JButton();
-            pathGffFileButton.setAction(getActionLoadAdditionalFile());
-            pathGffFileButton.addKeyListener(keyListener);
-            pathGffFileButton.setText("...");
-            add(pathGffFileButton, "align center, wrap");
+        pathGffFileButton = new JButton();
+        pathGffFileButton.setAction(getActionLoadAdditionalFile());
+        pathGffFileButton.addKeyListener(keyListener);
+        pathGffFileButton.setText("...");
+        add(pathGffFileButton, "align center, wrap");
 
-            computeOutsideStats = new JCheckBox("Analyze outside regions");
-            computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            computeOutsideStats.addKeyListener(keyListener);
-            computeOutsideStats.setToolTipText("Controls whether to calculate also statistic for outside regions");
-            computeOutsideStats.setSelected(true);
-            add(computeOutsideStats, "wrap");
-
-        }
+        computeOutsideStats = new JCheckBox("Analyze outside regions");
+        computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        computeOutsideStats.addKeyListener(keyListener);
+        computeOutsideStats.setToolTipText("Controls whether to calculate also statistic for outside regions");
+        computeOutsideStats.setSelected(true);
+        add(computeOutsideStats, "wrap");
 
         drawChromosomeLimits = new JCheckBox("Chromosome limits");
         drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -126,29 +99,22 @@ public class BamAnalysisDialog extends JDialog {
         advancedInfoCheckBox.addKeyListener(keyListener);
         add(advancedInfoCheckBox,"wrap");
 
-        JLabel labelNw = new JLabel();
-		labelNw.setText("Number Of windows:");
-		labelNw.setEnabled(false);
+        labelNw = new JLabel("Number Of windows:");
 		add(labelNw, "gapleft 20");
 
         valueNw = new JTextField(10);
 		valueNw.setText("" + Constants.DEFAULT_NUMBER_OF_WINDOWS);
         valueNw.setDocument(new JTextFieldLimit(6, true));
 		valueNw.addKeyListener(keyListener);
-	    valueNw.setEnabled(false);
-        add(valueNw, "wrap");
+	    add(valueNw, "wrap");
 
-        ItemStateChangeAction stateChangeAction = new ItemStateChangeAction();
-        stateChangeAction.addItem(labelNw);
-        stateChangeAction.addItem(valueNw);
-        advancedInfoCheckBox.addActionListener(stateChangeAction);
+        advancedInfoCheckBox.addActionListener(this);
 
         // Action done while the statistics graphics are loaded
         progressStream = new JLabel();
         progressStream.setVisible(true);
         progressStream.setText("Status");
         add(progressStream, "align center");
-
 
         // Progress Bar to show while the statistics graphics are loaded
         UIManager.put("ProgressBar.selectionBackground", Color.black);
@@ -168,12 +134,27 @@ public class BamAnalysisDialog extends JDialog {
         add(new JLabel(""), "span 2");
         add(startAnalysisButton, "wrap");
 
+        updateState();
         pack();
 
-        setTitle(analyzeRegions ? "Analyze genomic region" : "Analyze genomic dataset");
+        setTitle("Analyze genomic dataset");
         setResizable(false);
 
     }
+
+    void updateState() {
+
+        boolean analyzeRegions = analyzeRegionsCheckBox.isSelected();
+        labelPathAditionalDataFile.setEnabled(analyzeRegions);
+        pathGffFile.setEnabled(analyzeRegions);
+        pathGffFileButton.setEnabled(analyzeRegions);
+        computeOutsideStats.setEnabled(analyzeRegions);
+
+        boolean advOptionsEnabled = advancedInfoCheckBox.isSelected();
+        valueNw.setEnabled(advOptionsEnabled);
+        labelNw.setEnabled(advOptionsEnabled);
+    }
+
 
     /**
 	 * Action to load the input data file.
@@ -310,7 +291,7 @@ public class BamAnalysisDialog extends JDialog {
 		}
 
 		// Validation for the region file
-		if (analyzeRegions) {
+		if (analyzeRegionsCheckBox.isSelected()) {
 			if (!pathGffFile.getText().isEmpty() && (regionFile = new File(pathGffFile.getText())) != null) {
 				String mimeType = new MimetypesFileTypeMap().getContentType(regionFile);
 				String extension = regionFile.getName().substring(regionFile.getName().lastIndexOf(".") + 1);
@@ -344,7 +325,8 @@ public class BamAnalysisDialog extends JDialog {
 	 */
 	private synchronized void runAnalysis(TabPropertiesVO tabProperties) {
 		BamAnalysisThread t;
-		tabProperties.setTypeAnalysis(typeAnalysis);
+		tabProperties.setTypeAnalysis(analyzeRegionsCheckBox.isSelected() ? Constants.TYPE_BAM_ANALYSIS_DNA
+         : Constants.TYPE_BAM_ANALYSIS_DNA);
 		t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
 
 		t.start();
@@ -379,7 +361,7 @@ public class BamAnalysisDialog extends JDialog {
     }
 
     public boolean getComputeOutsideRegions() {
-        return analyzeRegions && computeOutsideStats.isSelected();
+        return analyzeRegionsCheckBox.isSelected() && computeOutsideStats.isSelected();
     }
 
     public void setUiEnabled(boolean  enabled ) {
@@ -388,12 +370,10 @@ public class BamAnalysisDialog extends JDialog {
         pathDataFileButton.setEnabled(enabled);
         labelPathDataFile.setEnabled(enabled);
 
-        if (analyzeRegions) {
-            pathGffFile.setEnabled(enabled);
-            pathGffFileButton.setEnabled(enabled);
-            computeOutsideStats.setEnabled(enabled);
-            labelPathAditionalDataFile.setEnabled(enabled);
-        }
+        pathGffFile.setEnabled(enabled);
+        pathGffFileButton.setEnabled(enabled);
+        computeOutsideStats.setEnabled(enabled);
+        labelPathAditionalDataFile.setEnabled(enabled);
 
         advancedInfoCheckBox.setEnabled(enabled);
         drawChromosomeLimits.setEnabled(enabled);
@@ -405,4 +385,8 @@ public class BamAnalysisDialog extends JDialog {
         homeFrame.addNewPane(inputFile.getName(), tabProperties);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        updateState();
+    }
 }

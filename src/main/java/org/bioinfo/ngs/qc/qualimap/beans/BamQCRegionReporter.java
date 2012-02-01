@@ -23,9 +23,9 @@ import org.jfree.chart.plot.*;
 import org.jfree.ui.RectangleInsets;
 
 public class BamQCRegionReporter implements Serializable {
-	
-	
-	static public class InputDataSection {
+
+
+    static public class InputDataSection {
         String sectionName;
         Map<String, String> data;
 
@@ -56,7 +56,7 @@ public class BamQCRegionReporter implements Serializable {
     private Map<String, BufferedImage> imageMap;
 
 	/** Variable that contains the input files names */
-	private String bamFileName, referenceFileName, inputDescription;
+	private String bamFileName, referenceFileName;
 
 	private Integer numWindows, numMappedReads;
 
@@ -71,9 +71,12 @@ public class BamQCRegionReporter implements Serializable {
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
     List<InputDataSection> inputDataSections;
+    String summaryTitle, inputDescription, chartNamePostfix;
 
     public BamQCRegionReporter() {
-        inputDescription = "No input description available";
+        summaryTitle = "Summary";
+        inputDescription = "Input data and parameters";
+        chartNamePostfix = "";
         inputDataSections = new ArrayList<InputDataSection>();
     }
 
@@ -283,7 +286,7 @@ public class BamQCRegionReporter implements Serializable {
 
 		// some variables		
 		double maxValue = 50;
-		String subTitle = new File(bamStats.getSourceFile()).getName();
+		String subTitle = new File(bamStats.getSourceFile()).getName() + chartNamePostfix;
 
 		// compute window centers
 		List<Double> windowReferences = new ArrayList<Double>(bamStats.getNumberOfWindows());
@@ -328,7 +331,7 @@ public class BamQCRegionReporter implements Serializable {
 		}
 
 
-		///////////////// coverageData charts ///////////////
+        ///////////////// coverageData charts ///////////////
 
 		// coverageData (and gc) across reference
 		// coverageData
@@ -368,7 +371,7 @@ public class BamQCRegionReporter implements Serializable {
 		// coverageData histogram
 		BamQCXYHistogramChart coverageHistogram = new BamQCXYHistogramChart("Coverage histogram", subTitle, "coverageData (bp)", "frequency");
 		coverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
-		coverageHistogram.setNumberOfBins(Math.min(50,(int)bamStats.getCoverageHistogram().getMaxValue()));
+		coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
 		coverageHistogram.setDomainAxisIntegerTicks(true);
 		coverageHistogram.render();
 		// TODO: move this code to render() method?
@@ -382,7 +385,9 @@ public class BamQCRegionReporter implements Serializable {
 				coverageHistogram.getChart());
 
 		// coverageData ranged histogram
-		BamQCXYHistogramChart coverageRangedHistogram = new BamQCXYHistogramChart("Coverage histogram (0 - " + (int)maxValue + "x)", subTitle, "coverageData (bp)", "frequency");
+		BamQCXYHistogramChart coverageRangedHistogram =
+                new BamQCXYHistogramChart("Coverage histogram (0 - " + (int)maxValue + "x)",
+                subTitle, "coverageData (bp)", "frequency");
 		coverageRangedHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		coverageRangedHistogram.setNumberOfBins(50);
 		coverageRangedHistogram.zoom(maxValue);
@@ -416,7 +421,8 @@ public class BamQCRegionReporter implements Serializable {
 		//				cumulativeRangedCoverageHistogram.getChart());
 
 		// coverageData quota
-		BamQCChart coverageQuota = new BamQCChart("Coverage quota", subTitle, "coverageData (bp)", "relative coverture of reference (%)");
+		BamQCChart coverageQuota = new BamQCChart("Coverage quota", subTitle,
+                "coverageData (bp)", "relative coverture of reference (%)");
 		coverageQuota.setPercentageChart(true);
 		coverageQuota.addBarRenderedSeries("Coverture", bamStats.getCoverageQuotes(), new Color(255,20,20,150));
 		coverageQuota.setDomainAxisIntegerTicks(true);
@@ -463,7 +469,8 @@ public class BamQCRegionReporter implements Serializable {
 		///////////////// mapping quality charts ///////////////
 
 		// mapping quality across reference
-		BamQCChart mappingQuality = new BamQCChart("Mapping quality across reference", subTitle, "absolute position (bp)", "mapping quality");
+		BamQCChart mappingQuality = new BamQCChart("Mapping quality across reference",
+                subTitle, "absolute position (bp)", "mapping quality");
 		mappingQuality.addSeries("mapping quality",new XYVector(windowReferences, bamStats.getMappingQualityAcrossReference()), new Color(250,50,50,150));
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
@@ -473,7 +480,9 @@ public class BamQCRegionReporter implements Serializable {
 				mappingQuality.getChart());
 
 		// mapping quality histogram
-		BamQCXYHistogramChart mappingQualityHistogram = new BamQCXYHistogramChart("Mapping quality histogram", subTitle, "mapping quality", "frequency");
+		BamQCXYHistogramChart mappingQualityHistogram =
+                new BamQCXYHistogramChart("Mapping quality histogram",
+                        subTitle, "mapping quality", "frequency");
 		mappingQualityHistogram.addHistogram("mapping quality", bamStats.getMappingQualityHistogram(), Color.blue);
 		mappingQualityHistogram.setNumberOfBins(50);		
 		mappingQualityHistogram.render();
@@ -483,14 +492,16 @@ public class BamQCRegionReporter implements Serializable {
 		
 		if(isPairedData){
 			// insert size across reference
-			BamQCChart insertSize = new BamQCChart("Insert size across reference", subTitle, "absolute position (bp)", "insert size (bp)");
+			BamQCChart insertSize = new BamQCChart("Insert size across reference",
+                    subTitle, "absolute position (bp)", "insert size (bp)");
 			insertSize.addSeries("insert size",new XYVector(windowReferences, bamStats.getInsertSizeAcrossReference()), new Color(15,170,90,150));
 			insertSize.render();		
 			if(paintChromosomeLimits && locator!=null) insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
 			mapCharts.put(bamStats.getName() + "_insert_size_across_reference.png", insertSize.getChart());
 	
 			// mapping quality histogram
-			BamQCXYHistogramChart insertSizeHistogram = new BamQCXYHistogramChart("Insert size histogram", subTitle, "insert size (bp)", "frequency");
+			BamQCXYHistogramChart insertSizeHistogram =
+                    new BamQCXYHistogramChart("Insert size histogram", subTitle, "insert size (bp)", "frequency");
 			insertSizeHistogram.addHistogram("insert size", bamStats.getInsertSizeHistogram(), new Color(15,170,90,150));
 			insertSizeHistogram.setNumberOfBins(50);		
 			insertSizeHistogram.render();
@@ -533,7 +544,7 @@ public class BamQCRegionReporter implements Serializable {
 
         StringBuilder inputDesc = new StringBuilder();
 
-        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters </b></p>" + HtmlJPanel.BR);
+        inputDesc.append("<p align=center><a name=\"input\"> <b>" + inputDescription + "</b></p>" + HtmlJPanel.BR);
         inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "EEEEEE"));
 
 
@@ -886,6 +897,22 @@ public class BamQCRegionReporter implements Serializable {
 
     public List<InputDataSection> getInputDataSections() {
         return inputDataSections;
+    }
+
+     public String getSummaryTitle() {
+        return summaryTitle;
+    }
+
+    public void setSummaryTitle(String summaryTitle) {
+        this.summaryTitle = summaryTitle;
+    }
+
+    public void setInputDescription(String inputDescription) {
+        this.inputDescription = inputDescription;
+    }
+
+    public void setChartNamePostfix(String chartNamePostfix) {
+        this.chartNamePostfix = chartNamePostfix;
     }
 
 }

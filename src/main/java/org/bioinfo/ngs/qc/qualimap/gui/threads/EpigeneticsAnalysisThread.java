@@ -91,10 +91,10 @@ public class EpigeneticsAnalysisThread extends Thread {
 
     String createCommand(String outputDir) {
         String commandString = "Rscript " + settingsDialog.getHomeFrame().getQualimapFolder()
-                + "scripts"+ File.separator + "paintLocation.r";
+                + File.separator + "scripts"+ File.separator + "paintLocation.r";
 
         commandString += " --fileConfig=" + outputDir + "config.xml";
-        commandString += " --homedir=" + settingsDialog.getHomeFrame().getQualimapFolder() + "scripts";
+        commandString += " --homedir=" + settingsDialog.getHomeFrame().getQualimapFolder() + File.separator + "scripts";
         commandString += " --vizType=" + settingsDialog.getVisuzliationType();
 
         return commandString;

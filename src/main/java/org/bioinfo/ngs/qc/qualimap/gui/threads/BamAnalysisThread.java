@@ -1,6 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -8,29 +7,19 @@ import java.util.Timer;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import javax.swing.*;
 
 /**
  * Class to manage a thread to do the Bam analysis to the input bam files and
- * load the results into graphics structures
+ * calculate resulting charts
  * 
- * @author Luis Miguel Cruz
+ * @author kokonech
  */
 public class BamAnalysisThread extends Thread {
-	/**
-	 * Variable to manage the return string loaded for the thread of the
-	 * statistics each moment.
-	 */
-	private String processedString;
-
-	/** Variable to manage the percent of statistics loaded each moment */
-	private Double loadPercent;
 
 	/** Logger to print information */
 	protected Logger logger;
@@ -57,8 +46,6 @@ public class BamAnalysisThread extends Thread {
 
 	public BamAnalysisThread(String str, BamAnalysisDialog bamDialog, TabPropertiesVO tabProperties) {
 		super(str);
-		this.processedString = null;
-		this.loadPercent = 0.0;
 		this.bamDialog = bamDialog;
         this.tabProperties = tabProperties;
 		logger = new Logger(this.getClass().getName());
@@ -74,13 +61,7 @@ public class BamAnalysisThread extends Thread {
 		// Create the outputDir directory
 		StringBuilder outputDirPath = tabProperties.createDirectory();
 
-		// Create a BamQCSplitted with a reference file or without it
-		/*if (bamDialog.getFastaFile() != null) {
-			bamQC = new BamQCSplitted(bamDialog.getInputFile().getAbsolutePath(), bamDialog.getFastaFile().getAbsolutePath());
-		} else {
-			bamQC = new BamQCSplitted(bamDialog.getInputFile().getAbsolutePath());
-		}*/
-        BamStatsAnalysis bamQC = new BamStatsAnalysis(bamDialog.getInputFile().getAbsolutePath());
+		BamStatsAnalysis bamQC = new BamStatsAnalysis(bamDialog.getInputFile().getAbsolutePath());
 
 		// Set the number of windows
 		bamQC.setNumberOfWindows(bamDialog.getNumberOfWindows());
@@ -97,7 +78,6 @@ public class BamAnalysisThread extends Thread {
         tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
 		bamQC.setComputeChromosomeStats(true);
-		//bamQC.setComputeOutsideStats(true);
 
 		// reporting
 		bamQC.activeReporting(outputDirPath.toString());
@@ -124,74 +104,67 @@ public class BamAnalysisThread extends Thread {
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
             prepareInputDescription(reporter);
+            if (bamDialog.getRegionFile() != null) {
+                reporter.setSummaryTitle("Summary (inside of regions)");
+                reporter.setInputDescription("Input data and parameters (inside of regions)");
+                reporter.setChartNamePostfix(" (inside of regions)");
+            }
 
 			// Draw the Chromosome Limits or not
-			reporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
+			reporter.setPaintChromosomeLimits( bamDialog.getDrawChromosomeLimits() );
 	
 			bamDialog.getProgressStream().setText("   text report...");
 			reporter.loadReportData(bamQC.getBamStats());
-			//increaseProgressBar(1.0, bamQC);
 			bamDialog.getProgressStream().setText("OK");
 			tabProperties.setReporter(reporter);
 	
-			// Increment the pogress bar
 			bamDialog.getProgressStream().setText("   charts...");
 			reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
-			//increaseProgressBar(2.0, bamQC);
 			bamDialog.getProgressStream().setText("OK");
 	
 			// Set the reporter into the created tab
 			tabProperties.setReporter(reporter);
-	
-			if ( bamDialog.getRegionFile() != null && bamDialog.getComputeOutsideRegions() ) {
-				//BamQCRegionReporter insideReporter = new BamQCRegionReporter();
-				BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
+
+            if (bamDialog.getRegionFile() != null && bamDialog.getComputeOutsideRegions() ) {
+
+                BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 
                 prepareInputDescription(outsideReporter);
-	
+	            outsideReporter.setSummaryTitle("Summary (outside of regions)");
+                outsideReporter.setInputDescription("Input data and parameters (outside of regions)");
+                outsideReporter.setChartNamePostfix(" (outside of regions)");
 				// Draw the Chromosome Limits or not
-				//insideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
-	
-				// save stats
-				//bamDialog.getProgressStream().setText("   inside text report...");
-				//insideReporter.loadReportData(bamQC.getBamStats());
-				//bamDialog.getProgressStream().setText("OK");
-				//increaseProgressBar(3.0, bamQC);
-	
-				// save charts
-				//bamDialog.getProgressStream().setText("   inside charts...");
-				//insideReporter.computeChartsBuffers(bamQC.getBamStats(), null, bamQC.isPairedData());
-				//bamDialog.getProgressStream().setText("OK");
-				//increaseProgressBar(4.0, bamQC);
-	
+
 				// save stats
 				bamDialog.getProgressStream().setText("   outside text report...");
 				outsideReporter.loadReportData(bamQC.getOutsideBamStats());
 				bamDialog.getProgressStream().setText("OK");
-				//increaseProgressBar(5.0, bamQC);
-	
+
 				// save charts
 				bamDialog.getProgressStream().setText("   outside charts...");
 				outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 				bamDialog.getProgressStream().setText("OK");
-				//increaseProgressBar(6.0, bamQC);
-	
+
 				// Set the reporters into the created tab
-				//tabProperties.setInsideReporter(insideReporter);
 				tabProperties.setOutsideReporter(outsideReporter);
-			}
-	
+
+            }
+
 			// Increment the pogress bar
 			bamDialog.getProgressStream().setText("OK");
 			bamDialog.getProgressBar().setValue(100);
+
 		} catch( OutOfMemoryError e) {
-            JOptionPane.showMessageDialog(null, "<html><body align=\"center\">Out of memory!<br>Try increasing number of windows in Advanced Options" +
-                    "<br>or changing Java virtual machine settings.</body></html>", "Calculate statistics", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(bamDialog, "<html><body align=\"center\">Out of memory!" +
+                    "<br>Try increasing number of windows in Advanced Options" +
+                    "<br>or changing Java virtual machine settings.</body></html>",
+                    bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             bamDialog.setUiEnabled(true);
             return;
         } catch (Exception e) {
-		    JOptionPane.showMessageDialog(null, "Analysis is failed. Reason: " + e.getMessage(), "Calculate statistics", JOptionPane.ERROR_MESSAGE);
+		    JOptionPane.showMessageDialog(null, "Analysis is failed. Reason: " + e.getMessage(),
+                    bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             bamDialog.setUiEnabled(true);
             return;
@@ -208,7 +181,8 @@ public class BamAnalysisThread extends Thread {
 
         HashMap<String,String> alignParams = new HashMap<String, String>();
         alignParams.put("BAM file: ", bamDialog.getInputFile().toString());
-        alignParams.put("Number of windows: ", new Integer(bamDialog.getNumberOfWindows()).toString());
+        alignParams.put("Number of windows: ", Integer.toString(bamDialog.getNumberOfWindows()) );
+        Boolean.toString(true);
         alignParams.put("Draw chromosome limits: ", boolToStr(bamDialog.getDrawChromosomeLimits()));
         reporter.addInputDataSection("Alignment", alignParams);
 
@@ -220,25 +194,6 @@ public class BamAnalysisThread extends Thread {
         }
 
     }
-
-    /**
-	 * Increase the progress bar in the percent depends on the number of the
-	 * element computed.
-	 * 
-	 * @param numElem
-	 *            number of the element computed
-	 */
-	private void increaseProgressBar(double numElem, BamQCSplitted bamQc) {
-		int result = 0;
-		if (bamDialog.getRegionFile() != null) {
-			result = (int) Math.ceil(numElem * (100.0 / 6.0));
-		} else {
-			result = (int) (numElem * (100 / 2));
-		}
-		result = (int) Math.round(result * 0.15);
-
-		bamDialog.getProgressBar().setValue((int) Math.round(bamQc.getProgress() * 0.85) + result);
-	}
 
 
 }

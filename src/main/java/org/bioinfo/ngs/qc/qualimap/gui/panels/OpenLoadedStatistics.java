@@ -215,7 +215,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		boolean isGffSelected = tabProperties.isGffSelected();
 		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
 
-        String sectionName = isGffSelected ? "Results inside of region" : "Results";
+        String sectionName = isGffSelected ? "Results inside of regions" : "Results";
         JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
         leftPanel.add(checkFirstSection);
 
@@ -267,7 +267,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         if (showOutsideStats) {
 
-			JCheckBox checkSecondSection = createResultsCheckBox("Results outside of region");
+			JCheckBox checkSecondSection = createResultsCheckBox("Results outside of regions");
 			leftPanel.add(checkSecondSection);
 
 			JLabel summary = createSummaryLinkLabel("Summary", Constants.REPORT_OUTSIDE_BAM_FILE);
@@ -623,7 +623,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         StringBuffer summaryHtml = new StringBuffer("");
 
-		summaryHtml.append("<p align=center><a name=\"summary\"> <b>Summary</b></p>" + HtmlJPanel.BR);
+		summaryHtml.append("<p align=center><a name=\"summary\"> <b>" + reporter.getSummaryTitle() + "</b></p>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
 		summaryHtml.append(HtmlJPanel.COLSTART + "<b>Globals:</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
