@@ -738,8 +738,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                     htmlTable.append("<th align='left'>Name</th>");
                     htmlTable.append("<th align='left'>Length</th>");
                     htmlTable.append("<th align='left'>Mapped bases</th>");
-                    htmlTable.append("<th align='left'>Mean coverageData</th>");
-                    htmlTable.append("<th align='left'>Std coverageData</th>");
+                    htmlTable.append("<th align='left'>Mean coverage</th>");
+                    htmlTable.append("<th align='left'>Std coverage</th>");
             	} else {
 					String[] tableValues = strLine.split("\t");
 					htmlTable.append(HtmlJPanel.COLSTART);

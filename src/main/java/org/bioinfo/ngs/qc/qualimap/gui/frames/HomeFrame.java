@@ -278,38 +278,36 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private void createMenuBar() {
 
         setJMenuBar( new JMenuBar());
+        JMenu fileMenu = getMenu("File",KeyEvent.VK_F);
 		JMenu analysisMenu = getMenu("Analysis",KeyEvent.VK_A);
-		JMenu fileMenu = getMenu("Report",KeyEvent.VK_F);
 		JMenu toolsMenu = getMenu("Tools", KeyEvent.VK_T);
+        JMenu windowsMenu = getMenu("Windows", KeyEvent.VK_W);
         JMenu helpMenu = getMenu("Help",KeyEvent.VK_H);
 
-		
-		analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
-		analysisMenu.add(addMenuItem("Genomic Region", "genomicregion", "chart_curve_add.png", "ctrl pressed R"));
-	    JMenuItem rnaSeqItem =   addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C");
-        rnaSeqItem.setEnabled(rIsAvailable);
-		analysisMenu.add(rnaSeqItem);
-        JMenuItem epiMenuItem =  addMenuItem("Epigenomics", "epigenomics", "chart_curve_add.png", "ctrl pressed E");
-        epiMenuItem.setEnabled(rIsAvailable);
-        analysisMenu.add(epiMenuItem);
-		analysisMenu.addSeparator();
-		analysisMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
-
         openReportItem = addMenuItem("Open Report (.zip)", "openproject", "open_folder.png", "ctrl pressed O");
-		fileMenu.add(openReportItem);
-		saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
+        fileMenu.add(openReportItem);
+        saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
         fileMenu.add(saveReportItem);
         exportToHtmlItem = addMenuItem("Export as HTML", "exporthtml", "save_zip.png", "ctrl pressed H");
         fileMenu.add(exportToHtmlItem);
-		exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
+        exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
-		exportGeneListItem = addMenuItem("Export gene list", "exportgenelist", "save_zip.png", null);
+        exportGeneListItem = addMenuItem("Export gene list", "exportgenelist", "save_zip.png", null);
         fileMenu.add(exportGeneListItem);
-
         fileMenu.addSeparator();
+        fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
+
+        analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
+        analysisMenu.add(addMenuItem("Genomic Region", "genomicregion", "chart_curve_add.png", "ctrl pressed R"));
+        JMenuItem rnaSeqItem =   addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C");
+        rnaSeqItem.setEnabled(rIsAvailable);
+        analysisMenu.add(rnaSeqItem);
+        JMenuItem epiMenuItem =  addMenuItem("Epigenomics", "epigenomics", "chart_curve_add.png", "ctrl pressed E");
+        epiMenuItem.setEnabled(rIsAvailable);
+        analysisMenu.add(epiMenuItem);
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");
-        fileMenu.add(closeAllTabsItem);
+        windowsMenu.add(closeAllTabsItem);
 
         toolsMenu.add(addMenuItem("Compute counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
 
@@ -672,7 +670,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	public void setQualimapFolder(String qualimapFolder) {
 		this.qualimapFolder = qualimapFolder;
-		System.out.println("QualiMapHome: "+qualimapFolder);
+		//System.out.println("QualiMapHome: "+qualimapFolder);
 	}
 
 	public JDialog getPopUpDialog() {
@@ -705,7 +703,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		// Events to change the tab name and close the selected tab
 		if (event.getButton() == MouseEvent.BUTTON3 && event.getClickCount() == 1) {
 			JPopupMenu popupMenu = new JPopupMenu();
-			JMenuItem renameBtn = new JMenuItem("Rename Selected Tab");
+			JMenuItem renameBtn = new JMenuItem("Rename Tab");
 			renameBtn.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve_edit.png")));
 			renameBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {

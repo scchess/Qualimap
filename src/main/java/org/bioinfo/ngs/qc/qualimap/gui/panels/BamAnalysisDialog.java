@@ -30,7 +30,7 @@ public class BamAnalysisDialog extends JDialog {
 
     JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
-    JCheckBox drawChromosomeLimits, saveCoverage, computeOutsideStats, advancedInfoCheckBox;
+    JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox;
     JProgressBar progressBar;
     JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile;
     HomeFrame homeFrame;
@@ -138,16 +138,9 @@ public class BamAnalysisDialog extends JDialog {
 	    valueNw.setEnabled(false);
         add(valueNw, "wrap");
 
-        saveCoverage = new JCheckBox("Save Coverage per nucleotide");
-		saveCoverage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		saveCoverage.addKeyListener(keyListener);
-		saveCoverage.setEnabled(false);
-        add(saveCoverage, "gapleft 20, wrap 30px");
-
         ItemStateChangeAction stateChangeAction = new ItemStateChangeAction();
         stateChangeAction.addItem(labelNw);
         stateChangeAction.addItem(valueNw);
-        stateChangeAction.addItem(saveCoverage);
         advancedInfoCheckBox.addActionListener(stateChangeAction);
 
         // Action done while the statistics graphics are loaded
@@ -403,7 +396,6 @@ public class BamAnalysisDialog extends JDialog {
         }
 
         advancedInfoCheckBox.setEnabled(enabled);
-        saveCoverage.setEnabled(enabled);
         drawChromosomeLimits.setEnabled(enabled);
 
 

@@ -5,6 +5,8 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,7 +46,7 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                 bamPathEdit, "BAM files", "bam"));
         add(browseBamButton, "align center, wrap");
 
-        add(new JLabel("GFF file with annotations:"), "");
+        add(new JLabel("Annotations file:"), "");
 
         gffPathEdit = new JTextField(40);
         gffPathEdit.setToolTipText("Path to regions file");
@@ -67,7 +69,14 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
         add(new JLabel("Output:"), "");
 
         outputPathField = new JTextField(40);
-        outputPathField.setText("bam.file.counts");
+        bamPathEdit.addCaretListener( new CaretListener() {
+            @Override
+            public void caretUpdate(CaretEvent caretEvent) {
+                if (!bamPathEdit.getText().isEmpty()) {
+                    outputPathField.setText(bamPathEdit.getText() + ".counts");
+                }
+            }
+        });
         add(outputPathField, "grow");
 
         JButton browseOutputPathButton = new JButton("...");

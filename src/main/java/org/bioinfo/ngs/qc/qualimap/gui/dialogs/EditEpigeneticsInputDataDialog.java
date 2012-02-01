@@ -56,7 +56,7 @@ public class EditEpigeneticsInputDataDialog extends JDialog {
         replicateName = new JTextField(30);
         add(replicateName, "wrap");
 
-        add(new JLabel("Medip file"));
+        add(new JLabel("Sample BAM file"));
         medipDataField = new JTextField(30);
         add(medipDataField);
         browseMedipDataButton = new JButton("...");
@@ -64,7 +64,7 @@ public class EditEpigeneticsInputDataDialog extends JDialog {
                 "BAM files", "bam"));
         add(browseMedipDataButton, "wrap");
 
-        add(new JLabel("Control file"));
+        add(new JLabel("Control BAM file"));
         inputDataField = new JTextField(30);
         add(inputDataField);
         browseInputDataButton = new JButton("...");

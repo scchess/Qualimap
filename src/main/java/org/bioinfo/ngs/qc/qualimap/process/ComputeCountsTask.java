@@ -54,13 +54,14 @@ public class ComputeCountsTask  {
 
     public void run() throws FileFormatException, IOException, NoSuchMethodException {
 
+         if (allowedFeatureList.isEmpty()) {
+            // default feature to consider
+            addSupportedFeatureType("exon");
+         }
 
         loadRegions();
 
-        if (allowedFeatureList.isEmpty()) {
-            // default feature to consider
-            addSupportedFeatureType("exon");
-        }
+
         System.out.println("Starting BAM file processing...");
 
         SAMFileReader reader = new SAMFileReader(new File(pathToBamFile));
@@ -194,16 +195,18 @@ public class ComputeCountsTask  {
         while((record = gtfParser.readNextRecord())!=null){
 
             for (String featureName: allowedFeatureList) {
+                // TODO: consider different type of features here
+                /*
                 if (!record.getFeature().equalsIgnoreCase(featureName)) {
                     continue;
-                }
+                }*/
+
+                addRegionToIntervalMap(record);
+
+                // init results map
+                readCounts.put(record.getGeneId(), 0L);
+
             }
-
-            addRegionToIntervalMap(record);
-
-            // init results map
-            readCounts.put(record.getGeneId(), 0L);
-
         }
 
         if (chromosomeRegionSetMap.isEmpty()) {
