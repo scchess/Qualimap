@@ -28,7 +28,14 @@ public class BamStats implements Serializable {
 	private double percentageOfValidReads;
 	private int numberOfMappedReads;
 	private double percentageOfMappedReads;
-	
+
+    // regions related
+    private long numberOfInsideMappedReads;
+    private double percentageOfInsideMappedReads;
+    private long numberOfOutsideMappedReads;
+    private double percentageOfOutsideMappedReads;
+
+
 	/*
 	 * 
 	 *  Reference params
@@ -37,6 +44,9 @@ public class BamStats implements Serializable {
 	
 	private long referenceSize;
 	private long numberOfReferenceContigs;
+
+    private long inRegionReferenceSize;
+    private int numSelectedRegions;
 	private boolean referenceAvailable;
 	
  	  // A content
@@ -2565,5 +2575,55 @@ public class BamStats implements Serializable {
 	 */
 	public void setInsertSizeHistogram(XYVector insertSizeHistogram) {
 		this.insertSizeHistogram = insertSizeHistogram;
-	}	
+	}
+
+
+    public long getInRegionReferenceSize() {
+        return inRegionReferenceSize;
+    }
+
+    public void setInRegionReferenceSize(long inRegionReferenceSize) {
+        this.inRegionReferenceSize = inRegionReferenceSize;
+    }
+
+    public int getNumSelectedRegions() {
+        return numSelectedRegions;
+    }
+
+    public void setNumSelectedRegions(int numSelectedRegions) {
+        this.numSelectedRegions = numSelectedRegions;
+    }
+
+    public long getNumberOfInsideMappedReads() {
+        return numberOfInsideMappedReads;
+    }
+
+    public void setNumberOfInsideMappedReads(long numberOfInsideMappedReads) {
+        this.numberOfInsideMappedReads = numberOfInsideMappedReads;
+    }
+    public double getPercentageOfInsideMappedReads() {
+        return percentageOfInsideMappedReads;
+    }
+
+    public void setPercentageOfInsideMappedReads(double percentageOfInsideMappedReads) {
+        this.percentageOfInsideMappedReads = percentageOfInsideMappedReads;
+    }
+
+    public long getNumberOfOutsideMappedReads() {
+        return numberOfOutsideMappedReads;
+    }
+
+    public void setNumberOfOutsideMappedReads(long numberOfOutsideMappedReads) {
+        this.numberOfOutsideMappedReads = numberOfOutsideMappedReads;
+    }
+
+    public double getPercentageOfOutsideMappedReads() {
+        return percentageOfOutsideMappedReads;
+    }
+
+    public void setPercentageOfOutsideMappedReads(double percentageOfOutsideMappedReads) {
+        this.percentageOfOutsideMappedReads = percentageOfOutsideMappedReads;
+    }
+
+
 }

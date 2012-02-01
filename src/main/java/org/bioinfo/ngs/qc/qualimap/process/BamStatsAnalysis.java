@@ -227,15 +227,15 @@ public class BamStatsAnalysis {
             // compute absolute position
             long position = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 
-            boolean readOverlapsRegions = true;
+            /*boolean readOverlapsRegions = true;
             if (selectedRegionsAvailable) {
                 readOverlapsRegions = readOverlapsRegions(position, position + read.getReadLength() - 1);
                 if (readOverlapsRegions) {
                     ++numberOfReads;
                 }
-            } else {
-                ++numberOfReads;
-            }
+            } else {*/
+            ++numberOfReads;
+
 
 			// filter invalid reads
 			if(read.isValid() == null){
@@ -248,6 +248,7 @@ public class BamStatsAnalysis {
                 }
 
                 if (selectedRegionsAvailable) {
+                    boolean readOverlapsRegions = readOverlapsRegions(position, position + read.getReadLength() - 1);
                     if (readOverlapsRegions) {
                         numberOfMappedReads++;
                     } else {
@@ -335,13 +336,23 @@ public class BamStatsAnalysis {
 
         percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
         bamStats.setNumberOfReads(numberOfReads);
-        bamStats.setNumberOfMappedReads(numberOfMappedReads);
-        bamStats.setPercentageOfMappedReads(((double)numberOfMappedReads/(double)numberOfReads)*100.0);
-        bamStats.setPercentageOfValidReads(percentageOfValidReads);
-
         if (selectedRegionsAvailable) {
-            bamStats.setReferenceSize(insideReferenceSize);
+            bamStats.setNumSelectedRegions(numberOfSelectedRegions);
+            bamStats.setInRegionReferenceSize(insideReferenceSize);
+            int totalNumberOfMappedReads = numberOfMappedReads + numberOfOutsideMappedReads;
+            bamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
+            bamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
+            bamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
+            bamStats.setPercentageOfMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+            bamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
+            bamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+        } else {
+            bamStats.setNumberOfMappedReads(numberOfMappedReads);
+            bamStats.setPercentageOfMappedReads((numberOfMappedReads/(double)numberOfReads)*100.0);
         }
+        bamStats.setPercentageOfValidReads(percentageOfValidReads);
+        bamStats.setReferenceSize(referenceSize);
+
         // compute descriptors
         logger.println("Computing descriptors...");
 		bamStats.computeDescriptors();
@@ -350,11 +361,17 @@ public class BamStatsAnalysis {
 		bamStats.computeHistograms();
 
         if(selectedRegionsAvailable && computeOutsideStats){
-            outsideBamStats.setReferenceSize(referenceSize - insideReferenceSize);
+            outsideBamStats.setReferenceSize(referenceSize);
+            outsideBamStats.setNumSelectedRegions(numberOfSelectedRegions);
+            outsideBamStats.setInRegionReferenceSize(insideReferenceSize);
             outsideBamStats.setNumberOfReads(numberOfReads);
-            outsideBamStats.setNumberOfMappedReads(numberOfOutsideMappedReads);
-            outsideBamStats.setPercentageOfMappedReads(((double)numberOfOutsideMappedReads/(double)numberOfReads)*100.0);
-            logger.println("Computing descriptors for outside regions...");
+            int totalNumberOfMappedReads = numberOfMappedReads + numberOfOutsideMappedReads;
+            outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
+            outsideBamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
+            outsideBamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
+            outsideBamStats.setPercentageOfMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+            outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
+            outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);logger.println("Computing descriptors for outside regions...");
 		    outsideBamStats.computeDescriptors();
             logger.println("Computing histograms for outside regions...");
 		    outsideBamStats.computeHistograms();
@@ -643,6 +660,7 @@ public class BamStatsAnalysis {
 			//System.err.println(region.getStart() + ":" + region.getEnd() + "       " + pos + ":" + (pos + region.getEnd()-region.getStart()) + "      "  + selectedRegionStarts[index] + ":" + selectedRegionEnds[index] +  "     " + relative);
 			index++;
 		}
+
     }
 
     private int computeWindowSize(long referenceSize, int numberOfWindows){

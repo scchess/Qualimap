@@ -622,26 +622,41 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         StringUtilsSwing sdf = new StringUtilsSwing();
 
         StringBuffer summaryHtml = new StringBuffer("");
+        String postfix = reporter.getNamePostfix();
 
-		summaryHtml.append("<p align=center><a name=\"summary\"> <b>" + reporter.getSummaryTitle() + "</b></p>" + HtmlJPanel.BR);
+		summaryHtml.append("<p align=center><a name=\"summary\"> <b>Summary</b></p>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
 		summaryHtml.append(HtmlJPanel.COLSTART + "<b>Globals:</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Reference size" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getBasesNumber()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads()) + HtmlJPanel.COLEND);
+        if (reporter.getNumSelectedRegions() > 0) {
+            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of selected regions" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumSelectedRegions()) + HtmlJPanel.COLEND);
+            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Size of selected regions" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getInRegionsReferenceSize()) + HtmlJPanel.COLEND);
+            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Size of non-selected regions" + HtmlJPanel.COLMID +
+                    sdf.formatLong(reporter.getBasesNumber() - reporter.getInRegionsReferenceSize()) + HtmlJPanel.COLEND);
+        }
+        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads" + HtmlJPanel.COLMID + sdf.formatInteger(reporter.getNumMappedReads())
                 + " / " + sdf.formatPercentage(reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of unmapped reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads() - reporter.getNumMappedReads())
-                        + " / " + sdf.formatPercentage(100.0 - reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
+        if (reporter.getNumSelectedRegions() > 0) {
+            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads inside of regions" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumInsideMappedReads())
+                    + " / " + sdf.formatPercentage(reporter.getPercentageInsideMappedReads()) + HtmlJPanel.COLEND);
+            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads outside of regions" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumOutsideMappedReads())
+                    + " / " + sdf.formatPercentage(reporter.getPercentageOutsideMappedReads()) + HtmlJPanel.COLEND);
+        }
 
-        //TODO:replace with something about read length disitribtion
+        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of unmapped reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads() - reporter.getNumMappedReads())
+                                + " / " + sdf.formatPercentage(100.0 - reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
+
+
+        //TODO: replace with something about read length distribution
         //summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of mapped bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumMappedBases()) + HtmlJPanel.COLEND);
         //summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of sequenced bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumSequencedBases()) + HtmlJPanel.COLEND);
         //summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of aligned bases" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumAlignedBases()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>ACGT Content:</b>" + HtmlJPanel.BR);
+		summaryHtml.append("<b>ACGT Content" + postfix + ": </b>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of A's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getaNumber()) +
                 " / " + sdf.formatPercentage(reporter.getaPercent())+ HtmlJPanel.COLEND);
@@ -658,21 +673,21 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>Coverage:</b>" + HtmlJPanel.BR);
+		summaryHtml.append("<b>Coverage" + postfix + ":</b>" + HtmlJPanel.BR);
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanCoverage()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Standard Deviation" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getStdCoverage()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>Mapping Quality:</b>");
+		summaryHtml.append("<b>Mapping Quality" + postfix + ":</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean Mapping Quality:" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanMappingQuality()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
 			summaryHtml.append(HtmlJPanel.BR);
-			summaryHtml.append("<b>Chromosomes:</b>" + HtmlJPanel.BR);
+			summaryHtml.append("<b>Per chromosome statistics:</b>" + HtmlJPanel.BR);
 			summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
             String pathToChromosomeStats =HomeFrame.outputpath + tabProperties.getOutputFolder() + Constants.NAME_OF_FILE_CHROMOSOMES;
 			summaryHtml.append(fillHtmlTableFromFile(pathToChromosomeStats));

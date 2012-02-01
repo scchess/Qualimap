@@ -327,11 +327,9 @@ public class EpigeneticsAnalysisThread extends Thread {
             return false;
         }
 
-
         BamQCRegionReporter reporter = tabProperties.getReporter();
         reporter.setImageMap(imageMap);
         prepareInputDescription(reporter);
-
 
         return true;
 

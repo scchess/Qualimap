@@ -25,6 +25,10 @@ import org.jfree.ui.RectangleInsets;
 public class BamQCRegionReporter implements Serializable {
 
 
+    public String getNamePostfix() {
+        return namePostfix;
+    }
+
     static public class InputDataSection {
         String sectionName;
         Map<String, String> data;
@@ -60,23 +64,25 @@ public class BamQCRegionReporter implements Serializable {
 
 	private Integer numWindows, numMappedReads;
 
-	private Long basesNumber, contigsNumber, aNumber, cNumber, gNumber,
+	private Long referenceSize, contigsNumber, aNumber, cNumber, gNumber,
 	tNumber, nNumber, numReads, numMappedBases, numSequencedBases,
 	numAlignedBases, aReferenceNumber, cReferenceNumber, gReferenceNumber,
-	tReferenceNumber, nReferenceNumber;
+	tReferenceNumber, nReferenceNumber, numBasesInsideRegions;
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
 	gcPercent, atPercent, percentMappedReads, meanMappingQuality,
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
+    private long numInsideMappedReads, numOutsideMappedReads;
+    private double percentageInsideMappedReads, percentageOutsideMappedReads;
+
     List<InputDataSection> inputDataSections;
-    String summaryTitle, inputDescription, chartNamePostfix;
+    String namePostfix;
+    int numSelectedRegions;
 
     public BamQCRegionReporter() {
-        summaryTitle = "Summary";
-        inputDescription = "Input data and parameters";
-        chartNamePostfix = "";
+        namePostfix = "";
         inputDataSections = new ArrayList<InputDataSection>();
     }
 
@@ -217,7 +223,7 @@ public class BamQCRegionReporter implements Serializable {
 	 */
 	public void loadReportData(BamStats bamStats) throws IOException{
 		this.bamFileName = bamStats.getSourceFile();
-		this.basesNumber = bamStats.getReferenceSize();
+		this.referenceSize = bamStats.getReferenceSize();
 		this.contigsNumber = bamStats.getNumberOfReferenceContigs();
 
 		if(bamStats.isReferenceAvailable()) {
@@ -246,6 +252,14 @@ public class BamQCRegionReporter implements Serializable {
 		this.numSequencedBases = bamStats.getNumberOfSequencedBases();
 		this.numAlignedBases = bamStats.getNumberOfAlignedBases();
 
+        // regions related
+        this.numSelectedRegions = bamStats.getNumSelectedRegions();
+        this.numBasesInsideRegions = bamStats.getInRegionReferenceSize();
+        this.numInsideMappedReads = bamStats.getNumberOfInsideMappedReads();
+        this.percentageInsideMappedReads = bamStats.getPercentageOfInsideMappedReads();
+        this.numOutsideMappedReads = bamStats.getNumberOfOutsideMappedReads();
+        this.percentageOutsideMappedReads = bamStats.getPercentageOfOutsideMappedReads();
+
 		// mapping quality		
 		this.meanMappingQuality = bamStats.getMeanMappingQualityPerWindow();
 
@@ -261,8 +275,6 @@ public class BamQCRegionReporter implements Serializable {
 		this.nNumber = bamStats.getNumberOfNs();
 		this.nPercent = bamStats.getMeanNRelativeContent();
 		this.gcPercent = bamStats.getMeanGcRelativeContent();
-		//TODO: calculate mean at relative content?
-		//this.atPercent = bamStats.getMeanAtRelativeContent();
 
 		// coverageData
 		this.meanCoverage = bamStats.getMeanCoverage();
@@ -286,7 +298,7 @@ public class BamQCRegionReporter implements Serializable {
 
 		// some variables		
 		double maxValue = 50;
-		String subTitle = new File(bamStats.getSourceFile()).getName() + chartNamePostfix;
+		String subTitle = new File(bamStats.getSourceFile()).getName() + namePostfix;
 
 		// compute window centers
 		List<Double> windowReferences = new ArrayList<Double>(bamStats.getNumberOfWindows());
@@ -544,7 +556,7 @@ public class BamQCRegionReporter implements Serializable {
 
         StringBuilder inputDesc = new StringBuilder();
 
-        inputDesc.append("<p align=center><a name=\"input\"> <b>" + inputDescription + "</b></p>" + HtmlJPanel.BR);
+        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters</b></p>" + HtmlJPanel.BR);
         inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "EEEEEE"));
 
 
@@ -632,11 +644,11 @@ public class BamQCRegionReporter implements Serializable {
 	}
 
 	public Long getBasesNumber() {
-		return basesNumber;
+		return referenceSize;
 	}
 
 	public void setBasesNumber(Long basesNumber) {
-		this.basesNumber = basesNumber;
+		this.referenceSize = basesNumber;
 	}
 
 	public Long getContigsNumber() {
@@ -899,20 +911,33 @@ public class BamQCRegionReporter implements Serializable {
         return inputDataSections;
     }
 
-     public String getSummaryTitle() {
-        return summaryTitle;
+    public void setNamePostfix(String namePostfix) {
+        this.namePostfix = namePostfix;
     }
 
-    public void setSummaryTitle(String summaryTitle) {
-        this.summaryTitle = summaryTitle;
+    public int getNumSelectedRegions() {
+        return numSelectedRegions;
     }
 
-    public void setInputDescription(String inputDescription) {
-        this.inputDescription = inputDescription;
+    public long getInRegionsReferenceSize() {
+        return numBasesInsideRegions;
     }
 
-    public void setChartNamePostfix(String chartNamePostfix) {
-        this.chartNamePostfix = chartNamePostfix;
+    public long getNumInsideMappedReads() {
+        return numInsideMappedReads;
     }
+
+    public double getPercentageInsideMappedReads() {
+        return percentageInsideMappedReads;
+    }
+
+    public long getNumOutsideMappedReads() {
+        return numOutsideMappedReads;
+    }
+
+    public double getPercentageOutsideMappedReads() {
+        return percentageOutsideMappedReads;
+    }
+
 
 }

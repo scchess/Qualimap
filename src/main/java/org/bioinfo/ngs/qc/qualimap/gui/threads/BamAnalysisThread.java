@@ -56,7 +56,6 @@ public class BamAnalysisThread extends Thread {
 	 * method start over this thread.
 	 */
 	public void run() {
-		//BamQCSplitted bamQC = null;
 
 		// Create the outputDir directory
 		StringBuilder outputDirPath = tabProperties.createDirectory();
@@ -74,7 +73,7 @@ public class BamAnalysisThread extends Thread {
 
 		// Put the gff variable to know if the user has added a region file only
 		// if we are analyzing the exome
-		tabProperties.setGffSelected(tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME);
+		tabProperties.setGffSelected(bamDialog.getRegionFile() != null);
         tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
 		bamQC.setComputeChromosomeStats(true);
@@ -105,9 +104,7 @@ public class BamAnalysisThread extends Thread {
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
             prepareInputDescription(reporter);
             if (bamDialog.getRegionFile() != null) {
-                reporter.setSummaryTitle("Summary (inside of regions)");
-                reporter.setInputDescription("Input data and parameters (inside of regions)");
-                reporter.setChartNamePostfix(" (inside of regions)");
+                reporter.setNamePostfix(" (inside of regions)");
             }
 
 			// Draw the Chromosome Limits or not
@@ -117,7 +114,7 @@ public class BamAnalysisThread extends Thread {
 			reporter.loadReportData(bamQC.getBamStats());
 			bamDialog.getProgressStream().setText("OK");
 			tabProperties.setReporter(reporter);
-	
+
 			bamDialog.getProgressStream().setText("   charts...");
 			reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 			bamDialog.getProgressStream().setText("OK");
@@ -130,9 +127,7 @@ public class BamAnalysisThread extends Thread {
                 BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 
                 prepareInputDescription(outsideReporter);
-	            outsideReporter.setSummaryTitle("Summary (outside of regions)");
-                outsideReporter.setInputDescription("Input data and parameters (outside of regions)");
-                outsideReporter.setChartNamePostfix(" (outside of regions)");
+	            outsideReporter.setNamePostfix(" (outside of regions)");
 				// Draw the Chromosome Limits or not
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 
@@ -148,7 +143,6 @@ public class BamAnalysisThread extends Thread {
 
 				// Set the reporters into the created tab
 				tabProperties.setOutsideReporter(outsideReporter);
-
             }
 
 			// Increment the pogress bar
@@ -181,7 +175,7 @@ public class BamAnalysisThread extends Thread {
 
         HashMap<String,String> alignParams = new HashMap<String, String>();
         alignParams.put("BAM file: ", bamDialog.getInputFile().toString());
-        alignParams.put("Number of windows: ", Integer.toString(bamDialog.getNumberOfWindows()) );
+        alignParams.put("Number of windows: ", Integer.toString(bamDialog.getNumberOfWindows()));
         Boolean.toString(true);
         alignParams.put("Draw chromosome limits: ", boolToStr(bamDialog.getDrawChromosomeLimits()));
         reporter.addInputDataSection("Alignment", alignParams);
