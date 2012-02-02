@@ -160,7 +160,8 @@ heatmapCluster <- function(featureScores=NULL,grl.stored=NULL,design=NULL,ma.fil
         if (is.null(design)){
 				#l.forScores <- list(tables(featureScores)[[1]] - tables(featureScores)[[2]], tables(featureScores)[[3]] - tables(featureScores)[[4]])
 				#featureScores@scores <- l.forScores
-				file.name <- paste(expName,th,cl,sep="-")
+				#file.name <- paste(expName,th,cl,sep="-")
+				file.name <- paste(expName,". ",cl," Clusters",sep="") # We do not support the microarray at this moment
 				print(paste("Creating",file.path(dirOut,paste(file.name,".jpg",sep=""))))
 				jpeg(file.path(dirOut,paste(file.name,".jpg",sep="")),quality=100,h=2400,w=800)
 				cp=clusterPlots(fs,n.clusters=cl,expr=expr,plot.type=plot.type,t.name=file.name)
@@ -171,7 +172,6 @@ heatmapCluster <- function(featureScores=NULL,grl.stored=NULL,design=NULL,ma.fil
         cluster.levels = levels(clusters(cp))
         for ( cluster.level in cluster.levels ) {
           write(paste("START_CLUSTER=",cluster.level), report.path, append = TRUE )
-          print(names(t))
           t <- attr(annot[which(clusters(cp) == cluster.level)], "elementMetadata")
           lapply(t, write, report.path, append=TRUE, ncolumns=1000)
           write("END_CLUSTER\n", report.path, append = TRUE)
