@@ -385,7 +385,7 @@ public class BamQCRegionReporter implements Serializable {
 		coverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
 		coverageHistogram.setDomainAxisIntegerTicks(true);
-		coverageHistogram.render();
+	    coverageHistogram.render();
 		// TODO: move this code to render() method?
         if (bamStats.getCoverageHistogram().getSize() > 0) {
             double lower = bamStats.getCoverageHistogram().get(0).getX();
@@ -404,7 +404,8 @@ public class BamQCRegionReporter implements Serializable {
 		coverageRangedHistogram.setNumberOfBins(50);
 		coverageRangedHistogram.zoom(maxValue);
 		coverageRangedHistogram.setDomainAxisIntegerTicks(true);
-		coverageRangedHistogram.render();
+		coverageRangedHistogram.setDomainAxisTickUnitSize(1.0);
+        coverageRangedHistogram.render();
 		mapCharts.put(
 				bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
 				coverageRangedHistogram.getChart());

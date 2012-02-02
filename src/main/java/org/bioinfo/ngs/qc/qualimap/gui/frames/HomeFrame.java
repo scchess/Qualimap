@@ -279,15 +279,19 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
         setJMenuBar( new JMenuBar());
         JMenu fileMenu = getMenu("File",KeyEvent.VK_F);
-		JMenu analysisMenu = getMenu("Analysis",KeyEvent.VK_A);
+		JMenu analysisMenu = getMenu("New Analysis",KeyEvent.VK_N);
 		JMenu toolsMenu = getMenu("Tools", KeyEvent.VK_T);
         JMenu windowsMenu = getMenu("Windows", KeyEvent.VK_W);
         JMenu helpMenu = getMenu("Help",KeyEvent.VK_H);
+
+        analysisMenu.setIcon(new ImageIcon(this.getClass().getResource(Constants.pathImages + "report.png")));
+        fileMenu.add(analysisMenu);
 
         openReportItem = addMenuItem("Open Report (.zip)", "openproject", "open_folder.png", "ctrl pressed O");
         fileMenu.add(openReportItem);
         saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
         fileMenu.add(saveReportItem);
+        fileMenu.addSeparator();
         exportToHtmlItem = addMenuItem("Export as HTML", "exporthtml", "save_zip.png", "ctrl pressed H");
         fileMenu.add(exportToHtmlItem);
         exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
@@ -314,6 +318,14 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "help.png",null));
 		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "help.png",null));
 
+        JMenuBar menuBar = getJMenuBar();
+        menuBar.add(fileMenu);
+        //menuBar.add(analysisMenu);
+        menuBar.add(toolsMenu);
+        menuBar.add(windowsMenu);
+        menuBar.add(helpMenu);
+
+
    }
 	
 	private JMenu getMenu(String name, int vkH) {
@@ -321,7 +333,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		m.setText(name);
 		m.setMnemonic(vkH);
 		m.setSize(new Dimension(30, 30));
-		this.getJMenuBar().add(m);
 		return m;
     }
 

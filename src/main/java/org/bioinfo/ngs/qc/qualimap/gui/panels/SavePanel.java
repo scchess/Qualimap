@@ -51,8 +51,8 @@ public class SavePanel extends javax.swing.JPanel {
 	/** Variable to show the status progress while we are saving */
 	JLabel progressStream;
 	
-	/** Variable that contains the directory where the system is going to save */
-	JTextField pathDataDir, fileName;
+	/** Variable that contains the path to saved file */
+	JTextField pathDataDir;
 	
 	/** Variable to manage the message to show if any process fails */
 	StringBuffer stringValidation;
@@ -273,7 +273,8 @@ public class SavePanel extends javax.swing.JPanel {
 	/**
 	 * Function that calls a thread that create the zip file with the data read in the selected tab
 	 * and save it into the disk.
-	 */
+     * @param path Output ZIP path
+     */
 	private void createZipFile(String path){
 		SaveZipThread t = new SaveZipThread("Save to Zip Thread", this,
 			homeFrame.getSelectedTabPropertiesVO(), path);
@@ -284,7 +285,8 @@ public class SavePanel extends javax.swing.JPanel {
 	/**
 	 * Function that calls a thread that create the pdf file with the data read in the selected tab
 	 * and save it into the disk.
-	 */
+     * @param path Output PDF path
+     */
 	private void createPdfFile(String path){
 		TabPropertiesVO tabProperties = homeFrame.getSelectedTabPropertiesVO();
 		
@@ -307,43 +309,13 @@ public class SavePanel extends javax.swing.JPanel {
 	// ***************************************************************************************
 	// ************************************** LISTENERS **************************************
 	// ***************************************************************************************
-	/**
-	 * Action to load the input directory.
-	 * @return AbstractAction with the event
-	 */
-	private AbstractAction getActionLoadOutputPath() {
-		AbstractAction actionLoadFile = new AbstractAction("...", null) {
-			private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent evt) {
-				if(homeFrame.getFileSaveChooser() == null){
-					homeFrame.setFileSaveChooser(new JFileChooser());
-				}
-				homeFrame.getFileSaveChooser().setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-								
-				int valor = homeFrame.getFileSaveChooser().showOpenDialog(homeFrame
-						.getCurrentInstance());
-
-				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathDataDir.setText(homeFrame.getFileSaveChooser().getSelectedFile()
-							.getPath());
-				}
-				
-				// Set the focus to the next element
-				fileName.requestFocus();
-			}
-		};
-
-		return actionLoadFile;
-	}
-	
-	
 	/**
 	 * Action to save all the loaded data into a zip file.
 	 * @return AbstractAction with the event
 	 */
 	private AbstractAction getActionSaveZip() {
-		AbstractAction actionLoadFile = new AbstractAction("Save", null) {
+		return new AbstractAction("Save", null) {
 			private static final long serialVersionUID = -6901271560142385333L;
 
 			public void actionPerformed(ActionEvent evt) {
@@ -370,7 +342,6 @@ public class SavePanel extends javax.swing.JPanel {
 			}
 		};
 
-		return actionLoadFile;
 	}
 	
 	/**
@@ -378,7 +349,7 @@ public class SavePanel extends javax.swing.JPanel {
 	 * @return AbstractAction with the event
 	 */
 	private AbstractAction getActionSavePdf() {
-		AbstractAction actionLoadFile = new AbstractAction("Save", null) {
+		return new AbstractAction("Save", null) {
 			private static final long serialVersionUID = -6901271560142385333L;
 
 			public void actionPerformed(ActionEvent evt) {
@@ -405,7 +376,6 @@ public class SavePanel extends javax.swing.JPanel {
 			}
 		};
 
-		return actionLoadFile;
 	}
 
 	
@@ -417,32 +387,14 @@ public class SavePanel extends javax.swing.JPanel {
 		return homeFrame;
 	}
 
-	public void setHomeFrame(HomeFrame homeFrame) {
-		this.homeFrame = homeFrame;
-	}
-
 	public JProgressBar getProgressBar() {
 		return progressBar;
-	}
-
-	public void setProgressBar(JProgressBar progressBar) {
-		this.progressBar = progressBar;
 	}
 
 	public JLabel getProgressStream() {
 		return progressStream;
 	}
 
-	public void setProgressStream(JLabel progressStream) {
-		this.progressStream = progressStream;
-	}
 
-	public JTextField getPathDataDir() {
-		return pathDataDir;
-	}
-
-	public void setPathDataDir(JTextField pathDataDir) {
-		this.pathDataDir = pathDataDir;
-	}
 		
 }

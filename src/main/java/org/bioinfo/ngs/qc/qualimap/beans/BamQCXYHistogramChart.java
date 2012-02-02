@@ -10,6 +10,7 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -40,6 +41,7 @@ public class BamQCXYHistogramChart {
 	private boolean rangeAxisIntegerTicks;
 	private boolean domainAxisIntegerTicks;
 	private boolean adjustDomainAxisLimits;
+    private double domainAxisTickUnitSize;
 	
 	public BamQCXYHistogramChart(String title,String subTitle, String xLabel, String yLabel){
 		
@@ -101,13 +103,21 @@ public class BamQCXYHistogramChart {
 			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getDomainAxis();   
 		    numberaxis.setAutoRangeIncludesZero(false);   
 		    numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
 		}
-		
+
+        if (domainAxisTickUnitSize != 0) {
+            NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getDomainAxis();
+            numberaxis.setTickLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,8));
+		    numberaxis.setTickUnit( new NumberTickUnit(domainAxisTickUnitSize));
+        }
+
 		if(rangeAxisIntegerTicks){
-			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getRangeAxis();   
+			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getRangeAxis();
 		    numberaxis.setAutoRangeIncludesZero(false);
 		    numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		}
+        }
+
 
 		// grid
 		plot.setBackgroundPaint(Color.WHITE);
@@ -293,4 +303,9 @@ public class BamQCXYHistogramChart {
 	public void setDomainAxisIntegerTicks(boolean domainAxisIntegerTicks) {
 		this.domainAxisIntegerTicks = domainAxisIntegerTicks;
 	}
+
+
+    public void setDomainAxisTickUnitSize(double domainAxisTickUnitSize) {
+        this.domainAxisTickUnitSize = domainAxisTickUnitSize;
+    }
 }
