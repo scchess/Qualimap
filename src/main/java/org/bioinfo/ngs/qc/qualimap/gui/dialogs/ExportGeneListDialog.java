@@ -125,7 +125,7 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
                 continue;
             }
 
-            if (lineCount == 3 && curClusterNumber != 0) {
+            if (lineCount == 1 && curClusterNumber != 0) {
                 String[] genes = line.split("\\s");
                 geneListMap.put(curClusterNumber, genes);
             }

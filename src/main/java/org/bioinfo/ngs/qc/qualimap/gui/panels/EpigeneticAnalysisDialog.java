@@ -26,11 +26,11 @@ import java.util.List;
  */
 public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
-    JTextField geneSelectionField,  clustersField;
-    JSpinner columnSpinner, leftOffsetSpinner, rightOffsetSpinner, stepSpinner, smoothingLengthSpinner;
+    JTextField regionsField,  clustersField;
+    JSpinner leftOffsetSpinner, rightOffsetSpinner, stepSpinner, smoothingLengthSpinner;
     JButton browseGeneSelectionButton;
     JButton startAnalysisButton, addSampleButton, removeSampleButton, editSampleButton;
-    JTextField sampleName;
+    JTextField experimentName;
     JComboBox vizTypeBox;
     JLabel progressStream;
     JTable inputDataTable;
@@ -46,14 +46,10 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
-    static final boolean DEBUG = false;
+    static final boolean DEBUG = true;
 
     public String getGeneSelectionPath() {
-        return geneSelectionField.getText();
-    }
-
-    public String getGeneSelectionColumn() {
-        return columnSpinner.getValue().toString();
+        return regionsField.getText();
     }
 
     public String getLeftOffset() {
@@ -78,11 +74,11 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     }
 
     public String getInputDataName() {
-        return sampleName.getText();
+        return experimentName.getText();
     }
 
-    public String getSampleName() {
-        return sampleName.getText();
+    public String getExperimentName() {
+        return experimentName.getText();
     }
 
     public JTextArea getLogArea() {
@@ -168,10 +164,10 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, null);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
-        add(new JLabel("Sample name: "), "");
-        sampleName = new JTextField(20);
-        sampleName.setText("Sample 1");
-        add(sampleName, "wrap");
+        add(new JLabel("Experiment ID: "), "");
+        experimentName = new JTextField(20);
+        experimentName.setText("Experiment 1");
+        add(experimentName, "wrap");
 
         add(new JLabel("Alignment data:"), "span 2, wrap");
 
@@ -198,39 +194,31 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
-        transcriptIdsPanel = new JPanel();
-        transcriptIdsPanel.setLayout(new MigLayout("insets 5"));
-
         // Gene selection
-        add(new JLabel("Transcript IDs data"), "span 2, wrap");
-        transcriptIdsPanel.add(new JLabel("Path:"));
-        geneSelectionField = new JTextField(30);
-        geneSelectionField.setToolTipText("Path to gene selection file");
-        transcriptIdsPanel.add(geneSelectionField, "grow");
+        add(new JLabel("Regions of interest:"));
+        regionsField = new JTextField(40);
+        regionsField.setToolTipText("Path to annotation file containing regions of interest");
+        add(regionsField, "grow");
 
         browseGeneSelectionButton = new JButton();
 		browseGeneSelectionButton.setText("...");
 		browseGeneSelectionButton.addKeyListener(keyListener);
         browseGeneSelectionButton.addActionListener(
-                new BrowseButtonActionListener(this, geneSelectionField,"Gene selection files", "txt"));
-        transcriptIdsPanel.add(browseGeneSelectionButton, "align center");
+                new BrowseButtonActionListener(this, regionsField,"Annotation files", "txt"));
+        add(browseGeneSelectionButton, "align center, wrap");
 
-        transcriptIdsPanel.add(new JLabel(" Column:"), "span 2, align left");
-        columnSpinner = new JSpinner(new SpinnerNumberModel(1, 1,20,1));
-        columnSpinner.setToolTipText("Select in which column of the input file the transcript IDs can be found");
-        transcriptIdsPanel.add(columnSpinner, "wrap");
-        add(transcriptIdsPanel, "span, wrap");
+        //add(transcriptIdsPanel, "span, wrap");
 
 
-        add(new JLabel("Region of interest"), "span 2, wrap");
+        add(new JLabel("Location"), "span 2, wrap");
 
         locationPanel = new JPanel();
         locationPanel.setLayout(new MigLayout("insets 5"));
 
-        locationPanel.add(new JLabel("Left offset:"));
+        locationPanel.add(new JLabel("Left offset (bp):"));
         leftOffsetSpinner = new JSpinner(new SpinnerNumberModel(2000, 1,1000000,1));
         locationPanel.add(leftOffsetSpinner, "");
-        locationPanel.add(new JLabel("Right offset:"));
+        locationPanel.add(new JLabel("Right offset (bp):"));
         rightOffsetSpinner = new JSpinner(new SpinnerNumberModel(500, 1,10000000,1));
         locationPanel.add(rightOffsetSpinner, "");
         locationPanel.add(new JLabel("Bin size (bp):"));
@@ -238,12 +226,12 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         locationPanel.add(stepSpinner, "wrap");
         add(locationPanel, "span, wrap");
 
-        add(new JLabel("Clusters"));
+        add(new JLabel("Number of clusters:"));
         clustersField = new JTextField((20));
         clustersField.setText("10,15,20,25,30");
         add(clustersField, "wrap");
 
-        add(new JLabel("Fragment length:"));
+        add(new JLabel("Fragment length (bp):"));
         smoothingLengthSpinner = new JSpinner(new SpinnerNumberModel(300, 100,500,1));
         add(smoothingLengthSpinner, "wrap");
 
@@ -289,10 +277,9 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         if (DEBUG) {
 
 
-            geneSelectionField.setText("/home/kokonech/qualimapEpi/src/medip/DMRs.24h.all.merged.2kbProm.txt");
-            columnSpinner.setValue(4);
+            regionsField.setText("/home/kokonech/sample_data/clustering_sample/CpGIslandsByTakai.wihtNames.short.bed");
 
-            sampleName.setText("24h-i");
+            experimentName.setText("24h-i");
 
             // add some preliminary data
             DataItem item1 = new DataItem();
@@ -409,14 +396,14 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         String geneSelectionPath = getGeneSelectionPath();
 
         if (geneSelectionPath.isEmpty()) {
-            return "Gene selection path is not set!";
+            return "Transcripts id path is not set!";
         }
 
         if ( !(new File(geneSelectionPath)).exists() ) {
             return "Gene selection path is not valid!";
         }
 
-        if (sampleName.getText().isEmpty()) {
+        if (experimentName.getText().isEmpty()) {
             return "Sample name is not provided!";
         }
 

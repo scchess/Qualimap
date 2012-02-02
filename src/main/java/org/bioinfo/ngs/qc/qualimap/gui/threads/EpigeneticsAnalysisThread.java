@@ -26,8 +26,8 @@ public class EpigeneticsAnalysisThread extends Thread {
     TabPropertiesVO tabProperties;
 
     static final String TAG_PARAMETERS = "parameters";
-    static final String TAG_EXP_ID = "expId";
-    static final String TAG_GENE_SELECTION = "geneSelection";
+    static final String TAG_EXP_ID = "expID";
+    static final String TAG_REGIONS = "regions";
     static final String TAG_FILE = "file";
     static final String TAG_COLUMN = "column";
     static final String TAG_LOCATION = "location";
@@ -109,13 +109,13 @@ public class EpigeneticsAnalysisThread extends Thread {
 
         try {
 
-
             settingsDialog.setProgressStatus("Generating configuration file...");
             createConfigFile(outputDir.toString(), "config.xml");
 
             // Create the command to execute
             String commandString = createCommand(outputDir.toString());
             System.out.println(commandString);
+            settingsDialog.getLogArea().append(commandString);
 
             settingsDialog.setProgressStatus("Running Rscript command...");
 
@@ -181,22 +181,15 @@ public class EpigeneticsAnalysisThread extends Thread {
 
         // expId
         xmlWriter.writeStartElement(TAG_EXP_ID);
-        xmlWriter.writeCharacters("24h-promoters.DMRs");
+        xmlWriter.writeCharacters(settingsDialog.getExperimentName());
         xmlWriter.writeEndElement();
         xmlWriter.writeCharacters("\n\n\t");
 
 
         // gene selection
-        xmlWriter.writeStartElement(TAG_GENE_SELECTION);
+        xmlWriter.writeStartElement(TAG_REGIONS);
         xmlWriter.writeCharacters("\n\t\t");
-        xmlWriter.writeStartElement(TAG_FILE);
         xmlWriter.writeCharacters(settingsDialog.getGeneSelectionPath());
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\t\t");
-        xmlWriter.writeStartElement(TAG_COLUMN);
-        xmlWriter.writeCharacters(settingsDialog.getGeneSelectionColumn());
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\t");
         xmlWriter.writeEndElement();
         xmlWriter.writeCharacters("\n\n\t");
 
@@ -204,11 +197,11 @@ public class EpigeneticsAnalysisThread extends Thread {
         xmlWriter.writeStartElement(TAG_LOCATION);
         xmlWriter.writeCharacters("\n\t\t");
         xmlWriter.writeStartElement(TAG_UP);
-        xmlWriter.writeCharacters(settingsDialog.getRightOffset());
+        xmlWriter.writeCharacters(settingsDialog.getLeftOffset());
         xmlWriter.writeEndElement();
         xmlWriter.writeCharacters("\n\t\t");
         xmlWriter.writeStartElement(TAG_DOWN);
-        xmlWriter.writeCharacters(settingsDialog.getLeftOffset());
+        xmlWriter.writeCharacters(settingsDialog.getRightOffset());
         xmlWriter.writeEndElement();
         xmlWriter.writeCharacters("\n\t\t");
         xmlWriter.writeStartElement(TAG_FREQ);
@@ -223,7 +216,6 @@ public class EpigeneticsAnalysisThread extends Thread {
 
             xmlWriter.writeCharacters("\n\t\t");
             xmlWriter.writeStartElement("sample1");
-            xmlWriter.writeAttribute("name", settingsDialog.getSampleName());
             List<EpigeneticAnalysisDialog.DataItem> sampleItems = settingsDialog.getSampleItems();
             for (EpigeneticAnalysisDialog.DataItem item : sampleItems) {
                 xmlWriter.writeCharacters("\n\t\t\t");
@@ -347,22 +339,22 @@ public class EpigeneticsAnalysisThread extends Thread {
     private void prepareInputDescription(BamQCRegionReporter reporter) {
 
         HashMap<String,String> selectionParams = new HashMap<String, String>();
-        selectionParams.put("Path: ", settingsDialog.getGeneSelectionPath());
-        selectionParams.put("Column: ", settingsDialog.getGeneSelectionColumn() );
-        reporter.addInputDataSection("Gene selection", selectionParams);
+        selectionParams.put("Name: ", settingsDialog.getExperimentName());
+        selectionParams.put("Path to regions file: ", settingsDialog.getGeneSelectionPath());
+        reporter.addInputDataSection("Experiment", selectionParams);
 
         HashMap<String,String> locationParams = new HashMap<String, String>();
-        locationParams.put("Left offset: ", settingsDialog.getGeneSelectionPath() );
-        locationParams.put("Right offset: ", settingsDialog.getGeneSelectionColumn());
-        locationParams.put("Step: ", settingsDialog.getGeneSelectionColumn());
+        locationParams.put("Left offset (bp): ", settingsDialog.getLeftOffset() );
+        locationParams.put("Right offset (bp): ", settingsDialog.getRightOffset());
+        locationParams.put("Bin size: ", settingsDialog.getStep());
         reporter.addInputDataSection("Location: ",  locationParams);
 
         List<EpigeneticAnalysisDialog.DataItem> items = settingsDialog.getSampleItems();
 
         for ( EpigeneticAnalysisDialog.DataItem item : items ) {
             HashMap<String,String> sampleParams = new HashMap<String, String>();
-            sampleParams.put("Medip path: ", item.medipPath );
-            sampleParams.put("Control path: ", item.medipPath );
+            sampleParams.put("Sample file: ", item.medipPath );
+            sampleParams.put("Control file: ", item.inputPath );
             reporter.addInputDataSection("Sample " + item.name, sampleParams);
         }
 
