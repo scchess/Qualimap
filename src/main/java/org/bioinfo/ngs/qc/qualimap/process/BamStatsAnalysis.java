@@ -1,9 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileReader;
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.SAMRecordIterator;
+import net.sf.samtools.*;
 import net.sf.picard.util.IntervalTree;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.formats.core.feature.Gff;
@@ -130,7 +127,6 @@ public class BamStatsAnalysis {
 
         long startTime = System.currentTimeMillis();
 
-        // init reader
         SAMFileReader reader = new SAMFileReader(new File(bamFile));
 
         // org.bioinfo.ntools.process header

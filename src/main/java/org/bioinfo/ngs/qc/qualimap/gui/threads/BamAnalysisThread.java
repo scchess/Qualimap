@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
 
+import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
@@ -154,6 +155,13 @@ public class BamAnalysisThread extends Thread {
                     "<br>Try increasing number of windows in Advanced Options" +
                     "<br>or changing Java virtual machine settings.</body></html>",
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
+            bamDialog.setUiEnabled(true);
+            return;
+        } catch (SAMFormatException se) {
+            System.out.print(se.getMessage());
+            JOptionPane.showMessageDialog(null, "Error parsing BAM file! See log for details.",
+                    bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
+            se.printStackTrace();
             bamDialog.setUiEnabled(true);
             return;
         } catch (Exception e) {
