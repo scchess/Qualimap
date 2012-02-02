@@ -256,7 +256,7 @@ public class ExportHtmlThread extends Thread{
             htmlReport.append("<br><br><p align=\"center\">\n<b>").append("<a name=\"")
                     .append(entry.getKey()).append("\">")
                     .append(entry.getKey()).append("</a></b><br><br>\n");
-            htmlReport.append("<div align=\"center\"><img src=").append(imagePath).append("></div>\n");
+            htmlReport.append("<div align=\"center\"><img src=").append(imageFile.getName()).append("></div>\n");
 
             increaseProgressBar(entry.getKey());
 
