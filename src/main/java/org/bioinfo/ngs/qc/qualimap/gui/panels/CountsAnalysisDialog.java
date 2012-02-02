@@ -27,10 +27,11 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
     JButton startAnalysisButton, browseFileButton1, browseFileButton2;
     JTextField  filePathEdit1, filePathEdit2, thresholdEdit;
+    JTextField sample1NameEdit, sample2NameEdit;
     JComboBox speciesCombo;
     JCheckBox compartativeAnalysisCheckBox;
     JProgressBar progressBar;
-    JLabel fileLabel1, fileLabel2, thresholdLabel, progressStream;
+    JLabel fileLabel2, sample2NameLabel, thresholdLabel, progressStream;
     JTextField infoFileEdit;
     JButton browseInfoFileButton, calcCountsButton;
     JRadioButton infoFileButton, speciesButton;
@@ -58,7 +59,12 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
-        fileLabel1 = new JLabel("First sample (counts):");
+        add(new JLabel("First sample name:"));
+        sample1NameEdit = new JTextField(20);
+        sample1NameEdit.setText("Sample 1");
+        add(sample1NameEdit, "wrap");
+
+        JLabel fileLabel1 = new JLabel("First sample (counts):");
         add(fileLabel1, "");
 
         filePathEdit1 = new JTextField(40);
@@ -77,6 +83,13 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         compartativeAnalysisCheckBox.setText("Compare with other sample");
         compartativeAnalysisCheckBox.addActionListener(this);
         add(compartativeAnalysisCheckBox, "wrap");
+
+        sample2NameLabel =  new JLabel("Second sample name:");
+        add(sample2NameLabel);
+        sample2NameEdit = new JTextField(20);
+        sample2NameEdit.setText("Sample 2");
+        add(sample2NameEdit, "wrap");
+
 
         fileLabel2 = new JLabel("Second sample (counts):");
         add(fileLabel2, "");
@@ -135,7 +148,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         speciesCombo = new JComboBox(speicesComboItems);
         speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
         add(speciesCombo, "grow, wrap 30px");
-
 
         /*
         TODO: provide better logging
@@ -198,6 +210,8 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
         fileLabel2.setEnabled(secondFileIsEnabled);
         filePathEdit2.setEnabled(secondFileIsEnabled);
+        sample2NameLabel.setEnabled(secondFileIsEnabled);
+        sample2NameEdit.setEnabled(secondFileIsEnabled);
         browseFileButton2.setEnabled(secondFileIsEnabled);
 
         infoFileEdit.setEnabled(infoFileButton.isSelected());
@@ -220,11 +234,11 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     }
 
     public String getName1() {
-        return "Sample 1";
+        return sample1NameEdit.getText();
     }
 
     public String getName2() {
-        return "Sample 2";
+        return sample2NameEdit.getText();
     }
 
     public boolean infoFileIsProvided() {
@@ -293,12 +307,17 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     }
 
     boolean validateInputFile(String pathToFile, String fileType, boolean  checkForMimeType) {
-        File inputFile;
 
-        if (pathToFile.isEmpty() || (inputFile = new File(pathToFile)) == null) {
+        if (pathToFile.isEmpty()) {
 			stringValidation.append(" • The path of the ").append(fileType).append(" is required \n");
             return false;
-		} else if (inputFile != null) {
+		} else  {
+            File inputFile = new File(pathToFile);
+            try {
+				FileUtils.checkFile(inputFile);
+			} catch (IOException e) {
+				stringValidation.append(" • ").append(e.getMessage()).append(" \n");
+			}
             if (checkForMimeType) {
 			    String mimeType = new MimetypesFileTypeMap().getContentType(inputFile);
 			    if (mimeType == null) {
@@ -307,17 +326,8 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
                 }
             }
             return true;
-		} else {
-			try {
-				FileUtils.checkFile(inputFile);
-			} catch (IOException e) {
-				stringValidation.append(" • ").append(e.getMessage()).append(" \n");
-			}
-            return false;
 		}
-
     }
-
 
     boolean validateInput() {
 
@@ -325,6 +335,10 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
 		stringValidation = new StringBuilder();
 
+		if (sample1NameEdit.getText().isEmpty()) {
+            stringValidation.append("First sample name is empty!");
+            return false;
+        }
 		// Validation for the first data file
         if (!validateInputFile(filePathEdit1.getText(), "Input File 1",  true)) {
             return false;
@@ -332,16 +346,19 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
 		// Validation for the second data file
 		if (secondSampleIsProvided()) {
+            if (sample2NameEdit.getText().isEmpty()) {
+                stringValidation.append("Second sample name is empty!");
+                return false;
+            }
             if (!validateInputFile(filePathEdit2.getText(), "Input File 2",  true)) {
                 return false;
             }
         }
 
 		// the name of the 2 experiments must be different
-		//TODO: add names
-		/*if (name1.getText() != null && name1.getText().length() > 0 && name2.getText() != null && name2.getText().length() > 0 && name1.getText().equalsIgnoreCase(name2.getText())) {
+		if (sample1NameEdit.getText().equalsIgnoreCase(sample2NameEdit.getText())) {
 			stringValidation.append(" • Name 1 and Name 2 must be different \n");
-		}*/
+		}
 
         String thresholdEditText = thresholdEdit.getText();
 
