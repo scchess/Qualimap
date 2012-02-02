@@ -1,17 +1,13 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.AbstractAction;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -19,9 +15,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
-import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
@@ -59,129 +55,105 @@ public class SavePanel extends javax.swing.JPanel {
 	JTextField pathDataDir, fileName;
 	
 	/** Variable to manage the message to show if any process fails */
-	StringBuffer stringValidacion;
+	StringBuffer stringValidation;
 	
 	
 	public SavePanel() {
 		super();
 		logger = new Logger(this.getClass().getName());
 	}
-	
-	/**
-	 * Create a panel that contains the information to set the input data path to
-	 * save the data into a file of the type specified.
-	 * @param homeFrame HomeFrame reference that contains the reference to the wrapper
-	 * @param fileType, String that contains the type of file to return.
-	 * @return JDialog, User Interface to set information needed to save the file.
-	 */
-	public JDialog getSaveFilePanel(HomeFrame homeFrame, String fileType) {
-		this.homeFrame = homeFrame;
-		
-		resultContainer = new JDialog();
-		resultContainer.pack();
-		resultContainer.setSize(new Dimension(650, 200));
-		
-		KeyListener keyListener = new PopupKeyListener(homeFrame, resultContainer, progressBar);
-		
-		if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
-			resultContainer.setTitle("Save to Zip File");
-		} else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
-			resultContainer.setTitle("Save to Pdf File");
-		}
-		resultContainer.setResizable(false);
-		
-		GroupLayout thisLayout = new GroupLayout((JComponent)resultContainer.getContentPane());
-		resultContainer.getContentPane().setLayout(thisLayout);
-		thisLayout.setHorizontalGroup(thisLayout.createSequentialGroup().addGap(650));
-		thisLayout.setVerticalGroup(thisLayout.createSequentialGroup().addGap(200));
-		
-		// Input Line of information (input folder)
-		JLabel label = new JLabel();
-		label.setText("Parent Folder");
-		label.setSize(111, label.getPreferredSize().height);
-		label.setLocation(Constants.marginLeftForElement,
-				40);
-		resultContainer.add(label);
 
-		pathDataDir = new JTextField();
-		pathDataDir.setSize(437,
-				Constants.elementHeight);
-		pathDataDir.setLocation(
-				label.getX() + label.getWidth() + Constants.marginLeftForSubElement,
-				label.getY());
-		pathDataDir.addKeyListener(keyListener);
-		resultContainer.add(pathDataDir);
 
-		JButton pathDirButton = new JButton();
-		pathDirButton.setText("...");
-		pathDirButton.setSize(pathDirButton.getPreferredSize());
-		pathDirButton.setLocation(
-				pathDataDir.getX() + pathDataDir.getWidth() + Constants.marginLeftForSubElement,
-				pathDataDir.getY() - 3);
-		pathDirButton.setAction(getActionLoadOutputPath());
-		pathDirButton.addKeyListener(keyListener);
-		resultContainer.add(pathDirButton);
-		
-		// Input Line of information (input file name)
-		label = new JLabel();
-		if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
-			label.setText("File Name (.zip)");
-		} else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
-			label.setText("File Name (.pdf)");
-		}
-		label.setSize(111, label.getPreferredSize().height);
-		label.setLocation(Constants.marginLeftForElement,
-				pathDataDir.getY() + Constants.marginTopForElementI);
-		resultContainer.add(label);
+    static class SaveFileButtonActionListener implements ActionListener {
 
-		fileName = new JTextField();
-		fileName.setSize(437,
-				Constants.elementHeight);
-		fileName.setLocation(
-				label.getX() + label.getWidth() + Constants.marginLeftForSubElement,
-				label.getY());
-		fileName.addKeyListener(keyListener);
-		resultContainer.add(fileName);
-		
-		// Progress Bar to show while the statistics graphics are loaded
-		UIManager.put("ProgressBar.selectionBackground", Color.black);
-		UIManager.put("ProgressBar.selectionForeground", Color.black);
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setLocation(
-				label.getX() + 30,
-				label.getY() + Constants.marginTopForFirstElement + 20);
-		progressBar.setVisible(false);
-		progressBar.setSize(350, 20);
-		progressBar.setStringPainted(true);
-		progressBar.setBorderPainted(true);
-		progressBar.setForeground(new Color(244, 200, 120));
-		resultContainer.add(progressBar);
-		
+        JTextField pathTextField;
+        JFileChooser fileChooser;
+        Component parent;
+
+        public SaveFileButtonActionListener(Component parent, JTextField pathTextField, String fileType, String ext) {
+            this.pathTextField = pathTextField;
+            this.parent = parent;
+            fileChooser = new JFileChooser();
+            fileChooser.setFileFilter( new FileNameExtensionFilter(fileType,  ext));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            int res = fileChooser.showSaveDialog(parent);
+
+            if (res == JFileChooser.APPROVE_OPTION) {
+                pathTextField.setText(fileChooser.getSelectedFile()
+                        .getPath());
+            }
+
+        }
+
+    }
+
+    /**
+         * Create a panel that contains the information to set the input data path to
+         * save the data into a file of the type specified.
+         * @param homeFrame HomeFrame reference that contains the reference to the wrapper
+         * @param fileType, String that contains the type of file to return.
+         * @return JDialog, User Interface to set information needed to save the file.
+         */
+    public JDialog getSaveFileDialog(HomeFrame homeFrame, String fileType) {
+        this.homeFrame = homeFrame;
+
+        resultContainer = new JDialog();
+        resultContainer.setLayout( new MigLayout("insets 20"));
+
+        KeyListener keyListener = new PopupKeyListener(homeFrame, resultContainer, progressBar);
+        resultContainer.add(new JLabel("Path:"));
+
+        pathDataDir = new JTextField(40);
+        pathDataDir.addKeyListener(keyListener);
+        resultContainer.add(pathDataDir, "grow");
+
+        JButton pathDirButton = new JButton();
+        pathDirButton.setText("...");
+        pathDirButton.addActionListener(
+                new SaveFileButtonActionListener(this,pathDataDir, fileType, fileType));
+        pathDirButton.addKeyListener(keyListener);
+        resultContainer.add(pathDirButton, "wrap");
+
+        // Progress Bar to show while the statistics graphics are loaded
+        UIManager.put("ProgressBar.selectionBackground", Color.black);
+        UIManager.put("ProgressBar.selectionForeground", Color.black);
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setVisible(false);
+        progressBar.setStringPainted(true);
+        progressBar.setBorderPainted(true);
+        progressBar.setForeground(new Color(244, 200, 120));
+
         // Action done while the statistics graphics are loaded
-		progressStream = new JLabel();
-		progressStream.setLocation(
-				progressBar.getX(),
-				progressBar.getY() + progressBar.getHeight() + Constants.marginTopForElementSubMenu);
-		progressStream.setVisible(false);
-		progressStream.setSize(350, 20);
-		resultContainer.add(progressStream);
-		
-		JButton saveButton = new JButton();
-		saveButton.setText("Save");
-		saveButton.setSize(saveButton.getPreferredSize());
-		saveButton.setLocation(
-				resultContainer.getWidth() - saveButton.getWidth() - 20,
-				resultContainer.getHeight() - saveButton.getHeight() - 50);
-		if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
-			saveButton.setAction(getActionSaveZip());
-		} else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
-			saveButton.setAction(getActionSavePdf());
-		}
-		saveButton.addKeyListener(keyListener);
-		resultContainer.add(saveButton);
-		
-		return resultContainer;
-	}
+        progressStream = new JLabel();
+        progressStream.setVisible(false);
+
+        resultContainer.add(progressStream);
+        resultContainer.add(progressBar, "span 2, wrap");
+
+        JButton saveButton = new JButton();
+        saveButton.setText("Save");
+        if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
+            saveButton.setAction(getActionSaveZip());
+        } else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
+            saveButton.setAction(getActionSavePdf());
+        }
+        saveButton.addKeyListener(keyListener);
+        resultContainer.add(saveButton, "span, align right");
+        if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
+            resultContainer.setTitle("Save to Zip");
+        } else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
+            resultContainer.setTitle("Export to PDF");
+        }
+        resultContainer.setResizable(false);
+
+        resultContainer.pack();
+
+        return resultContainer;
+    }
+
 
 
     public JDialog getExportToHtmlFilePanel(final HomeFrame homeFrame) {
@@ -240,7 +212,6 @@ public class SavePanel extends javax.swing.JPanel {
 		progressBar.setForeground(new Color(244, 200, 120));
 		resultContainer.add(progressBar, "span 2, align center, wrap");
 
-
 		JButton saveButton = new JButton();
 		saveButton.setText("Save");
 
@@ -288,32 +259,15 @@ public class SavePanel extends javax.swing.JPanel {
 	 * @return boolean, true if the input data are correct.
 	 */
 	private boolean validateInput() {
-		boolean validate = true;
 
-		stringValidacion = new StringBuffer();
+		stringValidation = new StringBuffer();
 		
 		// Check the directory where we want to write
-		if (pathDataDir.getText() == null || pathDataDir.getText().isEmpty()) {
-			stringValidacion.append(" • The output folder path is required \n");
-		} else {
-			try {
-				FileUtils.checkDirectory(pathDataDir.getText(), true);
-			} catch (IOException e) {
-				stringValidacion.append(" • " + e.getMessage() + " \n");
-			}
-		}
-		
-		// Check the file input name
-        if(fileName.getText() == null || fileName.getText().isEmpty()){
-            stringValidacion.append(" • The name of the Output Data File is required \n");
-        }
-
-        // Check the validation string
-		if(stringValidacion.length() > 0){
-			validate = false;
+		if (pathDataDir.getText().isEmpty()) {
+			stringValidation.append(" • The output path is required \n");
 		}
 
-		return validate;
+		return stringValidation.length() == 0;
 	}
 	
 	/**
@@ -395,13 +349,12 @@ public class SavePanel extends javax.swing.JPanel {
 			public void actionPerformed(ActionEvent evt) {
 				if (validateInput()) {
 					// Add the extension if necessary
-					if(!fileName.getText().endsWith(".zip")){
-						fileName.setText(fileName.getText() + ".zip");
+					if(!pathDataDir.getText().endsWith(".zip")){
+						pathDataDir.setText(pathDataDir.getText() + ".zip");
 					}
-					
+
 					// Try if the file exists
-					String separator = pathDataDir.getText().endsWith("/")?"":"/";
-					File file = new File(pathDataDir.getText() + separator + fileName.getText());
+					File file = new File(pathDataDir.getText());
 					
 					// If the file doesn't exists or exits and the user want to replace it
 					if (!file.exists() || (file.exists() && JOptionPane.showConfirmDialog(null,
@@ -412,7 +365,7 @@ public class SavePanel extends javax.swing.JPanel {
 					}
 				} else {
 					JOptionPane.showMessageDialog(null,
-						stringValidacion.toString(), "Error", 0);
+						stringValidation.toString(), "Error", 0);
 				}
 			}
 		};
@@ -431,13 +384,12 @@ public class SavePanel extends javax.swing.JPanel {
 			public void actionPerformed(ActionEvent evt) {
 				if (validateInput()) {
 					// Add the extension if necessary
-					if(!fileName.getText().endsWith(".pdf")){
-						fileName.setText(fileName.getText() + ".pdf");
+					if(!pathDataDir.getText().endsWith(".pdf")){
+						pathDataDir.setText(pathDataDir.getText() + ".pdf");
 					}
 					
 					// Try if the file exists
-					String separator = pathDataDir.getText().endsWith("/")?"":"/";
-					File file = new File(pathDataDir.getText() + separator + fileName.getText());
+					File file = new File(pathDataDir.getText());
 					
 					// If the file doesn't exists or exits and the user want to replace it
 					if (!file.exists() || (file.exists() && JOptionPane.showConfirmDialog(null,
@@ -448,7 +400,7 @@ public class SavePanel extends javax.swing.JPanel {
 					}
 				} else {
 					JOptionPane.showMessageDialog(null,
-						stringValidacion.toString(), "Error", 0);
+						stringValidation.toString(), "Error", 0);
 				}
 			}
 		};

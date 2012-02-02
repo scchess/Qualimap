@@ -500,13 +500,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 				// We test if this tab has result values or is an input tab
 				if (tabProperties != null && tabProperties.getReporter() != null) {
-					SavePanel pathSaveDialog = new SavePanel();
-
-					popUpDialog = pathSaveDialog.getSaveFilePanel(HomeFrame.this, Constants.FILE_EXTENSION_PDF_FILE);
-					popUpDialog.setModal(true);
-					popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-					popUpDialog.setLocationRelativeTo(HomeFrame.this);
-					popUpDialog.setVisible(true);
+					exportToPdf();
 				} else {
                     JOptionPane.showMessageDialog(this, "Can not export PDF!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -519,23 +513,14 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 				if (tabProperties != null && tabProperties.getReporter() != null) {
 					if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
 						SavePanel pathSaveDialog = new SavePanel();
-
-						popUpDialog = pathSaveDialog.getSaveFilePanel(HomeFrame.this, Constants.FILE_EXTENSION_COMPRESS_FILE);
-						popUpDialog.setModal(true);
-						popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-						popUpDialog.setLocationRelativeTo(HomeFrame.this);
-						popUpDialog.setVisible(true);
-					} else if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
-						SavePanel pathSaveDialog = new SavePanel();
-
-						popUpDialog = pathSaveDialog.getSaveFilePanel(HomeFrame.this, Constants.FILE_EXTENSION_COMPRESS_FILE);
+                    	popUpDialog = pathSaveDialog.getSaveFileDialog(HomeFrame.this, Constants.FILE_EXTENSION_COMPRESS_FILE);
 						popUpDialog.setModal(true);
 						popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 						popUpDialog.setLocationRelativeTo(HomeFrame.this);
 						popUpDialog.setVisible(true);
 					}
-				}
-			}	
+			    }
+            }
 	    }
 	    else if(e.getActionCommand().equalsIgnoreCase("openproject")){
 	    	OpenFilePanel inputDataZipDialog = new OpenFilePanel();
@@ -616,6 +601,16 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setLocationRelativeTo(this);
         popUpDialog.setVisible(true);
     }
+
+    private void exportToPdf() {
+        SavePanel pathSaveDialog = new SavePanel();
+		popUpDialog = pathSaveDialog.getSaveFileDialog(HomeFrame.this, Constants.FILE_EXTENSION_PDF_FILE);
+		popUpDialog.setModal(true);
+		popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		popUpDialog.setLocationRelativeTo(HomeFrame.this);
+		popUpDialog.setVisible(true);
+    }
+
 
     public void updateMenuBar() {
 
@@ -726,7 +721,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public void mousePressed(MouseEvent arg0) {}
 	@Override
     public void mouseReleased(MouseEvent arg0) {}
-	
+
+
 	private boolean createFile(final String resource, final File file ) {
 		BufferedWriter bw = null;
 		BufferedReader br = null;

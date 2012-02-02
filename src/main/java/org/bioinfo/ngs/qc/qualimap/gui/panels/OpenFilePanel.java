@@ -187,22 +187,22 @@ public class OpenFilePanel extends JPanel {
 	/*private boolean validateInput() {
 		boolean validate = true;
 
-		stringValidacion = new StringBuilder();
+		stringValidation = new StringBuilder();
 
 		// Validation for the input data file
 		if (pathDataFile.getText().isEmpty() || (inputFile = new File(pathDataFile.getText())) == null) {
-			stringValidacion.append(" • The path of the Input Data File is required \n");
+			stringValidation.append(" • The path of the Input Data File is required \n");
 		} else if (inputFile != null) {
 			String mimeType = new MimetypesFileTypeMap().getContentType(inputFile);
 			String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
 			if (mimeType == null || !extension.equalsIgnoreCase(Constants.FILE_EXTENSION_DATA_INPUT)) {
-				stringValidacion.append(" • Incorrect MimeType for the Input Data File (*.bam) \n");
+				stringValidation.append(" • Incorrect MimeType for the Input Data File (*.bam) \n");
 			}
 		} else {
 			try {
 				FileUtils.checkFile(inputFile);
 			} catch (IOException e) {
-				stringValidacion.append(" • " + e.getMessage() + " \n");
+				stringValidation.append(" • " + e.getMessage() + " \n");
 			}
 		}
 
@@ -213,22 +213,22 @@ public class OpenFilePanel extends JPanel {
 				String extension = regionFile.getName().substring(regionFile.getName().lastIndexOf(".") + 1);
 
 				if (mimeType == null || !Constants.FILE_EXTENSION_REGION.containsKey(extension.toUpperCase())) {
-					stringValidacion.append(" • Incorrect MimeType for the Region Data File (*.gff) \n");
+					stringValidation.append(" • Incorrect MimeType for the Region Data File (*.gff) \n");
 				}
 			}
 			if (regionFile == null) {
-				stringValidacion.append(" • Region Data File Is Required \n");
+				stringValidation.append(" • Region Data File Is Required \n");
 			} else {
 				try {
 					FileUtils.checkFile(regionFile);
 				} catch (IOException e) {
-					stringValidacion.append(" • " + e.getMessage() + " \n");
+					stringValidation.append(" • " + e.getMessage() + " \n");
 				}
 			}
 		}
 
 		// If we has get any error, we reset the invalidate flag
-		if (stringValidacion.length() > 0) {
+		if (stringValidation.length() > 0) {
 			validate = false;
 		}
 
