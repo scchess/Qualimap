@@ -30,9 +30,10 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
     JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
+    JSpinner numThreadsSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JProgressBar progressBar;
-    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw;
+    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw, labelNumThreads;
     HomeFrame homeFrame;
     File inputFile, regionFile;
 
@@ -48,7 +49,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         labelPathDataFile = new JLabel();
-        labelPathDataFile.setText("Select BAM file:");
+        labelPathDataFile.setText("Path to BAM file:");
         add(labelPathDataFile, "");
 
         pathDataFile = new JTextField(40);
@@ -103,10 +104,16 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 		add(labelNw, "gapleft 20");
 
         valueNw = new JTextField(10);
-		valueNw.setText("" + Constants.DEFAULT_NUMBER_OF_WINDOWS);
-        valueNw.setDocument(new JTextFieldLimit(6, true));
-		valueNw.addKeyListener(keyListener);
+		valueNw.setDocument(new JTextFieldLimit(6, true));
+        valueNw.setText("" + Constants.DEFAULT_NUMBER_OF_WINDOWS);
+        valueNw.addKeyListener(keyListener);
 	    add(valueNw, "wrap");
+
+        labelNumThreads = new JLabel("Number of threads");
+        add(labelNumThreads, "gapleft 20");
+        int numCPUs = Runtime.getRuntime().availableProcessors();
+        numThreadsSpinner = new JSpinner(new SpinnerNumberModel(numCPUs, 1, numCPUs*2, 1));
+        add(numThreadsSpinner, "wrap 20px");
 
         advancedInfoCheckBox.addActionListener(this);
 
@@ -153,6 +160,8 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         boolean advOptionsEnabled = advancedInfoCheckBox.isSelected();
         valueNw.setEnabled(advOptionsEnabled);
         labelNw.setEnabled(advOptionsEnabled);
+        labelNumThreads.setEnabled(advOptionsEnabled);
+        numThreadsSpinner.setEnabled(advOptionsEnabled);
     }
 
 
@@ -362,6 +371,10 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
     public boolean getComputeOutsideRegions() {
         return analyzeRegionsCheckBox.isSelected() && computeOutsideStats.isSelected();
+    }
+
+    public int getNumThreads() {
+        return ((SpinnerNumberModel)numThreadsSpinner.getModel()).getNumber().intValue();
     }
 
     public void setUiEnabled(boolean  enabled ) {

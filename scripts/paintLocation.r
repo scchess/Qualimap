@@ -65,7 +65,7 @@ dirOut <- if(!is.na(args[[1,"dirOut"]])) unParseDF(args[[1,"dirOut"]], c("dirOut
 print(dirOut)
 dir.create(dirOut,showWarnings = FALSE)
 
-expID <- if(!is.na(args[[1,"expID"]])) unParseDF(args[[1,"expID"]], c("expID"))[1,1] else "location" # [1,1] because it has only one value. Default "location"
+expID <- if(!is.na(args[[1,"expID"]])) unParseDF(args[[1,"expID"]], c("expID"))[1,1] else "Clustering Profile" # [1,1] because it has only one value. Default "location"
 print(expID)
 
 print("location")

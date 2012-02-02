@@ -3,30 +3,50 @@ suppressPackageStartupMessages(library(Repitools))
 if(!require("GenomicFeatures")) { source("http://bioconductor.org/biocLite.R"); biocLite("GenomicFeatures") }
 suppressPackageStartupMessages(library(GenomicFeatures))
 library(GenomicFeatures)
+library(rtracklayer)
 
 buildAnnotation <- function(file.anno=NULL,geneSelection=NULL,organism="HUMAN"){
 #TODO: Make it work for different organisms
 #TODO: Allow to pass a file with the annotation previously dowloaded
 #TODO: Think how to construct the annotation for other regions like CpG islands
 
+  #if(!is.null(file.anno)){
+    #annot <- read.delim(file.anno)
+    
+  #}else{
+  
+    #if(organism=="HUMAN"){
+      #if(is.null(geneSelection)){
+	#txdb <- makeTranscriptDbFromBiomart(biomart="ensembl",dataset="hsapiens_gene_ensembl")
+      #}else{
+	#tr.ids <- read.delim(geneSelection[1,"file"],header=F)[as.numeric(geneSelection[1,"column"])][[1]] # We select the column of interest and get the values as a factor ([[1]])
+	#print(paste("Building Annotation for the", length(tr.ids), "selected transcripts. Organism =",organism))
+	#txdb <- makeTranscriptDbFromBiomart(biomart="ensembl",dataset="hsapiens_gene_ensembl",transcript_ids=as.vector(tr.ids))
+      #}
+    
+    #}
+
+    #annot <- txdb2GRanges(txdb)
+  #}
+  print("Inside buildAnnotation!")
   if(!is.null(file.anno)){
     annot <- read.delim(file.anno)
     
   }else{
   
-    if(organism=="HUMAN"){
-      if(is.null(geneSelection)){
-        txdb <- makeTranscriptDbFromBiomart(biomart="ensembl",dataset="hsapiens_gene_ensembl")
-      }else{
-        tr.ids <- read.delim(geneSelection[1,"file"],header=F)[as.numeric(geneSelection[1,"column"])][[1]] # We select the column of interest and get the values as a factor ([[1]])
-        print(paste("Building Annotation for the", length(tr.ids), "selected transcripts. Organism =",organism))
-        txdb <- makeTranscriptDbFromBiomart(biomart="ensembl",dataset="hsapiens_gene_ensembl",transcript_ids=as.vector(tr.ids))
+	if(is.null(geneSelection)){
+		stop("ERROR! geneSelection cannot be null!")
+	}else{
+		print(paste("Reading regions",geneSelection[1,"file"]))
+		#annot <- read.delim(geneSelection[1,"file"],header=F,col.names=c("chr","start","end","strand","name"))
+		annot <- import(geneSelection[1,"file"],asRangedData=F)
+		print(paste("Read",length(annot[,1]),"regions"))
       }
     
     }
 
-    annot <- txdb2GRanges(txdb)
-  }
+
+	
   annot
 }
 

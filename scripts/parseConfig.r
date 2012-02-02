@@ -26,7 +26,7 @@ parseReplicate <- function(replicate){
 
 parseSample <- function(sample,ord.sample=0){
 	#print(xmlName(sample))
-	sample.name <- if(!is.null(xmlAttrs(sample)["name"])) as.character(xmlAttrs(sample)["name"]) else paste("Sample",as.character(ord.sample))
+	sample.name <- if(!is.null(xmlAttrs(sample)["name"])) as.character(xmlAttrs(sample)["name"]) else paste("","")
 	#print(sample.name)
 	checkChild(sample, "replicate")
 	parsedMedips <- c()
