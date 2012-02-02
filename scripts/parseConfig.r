@@ -1,6 +1,6 @@
-if(!require("XML")) { install.packages("XML", repos = "http://cran.r-project.org") }
+#if(!require("XML",quietly=T)) { install.packages("XML", repos = "http://cran.r-project.org") }
 
-suppressPackageStartupMessages(library("XML"))
+suppressPackageStartupMessages(library("XML",quietly=T))
 
 checkChild <- function(node,name, fileXML="fileConfig"){
 		if(is.null(node[[name]])){ stop(paste("Node <", as.character(xmlName(node)), "> does not have a child <", name, "> in ", fileXML,sep="")) }
@@ -94,6 +94,11 @@ parseDirOut <- function(node){
 	d
 }
 
+parseRegions <- function(node){
+	d <- data.frame(regions=xmlValue(node))
+	d
+}
+
 
 parseFragment <- function(node){
 	d <- data.frame(fragment=xmlValue(node))
@@ -155,6 +160,10 @@ parseConfig <- function(fileXML){
 	
 	l.geneSelection <- l.param[["geneSelection"]]
 	df.geneSelection <- if(!is.null(l.geneSelection)) parseGeneSelection(l.geneSelection) else NULL
+	
+	checkChild(r,"regions",fileXML)
+	l.regions <- l.param[["regions"]]
+	df.regions <- if(!is.null(l.regions)) parseRegions(l.regions) else NULL
 
 	l.dirOut <- l.param[["dirOut"]]
 	df.dirOut <- if(!is.null(l.dirOut)) parseDirOut(l.dirOut) else NULL
@@ -178,14 +187,15 @@ parseConfig <- function(fileXML){
 	df.fragment <- if(!is.null(l.fragment)) parseFragment(l.fragment) else NULL
 	
 	
-	parsed <- matrix(list(), nrow=1, ncol=9)
+	parsed <- matrix(list(), nrow=1, ncol=10)
 	#colnames(parsed) <- c("sample1", "sample2", "clusters", "microarray","geneSelection","dirOut","expID","location","fragment")
-	colnames(parsed) <- c("sample1", "mr.empty", "clusters", "microarray","geneSelection","dirOut","expID","location","fragment")
+	colnames(parsed) <- c("sample1", "mr.empty", "clusters", "microarray","geneSelection","dirOut","expID","location","fragment","regions")
   #print(df.geneSelection)
 	parsed[[1,"sample1"]] <- df.sample1
 	#parsed[[1,"sample2"]] <- df.sample2
 	parsed[[1,"clusters"]] <- if (!is.null(df.clusters)) df.clusters else NA
 	parsed[[1,"microarray"]] <- if (!is.null(df.microarray)) df.microarray else NA
+	parsed[[1,"regions"]] <- df.regions
 	parsed[[1,"geneSelection"]] <- if(!is.null(df.geneSelection)) df.geneSelection else NA
 	parsed[[1,"dirOut"]] <- if(!is.null(df.dirOut)) df.dirOut else NA
 	parsed[[1,"expID"]] <- if(!is.null(df.expID)) df.expID else NA

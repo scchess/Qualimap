@@ -17,6 +17,10 @@ buildAnnotation <- function(regions=NULL){
 		annot <- import(regions,asRangedData=F)
 		print(paste("Read",length(annot[,1]),"regions"))
       }
+    
+    }
+
+
 	
   annot
 }
