@@ -198,7 +198,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         pack();
 
         updateState();
-        setTitle("Analyze feature counts");
+        setTitle("Analyze count data");
         setResizable(false);
 
     }

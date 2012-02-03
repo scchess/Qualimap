@@ -2,13 +2,8 @@ package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
@@ -24,7 +19,7 @@ public class NgsSmartMain {
 		Logger logger = new Logger();
         NgsSmartTool tool = null;
 
-		if(args.length == 0){
+		if(args.length == 0 || args[0].equals("--home")){
 			launchGUI(args,logger);
 		} else {
 						
@@ -32,7 +27,7 @@ public class NgsSmartMain {
 
 			// TODO: use factories map to create tools
 			// tools
-			if(toolName.equalsIgnoreCase("bamqc")){
+			if(toolName.equalsIgnoreCase("genomic")){
 				tool = new BamQcTool();
 			}
 			
@@ -58,9 +53,9 @@ public class NgsSmartMain {
 				logger.println("");
 				logger.println("Selected tool: " + toolName);
 				if(tool==null){
-                    logger.println("No proper tool name is provided. Launching GUI...");
-                    launchGUI(args,logger);
-				} else {
+                    logger.println("No proper tool name is provided.\n");
+                    logger.println(getHelp());
+                } else {
 					try {					
 						tool.run(args);
 					} catch(ParseException pe){					

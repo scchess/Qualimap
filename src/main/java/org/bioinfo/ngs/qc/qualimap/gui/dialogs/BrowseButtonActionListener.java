@@ -44,7 +44,6 @@ public class BrowseButtonActionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
 
-        //TODO: add last open dir helper
         JFileChooser fileOpenChooser = HomeFrame.getFileChooser();
 
         FileFilter filter = new FileFilter() {

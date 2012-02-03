@@ -21,6 +21,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
 
 
 /**
@@ -86,7 +87,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             homeFrame.updateMenuBar();
         }
 
-        @Override
+       @Override
         public void componentAdded(ContainerEvent containerEvent) {
             homeFrame.updateMenuBar();
         }
@@ -165,8 +166,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         return errMsg;
     }
 
+    /**
+     * Returns fileChooser which remembers last opened dir
+     * @return The file chooser
+     */
+
     public static JFileChooser getFileChooser() {
-        return fileChooser;
+        return new LODFileChooser();
     }
 
     private String checkForRDependencies() {

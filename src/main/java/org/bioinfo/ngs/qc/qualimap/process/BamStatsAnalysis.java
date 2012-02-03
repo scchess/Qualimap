@@ -111,21 +111,22 @@ public class BamStatsAnalysis {
     public BamStatsAnalysis(String bamFile) {
 		this.bamFile = bamFile;
 		this.numberOfWindows = 400;
-        this.threadNumber = 4;
         this.numReadsInBunch = 2000;
         this.maxSizeOfTaskQueue = 10;
+        this.threadNumber = 4;
         this.computeChromosomeStats = true;
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.outdir = ".";
 		logger = new Logger();
-        workerThreadPool = Executors.newFixedThreadPool(threadNumber);
         chromosomeWindowIndexes = new ArrayList<Integer>();
     }
 
     public void run() throws Exception{
 
         long startTime = System.currentTimeMillis();
+
+        workerThreadPool = Executors.newFixedThreadPool(threadNumber);
 
         SAMFileReader reader = new SAMFileReader(new File(bamFile));
 

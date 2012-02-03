@@ -85,7 +85,6 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         computeOutsideStats.addKeyListener(keyListener);
         computeOutsideStats.setToolTipText("Controls whether to calculate also statistic for outside regions");
-        computeOutsideStats.setSelected(true);
         add(computeOutsideStats, "wrap");
 
         drawChromosomeLimits = new JCheckBox("Chromosome limits");
@@ -111,7 +110,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
         labelNumThreads = new JLabel("Number of threads");
         add(labelNumThreads, "gapleft 20");
-        int numCPUs = Runtime.getRuntime().availableProcessors();
+        int numCPUs =  Runtime.getRuntime().availableProcessors();
         numThreadsSpinner = new JSpinner(new SpinnerNumberModel(numCPUs, 1, numCPUs*2, 1));
         add(numThreadsSpinner, "wrap 20px");
 
@@ -378,19 +377,15 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
     }
 
     public void setUiEnabled(boolean  enabled ) {
-        startAnalysisButton.setEnabled(enabled);
-        pathDataFile.setEnabled(enabled);
-        pathDataFileButton.setEnabled(enabled);
-        labelPathDataFile.setEnabled(enabled);
 
-        pathGffFile.setEnabled(enabled);
-        pathGffFileButton.setEnabled(enabled);
-        computeOutsideStats.setEnabled(enabled);
-        labelPathAditionalDataFile.setEnabled(enabled);
+        Component[] components = getContentPane().getComponents();
 
-        advancedInfoCheckBox.setEnabled(enabled);
-        drawChromosomeLimits.setEnabled(enabled);
+        for (Component c : components)  {
+            c.setEnabled(false);
+        }
 
+        progressBar.setEnabled(true);
+        progressStream.setEnabled(true);
 
     }
 

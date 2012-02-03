@@ -1,13 +1,14 @@
 
 usage: qualimap <tool> [options]
-		
+
+To launch GUI leave <tool> empty.
+
 Available tools:
 
-	bamqc                   Evaluates ngs mapping to a reference genome
+	genomic                 Evaluates ngs mapping to a reference genome
 	rna-seq                 RNA-seq analysis
 	epi                     Epigenetics Analysis
-	counts                  Gene counts
+	counts                  Feature counts
 
 2012 - Qualimap tools
 
-.

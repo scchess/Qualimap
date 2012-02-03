@@ -25,7 +25,7 @@ public class BamQcTool extends NgsSmartTool{
 	private boolean computeInsertSize;
 
     public BamQcTool(){
-        super("bamqc");
+        super("genomic");
         numThreads = Runtime.getRuntime().availableProcessors();
     }
 
@@ -152,7 +152,6 @@ public class BamQcTool extends NgsSmartTool{
 
 		// number of windows
 		bamQC.setNumberOfWindows(numberOfWindows);
-        bamQC.setNumberOfThreads(numThreads);
 
 		// run evaluation
 		bamQC.run();
