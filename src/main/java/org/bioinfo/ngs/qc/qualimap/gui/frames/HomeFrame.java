@@ -67,7 +67,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	/** Dialog to show beside the window */
 	private JDialog popUpDialog;
 
-	JFileChooser fileOpenChooser, fileSaveChooser;
+	static JFileChooser fileChooser = new JFileChooser();
 
 	public boolean isWebStart;
     private SplashWindow splashWindow;
@@ -119,7 +119,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             this.setQualimapFolder(new File("").getAbsolutePath()+File.separator);
         }
         logger = new Logger(this.getClass().getName());
-		initGUI();
+        initGUI();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
@@ -163,6 +163,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }
 
         return errMsg;
+    }
+
+    public static JFileChooser getFileChooser() {
+        return fileChooser;
     }
 
     private String checkForRDependencies() {
@@ -683,23 +687,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	public void setPopUpDialog(JDialog popUpDialog) {
 		this.popUpDialog = popUpDialog;
 	}
-
-	public JFileChooser getFileOpenChooser() {
-		return fileOpenChooser;
-	}
-
-	public void setFileOpenChooser(JFileChooser fileOpenChooser) {
-		this.fileOpenChooser = fileOpenChooser;
-	}
-
-	public JFileChooser getFileSaveChooser() {
-		return fileSaveChooser;
-	}
-
-	public void setFileSaveChooser(JFileChooser fileSaveChooser) {
-		this.fileSaveChooser = fileSaveChooser;
-	}
-
 
 	@Override
     public void mouseClicked(MouseEvent event) {

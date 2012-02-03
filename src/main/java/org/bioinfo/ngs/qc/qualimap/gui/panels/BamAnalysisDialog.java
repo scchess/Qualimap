@@ -176,10 +176,10 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 			private static final long serialVersionUID = -8111339366112980049L;
 
 			public void actionPerformed(ActionEvent evt) {
-				if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
-				FileFilter filter = new FileFilter() {
+
+                JFileChooser fileChooser = HomeFrame.getFileChooser();
+
+                FileFilter filter = new FileFilter() {
 					public boolean accept(File fileShown) {
 						boolean result = true;
 
@@ -194,12 +194,12 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 						return ("Bam Files (*.bam)");
 					}
 				};
-				homeFrame.getFileOpenChooser().setFileFilter(filter);
+				fileChooser.setFileFilter(filter);
 
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
+				int valor = fileChooser.showOpenDialog(homeFrame.getCurrentInstance());
 
 				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathDataFile.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
+					pathDataFile.setText(fileChooser.getSelectedFile().getPath());
 				}
 			}
 		};
@@ -242,9 +242,9 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 			private static final long serialVersionUID = -1601146976209876607L;
 
 			public void actionPerformed(ActionEvent evt) {
-				if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
+
+                JFileChooser fileChooser = HomeFrame.getFileChooser();
+
 				FileFilter filter = new FileFilter() {
 					public boolean accept(File fileShown) {
 						boolean result = true;
@@ -260,11 +260,11 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 						return ("Region Files (*.gff)");
 					}
 				};
-				homeFrame.getFileOpenChooser().setFileFilter(filter);
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
+				fileChooser.setFileFilter(filter);
+				int valor = fileChooser.showOpenDialog(homeFrame.getCurrentInstance());
 
 				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathGffFile.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
+					pathGffFile.setText(fileChooser.getSelectedFile().getPath());
 				}
 			}
 		};

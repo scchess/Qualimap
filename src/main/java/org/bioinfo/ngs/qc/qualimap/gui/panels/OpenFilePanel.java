@@ -387,46 +387,7 @@ public class OpenFilePanel extends JPanel {
 	// ************************************** LISTENERS
 	// **************************************
 	// ***************************************************************************************
-	/**
-	 * Action to load the input data file.
-	 * 
-	 * @return AbstractAction with the event
-	 */
-	private AbstractAction getActionLoadFile(String text) {
-		AbstractAction actionLoadFile = new AbstractAction(text, null) {
-			private static final long serialVersionUID = -8111339366112980049L;
 
-			public void actionPerformed(ActionEvent evt) {
-				if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
-				FileFilter filter = new FileFilter() {
-					public boolean accept(File fileShown) {
-						boolean result = true;
-
-						if (!fileShown.isDirectory() && !fileShown.getName().substring(fileShown.getName().lastIndexOf(".") + 1).equalsIgnoreCase(Constants.FILE_EXTENSION_DATA_INPUT)) {
-							result = false;
-						}
-
-						return result;
-					}
-
-					public String getDescription() {
-						return ("Bam Files (*.bam)");
-					}
-				};
-				homeFrame.getFileOpenChooser().setFileFilter(filter);
-
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
-
-				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathDataFile.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
-				}
-			}
-		};
-
-		return actionLoadFile;
-	}
 
 	/**
 	 * Action to load the input data file.
@@ -438,9 +399,7 @@ public class OpenFilePanel extends JPanel {
 			private static final long serialVersionUID = -8111339366112980049L;
 
 			public void actionPerformed(ActionEvent evt) {
-				if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
+			    JFileChooser fileChooser = HomeFrame.getFileChooser();
 				FileFilter filter = new FileFilter() {
 					public boolean accept(File fileShown) {
 						boolean result = true;
@@ -456,12 +415,12 @@ public class OpenFilePanel extends JPanel {
 						return ("Zip Files (*.zip)");
 					}
 				};
-				homeFrame.getFileOpenChooser().setFileFilter(filter);
+				fileChooser.setFileFilter(filter);
 
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
+				int valor = fileChooser.showOpenDialog(homeFrame.getCurrentInstance());
 
 				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathDataFile.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
+					pathDataFile.setText(fileChooser.getSelectedFile().getPath());
 				}
 			}
 		};
@@ -542,100 +501,6 @@ public class OpenFilePanel extends JPanel {
 
 		return actionLoadFile;
 	}
-
-	/**
-	 * Action to load the additional input data file.
-	 * 
-	 * @return AbstractAction with the event
-	 */
-	private AbstractAction getActionLoadGenericFile(final JTextField field) {
-		AbstractAction actionLoadFile = new AbstractAction("...", null) {
-			private static final long serialVersionUID = 2376417844339769104L;
-
-			public void actionPerformed(ActionEvent evt) {
-				if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
-				/*
-				 * FileFilter filter = new FileFilter(){ public boolean accept
-				 * (File fileShown){ return true; }
-				 * 
-				 * public String getDescription(){ return ("Count files"); } };
-				 * fileChooser.setFileFilter(filter);
-				 */
-				homeFrame.getFileOpenChooser().setFileFilter(null);
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
-
-				if (valor == JFileChooser.APPROVE_OPTION) {
-					field.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
-				}
-			}
-		};
-
-		return actionLoadFile;
-	}
-
-	/**
-	 * Action to load the additional input data file.
-	 * 
-	 * @return AbstractAction with the event
-	 */
-	private AbstractAction getActionLoadAdditionalFile() {
-		AbstractAction actionLoadFile = new AbstractAction("...", null) {
-			private static final long serialVersionUID = -1601146976209876607L;
-
-			public void actionPerformed(ActionEvent evt) {
-				if (homeFrame.getFileOpenChooser() == null) {
-					homeFrame.setFileOpenChooser(new JFileChooser());
-				}
-				FileFilter filter = new FileFilter() {
-					public boolean accept(File fileShown) {
-						boolean result = true;
-
-						if (!fileShown.isDirectory() && !Constants.FILE_EXTENSION_REGION.containsKey(fileShown.getName().substring(fileShown.getName().lastIndexOf(".") + 1).toUpperCase())) {
-							result = false;
-						}
-
-						return result;
-					}
-
-					public String getDescription() {
-						return ("Region Files (*.gff)");
-					}
-				};
-				homeFrame.getFileOpenChooser().setFileFilter(filter);
-				int valor = homeFrame.getFileOpenChooser().showOpenDialog(homeFrame.getCurrentInstance());
-
-				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathDataAditionalFile.setText(homeFrame.getFileOpenChooser().getSelectedFile().getPath());
-				}
-			}
-		};
-
-		return actionLoadFile;
-	}
-
-	/**
-	 * Action to load the additional input data file.
-	 * 
-	 * @return AbstractAction with the event
-	 */
-	private AbstractAction getActionEnableAdvancedInfo() {
-		AbstractAction actionLoadFile = new AbstractAction("Advanced Options", null) {
-			private static final long serialVersionUID = -521417101614049676L;
-
-			public void actionPerformed(ActionEvent evt) {
-				if (((JCheckBox) evt.getSource()).isSelected()) {
-					advancedInfo.setVisible(true);
-				} else {
-					advancedInfo.setVisible(false);
-				}
-			}
-		};
-
-		return actionLoadFile;
-	}
-
 
     /**
 	 * Action to load the qualimap from a zip file

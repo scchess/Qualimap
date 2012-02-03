@@ -76,7 +76,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                         savePictureItem.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent actionEvent) {
-                                JFileChooser fileChooser = new JFileChooser();
+                                JFileChooser fileChooser = HomeFrame.getFileChooser();
                                 fileChooser.setFileFilter( new FileFilter() {
                                     @Override
                                     public boolean accept(File file) {

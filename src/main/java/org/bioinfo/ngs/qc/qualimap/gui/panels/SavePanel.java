@@ -67,18 +67,22 @@ public class SavePanel extends javax.swing.JPanel {
     static class SaveFileButtonActionListener implements ActionListener {
 
         JTextField pathTextField;
-        JFileChooser fileChooser;
+        String fileType;
+        String ext;
         Component parent;
 
         public SaveFileButtonActionListener(Component parent, JTextField pathTextField, String fileType, String ext) {
             this.pathTextField = pathTextField;
             this.parent = parent;
-            fileChooser = new JFileChooser();
-            fileChooser.setFileFilter( new FileNameExtensionFilter(fileType,  ext));
+            this.fileType = fileType;
+            this.ext = ext;
         }
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fileChooser = HomeFrame.getFileChooser();
+            fileChooser.setFileFilter( new FileNameExtensionFilter(fileType,  ext));
+
             int res = fileChooser.showSaveDialog(parent);
 
             if (res == JFileChooser.APPROVE_OPTION) {
@@ -180,16 +184,13 @@ public class SavePanel extends javax.swing.JPanel {
 		pathDirButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(homeFrame.getFileSaveChooser() == null){
-					homeFrame.setFileSaveChooser(new JFileChooser());
-				}
-				homeFrame.getFileSaveChooser().setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                JFileChooser fileChooser = HomeFrame.getFileChooser();
 
-				int valor = homeFrame.getFileSaveChooser().showOpenDialog(homeFrame
+				int valor = fileChooser.showOpenDialog(homeFrame
 						.getCurrentInstance());
 
 				if (valor == JFileChooser.APPROVE_OPTION) {
-					pathDataDir.setText(homeFrame.getFileSaveChooser().getSelectedFile()
+					pathDataDir.setText(fileChooser.getSelectedFile()
 							.getPath());
 				}
             }

@@ -46,7 +46,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     public String getGeneSelectionPath() {
         return regionsField.getText();
