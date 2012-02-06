@@ -29,14 +29,9 @@ import javax.swing.filechooser.FileFilter;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisRnaThread;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.GraphicsFromZipAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.JTextFieldLimit;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.ReferencePosition;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 /**
@@ -60,11 +55,6 @@ public class OpenFilePanel extends JPanel {
     JButton pathRegionFileButton;
     JButton pathCountFile2Button;
     JButton pathInfoFileButton;
-
-    public JButton getStartAnalysisButton() {
-        return startAnalysisButton;
-    }
-
     JButton startAnalysisButton;
 	JLabel advancedInfo;
 	JComboBox comboSpecies;
@@ -123,7 +113,7 @@ public class OpenFilePanel extends JPanel {
 
 		KeyListener keyListener = new PopupKeyListener(homeFrame, resultContainer, progressBar);
 
-		GroupLayout thisLayout = new GroupLayout((JComponent) resultContainer.getContentPane());
+		GroupLayout thisLayout = new GroupLayout( resultContainer.getContentPane());
 		resultContainer.getContentPane().setLayout(thisLayout);
 		thisLayout.setHorizontalGroup(thisLayout.createSequentialGroup().addGap(600));
 		thisLayout.setVerticalGroup(thisLayout.createSequentialGroup().addGap(180));
@@ -235,102 +225,6 @@ public class OpenFilePanel extends JPanel {
 		return validate;
 	}*/
 
-	/**
-	 * Test if the input date are correct or not for the RNA input.
-	 * 
-	 * @return boolean, true if the input data are correct.
-	 */
-	private boolean validateRnaInput() {
-		boolean validate = true;
-
-		stringValidacion = new StringBuilder();
-
-		// Validation for the input data file
-		if (pathDataFile.getText().isEmpty() || (inputFile = new File(pathDataFile.getText())) == null) {
-			stringValidacion.append(" • The path of the Input Data File is required \n");
-		} else if (inputFile != null) {
-			String mimeType = new MimetypesFileTypeMap().getContentType(inputFile);
-			// String extension =
-			// inputFile.getName().substring(inputFile.getName().lastIndexOf(".")
-			// + 1);
-			if (mimeType == null) {
-				stringValidacion.append(" • Incorrect MimeType for the Input Data File \n");
-			}
-		} else {
-			try {
-				FileUtils.checkFile(inputFile);
-			} catch (IOException e) {
-				stringValidacion.append(" • " + e.getMessage() + " \n");
-			}
-		}
-
-		// Validation for the region file
-		if (labelPathCountFile2.isSelected()) {
-			if (!pathCountFile2.getText().isEmpty() && (regionFile = new File(pathCountFile2.getText())) != null) {
-				String mimeType = new MimetypesFileTypeMap().getContentType(regionFile);
-				// String extension =
-				// regionFile.getName().substring(regionFile.getName().lastIndexOf(".")
-				// + 1);
-
-				if (mimeType == null) {
-					stringValidacion.append(" • Incorrect MimeType for the Count File 2 \n");
-				}
-			}
-			if (regionFile == null) {
-				stringValidacion.append(" • Could not open the Count File 2 \n");
-			} else {
-				try {
-					FileUtils.checkFile(regionFile);
-				} catch (IOException e) {
-					stringValidacion.append(" • " + e.getMessage() + " \n");
-				}
-			}
-		}
-
-		// the name of the 2 experiments must be different
-		if (name1.getText() != null && name1.getText().length() > 0 && name2.getText() != null && name2.getText().length() > 0 && name1.getText().equalsIgnoreCase(name2.getText())) {
-			stringValidacion.append(" • Name 1 and Name 2 must be different \n");
-		}
-
-		if (countThresHold.getText() == null || countThresHold.getText().length() < 1) {
-			stringValidacion.append(" • Count threshold must be a number > 0 \n");
-		} else {
-			Integer i = Integer.parseInt(countThresHold.getText());
-			if (i < 1) {
-				stringValidacion.append(" • Count threshold must be a number > 0 \n");
-			}
-		}
-
-		// Validation for the region file
-		if (labelInfoFile.isSelected()) {
-			if (!pathInfoFile.getText().isEmpty() && (infoFile = new File(pathInfoFile.getText())) != null) {
-				String mimeType = new MimetypesFileTypeMap().getContentType(infoFile);
-				// String extension =
-				// regionFile.getName().substring(regionFile.getName().lastIndexOf(".")
-				// + 1);
-
-				if (mimeType == null) {
-					stringValidacion.append(" • Incorrect MimeType for the Info File \n");
-				}
-			}
-			if (infoFile == null) {
-				stringValidacion.append(" • Could not open the Info File \n");
-			} else {
-				try {
-					FileUtils.checkFile(infoFile);
-				} catch (IOException e) {
-					stringValidacion.append(" • " + e.getMessage() + " \n");
-				}
-			}
-		}
-
-		// If we has get any error, we reset the invalidate flag
-		if (stringValidacion.length() > 0) {
-			validate = false;
-		}
-
-		return validate;
-	}
 
 	/**
 	 * Test if the input zip file is correct or not.
@@ -370,18 +264,6 @@ public class OpenFilePanel extends JPanel {
 		t.start(); 
 	}
 
-
-//	/**
-//	 * Function that draw the statistics window after read the data input
-//	 */
-//	public void drawStatistics() {
-//		// Cutting the file name if necessary
-//		String fileName = StringUtilsSwing.formatFileName(inputFile.getName());
-//		homeFrame.drawStatistics();
-//		homeFrame.getTabbedPane().setTitleAt(homeFrame.getTabbedPane().getSelectedIndex(), fileName);
-//		homeFrame.getTabbedPane().setToolTipText(inputFile.getName());
-//		homeFrame.validate();
-//	}
 
 	// ***************************************************************************************
 	// ************************************** LISTENERS
@@ -534,143 +416,20 @@ public class OpenFilePanel extends JPanel {
 		return homeFrame;
 	}
 
-	public void setHomeFrame(HomeFrame homeFrame) {
-		this.homeFrame = homeFrame;
-	}
-
 	public JLabel getProgressStream() {
 		return progressStream;
-	}
-
-	public void setProgressStream(JLabel progressStream) {
-		this.progressStream = progressStream;
 	}
 
 	public JProgressBar getProgressBar() {
 		return progressBar;
 	}
 
-	public void setProgressBar(JProgressBar progressBar) {
-		this.progressBar = progressBar;
-	}
-
 	public File getInputFile() {
 		return inputFile;
-	}
-
-	public void setInputFile(File inputFile) {
-		this.inputFile = inputFile;
-	}
-
-	public File getRegionFile() {
-		return regionFile;
-	}
-
-	public void setRegionFile(File regionFile) {
-		this.regionFile = regionFile;
-	}
-
-	public File getFastaFile() {
-		return fastaFile;
-	}
-
-	public void setFastaFile(File fastaFile) {
-		this.fastaFile = fastaFile;
-	}
-
-	public JTextField getValueNw() {
-		return valueNw;
-	}
-
-	public void setValueNw(JTextField valueNw) {
-		this.valueNw = valueNw;
-	}
-
-	public JCheckBox getDrawChromosomeLimits() {
-		return drawChromosomeLimits;
-	}
-
-	public void setDrawChromosomeLimits(JCheckBox drawChromosomeLimits) {
-		this.drawChromosomeLimits = drawChromosomeLimits;
 	}
 
 	public JTextField getPathDataFile() {
 		return pathDataFile;
 	}
 
-	public void setPathDataFile(JTextField pathDataFile) {
-		this.pathDataFile = pathDataFile;
-	}
-
-	public JCheckBox getLabelInfoFile() {
-		return labelInfoFile;
-	}
-
-	public void setLabelInfoFile(JCheckBox labelInfoFile) {
-		this.labelInfoFile = labelInfoFile;
-	}
-
-	public JCheckBox getLabelSpeciesFile() {
-		return labelSpeciesFile;
-	}
-
-	public void setLabelSpeciesFile(JCheckBox labelSpeciesFile) {
-		this.labelSpeciesFile = labelSpeciesFile;
-	}
-
-	public JTextField getPathDataAditionalFile() {
-		return pathDataAditionalFile;
-	}
-
-	public void setPathDataAditionalFile(JTextField pathDataAditionalFile) {
-		this.pathDataAditionalFile = pathDataAditionalFile;
-	}
-
-	public JTextField getPathCountFile2() {
-		return pathCountFile2;
-	}
-
-	public void setPathCountFile2(JTextField pathCountFile2) {
-		this.pathCountFile2 = pathCountFile2;
-	}
-
-	public JTextField getPathInfoFile() {
-		return pathInfoFile;
-	}
-
-	public void setPathInfoFile(JTextField pathInfoFile) {
-		this.pathInfoFile = pathInfoFile;
-	}
-
-	public JDialog getResultContainer() {
-		return resultContainer;
-	}
-
-	public void setResultContainer(JDialog resultContainer) {
-		this.resultContainer = resultContainer;
-	}
-
-	public JTextField getName1() {
-		return name1;
-	}
-
-	public void setName1(JTextField name1) {
-		this.name1 = name1;
-	}
-
-	public JTextField getName2() {
-		return name2;
-	}
-
-	public void setName2(JTextField name2) {
-		this.name2 = name2;
-	}
-
-	public JComboBox getComboSpecies() {
-		return comboSpecies;
-	}
-
-	public void setComboSpecies(JComboBox comboSpecies) {
-		this.comboSpecies = comboSpecies;
-	}
 }

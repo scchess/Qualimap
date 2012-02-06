@@ -84,19 +84,22 @@ public class CountsAnalysisThread extends Thread {
             secondSampleDataPath = settingsDlg.getSecondSampleDataPath();
         }
 
-        if (settingsDlg.infoFileIsProvided())  {
-            infoFilePath = settingsDlg.getInfoFilePath();
-        } else {
-            infoFilePath =  homePath + "species" +
-                    File.separator + settingsDlg.getSelectedSpecies();
-            rnaAnalysisVO.setInfoFileIsSet(true);
+        boolean  includeInfoFile = settingsDlg.includeInfoFile();
+        rnaAnalysisVO.setInfoFileIsSet(includeInfoFile);
+        if (includeInfoFile) {
+            if (settingsDlg.infoFileIsProvided())  {
+                infoFilePath = settingsDlg.getInfoFilePath();
+            } else {
+                infoFilePath =  homePath + "species" +
+                        File.separator + settingsDlg.getSelectedSpecies();
+            }
         }
 
 
         increaseProgressBar(currentStepLoaded, "Building Rscript sentence");
 
         // Create the string to execute
-        String command = "Rscript " + homePath + "scripts"+File.separator+"qualimapRscript.r";
+        String command = "Rscript " + homePath + "scripts" + File.separator + "qualimapRscript.r";
 
         command += " --homesrc " + homePath + "scripts";
         command += " --data1 " + firstSampleDataPath;
@@ -107,33 +110,40 @@ public class CountsAnalysisThread extends Thread {
             command += " --name2 " + settingsDlg.getName2().replace(" ", "_");
         }
 
-        command += " --info " + infoFilePath;
+        if (includeInfoFile) {
+            command += " --info " + infoFilePath;
+        }
+
         command += " --threshold " + settingsDlg.getThreshold();
 
         command += " -o " + outputDirPath;
 
-        // TODO: understand WTF is going on here
-        FileReader fr;
-        try {
-            fr = new FileReader(infoFilePath);
+        if (includeInfoFile) {
 
-            BufferedReader br = new BufferedReader(fr);
+            // load features' classes from info file
+            FileReader fr;
+            try {
+                fr = new FileReader(infoFilePath);
 
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] words = line.trim().split("\t");
-                if (words == null || words.length != 2) {
+                BufferedReader br = new BufferedReader(fr);
 
-                } else {
-                    if (!rnaAnalysisVO.getMapClassesInfoFile().containsKey(words)) {
-                        rnaAnalysisVO.getMapClassesInfoFile().put(words[1], words[1] + ".png");
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] words = line.trim().split("\t");
+                    if (words == null || words.length != 2) {
+
+                    } else {
+                        if (!rnaAnalysisVO.getMapClassesInfoFile().containsKey(words)) {
+                            rnaAnalysisVO.getMapClassesInfoFile().put(words[1], words[1] + ".png");
+                        }
                     }
                 }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+
         }
 
         if (tabProperties.getRnaAnalysisVO().getMapClassesInfoFile() != null
@@ -167,7 +177,8 @@ public class CountsAnalysisThread extends Thread {
     /**
 	 * Function to load the images into a map of buffered images
 	 *
-	 */
+     * @throws java.io.IOException In case the images ca not be saved
+     */
 	private void loadBufferedImages() throws IOException {
 		BamQCRegionReporter reporter = tabProperties.getReporter();
         prepareInputDescription(reporter);
@@ -217,7 +228,7 @@ public class CountsAnalysisThread extends Thread {
 
     private void addImage(BamQCRegionReporter reporter, String name){
 		String path = HomeFrame.outputpath + tabProperties.getOutputFolder().toString() + name;
-		BufferedImage imageToDisplay = null;
+		BufferedImage imageToDisplay;
         try {
 	        imageToDisplay = ImageIO.read(new FileInputStream(new File(path)));
 			reporter.getImageMap().put(name, imageToDisplay);
@@ -232,16 +243,15 @@ public class CountsAnalysisThread extends Thread {
 	 * Increase the progress bar in the percent depends on the number of the
 	 * element computed.
 	 * 
-	 * @param numElem
-	 *            number of the element computed
+	 * @param numElem Number of the elements computed
+     * @param action  Text to set to the progress stream
+     *
 	 */
 	private void increaseProgressBar(double numElem, String action) {
-		int result = 0;
-
 		// Increase the number of files loaded
 		currentStepLoaded++;
 		// Increase the progress bar value
-		result = (int) Math.ceil(numElem * percentLoad);
+		int result = (int) Math.ceil(numElem * percentLoad);
 		settingsDlg.getProgressBar().setValue(result);
 		if (action != null) {
 			settingsDlg.getProgressStream().setText(action);

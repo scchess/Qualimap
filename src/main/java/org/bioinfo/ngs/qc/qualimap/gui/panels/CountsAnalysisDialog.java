@@ -29,7 +29,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     JTextField  filePathEdit1, filePathEdit2, thresholdEdit;
     JTextField sample1NameEdit, sample2NameEdit;
     JComboBox speciesCombo;
-    JCheckBox compartativeAnalysisCheckBox;
+    JCheckBox compartativeAnalysisCheckBox, provideInfoFileCheckBox;
     JProgressBar progressBar;
     JLabel fileLabel2, sample2NameLabel, thresholdLabel, progressStream;
     JTextField infoFileEdit;
@@ -117,6 +117,11 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
                 "greater than this count threshold.");
         thresholdEdit.setMaximumSize(new Dimension(120,100));
         add(thresholdEdit, "grow, wrap");
+
+        provideInfoFileCheckBox = new JCheckBox("Include feature classification");
+        provideInfoFileCheckBox.setSelected(true);
+        provideInfoFileCheckBox.addActionListener(this);
+        add(provideInfoFileCheckBox, "wrap");
 
         infoFileButton = new JRadioButton("Info file:");
         infoFileButton.addActionListener(this);
@@ -214,10 +219,13 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         sample2NameEdit.setEnabled(secondFileIsEnabled);
         browseFileButton2.setEnabled(secondFileIsEnabled);
 
-        infoFileEdit.setEnabled(infoFileButton.isSelected());
-        browseInfoFileButton.setEnabled(infoFileButton.isSelected());
+        boolean provideInfoFile = provideInfoFileCheckBox.isSelected();
 
-        speciesCombo.setEnabled(speciesButton.isSelected());
+        infoFileButton.setEnabled(provideInfoFile);
+        speciesButton.setEnabled(provideInfoFile);
+        infoFileEdit.setEnabled(infoFileButton.isSelected() && provideInfoFile);
+        browseInfoFileButton.setEnabled(infoFileButton.isSelected() && provideInfoFile);
+        speciesCombo.setEnabled(speciesButton.isSelected() && provideInfoFile);
 
     }
 
@@ -292,7 +300,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
                 if (validateInput()) {
                     tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
-		            tabProperties.getRnaAnalysisVO().setInfoFileIsSet(infoFileIsProvided());
 
 		            CountsAnalysisThread t = new CountsAnalysisThread("StatisticsRnaAnalysisProcessThread", dlg, tabProperties);
 		            t.start();
@@ -371,9 +378,11 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 			}
 		}
 
-		// Validation for the region file
-		if (infoFileButton.isSelected() && !validateInputFile(infoFileEdit.getText(), "Info File",  true)) {
-            return false;
+        if (provideInfoFileCheckBox.isSelected()) {
+            // Validation for the region file
+            if (infoFileButton.isSelected() && !validateInputFile(infoFileEdit.getText(), "Info File",  true)) {
+                return false;
+            }
         }
 
 		// If we has get any error, we reset the invalidate flag
@@ -392,6 +401,10 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         }
 
 
+    }
+
+    public boolean includeInfoFile() {
+        return provideInfoFileCheckBox.isSelected();
     }
 
 

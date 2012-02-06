@@ -4,7 +4,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.process.BamQCSplitted;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import java.io.File;
