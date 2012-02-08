@@ -44,7 +44,7 @@ public class BamQCTest {
             String pathToRegionFile = test.getPathToRegionFile();
             if (pathToRegionFile != null && !pathToRegionFile.isEmpty()) {
                 bamQc.setSelectedRegions(pathToRegionFile);
-                //bamQc.setComputeOutsideStats(test.getComputeOutsideStats());
+                bamQc.setComputeOutsideStats(test.getComputeOutsideStats());
             }
 
             try {
@@ -66,9 +66,31 @@ public class BamQCTest {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }*/
 
-            Properties validProps = new Properties();
+            compareProperties(calculatedProps, test.getResultsPath());
+
+            if (test.getComputeOutsideStats() && test.getOutsideResultsPath() != null) {
+                Properties outsideProps = new Properties();
+                BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
+                outsideReporter.loadReportData(bamQc.getOutsideBamStats());
+                SaveZipThread.generateBamQcProperties(outsideProps, outsideReporter);
+
+                try {
+                    outsideProps.store(new FileOutputStream("/home/kokonech/file.properties"), null);
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+
+                compareProperties(outsideProps, test.getOutsideResultsPath());
+            }
+
+        }
+     }
+
+
+    void compareProperties(Properties calculatedProps, String pathToValidProperties){
+          Properties validProps = new Properties();
             try {
-                validProps.load(new BufferedInputStream(new FileInputStream(test.getPathToValiationOptions())));
+                validProps.load(new BufferedInputStream(new FileInputStream(pathToValidProperties)));
             } catch (IOException e) {
                 assertTrue("Error loading valid stats.", false);
                 e.printStackTrace();
@@ -91,8 +113,7 @@ public class BamQCTest {
 
                 }
             }
-        }
-     }
+    }
 
 
 

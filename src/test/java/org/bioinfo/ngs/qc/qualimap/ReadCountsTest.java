@@ -60,7 +60,7 @@ public class ReadCountsTest {
 
             }
 
-            String pathToExpectedResults = test.getPathToValiationOptions();
+            String pathToExpectedResults = test.getResultsPath();
             if (pathToExpectedResults.isEmpty()) {
                 assertTrue("Path to result is empty",false);
                 return;

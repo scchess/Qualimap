@@ -29,10 +29,13 @@ public class RegionLookupTable {
 
     public void markIntersectingRegions(BitSet windowBitMask, int startPos, int endPos, String seqName) {
         IntervalTree<Integer> tree = intervalTreeMap.get(seqName);
+        if (tree == null){
+            return;
+        }
         Iterator<IntervalTree.Node<Integer>> iter =  tree.overlappers(startPos, endPos);
         while(iter.hasNext()) {
             IntervalTree.Node<Integer> node = iter.next();
-            windowBitMask.set(node.getStart(), node.getEnd());
+            windowBitMask.set(node.getStart(), node.getEnd() + 1);
         }
     }
 

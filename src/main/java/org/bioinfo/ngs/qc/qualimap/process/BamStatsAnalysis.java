@@ -230,15 +230,7 @@ public class BamStatsAnalysis {
             // compute absolute position
             long position = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 
-            /*boolean readOverlapsRegions = true;
-            if (selectedRegionsAvailable) {
-                readOverlapsRegions = readOverlapsRegions(position, position + read.getReadLength() - 1);
-                if (readOverlapsRegions) {
-                    ++numberOfReads;
-                }
-            } else {*/
             ++numberOfReads;
-
 
 			// filter invalid reads
 			if(read.isValid() == null){
@@ -460,6 +452,7 @@ public class BamStatsAnalysis {
         return window;
     }
 
+    //TODO: use this methods for better performance
     private void calculateRegionsLookUpTableForWindowNew(BamGenomeWindow w) {
 
         int windowSize = (int) w.getWindowSize();

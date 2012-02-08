@@ -45,7 +45,7 @@ public class TestConfig {
 
     public String getOutsideResultsPath() { return attributes.get(OUTSIDE_RESULTS_ATTR); }
     public String getPathToBamFile() { return attributes.get(BAM_FILE_ATTR); }
-    public String getPathToValiationOptions() { return attributes.get(RESULTS_FILE_ATTR); }
+    public String getResultsPath() { return attributes.get(RESULTS_FILE_ATTR); }
     public String getPathToRegionFile() { return attributes.get(REGIONS_FILE_ATTR); }
     public boolean  getComputeOutsideStats()
     {

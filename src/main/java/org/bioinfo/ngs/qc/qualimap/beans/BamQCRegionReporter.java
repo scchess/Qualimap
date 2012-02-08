@@ -221,7 +221,7 @@ public class BamQCRegionReporter implements Serializable {
 	 * @param bamStats data read in the input file
 	 * @throws IOException some errors that can happen
 	 */
-	public void loadReportData(BamStats bamStats) throws IOException{
+	public void loadReportData(BamStats bamStats) {
 		this.bamFileName = bamStats.getSourceFile();
 		this.referenceSize = bamStats.getReferenceSize();
 		this.contigsNumber = bamStats.getNumberOfReferenceContigs();
@@ -601,14 +601,10 @@ public class BamQCRegionReporter implements Serializable {
         }
     }
 
-	//TODO: getMapCharts() and get getImageMap() should be somehow replace by generic functions
+	//TODO: getMapCharts() and get getImageMap() should be somehow replaced by generic functions
     // For example it is possible to introduce generic class ChartImage and hide impl details
     public Map<String, JFreeChart> getMapCharts() {
 		return mapCharts;
-	}
-
-	public void setMapCharts(Map<String, JFreeChart> mapCharts) {
-		this.mapCharts = mapCharts;
 	}
 
     public Map<String, BufferedImage> getImageMap() {
