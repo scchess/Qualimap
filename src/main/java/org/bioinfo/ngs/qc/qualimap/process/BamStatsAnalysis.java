@@ -15,6 +15,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.utils.RegionLookupTable;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,8 +85,10 @@ public class BamStatsAnalysis {
 	private int numberOfOutsideMappedReads;
     private int progress;
 
+    //regions
 	private long[] selectedRegionStarts;
 	private long[] selectedRegionEnds;
+    RegionLookupTable regionLookupTable;
 
 	// insert size
 	private boolean computeInsertSize;
@@ -105,6 +108,7 @@ public class BamStatsAnalysis {
 	private boolean saveCoverage;
 	private boolean isPairedData;
     List<Future<ProcessBunchOfReadsTask.Result>> results;
+    long timeToCalcOverlappers;
 
     private ExecutorService workerThreadPool;
 
@@ -207,6 +211,8 @@ public class BamStatsAnalysis {
         ArrayList<SAMRecord> readsBunch = new ArrayList<SAMRecord>();
         results = new ArrayList<Future<ProcessBunchOfReadsTask.Result>>();
 
+        timeToCalcOverlappers = 0;
+
         while(iter.hasNext()){
 
             SAMRecord read = null;
@@ -244,8 +250,13 @@ public class BamStatsAnalysis {
                     continue;
                 }
 
+                long findOverlappersStart = System.currentTimeMillis();
+
                 if (selectedRegionsAvailable) {
-                    boolean readOverlapsRegions = readOverlapsRegions(position, position + read.getReadLength() - 1);
+                    //boolean readOverlapsRegions = readOverlapsRegions(position, position + read.getReadLength() - 1);
+                    boolean readOverlapsRegions = readOverlapsRegions(read.getAlignmentStart(),
+                            read.getAlignmentEnd(), read.getReferenceName());
+
                     if (readOverlapsRegions) {
                         numberOfMappedReads++;
                     } else {
@@ -254,6 +265,7 @@ public class BamStatsAnalysis {
                 } else {
                     numberOfMappedReads++;
                 }
+                timeToCalcOverlappers += System.currentTimeMillis() - findOverlappersStart;
 
                 if (computeChromosomeStats && position > currentChromosome.getEnd()) {
                     collectAnalysisResults(readsBunch);
@@ -340,7 +352,7 @@ public class BamStatsAnalysis {
             bamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
             bamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
             bamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
-            bamStats.setPercentageOfMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+            bamStats.setPercentageOfInsideMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
             bamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
             bamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);
         } else {
@@ -366,7 +378,7 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
             outsideBamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
             outsideBamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
-            outsideBamStats.setPercentageOfMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+            outsideBamStats.setPercentageOfInsideMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
             outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
             outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);logger.println("Computing descriptors for outside regions...");
 		    outsideBamStats.computeDescriptors();
@@ -448,6 +460,44 @@ public class BamStatsAnalysis {
         return window;
     }
 
+    private void calculateRegionsLookUpTableForWindowNew(BamGenomeWindow w) {
+
+        int windowSize = (int) w.getWindowSize();
+
+        BitSet bitSet = new BitSet((int)w.getWindowSize());
+
+        ContigRecord windowContig = locator.getContigCoordinates(w.getStart());
+
+        int relativeWindowStart = (int) windowContig.getRelative();
+        int relativeWindowEnd = relativeWindowStart + windowSize - 1;
+        String contigName = windowContig.getName();
+
+        regionLookupTable.markIntersectingRegions(bitSet, relativeWindowStart,
+                relativeWindowEnd, contigName);
+
+        /*int numRegions = selectedRegionStarts.length;
+        for (int i = 0; i < numRegions; ++i) {
+            long regionStart = selectedRegionStarts[i];
+            long regionEnd = selectedRegionEnds[i];
+
+            if ( regionStart >= windowStart && regionStart <= windowEnd ) {
+                //System.out.println("Have match! Type1 " + w.getName());
+                long end = Math.min(windowEnd,regionEnd);
+                bitSet.set((int)(regionStart-windowStart), (int)(end-windowStart + 1),true);
+            } else if (regionEnd >= windowStart && regionEnd <= windowEnd) {
+                //System.out.println("Have match! Type2 " + w.getName());
+                bitSet.set(0, (int)(regionEnd - windowStart + 1), true);
+            } else if (regionStart <= windowStart && regionEnd >= windowEnd) {
+                //System.out.println("Have match! Type3 " + w.getName());
+                bitSet.set(0, (int)(windowEnd - windowStart + 1),true);
+            }
+
+        }*/
+
+        w.setSelectedRegions(bitSet);
+        w.setSelectedRegionsAvailable(true);
+    }
+
 
     private void calculateRegionsLookUpTableForWindow(BamGenomeWindow w) {
 
@@ -483,7 +533,8 @@ public class BamStatsAnalysis {
 
     public BamGenomeWindow initWindow(String name,long windowStart,long windowEnd, byte[]reference,
                                              boolean detailed){
-		byte[]miniReference = null;
+
+        byte[]miniReference = null;
 		if(reference!=null) {
 			miniReference = new byte[(int)(windowEnd-windowStart+1)];
 			miniReference = Arrays.copyOfRange(reference, (int) (windowStart - 1), (int) (windowEnd - 1));
@@ -557,6 +608,8 @@ public class BamStatsAnalysis {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
+        //System.out.println("Time taken to count overlappers: " + timeToCalcOverlappers);
+        timeToCalcOverlappers = 0;
         return workerThreadPool.submit( new FinalizeWindowTask(bamStats,window));
     }
 
@@ -628,6 +681,7 @@ public class BamStatsAnalysis {
 
 		selectedRegionStarts = new long[numberOfSelectedRegions];
 		selectedRegionEnds = new long[numberOfSelectedRegions];
+        regionLookupTable = new RegionLookupTable();
 		//selectedRegionRelativePositions = new long[numberOfSelectedRegions];
         regionsTree = new IntervalTree<Integer>();
 
@@ -647,6 +701,7 @@ public class BamStatsAnalysis {
             insideReferenceSize += regionLength;
             selectedRegionStarts[index] = pos;
             selectedRegionEnds[index] = pos + regionLength - 1;
+            regionLookupTable.putRegion(region.getStart(), region.getEnd(), region.getSequenceName());
 
 			//selectedRegionStarts[index] = Math.max(lastEnd,pos);
 			//selectedRegionEnds[index] = Math.max(lastEnd,pos + region.getEnd()-region.getStart());
@@ -709,6 +764,8 @@ public class BamStatsAnalysis {
         return windowStarts;
     }
 
+    /*
+    INEFFECTIVE!
     private static boolean overlaps(long start, long end, long start2, long end2) {
         if ( (start >= start2 && start <= end2 )
            || (end >= start2 && end <= end2) ||
@@ -726,7 +783,13 @@ public class BamStatsAnalysis {
             }
         }
         return false;
+    }*/
+
+    private boolean readOverlapsRegions(int readStart, int readEnd, String seqName) {
+
+        return regionLookupTable.overlaps(readStart, readEnd, seqName);
     }
+
 
     public GenomeLocator getLocator() {
         return locator;

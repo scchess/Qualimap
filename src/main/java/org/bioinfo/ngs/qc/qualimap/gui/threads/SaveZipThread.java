@@ -199,6 +199,11 @@ public class SaveZipThread extends Thread {
             prop.setProperty("bamFileName", reporter.getBamFileName());
 			prop.setProperty("basesNumber", reporter.getBasesNumber().toString());
 			prop.setProperty("contigsNumber", reporter.getContigsNumber().toString());
+            prop.setProperty("numRegions", Integer.toString(reporter.getNumSelectedRegions()));
+            prop.setProperty("numInRegionMappedReads", Long.toString(reporter.getNumInsideMappedReads()));
+            prop.setProperty("numInRegionBases", Long.toString(reporter.getInRegionsReferenceSize()));
+
+            //TODO: in region related info (num regions, regions size etc)
 
 			if (reporter.getReferenceFileName() != null && !reporter.getReferenceFileName().isEmpty()) {
 				prop.setProperty("referenceFileName", reporter.getReferenceFileName());

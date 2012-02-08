@@ -19,12 +19,14 @@ public class BamQCTest {
     public BamQCTest() throws IOException {
         tests = new ArrayList<TestConfig>();
 
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
+        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
+        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
+        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test004.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test005.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test006.txt") );
+        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test007.txt") );
+
 
     }
 
@@ -40,9 +42,9 @@ public class BamQCTest {
             bamQc.setNumberOfWindows(400);
 
             String pathToRegionFile = test.getPathToRegionFile();
-            if (!pathToRegionFile.isEmpty()) {
+            if (pathToRegionFile != null && !pathToRegionFile.isEmpty()) {
                 bamQc.setSelectedRegions(pathToRegionFile);
-                bamQc.setComputeOutsideStats(test.getComputeOutsideStats());
+                //bamQc.setComputeOutsideStats(test.getComputeOutsideStats());
             }
 
             try {
@@ -80,6 +82,7 @@ public class BamQCTest {
                     continue;
                 }
                 if (validProps.containsKey(key)) {
+                    System.out.println("Property: " + key);
                     String expectedValue = validProps.getProperty(key);
                     String calculatedValue = calculatedProps.getProperty(key);
                     String errorMessage = "Stats are not equal. Key: " + key +

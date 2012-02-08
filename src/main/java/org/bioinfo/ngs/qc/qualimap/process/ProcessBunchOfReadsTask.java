@@ -83,7 +83,9 @@ public class ProcessBunchOfReadsTask implements Callable {
 
     public Result call() {
 
+        //long startTime = System.currentTimeMillis();
         //System.out.println("Started bunch of read analysis. The first read is" + reads.get(0).getReadName());
+
         Result taskResult = new Result();
 
         for (SAMRecord read : reads) {
@@ -136,6 +138,10 @@ public class ProcessBunchOfReadsTask implements Callable {
         if (analyzeRegions && computeOutsideStats) {
             taskResult.setOutOfRegionReadsData(outOfRegionsResults.values());
         }
+
+        //long endTime = System.currentTimeMillis();
+        //System.out.println("Analyze bunch of reads time: " + (endTime - startTime));
+
         return taskResult;
     }
 

@@ -11,16 +11,14 @@ import java.util.HashMap;
  * Time: 4:19 PM
  */
 public class TestConfig {
-    private String pathToBamFile;
-    private String pathToValiationOptions;
-    private String pathToRegionFile;
-    private boolean computeOutsideRegions;
+
     HashMap<String,String> attributes;
 
     private final String BAM_FILE_ATTR = "bamfile";
     private final String RESULTS_FILE_ATTR = "result";
+    private final String OUTSIDE_RESULTS_ATTR = "outside_result";
     private final String REGIONS_FILE_ATTR = "regions";
-    private final String OUTSIDE_STATS_ATTR = "compute-outside-stats";
+    private final String OUTSIDE_STATS_ATTR = "compute_outside_stats";
 
     private HashMap<String,String> parseConfigFile(BufferedReader fileReader) throws IOException {
         HashMap<String,String> attrMap = new HashMap<String, String>();
@@ -41,25 +39,18 @@ public class TestConfig {
     public TestConfig(String pathToConfig) throws IOException {
         BufferedReader fileReader = new BufferedReader( new FileReader(pathToConfig));
         attributes = parseConfigFile(fileReader);
-
-        pathToBamFile = attributes.get(BAM_FILE_ATTR);
-        pathToValiationOptions = attributes.get(RESULTS_FILE_ATTR);
-        if (attributes.containsKey(REGIONS_FILE_ATTR)) {
-            pathToRegionFile = attributes.get(REGIONS_FILE_ATTR);
-        }   else {
-            pathToRegionFile = "";
-        }
-        computeOutsideRegions = attributes.get(OUTSIDE_STATS_ATTR) != null;
-
     }
 
-
-
     public String getSpecificAttribute(String attrName) { return attributes.get(attrName); }
-    public String getPathToBamFile() { return pathToBamFile; }
-    public String getPathToValiationOptions() { return pathToValiationOptions; }
-    public String getPathToRegionFile() { return pathToRegionFile; }
-    public boolean  getComputeOutsideStats() { return computeOutsideRegions; }
+
+    public String getOutsideResultsPath() { return attributes.get(OUTSIDE_RESULTS_ATTR); }
+    public String getPathToBamFile() { return attributes.get(BAM_FILE_ATTR); }
+    public String getPathToValiationOptions() { return attributes.get(RESULTS_FILE_ATTR); }
+    public String getPathToRegionFile() { return attributes.get(REGIONS_FILE_ATTR); }
+    public boolean  getComputeOutsideStats()
+    {
+        return attributes.get(OUTSIDE_STATS_ATTR) != null;
+    }
 
 
 }

@@ -539,21 +539,21 @@ public class BamStats implements Serializable {
 		/*
 		 * Sample  
 		 */
-		
-		// coverageData
-		meanCoverage = (double)numberOfMappedBases/(double)referenceSize;
+
         System.out.println("numberOfMappedBases: " + numberOfMappedBases);
         System.out.println("referenceSize: " + referenceSize);
         System.out.println("numberOfSequencedBases: " + numberOfSequencedBases);
         System.out.println("numberOfAs: " + numberOfAs);
 
+        long effectiveRefSize = numSelectedRegions > 0 ? inRegionReferenceSize : referenceSize;
+        meanCoverage = (double) numberOfMappedBases / (double) effectiveRefSize;
+
         if (numberOfSequencedBases != 0) {
 
-            stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) referenceSize - meanCoverage*meanCoverage);
+            stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) effectiveRefSize - meanCoverage*meanCoverage);
 
             // quality
             meanMappingQualityPerWindow = MathUtils.mean(ListUtils.toDoubleArray(mappingQualityAcrossReference));
-
 
             // A
             meanAContentPerWindow = MathUtils.mean(ListUtils.toDoubleArray(aContentAcrossReference));
