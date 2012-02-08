@@ -1,5 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import com.hp.hpl.jena.reasoner.rulesys.builtins.Print;
 import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
 import net.sf.samtools.*;
@@ -12,6 +13,8 @@ import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.*;
 
 /**
@@ -27,6 +30,7 @@ public class ComputeCountsTask  {
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
     String protocol;
+    String attrName;
 
     String pathToBamFile, pathToGffFile;
 
@@ -35,10 +39,13 @@ public class ComputeCountsTask  {
     public static final String NON_STRAND_SPECIFIC = "non-strand-specific";
     public static final String FORWARD_STRAND = "forward-stranded";
     public static final String REVERSE_STRAND = "reverse-stranded";
+    public static final String GENE_ID_ATTR = "gene_id";
+    public static final String TRANSCRIPT_ID_ATTR = "transcript_id";
 
     public ComputeCountsTask(String pathToBamFile, String pathToGffFile) {
         this.pathToBamFile = pathToBamFile;
         this.pathToGffFile = pathToGffFile;
+        this.attrName = GENE_ID_ATTR;
         protocol = NON_STRAND_SPECIFIC;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
@@ -123,6 +130,9 @@ public class ComputeCountsTask  {
                 offset += length;
             }
 
+
+            //Find intersections
+
             HashMap<String,BitSet> featureIntervalMap = new HashMap<String, BitSet>();
             int intIndex = 0;
 
@@ -194,17 +204,15 @@ public class ComputeCountsTask  {
         GtfParser.Record record;
         while((record = gtfParser.readNextRecord())!=null){
 
-            for (String featureName: allowedFeatureList) {
+            for (String featureType: allowedFeatureList) {
                 // TODO: consider different type of features here
-                /*
-                if (!record.getFeature().equalsIgnoreCase(featureName)) {
-                    continue;
-                }*/
 
-                addRegionToIntervalMap(record);
-
-                // init results map
-                readCounts.put(record.getGeneId(), 0L);
+                if (record.getFeature().equalsIgnoreCase(featureType)) {
+                    addRegionToIntervalMap(record);
+                    // init results map
+                    readCounts.put(record.getAttribute(attrName), 0L);
+                    break;
+                }
 
             }
         }
@@ -225,7 +233,7 @@ public class ComputeCountsTask  {
             chromosomeRegionSetMap.put(r.getSeqName(), regionSet);
         }
 
-        regionSet.addRegion(r);
+        regionSet.addRegion(r, attrName);
 
     }
 
@@ -250,6 +258,16 @@ public class ComputeCountsTask  {
     }
 
 
+    public StringBuilder getOutputStatsMessage() {
+        StringBuilder message = new StringBuilder();
+        message.append("Feature (\"").append(attrName).append("\") counts: ").append(getTotalReadCounts()).append("\n");
+        message.append("No feature: ").append(noFeature).append("\n");
+        message.append("Not unique alignment: ").append(alignmentNotUnique).append("\n");
+        message.append("Ambiguous: ").append(ambiguous).append("\n");
+
+        return message;
+    }
+
     public long getTotalReadCounts() {
         long totalCount = 0;
         for ( Long count: readCounts.values()) {
@@ -257,5 +275,10 @@ public class ComputeCountsTask  {
         }
 
         return totalCount;
+    }
+
+
+    public void setAttrName(String attrName) {
+        this.attrName = attrName;
     }
 }

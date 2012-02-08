@@ -74,11 +74,11 @@ public class BamQCTest {
                 outsideReporter.loadReportData(bamQc.getOutsideBamStats());
                 SaveZipThread.generateBamQcProperties(outsideProps, outsideReporter);
 
-                try {
-                    outsideProps.store(new FileOutputStream("/home/kokonech/file.properties"), null);
+                /*try {
+                    outsideProps.store(new FileOutputStream("/home/kokonech/outside.properties"), null);
                 } catch (IOException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                }*/
 
                 compareProperties(outsideProps, test.getOutsideResultsPath());
             }

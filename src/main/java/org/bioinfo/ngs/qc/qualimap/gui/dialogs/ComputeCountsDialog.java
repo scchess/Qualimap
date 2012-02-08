@@ -24,9 +24,10 @@ import java.util.Map;
 public class ComputeCountsDialog extends JDialog implements ActionListener{
 
 
-    JTextField bamPathEdit, gffPathEdit, outputPathField;
+    JTextField bamPathEdit, gffPathEdit, outputPathField, featureTypeField;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
-    JComboBox strandTypeCombo;
+    JComboBox strandTypeCombo, featureNameCombo;
+    JCheckBox saveStatsBox;
     Thread countReadsThread;
 
 
@@ -66,8 +67,21 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
         strandTypeCombo = new JComboBox(comboItems);
         add(strandTypeCombo,"wrap");
 
-        add(new JLabel("Output:"), "");
+        add(new JLabel("Feature type:"));
+        featureTypeField = new JTextField(10);
+        featureTypeField.setToolTipText("Only features of these type will be considered in analysis. " +
+                "Default is \"exon\"");
+        featureTypeField.setText("exon");
+        add(featureTypeField, " wrap");
 
+        add(new JLabel("Feature name:"));
+        String[] attrIems = {ComputeCountsTask.GENE_ID_ATTR,
+                ComputeCountsTask.TRANSCRIPT_ID_ATTR};
+        featureNameCombo = new JComboBox(attrIems);
+        featureNameCombo.setToolTipText("The name of the feature (attribute) to be count.");
+        add(featureNameCombo,"wrap");
+
+        add(new JLabel("Output:"), "");
         outputPathField = new JTextField(40);
         bamPathEdit.addCaretListener( new CaretListener() {
             @Override
@@ -84,9 +98,12 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                 outputPathField, "Counts file") );
         add(browseOutputPathButton, "wrap");
 
+        saveStatsBox = new JCheckBox("Save computation summary");
+        saveStatsBox.setToolTipText("The summary of the counts will be saved to the same folder where output is located.");
+        add(saveStatsBox, "span 2, wrap");
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 20"));
-
 
         okButton = new JButton("Run calculation");
         okButton.setActionCommand(Constants.OK_COMMAND);
@@ -122,8 +139,11 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                     frame.setUiEnabled(false);
                     String bamPath = bamPathEdit.getText();
                     String gffPath = gffPathEdit.getText();
+                    String featureType = featureTypeField.getText();
                     ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamPath, gffPath);
                     computeCountsTask.setProtocol(strandTypeCombo.getSelectedItem().toString());
+                    computeCountsTask.addSupportedFeatureType(featureType);
+                    computeCountsTask.setAttrName(featureNameCombo.getSelectedItem().toString());
 
                     try {
                         computeCountsTask.run();
@@ -137,26 +157,27 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                         }
                         outWriter.flush();
 
+                        if (saveStatsBox.isSelected()) {
+                            PrintWriter statsWriter = new PrintWriter(new FileWriter(outputPathField.getText() + ".stats"));
+
+                            String statsMessage = computeCountsTask.getOutputStatsMessage().toString();
+                            statsWriter.println(statsMessage);
+
+                            statsWriter.flush();
+                        }
+
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(frame, e.getMessage(),
                                 getTitle(), JOptionPane.ERROR_MESSAGE);
+                        e.printStackTrace();
                         frame.setUiEnabled(true);
                         return;
                     }
 
-
-                    long totalCounted = computeCountsTask.getTotalReadCounts();
-                    long noFeature = computeCountsTask.getNoFeatureNumber();
-                    long notUnique = computeCountsTask.getAlignmentNotUniqueNumber();
-                    long ambiguous = computeCountsTask.getAmbiguousNumber();
-
                     StringBuilder message = new StringBuilder();
-                    message.append("Calculation succesful!\n");
-                    message.append("Feature read counts: ").append(totalCounted).append("\n");
-                    message.append("No feature: ").append(noFeature).append("\n");
-                    message.append("Not unique alignment: ").append(notUnique).append("\n");
-                    message.append("Ambiguous: ").append(ambiguous).append("\n");
-                    message.append("Result is saved to file ").append(outputPathField.getText());
+                    message.append("Counts correctly generated!\n");
+                    message.append( computeCountsTask.getOutputStatsMessage() );
+                    message.append("\nResult is saved to ").append(outputPathField.getText());
 
                     JOptionPane.showMessageDialog(frame, message.toString(),
                             getTitle(), JOptionPane.INFORMATION_MESSAGE);
@@ -199,7 +220,7 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
 
         File outputFile = new File(outputPathField.getText());
         try {
-           if (!outputFile.createNewFile()) {
+           if (!outputFile.exists() && !outputFile.createNewFile()) {
                throw new IOException();
            }
         } catch (IOException e) {

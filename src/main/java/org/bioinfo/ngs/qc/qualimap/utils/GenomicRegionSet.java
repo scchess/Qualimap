@@ -61,9 +61,9 @@ public class GenomicRegionSet {
         return false;
     }
 
-    public void addRegion(GtfParser.Record r) {
+    public void addRegion(GtfParser.Record r, String attrName) {
 
-        String featureName = r.getGeneId();
+        String featureName = r.getAttribute(attrName);
         boolean featureStrand = r.getStrand();
 
         Interval newInterval = new Interval(r.getSeqName(), r.getStart(), r.getEnd(), r.getStrand(), featureName);
@@ -98,7 +98,7 @@ public class GenomicRegionSet {
             Set<Feature> intervalFeatures = new HashSet<Feature>();
             intervalFeatures.add(new Feature(featureName, featureStrand));
             intervalTree.put(newInterval.getStart(), newInterval.getEnd(), intervalFeatures);
-            featureIntervalMap.put(r.getGeneId(), newInterval);
+            featureIntervalMap.put(featureName, newInterval);
         }
     }
 

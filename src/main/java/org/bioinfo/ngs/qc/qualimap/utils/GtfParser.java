@@ -44,12 +44,12 @@ public class GtfParser {
             return strand.equals("+");
         }
 
-        public String getGeneId() {
-            return attributes.get("gene_id");
-        }
-
         Record() {
             attributes = new HashMap<String, String>();
+        }
+
+        public String getAttribute(String attrName) {
+            return attributes.get(attrName);
         }
     }
 
