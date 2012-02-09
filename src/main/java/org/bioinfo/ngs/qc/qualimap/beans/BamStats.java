@@ -12,6 +12,8 @@ import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 
 
 public class BamStats implements Serializable {
@@ -114,6 +116,7 @@ public class BamStats implements Serializable {
 	private long[] coverageHistogramCache;
     private XYVector coverageHistogram;
 	private XYVector acumCoverageHistogram;
+    private XYVector uniqueReadStartsHistogram;
 	private int maxCoverageQuota;
 	private XYVector coverageQuotes;
 	
@@ -187,7 +190,10 @@ public class BamStats implements Serializable {
 	private XYVector insertSizeHistogram;
 	private HashMap<Long,Long> insertSizeHistogramMap;
     private long[] insertSizeHistogramCache;
-	
+
+    // unique read starts
+    long[] uniqueReadStartsArray;
+
 	// 
 	private int numberOfWindows;
 	private int numberOfProcessedWindows;
@@ -667,7 +673,7 @@ public class BamStats implements Serializable {
 
         addCacheDataToMap(coverageHistogramCache, coverageHistogramMap);
         computeCoverageHistogram();
-
+        computeUniqueReadStartsHistogram();
 
     }
 
@@ -682,9 +688,22 @@ public class BamStats implements Serializable {
 		}
 		return totalCoverage;
 	}
-	
-	private XYVector computeCoverageHistogram(){
-		double[] coverages = new double[coverageHistogramMap.size()];
+
+
+    private void computeUniqueReadStartsHistogram() {
+
+        uniqueReadStartsHistogram = new XYVector();
+
+        for (int i = 1; i <= ReadStartsHistogram.MAX_READ_STARTS_PER_POSITION; ++i ) {
+            long val = uniqueReadStartsArray[i];
+            uniqueReadStartsHistogram.addItem( new XYItem(i, val));
+        }
+
+    }
+
+	private void computeCoverageHistogram(){
+
+        double[] coverages = new double[coverageHistogramMap.size()];
 		double[] freqs = new double[coverageHistogramMap.size()];
 		
 		// read keys
@@ -736,7 +755,6 @@ public class BamStats implements Serializable {
 //		}
 
 		
-		return coverageHistogram;
 	}
 
 
@@ -983,6 +1001,14 @@ public class BamStats implements Serializable {
 	public void setPercentageOfMappedReads(double percentageOfMappedReads) {
 		this.percentageOfMappedReads = percentageOfMappedReads;
 	}
+
+    public XYVector getUniqueReadStartsHistogram() {
+        return uniqueReadStartsHistogram;
+    }
+
+    public void setUniqueReadStarts(long[] uniqueReadStarts) {
+        this.uniqueReadStartsArray = uniqueReadStarts;
+    }
 
 	/**
 	 * @return the referenceSize

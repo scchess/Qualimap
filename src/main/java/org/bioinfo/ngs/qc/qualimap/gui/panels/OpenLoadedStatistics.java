@@ -13,8 +13,6 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.bioinfo.commons.log.Logger;
@@ -28,7 +26,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import sun.awt.image.BufferedImageDevice;
 
 /**
  * Class to manage the statistics loaded from a determinate file
@@ -236,12 +233,18 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         leftPanel.add(j1_2);
 
         JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
-        j1_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
+        j1_3.setToolTipText("There is often big picks of coverageData across the reference "
+                + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
         leftPanel.add(j1_3);
 
         JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
-        j1_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
+        j1_4.setToolTipText("Provides an easy way of viewing how much reference has been "
+                + "sequenced with a coverageData higher than a selected level");
         leftPanel.add(j1_4);
+
+        JLabel uniqReadsLabel = createImageLinkLabel("Unique reads per position", Constants.GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS);
+        uniqReadsLabel.setToolTipText("Provides a histogram of unique read starts per position.");
+        leftPanel.add(uniqReadsLabel);
 
         JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
         j1_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
@@ -279,7 +282,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			inputDesc.setToolTipText("Input data description");
             leftPanel.add(inputDesc);
 
-
 			JLabel j3_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
 			leftPanel.add(j3_1);
 
@@ -294,6 +296,10 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			JLabel j3_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
 			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
 			leftPanel.add(j3_4);
+
+            JLabel uniqReadsLabelOutside = createImageLinkLabel("Unique reads per position", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS);
+            uniqReadsLabelOutside.setToolTipText("Provides a histogram of unique read starts per position.");
+            leftPanel.add(uniqReadsLabelOutside);
 
 			JLabel j3_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
 			j3_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));

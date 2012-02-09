@@ -15,6 +15,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 import org.bioinfo.ngs.qc.qualimap.utils.RegionLookupTable;
 
 import java.io.File;
@@ -81,9 +82,13 @@ public class BamStatsAnalysis {
 	private long outsideReferenceSize;
 	private BamGenomeWindow currentOutsideWindow;
 	private HashMap<Long,BamGenomeWindow> openOutsideWindows;
-	private BamStats outsideBamStats;
+    private BamStats outsideBamStats;
 	private int numberOfOutsideMappedReads;
     private int progress;
+
+    // counting unique reads
+    private ReadStartsHistogram readStartsHistogram;
+    private ReadStartsHistogram readStartsHistogramOutside;
 
     //regions
 	private long[] selectedRegionStarts;
@@ -124,6 +129,9 @@ public class BamStatsAnalysis {
         this.outdir = ".";
 		logger = new Logger();
         chromosomeWindowIndexes = new ArrayList<Integer>();
+        readStartsHistogram = new ReadStartsHistogram();
+        readStartsHistogramOutside = new ReadStartsHistogram();
+
     }
 
     public void run() throws Exception{
@@ -251,12 +259,16 @@ public class BamStatsAnalysis {
 
                     if (readOverlapsRegions) {
                         numberOfMappedReads++;
+                        readStartsHistogram.update(position);
                     } else {
                         numberOfOutsideMappedReads++;
+                        readStartsHistogramOutside.update(position);
                     }
                 } else {
                     numberOfMappedReads++;
+                    readStartsHistogram.update(position);
                 }
+
                 timeToCalcOverlappers += System.currentTimeMillis() - findOverlappersStart;
 
                 if (computeChromosomeStats && position > currentChromosome.getEnd()) {
@@ -353,6 +365,7 @@ public class BamStatsAnalysis {
         }
         bamStats.setPercentageOfValidReads(percentageOfValidReads);
         bamStats.setReferenceSize(referenceSize);
+        bamStats.setUniqueReadStarts(readStartsHistogram.getHistorgram());
 
         // compute descriptors
         logger.println("Computing descriptors...");
@@ -373,7 +386,8 @@ public class BamStatsAnalysis {
             outsideBamStats.setPercentageOfInsideMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
             outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
             outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);logger.println("Computing descriptors for outside regions...");
-		    outsideBamStats.computeDescriptors();
+		    outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
+            outsideBamStats.computeDescriptors();
             logger.println("Computing histograms for outside regions...");
 		    outsideBamStats.computeHistograms();
         }
@@ -393,6 +407,33 @@ public class BamStatsAnalysis {
         return result;
 
     }
+
+    /*
+    private void updateReadStartsHistogram(long position) {
+
+        updateReadStartsHistogram(position, currentReadStartPosition,
+                readStartCounter, readStartsHistogram);
+
+    }
+
+    private void updateReadStartsHistogramOutside(long position) {
+        updateReadStartsHistogram(position, currentReadStartPositionOutside,
+                readStartCounterOutside, readStartsHistogramOutisde);
+    }
+
+    private static void updateReadStartsHistogram(long position,  long currentReadStartPosition,
+                                                  int readStartCounter, long[] readStartsHistogram) {
+        if (position == currentReadStartPosition) {
+            readStartCounter++;
+        } else {
+            int histPos = readStartCounter < MAX_READ_STARTS_PER_POSITION ?  readStartCounter :
+                    MAX_READ_STARTS_PER_POSITION;
+            readStartsHistogram[histPos]++;
+            readStartCounter = 1;
+            currentReadStartPosition = position;
+        }
+    }*/
+
 
     private void analyzeReadsBunch( ArrayList<SAMRecord> readsBunch ) throws ExecutionException, InterruptedException {
          List<SAMRecord> bunch = getShallowCopy(readsBunch);
@@ -452,7 +493,7 @@ public class BamStatsAnalysis {
         return window;
     }
 
-    //TODO: use this methods for better performance
+    //TODO: try using this method for better performance
     private void calculateRegionsLookUpTableForWindowNew(BamGenomeWindow w) {
 
         int windowSize = (int) w.getWindowSize();

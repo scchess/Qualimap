@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.*;
@@ -409,6 +410,20 @@ public class BamQCRegionReporter implements Serializable {
 		mapCharts.put(
 				bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
 				coverageRangedHistogram.getChart());
+
+
+        // coverageData ranged histogram
+		BamQCXYHistogramChart uniqueReadStartsHistogram =
+                new BamQCXYHistogramChart("Unique reads per position",
+                subTitle, "Reads per position", "Number of reads");
+		uniqueReadStartsHistogram.addHistogram("coverageData", bamStats.getUniqueReadStartsHistogram(), Color.GREEN);
+		uniqueReadStartsHistogram.setDomainAxisIntegerTicks(true);
+		uniqueReadStartsHistogram.setDomainAxisTickUnitSize(1.0);
+        uniqueReadStartsHistogram.render();
+		mapCharts.put( bamStats.getName() + "_uniq_read_starts_histogram.png",
+				uniqueReadStartsHistogram.getChart());
+
+
 
 		//		  // coverageData cumulative histogram
 		//		BamQCXYHistogramChart cumulativeCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram", subTitle, "coverageData (bp)", "relative coverture of reference (%)");

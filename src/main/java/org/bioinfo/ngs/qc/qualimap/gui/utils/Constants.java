@@ -97,7 +97,11 @@ public final class Constants {
 
 	// Name of the graphic for the Coverage Quotes
 	public static final String GRAPHIC_NAME_GENOME_COVERAGE_QUOTA = "genome_coverage_quotes.png";
-	
+
+    public static final String GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS = "genome_uniq_read_starts_histogram.png";
+
+    public static final String GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS = "outside_uniq_read_starts_histogram.png";
+
 	// Name of the graphic for the Nucleotide Relative Content
 	public static final String GRAPHIC_NAME_GENOME_NUCLEOTIDE_RELATIVE_CONTENT = "genome_actg_across_reference.png";
 	
