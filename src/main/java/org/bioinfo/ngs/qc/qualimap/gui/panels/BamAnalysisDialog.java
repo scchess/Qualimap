@@ -92,6 +92,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         drawChromosomeLimits.addKeyListener(keyListener);
         drawChromosomeLimits.setToolTipText("Controls whether to draw chromosome limits in resulting graphs");
+        drawChromosomeLimits.setSelected(true);
         add(drawChromosomeLimits, "wrap");
 
         /*compareGcContentDistr = new JCheckBox("Compare GC content distribution with genome of:");

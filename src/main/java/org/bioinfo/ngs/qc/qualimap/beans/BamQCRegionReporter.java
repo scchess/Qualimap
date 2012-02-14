@@ -515,9 +515,11 @@ public class BamQCRegionReporter implements Serializable {
 		BamQCChart mappingQuality = new BamQCChart("Mapping quality across reference",
                 subTitle, "absolute position (bp)", "mapping quality");
 		mappingQuality.addSeries("mapping quality",new XYVector(windowReferences, bamStats.getMappingQualityAcrossReference()), new Color(250,50,50,150));
+        if(paintChromosomeLimits && locator!=null) {
+                    mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
+        }
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
-		if(paintChromosomeLimits && locator!=null) mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
 		mapCharts.put(
 				bamStats.getName() + "_mapping_quality_across_reference.png",
 				mappingQuality.getChart());
@@ -538,8 +540,10 @@ public class BamQCRegionReporter implements Serializable {
 			BamQCChart insertSize = new BamQCChart("Insert size across reference",
                     subTitle, "absolute position (bp)", "insert size (bp)");
 			insertSize.addSeries("insert size",new XYVector(windowReferences, bamStats.getInsertSizeAcrossReference()), new Color(15,170,90,150));
-			insertSize.render();		
-			if(paintChromosomeLimits && locator!=null) insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
+            if(paintChromosomeLimits && locator!=null) {
+                insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
+            }
+            insertSize.render();
 			mapCharts.put(bamStats.getName() + "_insert_size_across_reference.png", insertSize.getChart());
 	
 			// mapping quality histogram

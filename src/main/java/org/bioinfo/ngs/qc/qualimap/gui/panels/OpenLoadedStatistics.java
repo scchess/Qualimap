@@ -262,15 +262,15 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         leftPanel.add(j1_6);
 
         if(tabProperties.isPairedData()){
-            JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
-            j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-            j1_7.setToolTipText("Frequency histogram of the insert size");
-            leftPanel.add(j1_7);
-
             JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
             j1_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
             j1_8.setToolTipText("Frequency histogram of the insert size");
             leftPanel.add(j1_8);
+
+            JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
+            j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+            j1_7.setToolTipText("Frequency histogram of the insert size");
+            leftPanel.add(j1_7);
         }
 
         if (showOutsideStats) {
