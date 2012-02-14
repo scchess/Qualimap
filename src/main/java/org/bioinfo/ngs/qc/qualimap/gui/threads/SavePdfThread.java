@@ -4,10 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +15,8 @@ import javax.swing.text.html.parser.ParserDelegator;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
@@ -82,7 +81,7 @@ public class SavePdfThread extends Thread{
 			Document document = new Document(PageSize.A4.rotate());
 			PdfWriter.getInstance(document, file);
 			
-			boolean loadInsideReporter = false, loadOutsideReporter = false;
+			boolean loadOutsideReporter = false;
 			
 			 // Show the ProgressBar and the Text Description
 	    	savePanel.getProgressStream().setVisible(true);
@@ -102,13 +101,6 @@ public class SavePdfThread extends Thread{
             } else {
                 numItemsToSave = tabProperties.getReporter().getImageMap().size() + 2;
             }
-
-
-	    	/*if(tabProperties.getInsideReporter().getBamFileName() != null &&
-					!tabProperties.getInsideReporter().getBamFileName().isEmpty()){
-	    		loadInsideReporter = true;
-	    		numItemsToSave += tabProperties.getInsideReporter().getMapCharts().size() + 1;
-	    	}*/
 
 	    	if(tabProperties.getOutsideReporter() != null &&
 					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
@@ -425,13 +417,55 @@ public class SavePdfThread extends Thread{
 		tableGlobal.addCell(table);
 		section.add(tableGlobal);
 		section.newPage();
+
+        // Create chromosome tables
+        paragraph = new Paragraph("");
+		addEmptyLine(paragraph, 1);
+		section.add(paragraph);
+
+        PdfPTable chromoStats = new PdfPTable(4);
+		chromoStats.setWidthPercentage(100);
+        chromoStats.addCell("Name");
+        chromoStats.addCell("Length");
+        chromoStats.addCell("Mapped bases");
+        chromoStats.addCell("Mean coverage");
+
+        String pathToChromosomeStats = HomeFrame.outputpath + tabProperties.getOutputFolder()
+                + Constants.NAME_OF_FILE_CHROMOSOMES;
+
+        try {
+			BufferedReader br = new BufferedReader(new FileReader(new File(pathToChromosomeStats)));
+			String strLine;
+			while ((strLine = br.readLine()) != null) {
+				if (strLine.startsWith("#")) {
+                    continue;
+                }
+		        String[] tableValues = strLine.split("\t");
+                chromoStats.addCell(tableValues[0]);
+                String[] coords = tableValues[1].split(":");
+                long len =  Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;
+                chromoStats.addCell( Long.toString(len) );
+                chromoStats.addCell( tableValues[2] );
+                chromoStats.addCell( tableValues[3] );
+            }
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		} finally {
+            paragraph = new Paragraph("Chromosomes Summary");
+            section = chapter.addSection(paragraph, numberDepth);
+		    addEmptyLine(paragraph, 2);
+            section.add(paragraph);
+            section.add(chromoStats);
+            section.newPage();
+
+		}
+
 		
 	}
 
     private void addInputDescriptionToPDF(BamQCRegionReporter reporter, Chapter chapter, int numberDepth){
-    	StringUtilsSwing sdf = new StringUtilsSwing();
 
-    	Paragraph paragraph = new Paragraph("Input data & parameters");
+        Paragraph paragraph = new Paragraph("Input data & parameters");
 		Section section = chapter.addSection(paragraph, numberDepth);
 		//section.setNumberDepth(2);
 		addEmptyLine(paragraph, 1);

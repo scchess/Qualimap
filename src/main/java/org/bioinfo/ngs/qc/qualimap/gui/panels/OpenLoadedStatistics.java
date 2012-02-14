@@ -316,17 +316,18 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			j3_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j3_6);
 
-			if(tabProperties.isPairedData()){
-				JLabel j3_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
-				j3_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-				j3_7.setToolTipText("Frequency histogram of the insert size");
-				leftPanel.add(j3_7);
-				
-				JLabel j3_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
-				j3_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-				j3_8.setToolTipText("Frequency histogram of the insert size");
-				leftPanel.add(j3_8);
-			}
+            if(tabProperties.isPairedData()){
+                JLabel j3_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
+                j3_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+                j3_8.setToolTipText("Frequency histogram of the insert size");
+                leftPanel.add(j3_8);
+
+
+                JLabel j3_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
+                j3_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+                j3_7.setToolTipText("Frequency histogram of the insert size");
+                leftPanel.add(j3_7);
+            }
         }
 
 	}
@@ -765,13 +766,16 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                     htmlTable.append("<th align='left'>Length</th>");
                     htmlTable.append("<th align='left'>Mapped bases</th>");
                     htmlTable.append("<th align='left'>Mean coverage</th>");
-                    htmlTable.append("<th align='left'>Std coverage</th>");
+                    //htmlTable.append("<th align='left'>Std coverage</th>");
             	} else {
 					String[] tableValues = strLine.split("\t");
 					htmlTable.append(HtmlJPanel.COLSTART);
 					int i = 0;
 					for (String s : tableValues) {
-						if (i == 1) {
+						if (i == 4) {
+                            break;
+                        }
+                        if (i == 1) {
                             String[] coords = s.split(":");
                             assert(coords.length == 2);
                             long len = Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;

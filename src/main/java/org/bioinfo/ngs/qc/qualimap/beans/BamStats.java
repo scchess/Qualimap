@@ -271,11 +271,11 @@ public class BamStats implements Serializable {
 		gcRelativeContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 //		atContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 //		atRelativeContentAcrossReference = new ArrayList<Double>(numberOfWindows);
+
 		// gc content histogram
         gcContentHistogram = new double[NUM_BINS + 1];
         sampleCount = 0;
-        avaialableGenomeGcContentData = false;
-
+        avaialableGenomeGcContentData = true;
 
 		// insert size
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);

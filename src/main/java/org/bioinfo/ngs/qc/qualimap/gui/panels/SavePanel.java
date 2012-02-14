@@ -237,7 +237,7 @@ public class SavePanel extends javax.swing.JPanel {
 
                 // If the file doesn't exists or exits and the user want to replace it
                 if (!file.exists() || (file.exists() && JOptionPane.showConfirmDialog(null,
-                        "The folder " + file.getPath() + "already exists. " +
+                        "The folder " + file.getPath() + " already exists. " +
                                 "Do you want to save report to existing directory?",
                         "Confirm", JOptionPane.OK_OPTION) == 0)) {
                     exportToHtml(file.getAbsolutePath());
