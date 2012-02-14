@@ -102,6 +102,11 @@ public final class Constants {
 
     public static final String GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS = "outside_uniq_read_starts_histogram.png";
 
+    public static final String GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW = "genome_gc_content_per_window.png";
+
+    public static final String GRAPHIC_NAME_OUTSIDE_GC_CONTENT_PER_WINDOW = "outside_gc_content_per_window.png";
+
+
 	// Name of the graphic for the Nucleotide Relative Content
 	public static final String GRAPHIC_NAME_GENOME_NUCLEOTIDE_RELATIVE_CONTENT = "genome_actg_across_reference.png";
 	

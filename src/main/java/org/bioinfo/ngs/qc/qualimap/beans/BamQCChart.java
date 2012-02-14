@@ -133,7 +133,11 @@ public class BamQCChart implements Serializable {
         this.toolTipGenerator = toolTipGenerator;
     }
 
-	public void render(){
+    public void setAdjustDomainAxisLimits(boolean adjustDomainAxisLimits) {
+        this.adjustDomainAxisLimits = adjustDomainAxisLimits;
+    }
+
+    public void render(){
 		// init chart
 		chart = ChartFactory.createXYLineChart(title,xLabel,yLabel, null, PlotOrientation.VERTICAL, true, true, false);
 		

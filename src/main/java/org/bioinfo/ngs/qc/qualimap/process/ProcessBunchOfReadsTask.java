@@ -7,6 +7,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.SingleReadData;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +30,13 @@ public class ProcessBunchOfReadsTask implements Callable {
     private static final Object lock = new Object();
     HashMap<Long, SingleReadData> analysisResults;
     HashMap<Long, SingleReadData> outOfRegionsResults;
-
+    ArrayList<Float> readsGcContent;
+    //TODO: readsGCContent for out of regions
 
     public static class Result {
         Collection<SingleReadData> readsData;
         Collection<SingleReadData> outRegionReadsData;
+        Collection<Float> readsGcContent;
 
         public void setGlobalReadsData(Collection<SingleReadData> readsData) {
             this.readsData = readsData;
@@ -51,8 +54,16 @@ public class ProcessBunchOfReadsTask implements Callable {
             return outRegionReadsData;
         }
 
-    }
+        public void setReadsGcContent(Collection<Float> gcContent) {
+            this.readsGcContent = gcContent;
+        }
 
+        public Collection<Float> getReadsGcContent() {
+            return readsGcContent;
+        }
+
+
+    }
 
     public ProcessBunchOfReadsTask(List<SAMRecord> reads, BamGenomeWindow window, BamStatsAnalysis ctx)  {
         this.reads = reads;
@@ -63,6 +74,7 @@ public class ProcessBunchOfReadsTask implements Callable {
         currentWindow = window;
         analysisResults = new HashMap<Long, SingleReadData>();
         computeOutsideStats = ctx.getComputeOutsideStats();
+        readsGcContent = new ArrayList<Float>();
         if ( analyzeRegions && computeOutsideStats ) {
             outOfRegionsResults = new HashMap<Long, SingleReadData>();
         }
@@ -135,9 +147,11 @@ public class ProcessBunchOfReadsTask implements Callable {
 
         }
         taskResult.setGlobalReadsData(analysisResults.values());
+        taskResult.setReadsGcContent(readsGcContent);
         if (analyzeRegions && computeOutsideStats) {
             taskResult.setOutOfRegionReadsData(outOfRegionsResults.values());
         }
+
 
         //long endTime = System.currentTimeMillis();
         //System.out.println("Analyze bunch of reads time: " + (endTime - startTime));
@@ -168,12 +182,6 @@ public class ProcessBunchOfReadsTask implements Callable {
             outOfBounds = true;
             //readData.numberOfOutOfBoundsReads++;
         }
-
-        // TODO: FIX?
-        //if(readStart>= window.getStart()) {
-//			numberOfSequencedBases+=read.getReadBases().length;
-//			numberOfCigarElements+=read.getCigar().numCigarElements();
-        //}
 
         // run read
         for(long j=readStart; j<=readEnd; j++){
@@ -257,6 +265,10 @@ public class ProcessBunchOfReadsTask implements Callable {
                 readData.acumInsertSize(relative, insertSize);
 
                 //}
+            }
+            if (readData.numberOfMappedBases > 0) {
+                float readGcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
+                readsGcContent.add( readGcContent );
             }
         }
 

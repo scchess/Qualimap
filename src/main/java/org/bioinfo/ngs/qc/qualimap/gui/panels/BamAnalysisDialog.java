@@ -32,6 +32,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
     JTextField pathDataFile, pathGffFile, valueNw;
     JSpinner numThreadsSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
+    JCheckBox compareGcContentDistr;
     JProgressBar progressBar;
     JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw, labelNumThreads;
     HomeFrame homeFrame;
@@ -92,6 +93,11 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         drawChromosomeLimits.addKeyListener(keyListener);
         drawChromosomeLimits.setToolTipText("Controls whether to draw chromosome limits in resulting graphs");
         add(drawChromosomeLimits, "wrap");
+
+        /*compareGcContentDistr = new JCheckBox("Compare GC content distribution with genome of:");
+        compareGcContentDistr.addKeyListener(keyListener);
+        compareGcContentDistr.setToolTipText("Compare sample distribution with the representative distribution.");
+        add(compareGcContentDistr, "wrap");*/
 
         // Input Line of information (check to show the advance info)
         advancedInfoCheckBox = new JCheckBox("Advanced options");

@@ -459,6 +459,7 @@ public class BamStatsAnalysis {
                     currentChromosome.addReadData(rd);
                 }
             }
+            bamStats.addGcContentData( taskResult.getReadsGcContent());
             if (selectedRegionsAvailable && computeOutsideStats) {
                 Collection<SingleReadData> outsideData = taskResult.getOutOfRegionReadsData();
                 for (SingleReadData rd : outsideData) {

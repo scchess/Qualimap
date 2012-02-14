@@ -1,7 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.BitSet;
 
@@ -118,7 +117,7 @@ public class BamGenomeWindow {
 	// GC content
 	protected double meanGcContent;
 	protected double meanGcRelativeContent;
-	
+
 //	// AT content
 //	protected double meanAtContent;
 //	protected double meanAtRelativeContent;
@@ -408,9 +407,8 @@ public class BamGenomeWindow {
 	
 		return alignmentVector;
 	}
-	
-	
-	public void computeDescriptors() throws CloneNotSupportedException{			
+
+    public void computeDescriptors() throws CloneNotSupportedException{
 		
 		// org.bioinfo.ntools.process acums		
 
@@ -427,20 +425,21 @@ public class BamGenomeWindow {
             effectiveWindowLength = len;
         }
 
-        meanCoverage = (double)numberOfMappedBases/ effectiveWindowLength;
+        meanCoverage = (double)numberOfMappedBases / effectiveWindowLength;
 
 		meanMappingQuality = acumMappingQuality/(double)numberOfMappedBases;
 		meanInsertSize = acumInsertSize/(double)numberOfMappedBases;
 					
 		// ACTG absolute content
 		if(meanCoverage > 0){
-			meanAContent = (double)numberOfAs/(double)meanCoverage;
-			meanCContent = (double)numberOfCs/(double)meanCoverage;
-			meanTContent = (double)numberOfTs/(double)meanCoverage;
-			meanGContent = (double)numberOfGs/(double)meanCoverage;
-			meanNContent = (double)numberOfNs/(double)meanCoverage;
+			meanAContent = (double)numberOfAs/ meanCoverage;
+			meanCContent = (double)numberOfCs/ meanCoverage;
+			meanTContent = (double)numberOfTs/ meanCoverage;
+			meanGContent = (double)numberOfGs/ meanCoverage;
+			meanNContent = (double)numberOfNs/ meanCoverage;
 			meanGcContent = meanCContent + meanGContent; //(double)(numberOfGs+numberOfCs)/(double)meanCoverage;
-//			meanAtContent = meanAContent + meanTContent; //(double)(numberOfAs+numberOfTs)/(double)meanCoverage;
+            //
+            // meanAtContent = meanAContent + meanTContent; //(double)(numberOfAs+numberOfTs)/(double)meanCoverage;
 			// ACTG relative content
 			double acumMeanContent = meanAContent + meanCContent + meanTContent + meanGContent + meanNContent;
 			meanARelativeContent = ((double)meanAContent/acumMeanContent)*100.0;

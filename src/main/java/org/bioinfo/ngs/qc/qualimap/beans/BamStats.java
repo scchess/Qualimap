@@ -1,10 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
-import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 
 
@@ -214,6 +211,12 @@ public class BamStats implements Serializable {
     private long sumCoverageSquared;
     private final int CACHE_SIZE = 2000;
 
+    // gc content histogram
+    public static int NUM_BINS = 1000;
+    private double[] gcContentHistogram;
+    boolean avaialableGenomeGcContentData;
+    long sampleCount;
+
     public BamStats(String name, long referenceSize, int numberOfWindows){
 				
 		// global
@@ -240,7 +243,7 @@ public class BamStats implements Serializable {
 		gcRelativeContentInReference = new ArrayList<Double>(numberOfWindows);
 		atContentInReference = new ArrayList<Double>(numberOfWindows);
 		atRelativeContentInReference = new ArrayList<Double>(numberOfWindows);
-		
+
 		// coverageData across reference arrays
 		coverageAcrossReference = new ArrayList<Double>(numberOfWindows);
 		stdCoverageAcrossReference = new ArrayList<Double>(numberOfWindows);
@@ -268,12 +271,17 @@ public class BamStats implements Serializable {
 		gcRelativeContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 //		atContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 //		atRelativeContentAcrossReference = new ArrayList<Double>(numberOfWindows);
-						
+		// gc content histogram
+        gcContentHistogram = new double[NUM_BINS + 1];
+        sampleCount = 0;
+        avaialableGenomeGcContentData = false;
+
+
 		// insert size
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);
 		insertSizeHistogramMap = new HashMap<Long,Long>(numberOfWindows);
         insertSizeHistogramCache = new long[CACHE_SIZE];
-		
+
 		// others		
 		maxCoverageQuota = 50;
 		
@@ -492,6 +500,8 @@ public class BamStats implements Serializable {
 		  // GC
 		gcContentAcrossReference.add(window.getMeanGcContent());
 		gcRelativeContentAcrossReference.add(window.getMeanGcRelativeContent());
+
+        //gcContentHistogram[ (int) window.getMeanGcRelativeContent() ]++;
 		
     	// TODO: it is not used anywhere
     	// AT
@@ -674,11 +684,42 @@ public class BamStats implements Serializable {
         addCacheDataToMap(coverageHistogramCache, coverageHistogramMap);
         computeCoverageHistogram();
         computeUniqueReadStartsHistogram();
+        computeGCContentHistogram();
+
+    }
+
+    private void computeGCContentHistogram() {
+
+
+        //normalize
+        //double normalizer = sampleCount - gcContentHistogram[0];
+        for (int i = 0; i < NUM_BINS + 1; ++i) {
+            gcContentHistogram[i] /= sampleCount;
+        }
+
+        /*double sum = 0;
+        for (int i = 1; i < NUM_BINS + 1; ++i) {
+            sum += gcContentHistogram[i];
+        }
+
+        System.out.println("Sum is " + sum + ", sampleCount is " + sampleCount);
+        */
+
+        /*try {
+            FileWriter writer = new FileWriter("/home/kokonech/out.file");
+            for (int i = 0; i < 101; ++i) {
+                String line = "" + i + " " + gcContentHistogram[i] + "\n";
+                writer.write(line);
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }*/
 
     }
 
 
-	public int getHistogramSize(){
+    public int getHistogramSize(){
 		// read keys
 		Object[] raw = coverageHistogramMap.keySet().toArray();
 		int totalCoverage = 0;
@@ -2652,4 +2693,55 @@ public class BamStats implements Serializable {
     }
 
 
+    public XYVector getGcContentHistogram() {
+        XYVector result = new XYVector();
+        for (int i = 1; i < NUM_BINS + 1; ++i) {
+            result.addItem( new XYItem(i / 10.0, gcContentHistogram[i]));
+        }
+
+        return result;
+    }
+
+    public boolean availableGenomeGcContentHistogram() {
+        return avaialableGenomeGcContentData;
+    }
+
+    public XYVector getGenomeGcContentHistogram() {
+        XYVector res = new XYVector();
+        try {
+            BufferedReader reader = new BufferedReader( new FileReader("/home/kokonech/playgrnd/gc_histogram.out"));
+
+            String line;
+            while ( (line = reader.readLine()) != null ) {
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                String[] vals = line.split(" : ");
+                double index = Double.parseDouble(vals[0].trim()) / 10.0;
+                double value = Double.parseDouble(vals[1].trim());
+                // skip the zero value
+                if (index == 0.0) {
+                    continue;
+                }
+                res.addItem(new XYItem(index, value));
+
+            }
+
+
+        } catch (IOException e) {
+            // TODO: move this method, make it safe
+            e.printStackTrace();
+
+        }
+
+        return res;
+    }
+
+    public void addGcContentData(Collection<Float> readsGcContent) {
+        for (float val : readsGcContent) {
+            //System.out.println(val);
+            gcContentHistogram[ (int) (val * NUM_BINS) ]++;
+        }
+        sampleCount += readsGcContent.size();
+    }
 }

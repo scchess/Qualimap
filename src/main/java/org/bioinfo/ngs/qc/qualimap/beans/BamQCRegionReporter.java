@@ -458,6 +458,21 @@ public class BamQCRegionReporter implements Serializable {
 		mapCharts.put(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart());
 
 
+        BamQCChart gcContentHistChart = new BamQCChart("GC Content Historgram", subTitle,
+                "GC content %", "Fraction of reads");
+	    gcContentHistChart.setPercentageChart(true);
+		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
+
+        if (bamStats.availableGenomeGcContentHistogram()) {
+            gcContentHistChart.addSeries("Genome", bamStats.getGenomeGcContentHistogram(), new Color(255, 10, 20, 255));
+        }
+        gcContentHistChart.setDomainAxisIntegerTicks(true);
+        gcContentHistChart.setAdjustDomainAxisLimits(false);
+        gcContentHistChart.setPercentageChart(false);
+        gcContentHistChart.render();
+		mapCharts.put(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart());
+
+
 		///////////////// actg content charts ///////////////
 
 		//		  // actg content across reference
