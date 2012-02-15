@@ -54,6 +54,8 @@ public class BamStatsAnalysis {
 	private double percentageOfValidReads;
 	private int numberOfMappedReads;
 	private int numberOfDuplicatedReads;
+    private int numberOfPairedReads;
+    private int numberOfSingletons;
 
 	// statistics
 	private BamStats bamStats;
@@ -79,7 +81,6 @@ public class BamStatsAnalysis {
 
 	// outside
 	private boolean computeOutsideStats;
-	private long outsideReferenceSize;
 	private BamGenomeWindow currentOutsideWindow;
 	private HashMap<Long,BamGenomeWindow> openOutsideWindows;
     private BamStats outsideBamStats;
@@ -249,6 +250,12 @@ public class BamStatsAnalysis {
 				if(read.getReadUnmappedFlag()) {
                     continue;
                 }
+                if (read.getReadPairedFlag()) {
+                    numberOfPairedReads++;
+                    if (read.getMateUnmappedFlag()) {
+                        numberOfSingletons++;
+                    }
+                }
 
                 long findOverlappersStart = System.currentTimeMillis();
 
@@ -363,6 +370,10 @@ public class BamStatsAnalysis {
             bamStats.setNumberOfMappedReads(numberOfMappedReads);
             bamStats.setPercentageOfMappedReads((numberOfMappedReads/(double)numberOfReads)*100.0);
         }
+        bamStats.setNumberOfPairedReads(numberOfPairedReads);
+        bamStats.setPercentageOfPairedReads( (numberOfPairedReads / (double)numberOfReads)*100.0 );
+        bamStats.setNumberOfSingletons(numberOfSingletons);
+        bamStats.setPercentageOfSingletons( (numberOfSingletons / (double) numberOfReads)*100.0 );
         bamStats.setPercentageOfValidReads(percentageOfValidReads);
         bamStats.setReferenceSize(referenceSize);
         bamStats.setUniqueReadStarts(readStartsHistogram.getHistorgram());
@@ -386,7 +397,11 @@ public class BamStatsAnalysis {
             outsideBamStats.setPercentageOfInsideMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
             outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
             outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);logger.println("Computing descriptors for outside regions...");
-		    outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
+            outsideBamStats.setNumberOfPairedReads(numberOfPairedReads);
+            outsideBamStats.setPercentageOfPairedReads( (numberOfPairedReads / (double)numberOfReads)*100.0 );
+            outsideBamStats.setNumberOfSingletons(numberOfSingletons);
+            outsideBamStats.setPercentageOfSingletons( (numberOfSingletons / (double) numberOfReads)*100.0 );
+      	    outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
             outsideBamStats.computeDescriptors();
             logger.println("Computing histograms for outside regions...");
 		    outsideBamStats.computeHistograms();
@@ -495,7 +510,7 @@ public class BamStatsAnalysis {
     }
 
     //TODO: try using this method for better performance
-    private void calculateRegionsLookUpTableForWindowNew(BamGenomeWindow w) {
+    /*private void calculateRegionsLookUpTableForWindowNew(BamGenomeWindow w) {
 
         int windowSize = (int) w.getWindowSize();
 
@@ -510,28 +525,9 @@ public class BamStatsAnalysis {
         regionLookupTable.markIntersectingRegions(bitSet, relativeWindowStart,
                 relativeWindowEnd, contigName);
 
-        /*int numRegions = selectedRegionStarts.length;
-        for (int i = 0; i < numRegions; ++i) {
-            long regionStart = selectedRegionStarts[i];
-            long regionEnd = selectedRegionEnds[i];
-
-            if ( regionStart >= windowStart && regionStart <= windowEnd ) {
-                //System.out.println("Have match! Type1 " + w.getName());
-                long end = Math.min(windowEnd,regionEnd);
-                bitSet.set((int)(regionStart-windowStart), (int)(end-windowStart + 1),true);
-            } else if (regionEnd >= windowStart && regionEnd <= windowEnd) {
-                //System.out.println("Have match! Type2 " + w.getName());
-                bitSet.set(0, (int)(regionEnd - windowStart + 1), true);
-            } else if (regionStart <= windowStart && regionEnd >= windowEnd) {
-                //System.out.println("Have match! Type3 " + w.getName());
-                bitSet.set(0, (int)(windowEnd - windowStart + 1),true);
-            }
-
-        }*/
-
         w.setSelectedRegions(bitSet);
         w.setSelectedRegionsAvailable(true);
-    }
+    }*/
 
 
     private void calculateRegionsLookUpTableForWindow(BamGenomeWindow w) {
@@ -799,27 +795,6 @@ public class BamStatsAnalysis {
         return windowStarts;
     }
 
-    /*
-    INEFFECTIVE!
-    private static boolean overlaps(long start, long end, long start2, long end2) {
-        if ( (start >= start2 && start <= end2 )
-           || (end >= start2 && end <= end2) ||
-            (start <= start2 && end >= end2) ) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean readOverlapsRegions(long readStart, long readEnd) {
-        int numRegions = selectedRegionStarts.length;
-        for (int i = 0; i < numRegions; ++i ) {
-            if (overlaps(readStart, readEnd, selectedRegionStarts[i], selectedRegionEnds[i])) {
-                return true;
-            }
-        }
-        return false;
-    }*/
-
     private boolean readOverlapsRegions(int readStart, int readEnd, String seqName) {
 
         return regionLookupTable.overlaps(readStart, readEnd, seqName);
@@ -828,10 +803,6 @@ public class BamStatsAnalysis {
 
     public GenomeLocator getLocator() {
         return locator;
-    }
-
-    byte[] getReference() {
-        return reference;
     }
 
     public BamStats getBamStats() {

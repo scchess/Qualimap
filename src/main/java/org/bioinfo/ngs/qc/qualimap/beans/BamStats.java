@@ -27,6 +27,10 @@ public class BamStats implements Serializable {
 	private double percentageOfValidReads;
 	private int numberOfMappedReads;
 	private double percentageOfMappedReads;
+    private int numberOfPairedReads;
+    private double percentageOfPairedReads;
+    private int numberOfSingletons;
+    private double percentageOfSingletons;
 
     // regions related
     private long numberOfInsideMappedReads;
@@ -2744,5 +2748,37 @@ public class BamStats implements Serializable {
             gcContentHistogram[ (int) (val * NUM_BINS) ]++;
         }
         sampleCount += readsGcContent.size();
+    }
+
+    public int getNumberOfPairedReads() {
+        return numberOfPairedReads;
+    }
+
+    public void setNumberOfPairedReads(int numberOfPairedReads) {
+        this.numberOfPairedReads = numberOfPairedReads;
+    }
+
+    public double getPercentageOfPairedReads() {
+        return percentageOfPairedReads;
+    }
+
+    public void setPercentageOfPairedReads(double percentageOfPairedReads) {
+        this.percentageOfPairedReads = percentageOfPairedReads;
+    }
+
+    public int getNumberOfSingletons() {
+        return numberOfSingletons;
+    }
+
+    public void setNumberOfSingletons(int numberOfSingletons) {
+        this.numberOfSingletons = numberOfSingletons;
+    }
+
+    public double getPercentageOfSingletons() {
+        return percentageOfSingletons;
+    }
+
+    public void setPercentageOfSingletons(double percentageOfSingletons) {
+        this.percentageOfSingletons = percentageOfSingletons;
     }
 }

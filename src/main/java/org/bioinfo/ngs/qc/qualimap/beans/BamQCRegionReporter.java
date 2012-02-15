@@ -30,6 +30,22 @@ public class BamQCRegionReporter implements Serializable {
         return namePostfix;
     }
 
+    public int getNumPairedReads() {
+        return numPairedReads;
+    }
+
+    public double getPercentPairedReads() {
+        return percantagePairedReads;
+    }
+
+    public int getNumSingletons() {
+        return numSingletons;
+    }
+
+    public double getPercentSingletons() {
+        return percentageSingletons;
+    }
+
     static public class InputDataSection {
         String sectionName;
         Map<String, String> data;
@@ -77,6 +93,11 @@ public class BamQCRegionReporter implements Serializable {
 
     private long numInsideMappedReads, numOutsideMappedReads;
     private double percentageInsideMappedReads, percentageOutsideMappedReads;
+
+    private int numPairedReads;
+    private double percantagePairedReads;
+    private int numSingletons;
+    private double percentageSingletons;
 
     List<InputDataSection> inputDataSections;
     String namePostfix;
@@ -239,8 +260,7 @@ public class BamQCRegionReporter implements Serializable {
 			this.gReferencePercent = bamStats.getMeanGRelativeContentPerWindowInReference();
 			this.nReferenceNumber = bamStats.getNumberOfNsInReference();
 			this.nReferencePercent = bamStats.getMeanNRelativeContentPerWindowInReference();
-
-			this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();
+    		this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();
 			this.atPercent = bamStats.getMeanAtRelativeContentPerWindowInReference();
 		}
 
@@ -260,6 +280,12 @@ public class BamQCRegionReporter implements Serializable {
         this.percentageInsideMappedReads = bamStats.getPercentageOfInsideMappedReads();
         this.numOutsideMappedReads = bamStats.getNumberOfOutsideMappedReads();
         this.percentageOutsideMappedReads = bamStats.getPercentageOfOutsideMappedReads();
+
+        // paired reads
+        this.numPairedReads = bamStats.getNumberOfPairedReads();
+        this.percantagePairedReads = bamStats.getPercentageOfPairedReads();
+        this.numSingletons = bamStats.getNumberOfSingletons();
+        this.percentageSingletons = bamStats.getPercentageOfSingletons();
 
 		// mapping quality		
 		this.meanMappingQuality = bamStats.getMeanMappingQualityPerWindow();
