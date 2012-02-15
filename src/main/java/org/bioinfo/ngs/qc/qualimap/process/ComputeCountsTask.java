@@ -1,6 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
-import com.hp.hpl.jena.reasoner.rulesys.builtins.Print;
 import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
 import net.sf.samtools.*;
@@ -13,8 +12,6 @@ import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.*;
 
 /**
@@ -25,28 +22,32 @@ import java.util.*;
 
 public class ComputeCountsTask  {
 
-    Map<String,Long> readCounts;
+    Map<String,Double> readCounts;
     Map<String, GenomicRegionSet> chromosomeRegionSetMap;
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
     String protocol;
+    String countingAlgorithm;
     String attrName;
 
     String pathToBamFile, pathToGffFile;
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
 
-    public static final String NON_STRAND_SPECIFIC = "non-strand-specific";
-    public static final String FORWARD_STRAND = "forward-stranded";
-    public static final String REVERSE_STRAND = "reverse-stranded";
+    public static final String PROTOCOL_NON_STRAND_SPECIFIC = "non-strand-specific";
+    public static final String PROTOCOL_FORWARD_STRAND = "forward-stranded";
+    public static final String PROTOCOL_REVERSE_STRAND = "reverse-stranded";
     public static final String GENE_ID_ATTR = "gene_id";
     public static final String TRANSCRIPT_ID_ATTR = "transcript_id";
+    public static final String COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED = "uniquely-mapped-reads";
+    public static final String COUNTING_ALGORITHM_PROPORTIONAL = "proportional";
 
     public ComputeCountsTask(String pathToBamFile, String pathToGffFile) {
         this.pathToBamFile = pathToBamFile;
         this.pathToGffFile = pathToGffFile;
         this.attrName = GENE_ID_ATTR;
-        protocol = NON_STRAND_SPECIFIC;
+        protocol = PROTOCOL_NON_STRAND_SPECIFIC;
+        countingAlgorithm = COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
     }
@@ -75,7 +76,7 @@ public class ComputeCountsTask  {
 
         SAMRecordIterator iter = reader.iterator();
 
-        boolean strandSpecificAnalysis = !protocol.equals(NON_STRAND_SPECIFIC);
+        boolean strandSpecificAnalysis = !protocol.equals(PROTOCOL_NON_STRAND_SPECIFIC);
 
         while (iter.hasNext()) {
 
@@ -86,9 +87,15 @@ public class ComputeCountsTask  {
                 continue;
             }
 
-            if (read.getIntegerAttribute("NH") > 1) {
-                alignmentNotUnique++;
-                continue;
+            double readWeight = 1.0;
+            int nh = read.getIntegerAttribute("NH");
+            if (nh > 1) {
+                if (countingAlgorithm == COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED) {
+                    alignmentNotUnique++;
+                    continue;
+                } else if (countingAlgorithm == COUNTING_ALGORITHM_PROPORTIONAL) {
+                    readWeight = 1.0 / nh;
+                }
             }
 
             String chrName = read.getReferenceName();
@@ -118,8 +125,8 @@ public class ComputeCountsTask  {
                 boolean strand = read.getReadNegativeStrandFlag();
                 if (pairedRead) {
                     boolean firstOfPair = read.getFirstOfPairFlag();
-                    if ( (protocol.equals(FORWARD_STRAND) && !firstOfPair) ||
-                            (protocol.equals(REVERSE_STRAND) && firstOfPair) ) {
+                    if ( (protocol.equals(PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
+                            (protocol.equals(PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
                         strand = !strand;
                     }
                 }
@@ -181,8 +188,8 @@ public class ComputeCountsTask  {
                 //    System.out.println(read.getReadName());
                 //}
                 String geneName = features.iterator().next();
-                long count = readCounts.get(geneName);
-                readCounts.put(geneName, ++count);
+                double count = readCounts.get(geneName);
+                readCounts.put(geneName, count  + readWeight);
             }   else {
                 ambiguous++;
             }
@@ -198,7 +205,7 @@ public class ComputeCountsTask  {
 		System.out.println("initializing regions from " + pathToGffFile + "...");
 
         chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
-        readCounts = new HashMap<String, Long>();
+        readCounts = new HashMap<String, Double>();
 
 
         GtfParser.Record record;
@@ -210,7 +217,7 @@ public class ComputeCountsTask  {
                 if (record.getFeature().equalsIgnoreCase(featureType)) {
                     addRegionToIntervalMap(record);
                     // init results map
-                    readCounts.put(record.getAttribute(attrName), 0L);
+                    readCounts.put(record.getAttribute(attrName), 0.0);
                     break;
                 }
 
@@ -237,7 +244,7 @@ public class ComputeCountsTask  {
 
     }
 
-    public Map<String,Long> getReadCounts() {
+    public Map<String,Double> getReadCounts() {
         return readCounts;
     }
 
@@ -270,7 +277,7 @@ public class ComputeCountsTask  {
 
     public long getTotalReadCounts() {
         long totalCount = 0;
-        for ( Long count: readCounts.values()) {
+        for ( Double count: readCounts.values()) {
             totalCount += count;
         }
 
@@ -280,5 +287,9 @@ public class ComputeCountsTask  {
 
     public void setAttrName(String attrName) {
         this.attrName = attrName;
+    }
+
+    public void setCountingAlgorithm(String countingAlgorithm) {
+        this.countingAlgorithm = countingAlgorithm;
     }
 }

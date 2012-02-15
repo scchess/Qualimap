@@ -76,7 +76,7 @@ public class ReadCountsTest {
 
             try {
                 computeCountsTask.run();
-                Map<String,Long> readCounts = computeCountsTask.getReadCounts();
+                Map<String,Double> readCounts = computeCountsTask.getReadCounts();
                 List<String> geneNames = asSortedList(readCounts.keySet());
 
                 /*for (String key : geneNames) {
@@ -91,7 +91,7 @@ public class ReadCountsTest {
 
                 loadExpectedResults(pathToExpectedResults) ;
 
-                for (Map.Entry<String,Long> entry: readCounts.entrySet()) {
+                for (Map.Entry<String,Double> entry: readCounts.entrySet()) {
 
                     String geneName = entry.getKey();
                     if (!expectedCounts.containsKey(geneName)) {
@@ -100,7 +100,7 @@ public class ReadCountsTest {
                     }
 
                     long expected = expectedCounts.get(geneName);
-                    long calculated = entry.getValue();
+                    long calculated = entry.getValue().longValue();
 
                     if (expected != calculated ) {
                         String report = " Expected value (" + expected + ") " +

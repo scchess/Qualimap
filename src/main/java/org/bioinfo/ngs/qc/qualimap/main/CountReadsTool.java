@@ -19,9 +19,9 @@ public class CountReadsTool extends NgsSmartTool {
     String bamFile, gffFile, outFile, protocol;
 
     static String getProtocolTypes() {
-        return  ComputeCountsTask.FORWARD_STRAND + ","
-                + ComputeCountsTask.REVERSE_STRAND + " or "
-                + ComputeCountsTask.NON_STRAND_SPECIFIC;
+        return  ComputeCountsTask.PROTOCOL_FORWARD_STRAND + ","
+                + ComputeCountsTask.PROTOCOL_REVERSE_STRAND + " or "
+                + ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC;
     }
 
     public CountReadsTool() {
@@ -51,13 +51,13 @@ public class CountReadsTool extends NgsSmartTool {
 
         if(commandLine.hasOption("protocol")) {
 		    protocol = commandLine.getOptionValue("stranded");
-            if ( !(protocol == ComputeCountsTask.FORWARD_STRAND ||
-                    protocol == ComputeCountsTask.NON_STRAND_SPECIFIC ||
-                    protocol == ComputeCountsTask.NON_STRAND_SPECIFIC) ) {
+            if ( !(protocol == ComputeCountsTask.PROTOCOL_FORWARD_STRAND ||
+                    protocol == ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC ||
+                    protocol == ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC) ) {
                 throw  new ParseException("wrong protocol type! supported types: " + getProtocolTypes());
             }
         } else {
-            protocol = ComputeCountsTask.FORWARD_STRAND;
+            protocol = ComputeCountsTask.PROTOCOL_FORWARD_STRAND;
         }
 
         if (commandLine.hasOption("outfile")) {
@@ -82,9 +82,10 @@ public class CountReadsTool extends NgsSmartTool {
         try {
             computeCountsTask.run();
 
-            Map<String,Long> counts = computeCountsTask.getReadCounts();
-            for (Map.Entry<String,Long> entry: counts.entrySet()) {
-                String str = entry.getKey() + "\t" + entry.getValue().toString();
+            Map<String,Double> counts = computeCountsTask.getReadCounts();
+            for (Map.Entry<String,Double> entry: counts.entrySet()) {
+                long roundedValue = entry.getValue().longValue();
+                String str = entry.getKey() + "\t" + roundedValue;
                 outWriter.println(str);
             }
 

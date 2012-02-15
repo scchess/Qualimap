@@ -26,7 +26,7 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
 
     JTextField bamPathEdit, gffPathEdit, outputPathField, featureTypeField;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
-    JComboBox strandTypeCombo, featureNameCombo;
+    JComboBox strandTypeCombo, featureNameCombo, countingAlgoCombo;
     JCheckBox saveStatsBox;
     Thread countReadsThread;
 
@@ -61,11 +61,18 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
 
 
         add(new JLabel("Protocol:"));
-        String[] comboItems = {ComputeCountsTask.NON_STRAND_SPECIFIC,
-                ComputeCountsTask.FORWARD_STRAND,
-                ComputeCountsTask.REVERSE_STRAND};
-        strandTypeCombo = new JComboBox(comboItems);
+        String[] protocolComboItems = {ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC,
+                ComputeCountsTask.PROTOCOL_FORWARD_STRAND,
+                ComputeCountsTask.PROTOCOL_REVERSE_STRAND};
+        strandTypeCombo = new JComboBox(protocolComboItems);
         add(strandTypeCombo,"wrap");
+
+        add(new JLabel("Counting method:"));
+        String[] algoComboItems = {ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED,
+                ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL
+                };
+        countingAlgoCombo = new JComboBox(algoComboItems);
+        add(countingAlgoCombo,"wrap");
 
         add(new JLabel("Feature type:"));
         featureTypeField = new JTextField(10);
@@ -79,7 +86,7 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                 ComputeCountsTask.TRANSCRIPT_ID_ATTR};
         featureNameCombo = new JComboBox(attrIems);
         featureNameCombo.setToolTipText("The name of the feature (attribute) to be count.");
-        add(featureNameCombo,"wrap");
+        add(featureNameCombo, "wrap");
 
         add(new JLabel("Output:"), "");
         outputPathField = new JTextField(40);
@@ -142,6 +149,7 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                     String featureType = featureTypeField.getText();
                     ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamPath, gffPath);
                     computeCountsTask.setProtocol(strandTypeCombo.getSelectedItem().toString());
+                    computeCountsTask.setCountingAlgorithm(countingAlgoCombo.getSelectedItem().toString());
                     computeCountsTask.addSupportedFeatureType(featureType);
                     computeCountsTask.setAttrName(featureNameCombo.getSelectedItem().toString());
 
@@ -150,9 +158,9 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
 
                         PrintWriter outWriter = new PrintWriter(new FileWriter(outputPathField.getText()));
 
-                        Map<String,Long> counts = computeCountsTask.getReadCounts();
-                        for (Map.Entry<String,Long> entry: counts.entrySet()) {
-                            String str = entry.getKey() + "\t" + entry.getValue().toString();
+                        Map<String,Double> counts = computeCountsTask.getReadCounts();
+                        for (Map.Entry<String,Double> entry: counts.entrySet()) {
+                            String str = entry.getKey() + "\t" + entry.getValue().longValue();
                             outWriter.println(str);
                         }
                         outWriter.flush();
@@ -175,8 +183,8 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                     }
 
                     StringBuilder message = new StringBuilder();
-                    message.append("Counts correctly generated!\n");
-                    message.append( computeCountsTask.getOutputStatsMessage() );
+                    message.append("Counts generated!\n\n");
+                    message.append(computeCountsTask.getOutputStatsMessage());
                     message.append("\nResult is saved to ").append(outputPathField.getText());
 
                     JOptionPane.showMessageDialog(frame, message.toString(),
