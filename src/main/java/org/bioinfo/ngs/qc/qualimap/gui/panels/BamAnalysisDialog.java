@@ -8,6 +8,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.JTextFieldLimit;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
@@ -33,6 +34,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
     JSpinner numThreadsSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
+    JComboBox genomeGcContentCombo;
     JProgressBar progressBar;
     JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw, labelNumThreads;
     HomeFrame homeFrame;
@@ -95,10 +97,15 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         drawChromosomeLimits.setSelected(true);
         add(drawChromosomeLimits, "wrap");
 
-        /*compareGcContentDistr = new JCheckBox("Compare GC content distribution with genome of:");
+        compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
         compareGcContentDistr.addKeyListener(keyListener);
+        compareGcContentDistr.addActionListener(this);
         compareGcContentDistr.setToolTipText("Compare sample distribution with the representative distribution.");
-        add(compareGcContentDistr, "wrap");*/
+        add(compareGcContentDistr, "span 2, wrap");
+
+        Map<String,String> gcFileMap = BamStatsAnalysis.getGcContentFileMap();
+        genomeGcContentCombo = new JComboBox( gcFileMap.keySet().toArray());
+        add( genomeGcContentCombo, "gapleft 20, span 2, wrap" );
 
         // Input Line of information (check to show the advance info)
         advancedInfoCheckBox = new JCheckBox("Advanced options");
@@ -168,6 +175,8 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         labelNw.setEnabled(advOptionsEnabled);
         labelNumThreads.setEnabled(advOptionsEnabled);
         numThreadsSpinner.setEnabled(advOptionsEnabled);
+
+        genomeGcContentCombo.setEnabled(compareGcContentDistr.isSelected());
     }
 
 
@@ -403,5 +412,17 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         updateState();
+    }
+
+    public boolean compareGcContentToPrecalculated() {
+        return compareGcContentDistr.isSelected();
+    }
+
+    public String getGenomeName() {
+        return genomeGcContentCombo.getSelectedItem().toString();
+    }
+
+    public String getQualimapHome() {
+        return homeFrame.getQualimapFolder();
     }
 }

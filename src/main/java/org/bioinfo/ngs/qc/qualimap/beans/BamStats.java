@@ -279,7 +279,7 @@ public class BamStats implements Serializable {
 		// gc content histogram
         gcContentHistogram = new double[NUM_BINS + 1];
         sampleCount = 0;
-        avaialableGenomeGcContentData = true;
+        avaialableGenomeGcContentData = false;
 
 		// insert size
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);
@@ -2710,37 +2710,7 @@ public class BamStats implements Serializable {
         return avaialableGenomeGcContentData;
     }
 
-    public XYVector getGenomeGcContentHistogram() {
-        XYVector res = new XYVector();
-        try {
-            // TODO: add precalculated genome data
-            BufferedReader reader = new BufferedReader( new FileReader("/home/kokonech/playgrnd/gc_histogram.out"));
 
-            String line;
-            while ( (line = reader.readLine()) != null ) {
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-                String[] vals = line.split(" : ");
-                double index = Double.parseDouble(vals[0].trim()) / 10.0;
-                double value = Double.parseDouble(vals[1].trim());
-                // skip the zero value
-                if (index == 0.0) {
-                    continue;
-                }
-                res.addItem(new XYItem(index, value));
-
-            }
-
-
-        } catch (IOException e) {
-            // TODO: move this method, make it safe
-            e.printStackTrace();
-
-        }
-
-        return res;
-    }
 
     public void addGcContentData(Collection<Float> readsGcContent) {
         for (float val : readsGcContent) {

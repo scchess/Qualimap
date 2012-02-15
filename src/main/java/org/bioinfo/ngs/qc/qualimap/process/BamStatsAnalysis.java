@@ -116,6 +116,18 @@ public class BamStatsAnalysis {
     List<Future<ProcessBunchOfReadsTask.Result>> results;
     long timeToCalcOverlappers;
 
+    private static Map<String,String> genomeGcContentMap;
+
+    public static synchronized Map<String, String> getGcContentFileMap() {
+
+        if (genomeGcContentMap == null) {
+            genomeGcContentMap = new HashMap<String,String>();
+            genomeGcContentMap.put("HUMAN genome (hg19)", "species/human.hg19.gc_histogram.txt");
+        }
+
+        return genomeGcContentMap;
+    }
+
     private ExecutorService workerThreadPool;
 
     public BamStatsAnalysis(String bamFile) {
@@ -422,33 +434,6 @@ public class BamStatsAnalysis {
         return result;
 
     }
-
-    /*
-    private void updateReadStartsHistogram(long position) {
-
-        updateReadStartsHistogram(position, currentReadStartPosition,
-                readStartCounter, readStartsHistogram);
-
-    }
-
-    private void updateReadStartsHistogramOutside(long position) {
-        updateReadStartsHistogram(position, currentReadStartPositionOutside,
-                readStartCounterOutside, readStartsHistogramOutisde);
-    }
-
-    private static void updateReadStartsHistogram(long position,  long currentReadStartPosition,
-                                                  int readStartCounter, long[] readStartsHistogram) {
-        if (position == currentReadStartPosition) {
-            readStartCounter++;
-        } else {
-            int histPos = readStartCounter < MAX_READ_STARTS_PER_POSITION ?  readStartCounter :
-                    MAX_READ_STARTS_PER_POSITION;
-            readStartsHistogram[histPos]++;
-            readStartCounter = 1;
-            currentReadStartPosition = position;
-        }
-    }*/
-
 
     private void analyzeReadsBunch( ArrayList<SAMRecord> readsBunch ) throws ExecutionException, InterruptedException {
          List<SAMRecord> bunch = getShallowCopy(readsBunch);

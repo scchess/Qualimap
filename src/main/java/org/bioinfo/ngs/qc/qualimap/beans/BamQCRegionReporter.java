@@ -2,10 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +12,7 @@ import java.util.Map;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.*;
@@ -48,6 +46,10 @@ public class BamQCRegionReporter implements Serializable {
 
     public double getPercentageBothMatesPaired() {
         return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
+    }
+
+    public void setPathToGenomeGCContent(String pathToGenomeGCContent) {
+        this.pathToGenomeGCContent = pathToGenomeGCContent;
     }
 
     static public class InputDataSection {
@@ -105,11 +107,13 @@ public class BamQCRegionReporter implements Serializable {
 
     List<InputDataSection> inputDataSections;
     String namePostfix;
+    String pathToGenomeGCContent;
     int numSelectedRegions;
 
     public BamQCRegionReporter() {
         namePostfix = "";
         inputDataSections = new ArrayList<InputDataSection>();
+        pathToGenomeGCContent = "";
     }
 
 
@@ -494,8 +498,11 @@ public class BamQCRegionReporter implements Serializable {
 	    gcContentHistChart.setPercentageChart(true);
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
 
-        if (bamStats.availableGenomeGcContentHistogram()) {
-            gcContentHistChart.addSeries("Genome", bamStats.getGenomeGcContentHistogram(), new Color(255, 10, 20, 255));
+        if (!pathToGenomeGCContent.isEmpty()) {
+            XYVector gcContentHist = getGenomeGcContentHistogram();
+            if (gcContentHist.getSize() != 0) {
+                gcContentHistChart.addSeries("Genome", gcContentHist, new Color(255, 10, 20, 255));
+            }
         }
         gcContentHistChart.setDomainAxisIntegerTicks(true);
         gcContentHistChart.setAdjustDomainAxisLimits(false);
@@ -999,6 +1006,38 @@ public class BamQCRegionReporter implements Serializable {
 
     public double getPercentageOutsideMappedReads() {
         return percentageOutsideMappedReads;
+    }
+
+    public XYVector getGenomeGcContentHistogram() {
+        XYVector res = new XYVector();
+        try {
+            // TODO: add precalculated genome data
+            BufferedReader reader = new BufferedReader( new FileReader(pathToGenomeGCContent));
+
+            String line;
+            while ( (line = reader.readLine()) != null ) {
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                String[] vals = line.split(" : ");
+                double index = Double.parseDouble(vals[0].trim()) / 10.0;
+                double value = Double.parseDouble(vals[1].trim());
+                // skip the zero value
+                if (index == 0.0) {
+                    continue;
+                }
+                res.addItem(new XYItem(index, value));
+
+            }
+
+
+        } catch (IOException e) {
+            // TODO: move this method, make it safe
+            e.printStackTrace();
+
+        }
+
+        return res;
     }
 
 

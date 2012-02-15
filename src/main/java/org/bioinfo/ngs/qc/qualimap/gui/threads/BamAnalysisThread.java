@@ -1,5 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -7,6 +8,7 @@ import java.util.Timer;
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
@@ -77,6 +79,7 @@ public class BamAnalysisThread extends Thread {
 		tabProperties.setGffSelected(bamDialog.getRegionFile() != null);
         tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
+
 		bamQC.setComputeChromosomeStats(true);
 
 		// reporting
@@ -110,7 +113,13 @@ public class BamAnalysisThread extends Thread {
 
 			// Draw the Chromosome Limits or not
 			reporter.setPaintChromosomeLimits( bamDialog.getDrawChromosomeLimits() );
-	
+            if (bamDialog.compareGcContentToPrecalculated()) {
+                String genomeName = bamDialog.getGenomeName();
+                String path = bamDialog.getQualimapHome()  + File.separator +
+                        BamStatsAnalysis.getGcContentFileMap().get(genomeName);
+                reporter.setPathToGenomeGCContent(path);
+            }
+
 			bamDialog.getProgressStream().setText("   text report...");
 			reporter.loadReportData(bamQC.getBamStats());
 			bamDialog.getProgressStream().setText("OK");
