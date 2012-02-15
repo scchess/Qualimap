@@ -46,6 +46,10 @@ public class BamQCRegionReporter implements Serializable {
         return percentageSingletons;
     }
 
+    public double getPercentageBothMatesPaired() {
+        return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
+    }
+
     static public class InputDataSection {
         String sectionName;
         Map<String, String> data;
@@ -441,7 +445,7 @@ public class BamQCRegionReporter implements Serializable {
         // coverageData ranged histogram
 		BamQCXYHistogramChart uniqueReadStartsHistogram =
                 new BamQCXYHistogramChart("Unique reads per position",
-                subTitle, "Reads per position", "Number of reads");
+                subTitle, "Reads per position", "Number of positions");
 		uniqueReadStartsHistogram.addHistogram("coverageData", bamStats.getUniqueReadStartsHistogram(), Color.GREEN);
 		uniqueReadStartsHistogram.setDomainAxisIntegerTicks(true);
 		uniqueReadStartsHistogram.setDomainAxisTickUnitSize(1.0);

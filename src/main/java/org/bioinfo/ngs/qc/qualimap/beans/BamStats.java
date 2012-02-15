@@ -279,7 +279,7 @@ public class BamStats implements Serializable {
 		// gc content histogram
         gcContentHistogram = new double[NUM_BINS + 1];
         sampleCount = 0;
-        avaialableGenomeGcContentData = false;
+        avaialableGenomeGcContentData = true;
 
 		// insert size
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);

@@ -51,9 +51,9 @@ public class CountReadsTool extends NgsSmartTool {
 
         if(commandLine.hasOption("protocol")) {
 		    protocol = commandLine.getOptionValue("stranded");
-            if ( !(protocol == ComputeCountsTask.PROTOCOL_FORWARD_STRAND ||
-                    protocol == ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC ||
-                    protocol == ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC) ) {
+            if ( !(protocol.equals( ComputeCountsTask.PROTOCOL_FORWARD_STRAND ) ||
+                    protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC ) ||
+                    protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
                 throw  new ParseException("wrong protocol type! supported types: " + getProtocolTypes());
             }
         } else {

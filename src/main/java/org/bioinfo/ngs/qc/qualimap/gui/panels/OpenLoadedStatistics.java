@@ -666,6 +666,10 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of paired reads"+ HtmlJPanel.COLMID
                  + sdf.formatLong(reporter.getNumPairedReads()) + "/"
                 + sdf.formatPercentage(reporter.getPercentPairedReads()) + HtmlJPanel.COLEND);
+
+        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of reads both mates paired"+ HtmlJPanel.COLMID
+                 + sdf.formatLong(reporter.getNumPairedReads() - reporter.getNumSingletons()) + "/"
+                + sdf.formatPercentage( (reporter.getPercentageBothMatesPaired())  ) + HtmlJPanel.COLEND);
         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of singletons" + HtmlJPanel.COLMID
                 + sdf.formatLong(reporter.getNumSingletons()) + "/"
                 + sdf.formatPercentage(reporter.getPercentSingletons()) + HtmlJPanel.COLEND);
