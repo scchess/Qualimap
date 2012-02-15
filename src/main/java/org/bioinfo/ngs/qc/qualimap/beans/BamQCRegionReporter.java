@@ -363,7 +363,7 @@ public class BamQCRegionReporter implements Serializable {
 		gcContentChart.setToolTipGenerator(toolTipGenerator);
         gcContentChart.setPercentageChart(true);
 		gcContentChart.addSeries("GC content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
-		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(50,50,50,150),stroke,true);
+		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(255,0,0,180),stroke,true);
 		if(paintChromosomeLimits && locator!=null) {
             gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,false);
         }
