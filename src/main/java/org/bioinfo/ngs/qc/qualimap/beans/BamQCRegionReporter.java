@@ -454,7 +454,8 @@ public class BamQCRegionReporter implements Serializable {
 		coverageQuota.setPercentageChart(true);
 		coverageQuota.addBarRenderedSeries("Coverture", bamStats.getCoverageQuotes(), new Color(255,20,20,150));
 		coverageQuota.setDomainAxisIntegerTicks(true);
-		coverageQuota.render();
+        coverageQuota.setDomainAxisTickUnitSize(1.0);
+        coverageQuota.render();
 		mapCharts.put(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart());
 
 

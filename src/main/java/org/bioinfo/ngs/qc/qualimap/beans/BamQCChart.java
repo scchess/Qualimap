@@ -15,6 +15,7 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
@@ -56,6 +57,7 @@ public class BamQCChart implements Serializable {
 	
 	// chart
 	private JFreeChart chart;
+    private double domainAxisTickUnitSize;
 
 
     public BamQCChart(String title,String subTitle, String xLabel, String yLabel){
@@ -76,6 +78,7 @@ public class BamQCChart implements Serializable {
 		// other params
 		orientation = PlotOrientation.VERTICAL;
 		adjustDomainAxisLimits = true;
+        domainAxisTickUnitSize = 0;
 	}
 	
 	// line rendered series
@@ -175,7 +178,16 @@ public class BamQCChart implements Serializable {
 			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getDomainAxis();   
 		    numberaxis.setAutoRangeIncludesZero(false);   
 		    numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
 		}
+
+        if (domainAxisTickUnitSize != 0) {
+            NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getDomainAxis();
+            numberaxis.setTickLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,8));
+            numberaxis.setTickUnit( new NumberTickUnit(domainAxisTickUnitSize));
+        }
+
+
 		if(rangeAxisIntegerTicks){
 			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getRangeAxis();   
 		    numberaxis.setAutoRangeIncludesZero(false);
@@ -347,4 +359,8 @@ public class BamQCChart implements Serializable {
 	public void setOrientation(PlotOrientation orientation) {
 		this.orientation = orientation;
 	}
+
+    public void setDomainAxisTickUnitSize(double domainAxisTickUnitSize) {
+         this.domainAxisTickUnitSize = domainAxisTickUnitSize;
+    }
 }

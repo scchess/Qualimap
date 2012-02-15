@@ -275,7 +275,7 @@ public class BamStats implements Serializable {
 		// gc content histogram
         gcContentHistogram = new double[NUM_BINS + 1];
         sampleCount = 0;
-        avaialableGenomeGcContentData = true;
+        avaialableGenomeGcContentData = false;
 
 		// insert size
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);
@@ -2709,6 +2709,7 @@ public class BamStats implements Serializable {
     public XYVector getGenomeGcContentHistogram() {
         XYVector res = new XYVector();
         try {
+            // TODO: add precalculated genome data
             BufferedReader reader = new BufferedReader( new FileReader("/home/kokonech/playgrnd/gc_histogram.out"));
 
             String line;
