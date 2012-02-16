@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYBoxAnnotation;
@@ -393,16 +394,16 @@ public class BamQCRegionReporter implements Serializable {
 		// coverageData
 		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "Coverage");
         XYToolTipGenerator toolTipGenerator = createTooltipGenerator(windowReferences, locator);
+        if(paintChromosomeLimits && locator!=null) {
+
+                    coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
+                            false, chromosomeAnnotations);
+        }
         coverageChart.setToolTipGenerator(toolTipGenerator);
         coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences,
                 bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()),
                 new Color(250,50,50,150), new Color(50,50,250), 0.2f);
 
-        if(paintChromosomeLimits && locator!=null) {
-
-            coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
-                    false, chromosomeAnnotations);
-        }
         coverageChart.render();
 		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
         // gc content
@@ -506,12 +507,23 @@ public class BamQCRegionReporter implements Serializable {
         coverageQuota.render();
 		mapCharts.put(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart());
 
+        if (bamStats.getReadMaxSize() > 0) {
+            BamQCChart readsContentChart = new BamQCChart("Reads content per position", subTitle, " Position", " % ");
+            readsContentChart.addSeries("% A", bamStats.getReadsAsHistogram(), new Color(255, 0,0,255));
+            readsContentChart.addSeries("% C", bamStats.getReadsCsHistogram(), new Color(0, 0,255,255));
+            readsContentChart.addSeries("% G", bamStats.getReadsGsHistogram(), new Color(0, 255,0,255));
+            readsContentChart.addSeries("% T", bamStats.getReadsTsHistogram(), new Color(0, 0, 0,255));
+            readsContentChart.addSeries("% N", bamStats.getReadsNsHistogram(), new Color(0, 255, 255,255));
+            readsContentChart.setAdjustDomainAxisLimits(false);
+            readsContentChart.setDomainAxisIntegerTicks(true);
+            readsContentChart.setPercentageChart(true);
+            readsContentChart.render();
+            mapCharts.put(Constants.GRAPHIC_NAME_GENOME_READS_CONTENT, readsContentChart.getChart());
+        }
 
         BamQCChart gcContentHistChart = new BamQCChart("GC Content Historgram", subTitle,
                 "GC content %", "Fraction of reads");
-	    gcContentHistChart.setPercentageChart(true);
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
-
         if (!pathToGenomeGCContent.isEmpty()) {
             XYVector gcContentHist = getGenomeGcContentHistogram();
             if (gcContentHist.getSize() != 0) {
@@ -523,42 +535,6 @@ public class BamQCRegionReporter implements Serializable {
         gcContentHistChart.setPercentageChart(false);
         gcContentHistChart.render();
 		mapCharts.put(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart());
-
-
-		///////////////// actg content charts ///////////////
-
-		//		  // actg content across reference
-		//		BamQCChart actgContentChart = new BamQCChart("Nucleotide relative content", subTitle, "absolute position (bp)", "relative content (%)");
-		//		actgContentChart.setPercentageChart(true);
-		//		actgContentChart.addSeries("A", new XYVector(windowReferences,bamStats.getaRelativeContentAcrossReference()), new Color(50,200,50,200));
-		//		//if(bamQC.isReferenceAvailable()) actgContentChart.addSeries("A ref", new XYVector(windowReferences,bamStats.getaRelativeContentInReference()), new Color(50,200,50,200),stroke);
-		//		actgContentChart.addSeries("T", new XYVector(windowReferences,bamStats.gettRelativeContentAcrossReference()), new Color(200,50,50,200));
-		//		actgContentChart.addSeries("C", new XYVector(windowReferences,bamStats.getcRelativeContentAcrossReference()), new Color(50,50,200,200));
-		//		actgContentChart.addSeries("G", new XYVector(windowReferences,bamStats.getgRelativeContentAcrossReference()), new Color(50,50,50,200));		
-		//		actgContentChart.addSeries("N", new XYVector(windowReferences,bamStats.getnRelativeContentAcrossReference()), new Color(150,150,150,150));
-		//		if(paintChromosomeLimits && locator!=null) actgContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke);
-		//		actgContentChart.render();
-		//		mapCharts.put(
-		//				bamStats.getName() + "_actg_across_reference.png",
-		//				actgContentChart.getChart());
-
-		//  		  // GC/AT content across reference
-		//		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle, "absolute position (bp)", "relative content (%)");
-		//		gcContentChart.setPercentageChart(true);
-		//		if(bamStats.isReferenceAvailable()) {
-		//			gcContentChart.addIntervalRenderedSeries("CG", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference(),bamStats.getGcRelativeContentInReference(),false), new Color(250,50,50,150), new Color(250,50,50,250),0.4f);
-		//			gcContentChart.addIntervalRenderedSeries("AT", new XYVector(windowReferences,bamStats.getAtRelativeContentAcrossReference(),bamStats.getAtRelativeContentInReference(),false), new Color(50,50,250,150), new Color(50,50,250,250),0.4f);
-		//		} else {
-		//			gcContentChart.addSeries("CG", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(250,50,50,150));
-		//			gcContentChart.addSeries("AT", new XYVector(windowReferences,bamStats.getAtRelativeContentAcrossReference()), new Color(50,50,250,150));
-		//		}
-		//		gcContentChart.addSeries("mean GC", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(150,50,50,150),stroke);		
-		//		gcContentChart.addSeries("mean AT", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanAtRelativeContentPerWindow(),bamStats.getMeanAtRelativeContentPerWindow())),new Color(50,50,150,150),stroke);
-		//		if(paintChromosomeLimits && locator!=null) gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke);
-		//		gcContentChart.render();
-		//		mapCharts.put(
-		//				bamStats.getName() + "_gc_across_reference.png",
-		//				gcContentChart.getChart());
 
 
 		///////////////// mapping quality charts ///////////////
@@ -1048,7 +1024,6 @@ public class BamQCRegionReporter implements Serializable {
 
 
         } catch (IOException e) {
-            // TODO: move this method, make it safe
             e.printStackTrace();
 
         }

@@ -217,7 +217,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         leftPanel.add(checkFirstSection);
 
         JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
-        leftPanel.add(j1_0);
+        j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+	    leftPanel.add(j1_0);
         initialLabel = j1_0;
 
         JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", Constants.REPORT_INPUT_BAM_FILE);
@@ -242,26 +243,28 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                 + "sequenced with a coverageData higher than a selected level");
         leftPanel.add(j1_4);
 
+        JLabel readsContent = createImageLinkLabel("Reads content per position", Constants.GRAPHIC_NAME_GENOME_READS_CONTENT);
+        readsContent.setToolTipText("Provides relative nucleotide content per read position");
+        leftPanel.add(readsContent);
+
         JLabel gcContentHist = createImageLinkLabel("GC content per read", Constants.GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW);
         gcContentHist.setToolTipText("Shows gc content distribution per window ");
         leftPanel.add(gcContentHist);
-
 
         JLabel uniqReadsLabel = createImageLinkLabel("Unique reads per position", Constants.GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS);
         uniqReadsLabel.setToolTipText("Provides a histogram of unique read starts per position.");
         leftPanel.add(uniqReadsLabel);
 
         JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
-        j1_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
         j1_5.setToolTipText("Mapping Quality Across Reference");
         leftPanel.add(j1_5);
 
         JLabel j1_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
-        j1_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
         j1_6.setToolTipText("Frequency histogram of the mapping quality");
         leftPanel.add(j1_6);
 
-        if(tabProperties.isPairedData()){
+        //TODO: bug-201
+        /*if(tabProperties.isPairedData()){
             JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
             j1_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
             j1_8.setToolTipText("Frequency histogram of the insert size");
@@ -271,7 +274,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
             j1_7.setToolTipText("Frequency histogram of the insert size");
             leftPanel.add(j1_7);
-        }
+        }*/
 
         if (showOutsideStats) {
 
@@ -280,7 +283,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 			JLabel summary = createSummaryLinkLabel("Summary", Constants.REPORT_OUTSIDE_BAM_FILE);
 			summary.setToolTipText("Basic information and statistics for the alignment sequencing input");
-            leftPanel.add(summary);
+            summary.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+			leftPanel.add(summary);
 
             JLabel inputDesc = createInputDescriptionLinkLabel("Input", Constants.REPORT_OUTSIDE_BAM_FILE);
 			inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
@@ -307,16 +311,15 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             leftPanel.add(uniqReadsLabelOutside);
 
 			JLabel j3_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
-			j3_5.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j3_5.setToolTipText("Mapping Quality Across Reference");
 			leftPanel.add(j3_5);
 
 			JLabel j3_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
-			j3_6.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			j3_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j3_6);
 
-            if(tabProperties.isPairedData()){
+            //TODO: bug-201
+            /*if(tabProperties.isPairedData()){
                 JLabel j3_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
                 j3_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
                 j3_8.setToolTipText("Frequency histogram of the insert size");
@@ -327,7 +330,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                 j3_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
                 j3_7.setToolTipText("Frequency histogram of the insert size");
                 leftPanel.add(j3_7);
-            }
+            }*/
         }
 
 	}

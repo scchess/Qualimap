@@ -1,10 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
@@ -195,7 +192,22 @@ public class BamStats implements Serializable {
     // unique read starts
     long[] uniqueReadStartsArray;
 
-	// 
+    // reads stats
+    double readMeanSize;
+    int readMaxSize;
+    List<Long> readsAsData;
+    List<Long> readsCsData;
+    List<Long> readsGsData;
+    List<Long> readsTsData;
+    List<Long> readsNsData;
+    XYVector readsAsHistogram;
+    XYVector readsCsHistogram;
+    XYVector readsGsHistogram;
+    XYVector readsTsHistogram;
+    XYVector readsNsHistogram;
+
+
+	// windows
 	private int numberOfWindows;
 	private int numberOfProcessedWindows;
 	private int numberOfInitializedWindows;	
@@ -286,9 +298,15 @@ public class BamStats implements Serializable {
 		insertSizeHistogramMap = new HashMap<Long,Long>(numberOfWindows);
         insertSizeHistogramCache = new long[CACHE_SIZE];
 
+        // reads
+        readsAsData = new ArrayList<Long>();
+        readsCsData = new ArrayList<Long>();
+        readsGsData = new ArrayList<Long>();
+        readsTsData = new ArrayList<Long>();
+        readsNsData = new ArrayList<Long>();
+
 		// others		
 		maxCoverageQuota = 50;
-		
 		numberOfProcessedWindows = 0;
 		numberOfInitializedWindows = 0;
 		
@@ -689,6 +707,54 @@ public class BamStats implements Serializable {
         computeCoverageHistogram();
         computeUniqueReadStartsHistogram();
         computeGCContentHistogram();
+        computeReadsContentHistogrmas();
+
+    }
+
+    public XYVector getReadsAsHistogram() {
+        return readsAsHistogram;
+    }
+
+    public XYVector getReadsCsHistogram() {
+        return readsCsHistogram;
+    }
+
+    public XYVector getReadsGsHistogram() {
+        return readsGsHistogram;
+    }
+
+    public XYVector getReadsTsHistogram() {
+        return readsTsHistogram;
+    }
+
+    public XYVector getReadsNsHistogram() {
+        return readsNsHistogram;
+    }
+
+    private void computeReadsContentHistogrmas() {
+
+        readsAsHistogram = new XYVector();
+        readsCsHistogram = new XYVector();
+        readsGsHistogram = new XYVector();
+        readsTsHistogram = new XYVector();
+        readsNsHistogram = new XYVector();
+
+        for (int i = 0; i <= readMaxSize; ++i ) {
+
+            long numA = readsAsData.get(i);
+            long numC = readsCsData.get(i);
+            long numG = readsGsData.get(i);
+            long numT = readsTsData.get(i);
+            long numN = readsNsData.get(i);
+            double sum =  numA + numC + numG + numT + numN;
+
+            readsAsHistogram.addItem( new XYItem(i, (numA  / sum) * 100.0 ));
+            readsCsHistogram.addItem( new XYItem(i, (numC / sum) * 100.0 ));
+            readsGsHistogram.addItem( new XYItem(i, (numG / sum) * 100.0 ));
+            readsTsHistogram.addItem( new XYItem(i, (numT / sum) * 100.0 ));
+            readsNsHistogram.addItem( new XYItem(i, (numN / sum) * 100.0 ));
+
+        }
 
     }
 
@@ -2751,4 +2817,80 @@ public class BamStats implements Serializable {
     public void setPercentageOfSingletons(double percentageOfSingletons) {
         this.percentageOfSingletons = percentageOfSingletons;
     }
+
+    public void addReadsAsData(int[] readsAContent) {
+        ensureListSize(readsAsData, readsAContent.length);
+        for (int i = 0; i < readsAContent.length; ++i) {
+            long val = readsAsData.get(i);
+            val += readsAContent[i];
+            readsAsData.set(i, val);
+        }
+    }
+
+    public void addReadsCsData(int[] readsCContent) {
+        ensureListSize(readsCsData, readsCContent.length);
+        for (int i = 0; i < readsCContent.length; ++i) {
+            long val = readsCsData.get(i);
+            val += readsCContent[i];
+            readsCsData.set(i, val);
+        }
+    }
+
+    public void addReadsGsData(int[] readsGContent) {
+        ensureListSize(readsGsData, readsGContent.length);
+        for (int i = 0; i < readsGContent.length; ++i) {
+            long val = readsGsData.get(i);
+            val += readsGContent[i];
+            readsGsData.set(i, val);
+        }
+    }
+
+    public void addReadsTsData(int[] readsTContent) {
+        ensureListSize(readsTsData, readsTContent.length);
+        for (int i = 0; i < readsTContent.length; ++i) {
+            long val = readsTsData.get(i);
+            val += readsTContent[i];
+            readsTsData.set(i, val);
+        }
+    }
+
+    public void addReadsNsData(int[] readsNContent) {
+        ensureListSize(readsNsData, readsNContent.length);
+        for (int i = 0; i < readsNContent.length; ++i) {
+            long val = readsNsData.get(i);
+            val += readsNContent[i];
+            readsNsData.set(i, val);
+        }
+    }
+
+    public int getReadMaxSize() {
+        return readMaxSize;
+    }
+
+    public void setReadMaxSize(int readMaxSize) {
+        this.readMaxSize = readMaxSize;
+    }
+
+    public double getReadMeanSize() {
+        return readMeanSize;
+    }
+
+    public void setReadMeanSize(double readMeanSize) {
+        this.readMeanSize = readMeanSize;
+    }
+
+
+
+    private static void ensureListSize(List<Long> list, int expectedSize) {
+        int listSize = list.size();
+        if (listSize < expectedSize) {
+            int numElements = expectedSize - listSize + 1;
+            for (int i = 0; i < numElements; ++i) {
+                list.add(0L);
+            }
+        }
+
+    }
+
+
 }

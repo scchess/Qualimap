@@ -91,6 +91,10 @@ public class BamStatsAnalysis {
     private ReadStartsHistogram readStartsHistogram;
     private ReadStartsHistogram readStartsHistogramOutside;
 
+    // read size
+    long acumReadSize;
+    int maxReadSize;
+
     //regions
 	private long[] selectedRegionStarts;
 	private long[] selectedRegionEnds;
@@ -251,6 +255,13 @@ public class BamStatsAnalysis {
             // compute absolute position
             long position = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 
+            //compute read size
+            int readSize = read.getReadLength();
+            acumReadSize += readSize;
+            if (readSize > maxReadSize) {
+                maxReadSize = readSize;
+            }
+
             ++numberOfReads;
 
 			// filter invalid reads
@@ -389,6 +400,8 @@ public class BamStatsAnalysis {
         bamStats.setPercentageOfValidReads(percentageOfValidReads);
         bamStats.setReferenceSize(referenceSize);
         bamStats.setUniqueReadStarts(readStartsHistogram.getHistorgram());
+        bamStats.setReadMaxSize(maxReadSize);
+        bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
 
         // compute descriptors
         logger.println("Computing descriptors...");
@@ -459,7 +472,14 @@ public class BamStatsAnalysis {
                     currentChromosome.addReadData(rd);
                 }
             }
-            bamStats.addGcContentData( taskResult.getReadsGcContent());
+            bamStats.addGcContentData( taskResult.getReadsGcContent() );
+            bamStats.addReadsAsData ( taskResult.getReadsAContent() );
+            bamStats.addReadsCsData ( taskResult.getReadsCContent() );
+            bamStats.addReadsGsData ( taskResult.getReadsGContent() );
+            bamStats.addReadsTsData ( taskResult.getReadsTContent() );
+            bamStats.addReadsNsData ( taskResult.getReadsNContent() );
+
+
             if (selectedRegionsAvailable && computeOutsideStats) {
                 Collection<SingleReadData> outsideData = taskResult.getOutOfRegionReadsData();
                 for (SingleReadData rd : outsideData) {

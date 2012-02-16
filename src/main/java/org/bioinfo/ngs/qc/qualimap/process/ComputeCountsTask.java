@@ -92,7 +92,7 @@ public class ComputeCountsTask  {
             try {
                 nh = read.getIntegerAttribute("NH");
             } catch (NullPointerException ex) {
-                System.err.println("The read " + read.getReadName() + " doesn't have NH attribute");
+                //System.err.println("The read " + read.getReadName() + " doesn't have NH attribute");
             }
             if (nh > 1) {
                 if (countingAlgorithm == COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED) {

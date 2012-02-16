@@ -336,6 +336,7 @@ public class BamGenomeWindow {
             return null;
         }
 
+
 		Cigar cigar = read.getCigar();
 		
 		// precompute total size of alignment
