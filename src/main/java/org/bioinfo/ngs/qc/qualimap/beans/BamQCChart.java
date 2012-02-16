@@ -1,36 +1,34 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Stroke;
+import java.awt.*;
+import java.awt.geom.RectangularShape;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
+import org.jfree.chart.annotations.XYBoxAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.labels.StandardXYItemLabelGenerator;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
-import org.jfree.chart.renderer.xy.DeviationRenderer;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.data.xy.YIntervalSeries;
-import org.jfree.data.xy.YIntervalSeriesCollection;
-import org.jfree.ui.HorizontalAlignment;
-import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.VerticalAlignment;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.*;
+import org.jfree.ui.*;
 
 public class BamQCChart implements Serializable {
 	// org.bioinfo.ntools.main params
@@ -86,13 +84,24 @@ public class BamQCChart implements Serializable {
 		addSeries(name,series,color,new BasicStroke(1.5f), true);
 	}
 	
-	
-	public void addSeries(String name, XYVector series, Color color, Stroke stroke, boolean visibleInLegend){
+	public void addSeries(String name, XYVector series, Color color, Stroke stroke, boolean visibleInLegend,
+                          List<XYBoxAnnotation> annotations){
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesShapesVisible(0, false);
+        for (XYBoxAnnotation ann : annotations) {
+            renderer.addAnnotation(ann, Layer.BACKGROUND);
+        }
+        renderer.setSeriesShapesVisible(0, false);
         renderer.setSeriesVisibleInLegend(0, visibleInLegend);
         addSeries(name,series,color,stroke,renderer);
 	}
+
+	public void addSeries(String name, XYVector series, Color color, Stroke stroke, boolean visibleInLegend){
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesShapesVisible(0, false);
+        renderer.setSeriesVisibleInLegend(0, visibleInLegend);
+        addSeries(name,series,color,stroke,renderer);
+	}
+
 
 	// bar rendered series
 	public void addBarRenderedSeries(String name, XYVector series, Color color){		
@@ -104,8 +113,8 @@ public class BamQCChart implements Serializable {
 		XYBarRenderer renderer = new XYBarRenderer();
 		BamXYBarPainter barPainter = new BamXYBarPainter(series.getSize());
 		barPainter.setBarColor(color);
-		renderer.setBarPainter(barPainter);
-		addSeries(name,series,color,stroke,renderer);
+        renderer.setBarPainter(barPainter);
+        addSeries(name, series, color, stroke, renderer);
 	}
 	
 	
@@ -201,7 +210,7 @@ public class BamQCChart implements Serializable {
 		chart.getXYPlot().setRangeGridlinePaint(new Color(214,139,74));
 		chart.getXYPlot().setDomainMinorGridlinesVisible(true);
 		chart.getXYPlot().setDomainMinorGridlinePaint(Color.red);
-				
+
 		// prepare legend
 		LegendItemSource lis = new LegendItemSource() {			
 			LegendItemCollection lic = new LegendItemCollection();			
@@ -252,13 +261,13 @@ public class BamQCChart implements Serializable {
 				
 				// add series
 				chart.getXYPlot().setDataset(i, new XYSeriesCollection(currentSeries));
-			}
+            }
 			
 			// set stroke
 			renderers.get(i).setSeriesStroke(0, strokes.get(i));
-			
+
 			// set color
-			renderers.get(i).setSeriesPaint(0,colors.get(i));
+			renderers.get(i).setSeriesPaint(0, colors.get(i));
 
             // set tooltip generator
             renderers.get(i).setBaseToolTipGenerator(toolTipGenerator);
@@ -273,7 +282,7 @@ public class BamQCChart implements Serializable {
 			legendItem.setFillPaint(colors.get(i));
 			lis.getLegendItems().add(legendItem);
 		}
-		
+
 		// finalize legend		
 		chart.addLegend(new LegendTitle(lis));
 		chart.getLegend().setMargin(2,0,-7,10);		

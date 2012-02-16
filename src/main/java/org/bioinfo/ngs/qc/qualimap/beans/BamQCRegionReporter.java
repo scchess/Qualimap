@@ -11,10 +11,9 @@ import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYBoxAnnotation;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
@@ -219,7 +218,7 @@ public class BamQCRegionReporter implements Serializable {
         List<String> toolTips = new ArrayList<String>();
 
         for (double pos : windowReferences) {
-            ContigRecord rec = locator.getContigCoordinates((int) pos);
+            ContigRecord rec = locator.getContigCoordinates((long) pos);
             long start = rec.getStart();
             long relativePos = (long)pos - start + 1;
             toolTips.add("Chromosome: " + rec.getName() + ", relative position: " + relativePos);
@@ -249,7 +248,6 @@ public class BamQCRegionReporter implements Serializable {
 	/**
 	 * Function to load the data variables obtained from the input file/s
 	 * @param bamStats data read in the input file
-	 * @throws IOException some errors that can happen
 	 */
 	public void loadReportData(BamStats bamStats) {
 		this.bamFileName = bamStats.getSourceFile();
@@ -356,13 +354,24 @@ public class BamQCRegionReporter implements Serializable {
 		XYVector chromosomeCoverageLimits = null;
 		XYVector chromosomePercentageLimits = null;
 		XYVector chromosomeBytedLimits = null;
-		if(paintChromosomeLimits && locator!=null){
+        List<XYBoxAnnotation>  chromosomeAnnotations = null;
+
+        if(paintChromosomeLimits && locator!=null){
 			int numberOfChromosomes = locator.getContigs().size();
 			chromosomeCoverageLimits = new XYVector();
 			chromosomePercentageLimits = new XYVector();
 			chromosomeBytedLimits = new XYVector();
-			for(int i=0; i<numberOfChromosomes; i++){
-				// coverageData
+            chromosomeAnnotations = new ArrayList<XYBoxAnnotation>();
+            for(int i=0; i<numberOfChromosomes; i++){
+                long chrStart = locator.getContigs().get(i).getPosition();
+                long chrSize = locator.getContigs().get(i).getSize();
+
+                XYBoxAnnotation xyBoxAnnotation = new XYBoxAnnotation( (double) chrStart, 0.0,
+                    (double)( chrStart + chrSize), maxCoverage, null, null);
+                xyBoxAnnotation.setToolTipText(locator.getContigs().get(i).getName());
+                chromosomeAnnotations.add(xyBoxAnnotation);
+
+            	// coverageData
 				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
 				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),maxCoverage));
 				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
@@ -375,7 +384,7 @@ public class BamQCRegionReporter implements Serializable {
 				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),255));
 				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
 			}
-		}
+        }
 
 
         ///////////////// coverageData charts ///////////////
@@ -385,10 +394,14 @@ public class BamQCRegionReporter implements Serializable {
 		BamQCChart coverageChart = new BamQCChart("Coverage across reference", subTitle, "absolute position (bp)", "Coverage");
         XYToolTipGenerator toolTipGenerator = createTooltipGenerator(windowReferences, locator);
         coverageChart.setToolTipGenerator(toolTipGenerator);
-        coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences, bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()), new Color(250,50,50,150), new Color(50,50,250), 0.2f);
+        coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences,
+                bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()),
+                new Color(250,50,50,150), new Color(50,50,250), 0.2f);
 
         if(paintChromosomeLimits && locator!=null) {
-            coverageChart.addSeries("chromosomes",chromosomeCoverageLimits,chromosomeColor,stroke,false);
+
+            coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
+                    false, chromosomeAnnotations);
         }
         coverageChart.render();
 		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
@@ -399,7 +412,8 @@ public class BamQCRegionReporter implements Serializable {
 		gcContentChart.addSeries("GC content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
 		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(255,0,0,180),stroke,true);
 		if(paintChromosomeLimits && locator!=null) {
-            gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,false);
+            gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,
+                    false, chromosomeAnnotations);
         }
 	    gcContentChart.render();
         // combined plot
@@ -554,7 +568,8 @@ public class BamQCRegionReporter implements Serializable {
                 subTitle, "absolute position (bp)", "mapping quality");
 		mappingQuality.addSeries("mapping quality",new XYVector(windowReferences, bamStats.getMappingQualityAcrossReference()), new Color(250,50,50,150));
         if(paintChromosomeLimits && locator!=null) {
-                    mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
+                    mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,
+                            false,chromosomeAnnotations);
         }
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
@@ -579,7 +594,8 @@ public class BamQCRegionReporter implements Serializable {
                     subTitle, "absolute position (bp)", "insert size (bp)");
 			insertSize.addSeries("insert size",new XYVector(windowReferences, bamStats.getInsertSizeAcrossReference()), new Color(15,170,90,150));
             if(paintChromosomeLimits && locator!=null) {
-                insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,false);
+                insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,
+                        false,chromosomeAnnotations);
             }
             insertSize.render();
 			mapCharts.put(bamStats.getName() + "_insert_size_across_reference.png", insertSize.getChart());
@@ -634,7 +650,7 @@ public class BamQCRegionReporter implements Serializable {
 
 
         for (InputDataSection section : inputDataSections) {
-            inputDesc.append(HtmlJPanel.COLSTART + "<b>" + section.getName() +  "</b>");
+            inputDesc.append(HtmlJPanel.COLSTART).append("<b>").append(section.getName()).append("</b>");
             Map<String,String> paramsMap = section.getData();
             inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "FFFFFF"));
             for ( Map.Entry<String,String> entry: paramsMap.entrySet() ) {
