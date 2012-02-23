@@ -74,13 +74,15 @@ public class NgsSmartMain {
 	public static void launchGUI(String[] args, Logger logger) throws ParseException{
 		
 
-		// launching GUI
-		System.setProperty("java.awt.headless", "false");
-		HomeFrame inst = new HomeFrame();
-        String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");
-        if (qualimapHomeDir != null) {
-            inst.setQualimapFolder(qualimapHomeDir);
+		String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");
+        if ( args.length > 1 && args[0].equals("--home")) {
+            qualimapHomeDir = args[1];
         }
+
+        // launching GUI
+        System.setProperty("java.awt.headless", "false");
+        HomeFrame inst = new HomeFrame(qualimapHomeDir);
+
         inst.setLocationRelativeTo(null);
 		inst.setVisible(true);		
 		

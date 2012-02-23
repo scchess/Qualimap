@@ -104,22 +104,25 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new HomeFrame();
+				new HomeFrame(null);
 			}
 		});
 	}
 
-	public HomeFrame() {
+	public HomeFrame(String homeFolder) {
 		super(title);
 		System.out.println(title);
 		isWebStart = isRunningJavaWebStart();
 		if(isWebStart){
 			copyFilesFromResourcesToFolder();
 		}
-		if(this.getQualimapFolder()==null){
-            this.setQualimapFolder(new File("").getAbsolutePath()+File.separator);
+		if(homeFolder == null){
+            setQualimapFolder(new File("").getAbsolutePath()+File.separator);
+        }  else {
+            setQualimapFolder(homeFolder);
         }
         logger = new Logger(this.getClass().getName());
+        logger.println("Qualimap home is " + getQualimapFolder());
         initGUI();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
