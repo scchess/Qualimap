@@ -733,11 +733,21 @@ public class BamStats implements Serializable {
 
     private void computeReadsContentHistogrmas() {
 
+
+
         readsAsHistogram = new XYVector();
         readsCsHistogram = new XYVector();
         readsGsHistogram = new XYVector();
         readsTsHistogram = new XYVector();
         readsNsHistogram = new XYVector();
+
+        int totalSize = readsAsData.size() + readsCsData.size() + readsGsData.size()
+                + readsTsData.size() + readsNsData.size();
+
+        if (totalSize == 0 )  {
+            return;
+        }
+
 
         for (int i = 0; i <= readMaxSize; ++i ) {
 
