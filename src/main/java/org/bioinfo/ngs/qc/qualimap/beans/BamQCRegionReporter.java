@@ -105,6 +105,9 @@ public class BamQCRegionReporter implements Serializable {
     private int numSingletons;
     private double percentageSingletons;
 
+    int readMinSize, readMaxSize;
+    double readMeanSize;
+
     List<InputDataSection> inputDataSections;
     String namePostfix;
     String pathToGenomeGCContent;
@@ -313,6 +316,13 @@ public class BamQCRegionReporter implements Serializable {
 		// coverageData
 		this.meanCoverage = bamStats.getMeanCoverage();
 		this.stdCoverage = bamStats.getStdCoverage();
+
+        // read sizes
+        readMaxSize = bamStats.getReadMaxSize();
+        readMinSize = bamStats.getReadMinSize();
+        readMeanSize = bamStats.getReadMeanSize();
+
+
 	}
 
 	/**
@@ -999,6 +1009,20 @@ public class BamQCRegionReporter implements Serializable {
     public double getPercentageOutsideMappedReads() {
         return percentageOutsideMappedReads;
     }
+
+    public int getReadMinSize() {
+        return readMinSize;
+    }
+
+    public int getReadMaxSize() {
+        return  readMaxSize;
+    }
+
+    public  double getReadMeanSize() {
+        return readMeanSize;
+    }
+
+
 
     public XYVector getGenomeGcContentHistogram() {
         XYVector res = new XYVector();

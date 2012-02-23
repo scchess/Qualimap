@@ -94,6 +94,7 @@ public class BamStatsAnalysis {
     // read size
     long acumReadSize;
     int maxReadSize;
+    int minReadSize;
 
     //regions
 	private long[] selectedRegionStarts;
@@ -139,6 +140,7 @@ public class BamStatsAnalysis {
 		this.numberOfWindows = 400;
         this.numReadsInBunch = 2000;
         this.maxSizeOfTaskQueue = 10;
+        this.minReadSize = Integer.MAX_VALUE;
         this.threadNumber = 4;
         this.computeChromosomeStats = true;
         this.selectedRegionsAvailable =false;
@@ -260,6 +262,9 @@ public class BamStatsAnalysis {
             acumReadSize += readSize;
             if (readSize > maxReadSize) {
                 maxReadSize = readSize;
+            }
+            if (readSize < minReadSize) {
+                minReadSize = readSize;
             }
 
             ++numberOfReads;
@@ -401,6 +406,7 @@ public class BamStatsAnalysis {
         bamStats.setReferenceSize(referenceSize);
         bamStats.setUniqueReadStarts(readStartsHistogram.getHistorgram());
         bamStats.setReadMaxSize(maxReadSize);
+        bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
 
         // compute descriptors

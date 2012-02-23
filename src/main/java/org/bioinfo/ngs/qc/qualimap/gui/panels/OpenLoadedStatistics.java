@@ -677,6 +677,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                 + sdf.formatLong(reporter.getNumSingletons()) + "/"
                 + sdf.formatPercentage(reporter.getPercentSingletons()) + HtmlJPanel.COLEND);
 
+         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Read min/max/mean size:" + HtmlJPanel.COLMID
+                + sdf.formatLong(reporter.getReadMinSize()) + "/"
+                + sdf.formatLong(reporter.getReadMaxSize()) + "/"
+                 + sdf.formatDecimal(reporter.getReadMeanSize())
+                 + HtmlJPanel.COLEND);
+
         summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);

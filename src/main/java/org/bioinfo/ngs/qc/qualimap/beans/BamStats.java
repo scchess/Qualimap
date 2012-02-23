@@ -194,7 +194,7 @@ public class BamStats implements Serializable {
 
     // reads stats
     double readMeanSize;
-    int readMaxSize;
+    int readMaxSize, readMinSize;
     List<Long> readsAsData;
     List<Long> readsCsData;
     List<Long> readsGsData;
@@ -2879,6 +2879,13 @@ public class BamStats implements Serializable {
         this.readMeanSize = readMeanSize;
     }
 
+    public int getReadMinSize() {
+        return  readMinSize;
+    }
+
+    public void setReadMinSize(int minReadSize) {
+        this.readMinSize = minReadSize;
+    }
 
 
     private static void ensureListSize(List<Long> list, int expectedSize) {
@@ -2891,6 +2898,7 @@ public class BamStats implements Serializable {
         }
 
     }
+
 
 
 }
