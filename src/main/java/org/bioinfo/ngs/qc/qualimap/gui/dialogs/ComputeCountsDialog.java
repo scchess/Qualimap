@@ -27,7 +27,8 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
     JTextField bamPathEdit, gffPathEdit, outputPathField, featureTypeField;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
     JComboBox strandTypeCombo, featureNameCombo, countingAlgoCombo;
-    JCheckBox saveStatsBox;
+    JCheckBox saveStatsBox,advancedOptions;
+    JLabel countingMethodLabel;
     Thread countReadsThread;
 
 
@@ -47,10 +48,10 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
                 bamPathEdit, "BAM files", "bam"));
         add(browseBamButton, "align center, wrap");
 
-        add(new JLabel("Annotations file:"), "");
+        add(new JLabel("Annotation file:"), "");
 
         gffPathEdit = new JTextField(40);
-        gffPathEdit.setToolTipText("Path to regions file");
+        gffPathEdit.setToolTipText("GTF file with the definition of the regions for the features.");
         add(gffPathEdit, "grow");
 
         browseGffButton = new JButton();
@@ -60,24 +61,17 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
         add(browseGffButton, "align center, wrap");
 
 
-        add(new JLabel("Protocol:"));
+        add(new JLabel("Strand Specificity:"));
         String[] protocolComboItems = {ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC,
                 ComputeCountsTask.PROTOCOL_FORWARD_STRAND,
                 ComputeCountsTask.PROTOCOL_REVERSE_STRAND};
         strandTypeCombo = new JComboBox(protocolComboItems);
-        add(strandTypeCombo,"wrap");
-
-        add(new JLabel("Counting method:"));
-        String[] algoComboItems = {ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED,
-                ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL
-                };
-        countingAlgoCombo = new JComboBox(algoComboItems);
-        add(countingAlgoCombo,"wrap");
+        strandTypeCombo.setToolTipText("Select the corresponding sequencing protocol");
+        add(strandTypeCombo, "wrap");
 
         add(new JLabel("Feature type:"));
         featureTypeField = new JTextField(10);
-        featureTypeField.setToolTipText("Only features of these type will be considered in analysis. " +
-                "Default is \"exon\"");
+        featureTypeField.setToolTipText("Third column of the GTF. All the features of other types will be ignored.");
         featureTypeField.setText("exon");
         add(featureTypeField, " wrap");
 
@@ -87,6 +81,20 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
         featureNameCombo = new JComboBox(attrIems);
         featureNameCombo.setToolTipText("The name of the feature (attribute) to be count.");
         add(featureNameCombo, "wrap");
+
+        advancedOptions = new JCheckBox("Advanced options:");
+        advancedOptions.addActionListener(this);
+        add(advancedOptions, "wrap");
+        countingMethodLabel = new JLabel("Multi-mapped reads:");
+        countingMethodLabel.setToolTipText("Select method to count reads that map to several genome locations");
+        add(countingMethodLabel);
+        String[] algoComboItems = {ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED,
+                ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL
+                };
+        countingAlgoCombo = new JComboBox(algoComboItems);
+        countingAlgoCombo.addActionListener(this);
+        add(countingAlgoCombo, "wrap");
+
 
         add(new JLabel("Output:"), "");
         outputPathField = new JTextField(40);
@@ -106,7 +114,8 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
         add(browseOutputPathButton, "wrap");
 
         saveStatsBox = new JCheckBox("Save computation summary");
-        saveStatsBox.setToolTipText("The summary of the counts will be saved to the same folder where output is located.");
+        saveStatsBox.setToolTipText("<html>The summary of the counts will be saved to the " +
+                "<br>same folder where output is located.</html>");
         add(saveStatsBox, "span 2, wrap");
 
         JPanel buttonPanel = new JPanel();
@@ -124,6 +133,7 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
         add(buttonPanel, "span, align right, wrap");
 
         pack();
+        updateState();
 
         setTitle("Compute counts");
 
@@ -199,8 +209,25 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
 
         }  else if (actionEvent.getActionCommand().equals(Constants.CANCEL_COMMAND)) {
             setVisible(false);
+        }  else {
+            updateState();
         }
 
+
+    }
+
+    private void updateState() {
+        countingAlgoCombo.setEnabled(advancedOptions.isSelected());
+        countingMethodLabel.setEnabled(advancedOptions.isSelected());
+
+        String countingMethod =  countingAlgoCombo.getSelectedItem().toString();
+        String algorithmHint =  countingMethod.equals(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)  ?
+                "Only uniquely mapped reads will be consider" :
+                "<html>Each read will be weighted according to its number" +
+                " of mapped locations. <br>For example, a read with 4 mapping locations will " +
+                "<br>add 0.25 to the counts on each location.</html>";
+
+        countingAlgoCombo.setToolTipText(algorithmHint);
 
     }
 

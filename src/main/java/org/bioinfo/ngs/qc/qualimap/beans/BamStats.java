@@ -663,7 +663,7 @@ public class BamStats implements Serializable {
             updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, window.getInsertSizeAcrossReference()[i]);
         }
 	}
-	
+
 	/*@SuppressWarnings("unchecked")
 	public void updateHistogramValue(@SuppressWarnings("rawtypes") HashMap map, int key){
 		if(!map.containsKey(key)){
