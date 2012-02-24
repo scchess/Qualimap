@@ -225,7 +225,7 @@ public class BamQCRegionReporter implements Serializable {
             ContigRecord rec = locator.getContigCoordinates((long) pos);
             long start = rec.getStart();
             long relativePos = (long)pos - start + 1;
-            toolTips.add("Chromosome: " + rec.getName() + ", relative position: " + relativePos);
+            toolTips.add(rec.getName() + ", relative position: " + relativePos);
         }
 
         CustomXYToolTipGenerator generator = new CustomXYToolTipGenerator();

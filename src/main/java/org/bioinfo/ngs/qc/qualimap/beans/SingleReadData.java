@@ -129,12 +129,4 @@ public class SingleReadData {
         insertSizeData.add( new Cell((int) relative, (int) Math.abs(insertSize)) );
     }
 
-    public void processReference(byte[] reference){
-	    //TODO: implement this
-    }
-
-
-
-
-
 }

@@ -59,7 +59,7 @@ public class SplashWindow extends JWindow {
 		final HomeFrame aMainGui = f;
 		final Runnable closerRunner = new Runnable() {
 			public void run() {
-				SplashWindow.this.setVisible(false);
+                SplashWindow.this.setVisible(false);
 				aMainGui.setVisible(true);
 				SplashWindow.this.dispose();
 			}
@@ -76,6 +76,7 @@ public class SplashWindow extends JWindow {
 				}
 			}
 		};
+        this.setLocationRelativeTo(f);
 		this.setVisible(true);
 		final Thread splashThread = new Thread(waitRunner, "SplashThread");
 		splashThread.start();

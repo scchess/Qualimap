@@ -426,7 +426,8 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
             outsideBamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
             outsideBamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
-            outsideBamStats.setPercentageOfInsideMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+            double percentageOfInsideMappedReads = (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0;
+            outsideBamStats.setPercentageOfInsideMappedReads(percentageOfInsideMappedReads);
             outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
             outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);logger.println("Computing descriptors for outside regions...");
             outsideBamStats.setNumberOfPairedReads(numberOfPairedReads);
