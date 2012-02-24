@@ -20,7 +20,7 @@ public class BamQCTest {
         tests = new ArrayList<TestConfig>();
 
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
+        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test004.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test005.txt") );
@@ -61,7 +61,7 @@ public class BamQCTest {
             SaveZipThread.generateBamQcProperties(calculatedProps, bamQcReporter);
 
             /*try {
-                calculatedProps.store(new FileOutputStream("/home/kokonech/file.properties"), null);
+                calculatedProps.store(new FileOutputStream(test.getResultsPath()), null);
             } catch (IOException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }*/
@@ -75,7 +75,7 @@ public class BamQCTest {
                 SaveZipThread.generateBamQcProperties(outsideProps, outsideReporter);
 
                 /*try {
-                    outsideProps.store(new FileOutputStream("/home/kokonech/outside.properties"), null);
+                    outsideProps.store(new FileOutputStream(test.getOutsideResultsPath()), null);
                 } catch (IOException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }*/

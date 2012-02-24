@@ -145,16 +145,6 @@ public class BamGenomeWindow {
 		numberOfSequencedBases = 0;
 		numberOfAlignedBases = 0;
 
-		// working variables
-		/*charMap = new HashMap<String,Character>();
-		charMap.put("M",'M');
-		charMap.put("I",'I');
-		charMap.put("D",'D');
-		charMap.put("P",'P');
-		charMap.put("N",'N');
-		charMap.put("S",'S');
-		charMap.put("H",'H');*/
-				
 	}
 	
 	public void processReference(byte[] reference){
@@ -379,7 +369,7 @@ public class BamGenomeWindow {
 			}
 			// I
 			else if(extendedCigarVector[i]=='I'){
-			    //readPos++;
+			    readPos++;
 			}
 			// D
 			else if(extendedCigarVector[i]=='D'){
