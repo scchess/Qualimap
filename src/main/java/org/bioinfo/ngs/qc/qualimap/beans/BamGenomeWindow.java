@@ -397,7 +397,7 @@ public class BamGenomeWindow {
 			}
 			// H
 			else if(extendedCigarVector[i]=='H'){
-//				readPos++;		
+
 			}
 			// P
 			else if(extendedCigarVector[i]=='P'){

@@ -528,7 +528,7 @@ public class BamQCRegionReporter implements Serializable {
             readsContentChart.setDomainAxisIntegerTicks(true);
             readsContentChart.setPercentageChart(true);
             readsContentChart.render();
-            mapCharts.put(Constants.GRAPHIC_NAME_GENOME_READS_CONTENT, readsContentChart.getChart());
+            mapCharts.put(bamStats.getName() + "_reads_content_per_read_position.png", readsContentChart.getChart());
         }
 
         BamQCChart gcContentHistChart = new BamQCChart("GC Content Historgram", subTitle,
@@ -640,8 +640,8 @@ public class BamQCRegionReporter implements Serializable {
             Map<String,String> paramsMap = section.getData();
             inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "FFFFFF"));
             for ( Map.Entry<String,String> entry: paramsMap.entrySet() ) {
-                 inputDesc.append(HtmlJPanel.COLSTARTFIX + entry.getKey() + HtmlJPanel.COLMID
-                    + entry.getValue() + HtmlJPanel.COLEND);
+                 inputDesc.append(HtmlJPanel.COLSTARTFIX).append(entry.getKey()).
+                         append(HtmlJPanel.COLMID).append( entry.getValue() ).append( HtmlJPanel.COLEND) ;
             }
             inputDesc.append(HtmlJPanel.getTableFooter());
             inputDesc.append(HtmlJPanel.COLEND);

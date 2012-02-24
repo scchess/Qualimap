@@ -108,6 +108,8 @@ public final class Constants {
 
     public static final String GRAPHIC_NAME_GENOME_READS_CONTENT = "genome_reads_content_per_read_position.png";
 
+    public static final String GRAPHIC_NAME_OUTSIDE_READS_CONTENT = "outside_reads_content_per_read_position.png";
+
 	// Name of the graphic for the Nucleotide Relative Content
 	public static final String GRAPHIC_NAME_GENOME_NUCLEOTIDE_RELATIVE_CONTENT = "genome_actg_across_reference.png";
 	
@@ -254,4 +256,5 @@ public final class Constants {
     public static final String VIZ_TYPE_HEATMAP = "heatmap";
     public static final String VIZ_TYPE_LINE = "line";
 
+    public static final String READ_IN_REGION = "XX";
 }

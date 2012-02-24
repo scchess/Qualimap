@@ -295,13 +295,16 @@ public class BamStatsAnalysis {
 
                     if (readOverlapsRegions) {
                         numberOfMappedReads++;
+                        read.setAttribute(Constants.READ_IN_REGION, 1);
                         readStartsHistogram.update(position);
                     } else {
                         numberOfOutsideMappedReads++;
+                        read.setAttribute(Constants.READ_IN_REGION, 0);
                         readStartsHistogramOutside.update(position);
                     }
                 } else {
                     numberOfMappedReads++;
+                    read.setAttribute(Constants.READ_IN_REGION, 1);
                     readStartsHistogram.update(position);
                 }
 
@@ -435,6 +438,12 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumberOfSingletons(numberOfSingletons);
             outsideBamStats.setPercentageOfSingletons( (numberOfSingletons / (double) numberOfReads)*100.0 );
       	    outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
+
+            //TODO: big refactoring of outside/inside model
+            outsideBamStats.setReadMaxSize(maxReadSize);
+            outsideBamStats.setReadMinSize(minReadSize);
+            outsideBamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
+
             outsideBamStats.computeDescriptors();
             logger.println("Computing histograms for outside regions...");
 		    outsideBamStats.computeHistograms();
@@ -497,6 +506,12 @@ public class BamStatsAnalysis {
                     w.addReadData(rd);
                 }
                 outsideBamStats.addGcContentData( taskResult.getOutRegionOfReadsGcContent());
+                outsideBamStats.addReadsAsData ( taskResult.getOutOfRegionsReadsAContent() );
+                outsideBamStats.addReadsCsData ( taskResult.getOutOfRegionsReadsCContent() );
+                outsideBamStats.addReadsGsData ( taskResult.getOutOfRegionsReadsGContent() );
+                outsideBamStats.addReadsTsData ( taskResult.getOutOfRegionsReadsTContent() );
+                outsideBamStats.addReadsNsData ( taskResult.getOutOfRegionsReadsNContent() );
+
             }
         }
 
