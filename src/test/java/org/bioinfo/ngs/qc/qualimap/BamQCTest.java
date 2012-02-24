@@ -19,8 +19,8 @@ public class BamQCTest {
     public BamQCTest() throws IOException {
         tests = new ArrayList<TestConfig>();
 
-        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
-        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
+        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
+        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test004.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test005.txt") );

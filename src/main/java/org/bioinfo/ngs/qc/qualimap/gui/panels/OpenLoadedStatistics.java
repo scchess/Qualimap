@@ -306,6 +306,10 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
 			leftPanel.add(j3_4);
 
+            JLabel gcContentHistOutside = createImageLinkLabel("GC content per read", Constants.GRAPHIC_NAME_OUTSIDE_GC_CONTENT_PER_WINDOW);
+            gcContentHistOutside.setToolTipText("Shows gc content distribution per window ");
+            leftPanel.add(gcContentHistOutside);
+
             JLabel uniqReadsLabelOutside = createImageLinkLabel("Unique reads per position", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS);
             uniqReadsLabelOutside.setToolTipText("Provides a histogram of unique read starts per position.");
             leftPanel.add(uniqReadsLabelOutside);

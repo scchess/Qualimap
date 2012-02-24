@@ -234,7 +234,7 @@ public class BamStats implements Serializable {
     long sampleCount;
 
     public BamStats(String name, long referenceSize, int numberOfWindows){
-				
+
 		// global
 		this.name = name;
 		this.referenceSize = referenceSize;
@@ -2775,8 +2775,9 @@ public class BamStats implements Serializable {
 
     public XYVector getGcContentHistogram() {
         XYVector result = new XYVector();
+        double norm = (double) NUM_BINS / 100;
         for (int i = 1; i < NUM_BINS + 1; ++i) {
-            result.addItem( new XYItem(i / 10.0, gcContentHistogram[i]));
+            result.addItem( new XYItem(i / norm, gcContentHistogram[i]));
         }
 
         return result;

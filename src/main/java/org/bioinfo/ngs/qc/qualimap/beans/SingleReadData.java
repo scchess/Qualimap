@@ -65,6 +65,31 @@ public class SingleReadData {
         coverageData.add((int)relative);
     }
 
+
+    public void acumBase(long relative, char base, long insertSize){
+		numberOfSequencedBases++;
+		numberOfMappedBases++;
+        numberOfMappedBasesSquared++;
+
+        // ATCG content
+        if(base=='A'){
+            acumA(relative);
+        } else if(base=='C'){
+            acumC(relative);
+        } else if(base=='T'){
+            acumT(relative);
+        } else if(base=='G'){
+            acumG(relative);
+        }
+
+        if ( insertSize!=-1 ){
+            acumProperlyPairedBase(relative);
+        }
+
+        coverageData.add((int)relative);
+    }
+
+
 	public void acumProperlyPairedBase(long relative){
         //properlyPairedCoverageAcrossReference[(int)relative] = properlyPairedCoverageAcrossReference[(int)relative] + 1;
 	}

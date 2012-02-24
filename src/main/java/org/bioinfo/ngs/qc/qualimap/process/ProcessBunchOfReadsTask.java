@@ -1,10 +1,13 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import net.sf.samtools.Cigar;
+import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFormatException;
 import net.sf.samtools.SAMRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.SingleReadData;
+import psidev.psi.mi.xml253.jaxb.EntrySet;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -29,14 +32,45 @@ public class ProcessBunchOfReadsTask implements Callable {
     HashMap<Long, SingleReadData> outOfRegionsResults;
     ArrayList<Float> readsGcContent;
     int[] readsAContent,readsCContent, readsGContent, readsTContent,readsNContent;
-
     //TODO: readsGCContent, readsContent etc. for out of regions
+    ArrayList<Float> outOfRegionsReadsGCContent;
+
+
+
+    public static class ReadStatsCollector {
+        int numBases;
+        int numG;
+        int numC;
+
+        void incNumBases() {
+            numBases++;
+        }
+        void incNumCs() {
+            numC++;
+        }
+
+        void incNumGs() {
+            numG++;
+        }
+
+        int getNumBases() {
+            return numBases;
+        }
+
+        float getGCContent() {
+            return (float) (numC + numG) / numBases;
+        }
+
+
+    }
+
 
     public static class Result {
         Collection<SingleReadData> readsData;
         Collection<SingleReadData> outRegionReadsData;
         Collection<Float> readsGcContent;
-    int[] readsAContent;
+        Collection<Float> outRegionReadsGcContent;
+        int[] readsAContent;
         int[] readsCContent;
         int[] readsGContent;
         int[] readsTContent;
@@ -108,6 +142,14 @@ public class ProcessBunchOfReadsTask implements Callable {
             return readsGcContent;
         }
 
+        public void setOutOfRegionReadsGcContent(Collection<Float> gcContent) {
+            this.outRegionReadsGcContent = gcContent;
+        }
+
+        public Collection<Float> getOutRegionOfReadsGcContent() {
+            return outRegionReadsGcContent;
+        }
+
 
     }
 
@@ -129,6 +171,7 @@ public class ProcessBunchOfReadsTask implements Callable {
 
         if ( analyzeRegions && computeOutsideStats ) {
             outOfRegionsResults = new HashMap<Long, SingleReadData>();
+            outOfRegionsReadsGCContent = new ArrayList<Float>();
         }
 
     }
@@ -200,6 +243,14 @@ public class ProcessBunchOfReadsTask implements Callable {
             }
 
         }
+
+
+        for (SingleReadData readData : analysisResults.values()) {
+            float gcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
+            readsGcContent.add(gcContent);
+        }
+
+
         taskResult.setGlobalReadsData(analysisResults.values());
         taskResult.setReadsGcContent(readsGcContent);
         taskResult.setReadsAContent(readsAContent);
@@ -208,7 +259,12 @@ public class ProcessBunchOfReadsTask implements Callable {
         taskResult.setReadsTContent(readsTContent);
         taskResult.setReadsNContent(readsNContent);
         if (analyzeRegions && computeOutsideStats) {
+            for (SingleReadData readData : outOfRegionsResults.values()) {
+                float gcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
+                outOfRegionsReadsGCContent.add(gcContent);
+            }
             taskResult.setOutOfRegionReadsData(outOfRegionsResults.values());
+            taskResult.setOutOfRegionReadsGcContent(outOfRegionsReadsGCContent);
         }
 
 
@@ -237,6 +293,115 @@ public class ProcessBunchOfReadsTask implements Callable {
     }
 
 
+    /*char[] calculateAlignmentVector(SAMRecord read) {
+
+        Cigar cigar = read.getCigar();
+
+        // precompute total size of alignment
+        int totalSize = 0;
+        List<CigarElement> elementList = cigar.getCigarElements();
+        //int numCigarElements = cigar.numCigarElements();
+        for(CigarElement element : elementList){
+            totalSize += element.getLength();
+        }
+
+        // compute extended cigar
+        char[] extended = new char[totalSize];
+        int mpos = 0;
+        int npos;
+        for(CigarElement element : elementList){
+            npos = mpos + element.getLength();
+            Arrays.fill(extended, mpos, npos, element.getOperator().name().charAt(0));
+            mpos = npos;
+        }
+
+        return extended;
+    }
+
+
+    private boolean processRead(SAMRecord read, long alignmentStart, BamGenomeWindow window) {
+
+        // init read params
+        int alignmentLength = read.getAlignmentEnd() - read.getAlignmentStart() + 1;
+
+        if (alignmentLength < 0) {
+            return false;
+        }
+
+		// init extended cigar portion
+		char[] extendedCigarVector = calculateAlignmentVector(read);
+
+		//char[] alignmentVector = new char[alignmentLength];
+
+		int readPos = 0;
+		char base;
+		byte[] readBases = read.getReadBases();
+        long alignmentPos = alignmentStart;
+        long windowStart = window.getStart();
+        long windowSize = window.getWindowSize();
+        SingleReadData readData = getWindowData(windowStart, analysisResults);
+
+
+		for(int i=0; i < extendedCigarVector.length; i++){
+
+			 long relative = alignmentPos - windowStart;
+             boolean validAlignment = relative >= 0 && relative < windowSize;
+
+			 // M
+			 if(extendedCigarVector[i] == 'M'){
+				 readPos++;
+			 	 //collect readData
+                 alignmentPos++;
+                 if (validAlignment) {
+                     base = (char) readBases[readPos];
+                     readData.numberOfAlignedBases++;
+                     readData.acumBase(relative, base, insertSize);
+                     // mapping quality
+                     readData.acumMappingQuality(relative, read.getMappingQuality());
+                     // insert size
+                     readData.acumInsertSize(relative, insertSize);
+                 }
+             }
+             // I
+             else if(extendedCigarVector[i]=='I'){
+                 //do nothing
+             }
+			// D
+			else if(extendedCigarVector[i]=='D'){
+				 // do nothing
+                 alignmentPos++;
+
+             }
+			// N
+			else if(extendedCigarVector[i]=='N'){
+				 // do nothing
+                 alignmentPos++;
+			}
+			// S
+			else if(extendedCigarVector[i]=='S'){
+				readPos++;
+                //acum read data
+			}
+			// H
+			else if(extendedCigarVector[i]=='H'){
+                //readPos++;
+			}
+			// P
+			else if(extendedCigarVector[i]=='P'){
+				//alignmentVector[alignmentPos] = '-';
+				alignmentPos++;
+			}
+		}
+
+           boolean outOfBounds = false;
+
+
+           return outOfBounds;
+       }*/
+
+
+
+
     private boolean processRead(BamGenomeWindow window, char[] alignment, long readStart, long readEnd,
                                 int mappingQuality, long insertSize) {
 
@@ -260,6 +425,7 @@ public class ProcessBunchOfReadsTask implements Callable {
             //readData.numberOfOutOfBoundsReads++;
         }
 
+
         // run read
         for(long j=readStart; j<=readEnd; j++){
             relative = (int)(j - windowStart);
@@ -278,10 +444,12 @@ public class ProcessBunchOfReadsTask implements Callable {
                     if (insideOfRegion) {
                         if (computeOutsideStats) {
                             readData =getWindowData(windowStart, analysisResults);
+                            //statsCollector = insideCollector;
                         }
                     } else {
                         if (computeOutsideStats) {
                             readData = getWindowData(windowStart, outOfRegionsResults);
+                            //statsCollector = outsideCollector;
                         } else {
                             continue;
                         }
@@ -292,17 +460,17 @@ public class ProcessBunchOfReadsTask implements Callable {
 
                 // aligned bases
                 readData.numberOfAlignedBases++;
+                // mapping quality
+                readData.acumMappingQuality(relative, mappingQuality);
+                // insert size
+                readData.acumInsertSize(relative, insertSize);
 
-                // Any letter
-                /*if(nucleotide=='A' || nucleotide=='C' || nucleotide=='T' || nucleotide=='G'){
-                    readData.acumBase(relative);
-                    if(insertSize!=-1){
-                        readData.acumProperlyPairedBase(relative);
-                    }
-                }*/
+                if (nucleotide != '-' && nucleotide != 'N') {
+                    readData.acumBase(relative, nucleotide, insertSize);
+                }
 
                 // ATCG content
-                if(nucleotide=='A'){
+                /*if(nucleotide=='A'){
                     readData.acumA(relative);
                     readData.acumBase(relative);
                     if(insertSize!=-1){
@@ -334,22 +502,13 @@ public class ProcessBunchOfReadsTask implements Callable {
                 }
                 else if(nucleotide=='N'){
 
-                }
+                }*/
 
-                // mapping quality
-                readData.acumMappingQuality(relative, mappingQuality);
 
-                // insert size
-                readData.acumInsertSize(relative, insertSize);
 
-                //}
             }
-            if (readData.numberOfMappedBases > 0) {
-                float readGcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
-                readsGcContent.add( readGcContent );
-            }
+
         }
-
 
         return outOfBounds;
     }

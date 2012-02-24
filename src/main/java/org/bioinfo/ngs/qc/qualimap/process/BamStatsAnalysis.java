@@ -494,6 +494,7 @@ public class BamStatsAnalysis {
                             openOutsideWindows);
                     w.addReadData(rd);
                 }
+                outsideBamStats.addGcContentData( taskResult.getOutRegionOfReadsGcContent());
             }
         }
 
