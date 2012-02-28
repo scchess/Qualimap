@@ -127,8 +127,8 @@ public class BamStatsAnalysis {
 
         if (genomeGcContentMap == null) {
             genomeGcContentMap = new HashMap<String,String>();
-            genomeGcContentMap.put("HUMAN genome (hg19)", "species/human.hg19.gc_histogram.txt");
-            genomeGcContentMap.put("MOUSE genome (mm9)", "species/mouse.mm9.gc_histogram.txt");
+            genomeGcContentMap.put("HUMAN (hg19)", "species/human.hg19.gc_histogram.txt");
+            genomeGcContentMap.put("MOUSE (mm9)", "species/mouse.mm9.gc_histogram.txt");
         }
 
         return genomeGcContentMap;

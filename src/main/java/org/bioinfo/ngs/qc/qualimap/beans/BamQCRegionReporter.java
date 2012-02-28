@@ -518,7 +518,7 @@ public class BamQCRegionReporter implements Serializable {
 		mapCharts.put(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart());
 
         if (bamStats.getReadMaxSize() > 0) {
-            BamQCChart readsContentChart = new BamQCChart("Reads content per position", subTitle, " Position", " % ");
+            BamQCChart readsContentChart = new BamQCChart("Nucleotide content per position", subTitle, " Position", " % ");
             readsContentChart.addSeries("% A", bamStats.getReadsAsHistogram(), new Color(255, 0,0,255));
             readsContentChart.addSeries("% C", bamStats.getReadsCsHistogram(), new Color(0, 0,255,255));
             readsContentChart.addSeries("% G", bamStats.getReadsGsHistogram(), new Color(0, 255,0,255));

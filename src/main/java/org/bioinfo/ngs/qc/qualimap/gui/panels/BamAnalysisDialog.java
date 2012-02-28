@@ -52,7 +52,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         labelPathDataFile = new JLabel();
-        labelPathDataFile.setText("Path to BAM file:");
+        labelPathDataFile.setText("BAM file:");
         add(labelPathDataFile, "");
 
         pathDataFile = new JTextField(40);
@@ -68,9 +68,10 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
         analyzeRegionsCheckBox = new JCheckBox("Analyze regions");
         analyzeRegionsCheckBox.addActionListener(this);
+        analyzeRegionsCheckBox.setToolTipText("Check to analyze the genomic regions defined in the GFF file");
         add(analyzeRegionsCheckBox, "wrap");
 
-        labelPathAditionalDataFile = new JLabel("Path to GFF file:");
+        labelPathAditionalDataFile = new JLabel("GFF file:");
         add(labelPathAditionalDataFile, "");
 
         pathGffFile = new JTextField(40);
@@ -87,20 +88,21 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         computeOutsideStats = new JCheckBox("Analyze outside regions");
         computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         computeOutsideStats.addKeyListener(keyListener);
-        computeOutsideStats.setToolTipText("Controls whether to calculate also statistic for outside regions");
+        computeOutsideStats.setToolTipText("<html>Check to perform a separate analysis for the genome " +
+                "<br>regions complement to those in the GFF file</html>");
         add(computeOutsideStats, "wrap");
 
         drawChromosomeLimits = new JCheckBox("Chromosome limits");
         drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         drawChromosomeLimits.addKeyListener(keyListener);
-        drawChromosomeLimits.setToolTipText("Controls whether to draw chromosome limits in resulting graphs");
+        drawChromosomeLimits.setToolTipText("Check to draw the chromosome limits");
         drawChromosomeLimits.setSelected(true);
         add(drawChromosomeLimits, "wrap");
 
         compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
         compareGcContentDistr.addKeyListener(keyListener);
         compareGcContentDistr.addActionListener(this);
-        compareGcContentDistr.setToolTipText("Compare sample distribution with the representative distribution.");
+        compareGcContentDistr.setToolTipText("Compare sample GC distribution with the corresponding genome");
         add(compareGcContentDistr, "span 2, wrap");
 
         Map<String,String> gcFileMap = BamStatsAnalysis.getGcContentFileMap();
@@ -113,19 +115,21 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         advancedInfoCheckBox.addKeyListener(keyListener);
         add(advancedInfoCheckBox,"wrap");
 
-        labelNw = new JLabel("Number Of windows:");
+        labelNw = new JLabel("Number of windows:");
 		add(labelNw, "gapleft 20");
 
         valueNw = new JTextField(10);
 		valueNw.setDocument(new JTextFieldLimit(6, true));
         valueNw.setText("" + Constants.DEFAULT_NUMBER_OF_WINDOWS);
+        valueNw.setToolTipText("Number of sampling windows across the genome");
         valueNw.addKeyListener(keyListener);
 	    add(valueNw, "wrap");
 
-        labelNumThreads = new JLabel("Number of threads");
+        labelNumThreads = new JLabel("Number of threads:");
         add(labelNumThreads, "gapleft 20");
         int numCPUs =  Runtime.getRuntime().availableProcessors();
         numThreadsSpinner = new JSpinner(new SpinnerNumberModel(numCPUs, 1, numCPUs*2, 1));
+        numThreadsSpinner.setToolTipText("Number of computational threads");
         add(numThreadsSpinner, "wrap 20px");
 
         advancedInfoCheckBox.addActionListener(this);
