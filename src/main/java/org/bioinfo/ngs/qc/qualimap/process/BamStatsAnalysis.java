@@ -100,17 +100,14 @@ public class BamStatsAnalysis {
 	private long[] selectedRegionStarts;
 	private long[] selectedRegionEnds;
     RegionLookupTable regionLookupTable;
+    IntervalTree<Integer> regionsTree;
 
 	// insert size
 	private boolean computeInsertSize;
 
 	// chromosome
 	private boolean computeChromosomeStats;
-	private BamStats chromosomeStats;
-    private BamGenomeWindow currentChromosome;
-    private ConcurrentMap<Long,BamGenomeWindow> openChromosomeWindows;
-    private ArrayList<Integer> chromosomeWindowIndexes;
-    IntervalTree<Integer> regionsTree;
+	private ArrayList<Integer> chromosomeWindowIndexes;
 
     private int maxSizeOfTaskQueue;
 
@@ -219,16 +216,7 @@ public class BamStatsAnalysis {
 
 		}
 
-        // chromosome stats
-		if(computeChromosomeStats){
-			chromosomeStats = new BamStats("chromosomes", referenceSize, numberOfReferenceContigs);
-			chromosomeStats.setWindowReferences(locator);
-			openChromosomeWindows = new ConcurrentHashMap<Long, BamGenomeWindow>();
-			currentChromosome = nextWindow(chromosomeStats,openChromosomeWindows,reference,false);
-		    chromosomeStats.activateWindowReporting(outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES);
-        }
-
-        currentWindow = nextWindow(bamStats,openWindows,reference,true);
+        currentWindow = nextWindow(bamStats, openWindows, reference, true);
 
         // init working variables
 		isPairedData = true;
@@ -310,24 +298,18 @@ public class BamStatsAnalysis {
 
                 timeToCalcOverlappers += System.currentTimeMillis() - findOverlappersStart;
 
-                if (computeChromosomeStats && position > currentChromosome.getEnd()) {
-                    collectAnalysisResults(readsBunch);
-                    currentChromosome = finalizeAndGetNextWindow(position, currentChromosome,
-                            openChromosomeWindows, chromosomeStats, reference, false);
-                }
-
                 // finalize current and get next window
 			    if(position > currentWindow.getEnd() ){
                     //analyzeReads(readsBunch);
                     collectAnalysisResults(readsBunch);
                     //finalize
-				    currentWindow = finalizeAndGetNextWindow(position,currentWindow,openWindows,
-                            bamStats,reference,true);
+				    currentWindow = finalizeAndGetNextWindow(position, currentWindow, openWindows,
+                            bamStats, reference, true);
 
                     if (selectedRegionsAvailable && computeOutsideStats) {
                         currentOutsideWindow.inverseRegions();
-                        currentOutsideWindow = finalizeAndGetNextWindow(position,currentOutsideWindow,
-                                                    openOutsideWindows, outsideBamStats,reference,true);
+                        currentOutsideWindow = finalizeAndGetNextWindow(position, currentOutsideWindow,
+                                openOutsideWindows, outsideBamStats, reference, true);
                     }
 
                 }
@@ -361,11 +343,7 @@ public class BamStatsAnalysis {
             long lastPosition = bamStats.getWindowEnd(numWindows - 1) + 1;
             collectAnalysisResults(readsBunch);
             //finalize
-            finalizeAndGetNextWindow(lastPosition,currentWindow,openWindows,bamStats,reference,true);
-            if (computeChromosomeStats) {
-                finalizeAndGetNextWindow(lastPosition,currentChromosome, openChromosomeWindows,
-                    chromosomeStats, reference, false);
-            }
+            finalizeAndGetNextWindow(lastPosition, currentWindow, openWindows, bamStats, reference, true);
             if (selectedRegionsAvailable && computeOutsideStats) {
                 currentOutsideWindow.inverseRegions();
                 finalizeAndGetNextWindow(lastPosition,currentOutsideWindow, openOutsideWindows,
@@ -419,6 +397,16 @@ public class BamStatsAnalysis {
         // compute histograms
 		logger.println("Computing histograms...");
 		bamStats.computeHistograms();
+
+        if (computeChromosomeStats) {
+            String fileName = outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES;
+            bamStats.saveChromosomeStats(fileName, locator, chromosomeWindowIndexes);
+            if (selectedRegionsAvailable && computeOutsideStats) {
+                String outsideFilename = outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE;
+                outsideBamStats.saveChromosomeStats(outsideFilename, locator, chromosomeWindowIndexes);
+            }
+        }
+
 
         if(selectedRegionsAvailable && computeOutsideStats){
             outsideBamStats.setReferenceSize(referenceSize);
@@ -485,9 +473,6 @@ public class BamStatsAnalysis {
             for (SingleReadData rd : dataset) {
                 BamGenomeWindow w = openWindows.get(rd.getWindowStart());
                 w.addReadData(rd);
-                if (computeChromosomeStats) {
-                    currentChromosome.addReadData(rd);
-                }
             }
             bamStats.addGcContentData( taskResult.getReadsGcContent() );
             bamStats.addReadsAsData ( taskResult.getReadsAContent() );
@@ -801,6 +786,7 @@ public class BamStatsAnalysis {
         long startPos = 1;
         int i = 0;
         int numContigs  = contigs.size();
+        chromosomeWindowIndexes.add(0);
         while (startPos < referenceSize) {
             windowStarts.add(startPos);
             startPos += windowSize;
@@ -810,10 +796,10 @@ public class BamStatsAnalysis {
                 if (startPos >= nextContigStart ) {
                     if (startPos > nextContigStart && nextContigStart < referenceSize) {
                         //System.out.println("Chromosome window break: " + (windowStarts.size() + 1));
+                        chromosomeWindowIndexes.add(windowStarts.size());
                         windowStarts.add(nextContigStart);
                         System.out.println("window start: " + nextContigStart);
                     }
-                    chromosomeWindowIndexes.add(i);
                     i++;
                 } else {
                     break;

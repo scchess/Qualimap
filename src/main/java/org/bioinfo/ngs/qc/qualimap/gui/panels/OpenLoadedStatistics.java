@@ -707,7 +707,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of N's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getnNumber()) +
                 " / " + sdf.formatPercentage(reporter.getnPercent()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "GC Percentage" + HtmlJPanel.COLMID + sdf.formatPercentage(reporter.getGcPercent()) + HtmlJPanel.COLEND);
-//		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "AT Percentage" + HtmlJPanel.COLMID + sdf.formatPercentage(reporter.getAtPercent()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
@@ -725,9 +724,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
 			summaryHtml.append(HtmlJPanel.BR);
-			summaryHtml.append("<b>Per chromosome statistics:</b>" + HtmlJPanel.BR);
+			summaryHtml.append("<b>Per chromosome statistics " +  postfix + ":</b>" + HtmlJPanel.BR);
 			summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-            String pathToChromosomeStats =HomeFrame.outputpath + tabProperties.getOutputFolder() + Constants.NAME_OF_FILE_CHROMOSOMES;
+            String pathToChromosomeStats =HomeFrame.outputpath + tabProperties.getOutputFolder() + reporter.getChromosomeFileName();
 			summaryHtml.append(fillHtmlTableFromFile(pathToChromosomeStats));
 			summaryHtml.append(HtmlJPanel.getTableFooter());
 		}
@@ -792,16 +791,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                     htmlTable.append("<th align='left'>Length</th>");
                     htmlTable.append("<th align='left'>Mapped bases</th>");
                     htmlTable.append("<th align='left'>Mean coverage</th>");
-                    //htmlTable.append("<th align='left'>Std coverage</th>");
+                    htmlTable.append("<th align='left'>Std coverage</th>");
             	} else {
 					String[] tableValues = strLine.split("\t");
 					htmlTable.append(HtmlJPanel.COLSTART);
 					int i = 0;
 					for (String s : tableValues) {
-						if (i == 4) {
-                            break;
-                        }
-                        if (i == 1) {
+					    if (i == 1) {
                             String[] coords = s.split(":");
                             assert(coords.length == 2);
                             long len = Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;

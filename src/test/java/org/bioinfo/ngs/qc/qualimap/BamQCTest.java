@@ -19,15 +19,13 @@ public class BamQCTest {
     public BamQCTest() throws IOException {
         tests = new ArrayList<TestConfig>();
 
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
+        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test004.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test005.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test006.txt") );
         tests.add( new TestConfig("/home/kokonech/qualimap-tests/test007.txt") );
-
-
     }
 
     @Test
@@ -50,7 +48,7 @@ public class BamQCTest {
             try {
                 bamQc.run();
                 bamQcReporter.loadReportData(bamQc.getBamStats());
-                bamQcReporter.computeChartsBuffers(bamQc.getBamStats(), bamQc.getLocator(),bamQc.isPairedData());
+                bamQcReporter.computeChartsBuffers(bamQc.getBamStats(), bamQc.getLocator(), bamQc.isPairedData());
             } catch (Exception e) {
                 assertTrue("Error calculating stats. " + e.getMessage(), false);
                 e.printStackTrace();

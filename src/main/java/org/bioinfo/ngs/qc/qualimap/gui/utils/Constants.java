@@ -225,7 +225,9 @@ public final class Constants {
 	//********************************* NAMES OF DATA RAW FILES ********************************
 	//******************************************************************************************
 	public static final String NAME_OF_FILE_CHROMOSOMES = "chromosomes.txt";
-	
+
+    public static final String NAME_OF_FILE_CHROMOSOMES_OUTSIDE = "outside_chromosomes.txt";
+
 	
 	//******************************************************************************************
 	//******************************** TYPES OF BAM ANALYSIS ***********************************

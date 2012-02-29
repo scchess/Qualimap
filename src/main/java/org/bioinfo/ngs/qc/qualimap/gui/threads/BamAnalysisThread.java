@@ -9,6 +9,7 @@ import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
@@ -137,6 +138,7 @@ public class BamAnalysisThread extends Thread {
 
                 prepareInputDescription(outsideReporter);
 	            outsideReporter.setNamePostfix(" (outside of regions)");
+                outsideReporter.setChromosomeFileName(Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
 				// Draw the Chromosome Limits or not
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 

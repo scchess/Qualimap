@@ -125,6 +125,7 @@ public class BamGenomeWindow {
 	protected int correctInsertSizes;
 	protected double acumInsertSize;
 	protected double meanInsertSize;
+    protected double effectiveWindowLength;
 
 	public BamGenomeWindow(String name, long start, long end, byte[] reference){
 		this.name = name;
@@ -404,7 +405,7 @@ public class BamGenomeWindow {
 		// org.bioinfo.ntools.process acums		
 
 
-        double effectiveWindowLength = windowSize;
+        effectiveWindowLength = windowSize;
         if (selectedRegionsAvailable && numberOfMappedBases != 0) {
             int len = 0;
             for (int i = 0; i< windowSize; ++i )
@@ -416,7 +417,7 @@ public class BamGenomeWindow {
             effectiveWindowLength = len;
         }
 
-        meanCoverage = (double)numberOfMappedBases / effectiveWindowLength;
+        meanCoverage = (double) numberOfMappedBases / effectiveWindowLength;
 
 		meanMappingQuality = acumMappingQuality/(double)numberOfMappedBases;
 		meanInsertSize = acumInsertSize/(double)numberOfMappedBases;
@@ -1118,4 +1119,7 @@ public class BamGenomeWindow {
 
     }
 
+    public double getEffectiveWindowLength() {
+        return effectiveWindowLength;
+    }
 }

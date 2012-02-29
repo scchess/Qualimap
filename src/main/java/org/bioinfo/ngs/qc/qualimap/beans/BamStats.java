@@ -35,6 +35,10 @@ public class BamStats implements Serializable {
     private long numberOfOutsideMappedReads;
     private double percentageOfOutsideMappedReads;
 
+    private ArrayList<Long>  numMappedBasesPerWindow;
+    private ArrayList<Long> coverageSquaredPerWindow;
+    private ArrayList<Double> windowLengthes;
+
 
 	/*
 	 * 
@@ -288,6 +292,12 @@ public class BamStats implements Serializable {
 //		atContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 //		atRelativeContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 
+        numMappedBasesPerWindow = new ArrayList<Long>(numberOfWindows);
+        coverageSquaredPerWindow = new ArrayList<Long>(numberOfWindows);
+        windowLengthes = new ArrayList<Double>(numberOfWindows);
+
+
+
 		// gc content histogram
         gcContentHistogram = new double[NUM_BINS + 1];
         sampleCount = 0;
@@ -439,7 +449,6 @@ public class BamStats implements Serializable {
         //TODO: bad design
         boolean isInstanceOfBamGenomeWindow =  window instanceof BamDetailedGenomeWindow;
 
-
 		// global
 		numberOfMappedBases+=window.getNumberOfMappedBases();
 		numberOfSequencedBases+=window.getNumberOfSequencedBases();
@@ -475,7 +484,10 @@ public class BamStats implements Serializable {
 		  // AT
 		atContentInReference.add((double)window.getNumberOfAtsInReference());
 		atRelativeContentInReference.add(window.getAtRelativeContentInReference());
-		
+
+        windowLengthes.add( window.getEffectiveWindowLength() );
+        numMappedBasesPerWindow.add( window.getNumberOfMappedBases() );
+
 		/*
 		 * Sample
 		 */
@@ -484,6 +496,7 @@ public class BamStats implements Serializable {
 		coverageAcrossReference.add(window.getMeanCoverage());
 		stdCoverageAcrossReference.add(window.getStdCoverage());
         if (isInstanceOfBamGenomeWindow) {
+            coverageSquaredPerWindow.add( ((BamDetailedGenomeWindow)window).getSumCoverageSquared() );
             sumCoverageSquared += ((BamDetailedGenomeWindow)window).getSumCoverageSquared();
             updateHistograms((BamDetailedGenomeWindow)window);
         }
@@ -525,12 +538,7 @@ public class BamStats implements Serializable {
 
         //gcContentHistogram[ (int) window.getMeanGcRelativeContent() ]++;
 		
-    	// TODO: it is not used anywhere
-    	// AT
-        // atContentAcrossReference.add(window.getMeanAtContent());
-        // atRelativeContentAcrossReference.add(window.getMeanAtRelativeContent());
-				
-		// insert size
+    	// insert size
 		insertSizeAcrossReference.add(window.getMeanInsertSize());
 		/*if(isInstanceOfBamGenomeWindow){
 			updateHistogramFromLongVector(insertSizeHistogramMap,((BamDetailedGenomeWindow)window).getInsertSizeAcrossReference());
@@ -2911,5 +2919,42 @@ public class BamStats implements Serializable {
     }
 
 
+    public void saveChromosomeStats(String fileName, GenomeLocator locator, ArrayList<Integer> chromosomeWindowIndexes) throws IOException {
+        int chromosomeCount = chromosomeWindowIndexes.size();
+        List<ContigRecord> contigRecords = locator.getContigs();
 
+        PrintWriter chromoWriter = new PrintWriter(new FileWriter(fileName));
+
+        chromoWriter.println("#name\tabsolute_pos\tmapped_bases\tmean_coverage\tstd_coverage");
+        for (int k = 0; k < chromosomeCount; ++k) {
+            int firstWindowIndex = chromosomeWindowIndexes.get(k);
+            int lastWindowIndex = k + 1 < chromosomeCount
+                    ? chromosomeWindowIndexes.get(k + 1) - 1 : numberOfWindows - 1;
+
+            long numBases = 0;
+            double length = 0;
+            long sumCovSquared = 0;
+            for (int i = firstWindowIndex; i <= lastWindowIndex; ++i) {
+                numBases += numMappedBasesPerWindow.get(i);
+                sumCovSquared += coverageSquaredPerWindow.get(i);
+                length += windowLengthes.get(i);
+            }
+
+            ContigRecord contig = contigRecords.get(k);
+            chromoWriter.print(contig.getName() + "\t");
+            chromoWriter.print(contig.getStart() + ":"+ contig.getEnd() + "\t");
+
+            if (length == 0) {
+                chromoWriter.println("0\t0\t0\t");
+            } else {
+                chromoWriter.print(numBases + "\t");
+                double mean =  numBases / length;
+                double std = Math.sqrt( sumCovSquared / length - mean*mean);
+                chromoWriter.print(StringUtils.decimalFormat(mean,"#,###,###,###.##")+ "\t" );
+                chromoWriter.println(StringUtils.decimalFormat(std, "#,###,###,###.##"));
+            }
+        }
+
+        chromoWriter.close();
+    }
 }
