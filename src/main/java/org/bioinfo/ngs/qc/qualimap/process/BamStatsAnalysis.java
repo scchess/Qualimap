@@ -136,7 +136,7 @@ public class BamStatsAnalysis {
     public BamStatsAnalysis(String bamFile) {
 		this.bamFile = bamFile;
 		this.numberOfWindows = 400;
-        this.numReadsInBunch = 2000;
+        this.numReadsInBunch = 1000;
         this.maxSizeOfTaskQueue = 10;
         this.minReadSize = Integer.MAX_VALUE;
         this.threadNumber = 4;
@@ -882,4 +882,7 @@ public class BamStatsAnalysis {
         return progress;
     }
 
+    public void setNumberOfReadsInBunch(int bunchSize) {
+        numReadsInBunch = bunchSize;
+    }
 }

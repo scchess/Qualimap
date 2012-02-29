@@ -31,12 +31,13 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
     JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
-    JSpinner numThreadsSpinner;
+    JSpinner numThreadsSpinner,numReadsPerBunchSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
     JComboBox genomeGcContentCombo;
     JProgressBar progressBar;
-    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw, labelNumThreads;
+    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile,
+            labelNw, labelNumThreads, labelNumReadsPerBunch;
     HomeFrame homeFrame;
     File inputFile, regionFile;
 
@@ -130,7 +131,16 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         int numCPUs =  Runtime.getRuntime().availableProcessors();
         numThreadsSpinner = new JSpinner(new SpinnerNumberModel(numCPUs, 1, numCPUs*2, 1));
         numThreadsSpinner.setToolTipText("Number of computational threads");
-        add(numThreadsSpinner, "wrap 20px");
+        add(numThreadsSpinner, "wrap");
+
+        labelNumReadsPerBunch = new JLabel("Size of the bunch:");
+        add(labelNumReadsPerBunch, "gapleft 20");
+        numReadsPerBunchSpinner = new JSpinner(new SpinnerNumberModel(1000, 100, 5000, 1));
+        numReadsPerBunchSpinner.setToolTipText("<html>To speed up the computation reads are analyzed in bunches. " +
+                "Each bunch is analyzed by single thread. <br>This option controls the number of reads in the bunch." +
+                "<br>Smaller number may result in lower performance, " +
+                "but also the memory consumption will be reduced.</html>");
+        add(numReadsPerBunchSpinner, "wrap 20px");
 
         advancedInfoCheckBox.addActionListener(this);
 
@@ -179,6 +189,8 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         labelNw.setEnabled(advOptionsEnabled);
         labelNumThreads.setEnabled(advOptionsEnabled);
         numThreadsSpinner.setEnabled(advOptionsEnabled);
+        numReadsPerBunchSpinner.setEnabled(advOptionsEnabled);
+        labelNumReadsPerBunch.setEnabled(advOptionsEnabled);
 
         genomeGcContentCombo.setEnabled(compareGcContentDistr.isSelected());
     }
@@ -428,5 +440,9 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
     public String getQualimapHome() {
         return homeFrame.getQualimapFolder();
+    }
+
+    public int getBunchSize() {
+        return ((SpinnerNumberModel)numReadsPerBunchSpinner.getModel()).getNumber().intValue();
     }
 }
