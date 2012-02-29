@@ -484,31 +484,6 @@ public class BamQCRegionReporter implements Serializable {
 		mapCharts.put( bamStats.getName() + "_uniq_read_starts_histogram.png",
 				uniqueReadStartsHistogram.getChart());
 
-
-
-		//		  // coverageData cumulative histogram
-		//		BamQCXYHistogramChart cumulativeCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram", subTitle, "coverageData (bp)", "relative coverture of reference (%)");
-		//		cumulativeCoverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
-		//		cumulativeCoverageHistogram.setCumulative(true);
-		//		cumulativeCoverageHistogram.setNumberOfBins(50);
-		//		cumulativeCoverageHistogram.setDomainAxisIntegerTicks(true);
-		//		cumulativeCoverageHistogram.render();
-		//		mapCharts.put(
-		//				bamStats.getName() + "_coverage_cumulative_histogram.png",
-		//				cumulativeCoverageHistogram.getChart());
-		//		
-		//		  // coverageData cumulative ranged histogram
-		//		BamQCXYHistogramChart cumulativeRangedCoverageHistogram = new BamQCXYHistogramChart("Coverage cumulative histogram (0 - " + (int)maxValue + "x)", subTitle, "coverageData (bp)", "relative coverture of reference (%)");
-		//		cumulativeRangedCoverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
-		//		cumulativeRangedCoverageHistogram.setCumulative(true);
-		//		cumulativeRangedCoverageHistogram.setNumberOfBins(50);		
-		//		cumulativeRangedCoverageHistogram.zoom(maxValue);
-		//		cumulativeRangedCoverageHistogram.setDomainAxisIntegerTicks(true);
-		//		cumulativeRangedCoverageHistogram.render();
-		//		mapCharts.put(
-		//				bamStats.getName() + "_coverage_0to" + (int)maxValue + "_cumulative_histogram.png",
-		//				cumulativeRangedCoverageHistogram.getChart());
-
 		// coverageData quota
 		BamQCChart coverageQuota = new BamQCChart("Coverage quota", subTitle,
                 "coverageData (bp)", "relative coverture of reference (%)");
@@ -575,8 +550,9 @@ public class BamQCRegionReporter implements Serializable {
 		mapCharts.put(
 				bamStats.getName() + "_mapping_quality_histogram.png",
 				mappingQualityHistogram.getChart());
-		
-		if(isPairedData){
+
+        //TODO:bug-206
+		/*if(isPairedData){
 			// insert size across reference
 			BamQCChart insertSize = new BamQCChart("Insert size across reference",
                     subTitle, "absolute position (bp)", "insert size (bp)");
@@ -595,7 +571,7 @@ public class BamQCRegionReporter implements Serializable {
 			insertSizeHistogram.setNumberOfBins(50);		
 			insertSizeHistogram.render();
 			mapCharts.put(bamStats.getName() + "_insert_size_histogram.png", insertSizeHistogram.getChart());
-		}
+		}*/
 	}
 
 

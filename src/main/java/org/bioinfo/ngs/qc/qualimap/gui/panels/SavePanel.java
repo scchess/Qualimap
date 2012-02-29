@@ -185,6 +185,8 @@ public class SavePanel extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JFileChooser fileChooser = HomeFrame.getFileChooser();
+                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
 
 				int valor = fileChooser.showOpenDialog(homeFrame
 						.getCurrentInstance());
@@ -248,6 +250,7 @@ public class SavePanel extends javax.swing.JPanel {
         saveButton.addKeyListener(keyListener);
 		resultContainer.add(saveButton, "span, align right, wrap");
 
+        resultContainer.setTitle("Export to html");
         resultContainer.pack();
 		resultContainer.setResizable(false);
 
