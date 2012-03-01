@@ -48,8 +48,9 @@ public class BamQCRegionReporter implements Serializable {
         return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
     }
 
-    public void setPathToGenomeGCContent(String pathToGenomeGCContent) {
+    public void setPathToGenomeGCContent(String genomeName, String pathToGenomeGCContent) {
         this.pathToGenomeGCContent = pathToGenomeGCContent;
+        this.genomeGCContentName = genomeName;
     }
 
     static public class InputDataSection {
@@ -111,6 +112,7 @@ public class BamQCRegionReporter implements Serializable {
     List<InputDataSection> inputDataSections;
     String namePostfix;
     String pathToGenomeGCContent;
+    String genomeGCContentName;
     String chromosomeFileName;
     int numSelectedRegions;
 
@@ -514,7 +516,7 @@ public class BamQCRegionReporter implements Serializable {
         if (!pathToGenomeGCContent.isEmpty()) {
             XYVector gcContentHist = getGenomeGcContentHistogram();
             if (gcContentHist.getSize() != 0) {
-                gcContentHistChart.addSeries("Genome", gcContentHist, new Color(255, 10, 20, 255));
+                gcContentHistChart.addSeries(genomeGCContentName, gcContentHist, new Color(255, 10, 20, 255));
             }
         }
         gcContentHistChart.setDomainAxisIntegerTicks(true);
@@ -1031,6 +1033,10 @@ public class BamQCRegionReporter implements Serializable {
         }
 
         return res;
+    }
+
+    public String getGenomeGcContentHistogramName() {
+       return genomeGCContentName;
     }
 
     public String getChromosomeFileName() {

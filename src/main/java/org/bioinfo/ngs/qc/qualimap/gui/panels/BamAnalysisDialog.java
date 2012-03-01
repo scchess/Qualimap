@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang.ArrayUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
@@ -18,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -96,7 +98,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         add(compareGcContentDistr, "span 2, wrap");
 
         Map<String,String> gcFileMap = BamStatsAnalysis.getGcContentFileMap();
-        genomeGcContentCombo = new JComboBox( gcFileMap.keySet().toArray());
+        Object[] genomes =  gcFileMap.keySet().toArray();
+        // small trick for human genome to be first
+        Arrays.sort(genomes);
+        genomeGcContentCombo = new JComboBox( genomes );
         add( genomeGcContentCombo, "gapleft 20, span 2, wrap" );
 
         // Input Line of information (check to show the advance info)

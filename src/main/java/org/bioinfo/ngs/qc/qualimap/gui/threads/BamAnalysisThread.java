@@ -118,7 +118,7 @@ public class BamAnalysisThread extends Thread {
                 String genomeName = bamDialog.getGenomeName();
                 String path = bamDialog.getQualimapHome()  + File.separator +
                         BamStatsAnalysis.getGcContentFileMap().get(genomeName);
-                reporter.setPathToGenomeGCContent(path);
+                reporter.setPathToGenomeGCContent(genomeName, path);
             }
 
 			bamDialog.getProgressStream().setText("   text report...");
@@ -147,7 +147,7 @@ public class BamAnalysisThread extends Thread {
                     String genomeName = bamDialog.getGenomeName();
                     String path = bamDialog.getQualimapHome()  + File.separator +
                         BamStatsAnalysis.getGcContentFileMap().get(genomeName);
-                    outsideReporter.setPathToGenomeGCContent(path);
+                    outsideReporter.setPathToGenomeGCContent(genomeName, path);
                 }
 
 				// save stats

@@ -203,9 +203,6 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
                 new BrowseButtonActionListener(this, regionsField,"Annotation files", "txt"));
         add(browseGeneSelectionButton, "align center, wrap");
 
-        //add(transcriptIdsPanel, "span, wrap");
-
-
         add(new JLabel("Location"), "span 2, wrap");
 
         locationPanel = new JPanel();

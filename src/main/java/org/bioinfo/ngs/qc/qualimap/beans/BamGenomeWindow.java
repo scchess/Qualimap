@@ -424,6 +424,9 @@ public class BamGenomeWindow {
 					
 		// ACTG absolute content
 		if(meanCoverage > 0){
+
+            //meanARelativeContent = numberOfAs / numberOfMappedBases * 100.0
+
 			meanAContent = (double)numberOfAs/ meanCoverage;
 			meanCContent = (double)numberOfCs/ meanCoverage;
 			meanTContent = (double)numberOfTs/ meanCoverage;
