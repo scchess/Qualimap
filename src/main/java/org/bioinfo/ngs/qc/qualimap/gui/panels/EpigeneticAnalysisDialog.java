@@ -6,15 +6,14 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditEpigeneticsInputDataDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.EpigeneticsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.List;
  * Date: 1/3/12
  * Time: 4:01 PM
  */
-public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
+public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionListener{
 
     JTextField regionsField,  clustersField;
     JSpinner leftOffsetSpinner, rightOffsetSpinner, stepSpinner, smoothingLengthSpinner;
@@ -34,11 +33,10 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
     JComboBox vizTypeBox;
     JLabel progressStream;
     JTable inputDataTable;
-    JPanel buttonPanel, locationPanel, transcriptIdsPanel;
+    JPanel buttonPanel, locationPanel;
     JProgressBar  progressBar;
     JTextArea logArea;
     SampleDataTableModel sampleTableModel;
-    HomeFrame homeFrame;
 
     static final String COMMAND_ADD_ITEM = "add_item";
     static final String COMMAND_REMOVE_ITEM = "delete_item";
@@ -159,9 +157,8 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
     public EpigeneticAnalysisDialog(HomeFrame homeFrame) {
 
-        this.homeFrame = homeFrame;
+        super(homeFrame,"Epigenomics") ;
 
-        KeyListener keyListener = new PopupKeyListener(homeFrame, this, null);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         add(new JLabel("Experiment ID: "), "");
@@ -202,8 +199,7 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
 
         browseGeneSelectionButton = new JButton();
 		browseGeneSelectionButton.setText("...");
-		browseGeneSelectionButton.addKeyListener(keyListener);
-        browseGeneSelectionButton.addActionListener(
+		browseGeneSelectionButton.addActionListener(
                 new BrowseButtonActionListener(this, regionsField,"Annotation files", "txt"));
         add(browseGeneSelectionButton, "align center, wrap");
 
@@ -265,13 +261,11 @@ public class EpigeneticAnalysisDialog extends JDialog implements ActionListener{
         startAnalysisButton.setText(">>> Run Analysis");
         startAnalysisButton.setActionCommand(COMMAND_RUN_ANALYSIS);
         startAnalysisButton.addActionListener(this);
-        startAnalysisButton.addKeyListener(keyListener);
         add(startAnalysisButton, "align right, span, wrap");
 
 
         pack();
 
-        setTitle("Epigenomics");
         setResizable(false);
 
         if (DEBUG) {

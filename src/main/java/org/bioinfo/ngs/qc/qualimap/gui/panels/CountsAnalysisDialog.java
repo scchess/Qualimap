@@ -8,6 +8,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
@@ -23,7 +24,7 @@ import java.io.IOException;
  * Date: 12/21/11
  * Time: 3:34 PM
  */
-public class CountsAnalysisDialog extends JDialog implements ActionListener {
+public class CountsAnalysisDialog extends AnalysisDialog implements ActionListener {
 
     JButton startAnalysisButton, browseFileButton1, browseFileButton2;
     JTextField  filePathEdit1, filePathEdit2, thresholdEdit;
@@ -35,7 +36,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
     JTextField infoFileEdit;
     JButton browseInfoFileButton, calcCountsButton;
     JRadioButton infoFileButton, speciesButton;
-    HomeFrame homeFrame;
     StringBuilder stringValidation;
     JTextArea logArea;
 
@@ -54,9 +54,8 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
 
 
     public CountsAnalysisDialog(HomeFrame homeFrame) {
-        this.homeFrame = homeFrame;
+        super(homeFrame, "Analyze count data");
 
-        KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         add(new JLabel("First sample name:"));
@@ -68,14 +67,12 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         add(fileLabel1, "");
 
         filePathEdit1 = new JTextField(40);
-        filePathEdit1.addKeyListener(keyListener);
         filePathEdit1.setToolTipText(INPUT_FILE_TOOLTIP);
         add(filePathEdit1, "grow");
 
         browseFileButton1 = new JButton();
 		browseFileButton1.setText("...");
-		browseFileButton1.addKeyListener(keyListener);
-        browseFileButton1.addActionListener( new BrowseButtonActionListener(this,
+		browseFileButton1.addActionListener( new BrowseButtonActionListener(this,
                 filePathEdit1, "File with counts"));
         add(browseFileButton1, "align center, wrap");
 
@@ -95,14 +92,12 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         add(fileLabel2, "");
 
         filePathEdit2 = new JTextField(40);
-        filePathEdit2.addKeyListener(keyListener);
         filePathEdit2.setToolTipText(INPUT_FILE_TOOLTIP);
         add(filePathEdit2, "grow");
 
         browseFileButton2 = new JButton();
 		browseFileButton2.setText("...");
-		browseFileButton2.addKeyListener(keyListener);
-        browseFileButton2.addActionListener(new BrowseButtonActionListener(homeFrame,
+		browseFileButton2.addActionListener(new BrowseButtonActionListener(homeFrame,
                 filePathEdit2, "File with counts"));
         add(browseFileButton2, "align center, wrap");
 
@@ -111,7 +106,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         add(thresholdLabel, "");
 
         thresholdEdit = new JTextField(20);
-        thresholdEdit.addKeyListener(keyListener);
         thresholdEdit.setText("5");
         thresholdEdit.setToolTipText("A feature is considered as detected if the corresponding number of counts is " +
                 "greater than this count threshold.");
@@ -188,7 +182,7 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         calcCountsButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                HomeFrame.showCountReadsDialog(frame);
+                HomeFrame.showCountReadsDialog(CountsAnalysisDialog.this.homeFrame);
             }
         });
         add(calcCountsButton);
@@ -196,14 +190,12 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         startAnalysisButton = new JButton();
         startAnalysisButton.addActionListener(getActionListenerRunAnalysis());
         startAnalysisButton.setText(">>> Run Analysis");
-        startAnalysisButton.addKeyListener(keyListener);
 
         add(startAnalysisButton, "span2, align right, wrap");
 
         pack();
 
         updateState();
-        setTitle("Analyze count data");
         setResizable(false);
 
     }
@@ -227,10 +219,6 @@ public class CountsAnalysisDialog extends JDialog implements ActionListener {
         browseInfoFileButton.setEnabled(infoFileButton.isSelected() && provideInfoFile);
         speciesCombo.setEnabled(speciesButton.isSelected() && provideInfoFile);
 
-    }
-
-    public HomeFrame getHomeFrame() {
-        return homeFrame;
     }
 
     public JProgressBar getProgressBar() {

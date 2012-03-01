@@ -609,8 +609,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setVisible(true);
     }
 
-    static public void showCountReadsDialog(Component parent) {
-        ComputeCountsDialog dlg = new ComputeCountsDialog();
+    static public void showCountReadsDialog(HomeFrame parent) {
+        ComputeCountsDialog dlg = new ComputeCountsDialog(parent);
         dlg.setModal(true);
         dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dlg.setLocationRelativeTo(parent);

@@ -6,9 +6,9 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.JTextFieldLimit;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
@@ -16,18 +16,16 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 /**
  * Created by kokonech
  * Date: 12/8/11
  * Time: 11:18 AM
  */
-public class BamAnalysisDialog extends JDialog implements ActionListener {
+public class BamAnalysisDialog extends AnalysisDialog implements ActionListener {
 
     JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
@@ -38,7 +36,6 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
     JProgressBar progressBar;
     JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile,
             labelNw, labelNumThreads, labelNumReadsPerBunch;
-    HomeFrame homeFrame;
     File inputFile, regionFile;
 
     StringBuilder stringValidation;
@@ -47,9 +44,8 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 
     public BamAnalysisDialog(HomeFrame homeFrame) {
 
-        this.homeFrame = homeFrame;
+        super(homeFrame, "Analyze genomic dataset" );
 
-        KeyListener keyListener = new PopupKeyListener(homeFrame, this, progressBar);
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         labelPathDataFile = new JLabel();
@@ -57,15 +53,13 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         add(labelPathDataFile, "");
 
         pathDataFile = new JTextField(40);
-        pathDataFile.addKeyListener(keyListener);
         pathDataFile.setToolTipText("Path to BAM alignment file");
         add(pathDataFile, "grow");
 
         pathDataFileButton = new JButton();
 		pathDataFileButton.setAction(getActionLoadBamFile());
         pathDataFileButton.setText("...");
-		pathDataFileButton.addKeyListener(keyListener);
-        add(pathDataFileButton, "align center, wrap");
+		add(pathDataFileButton, "align center, wrap");
 
         analyzeRegionsCheckBox = new JCheckBox("Analyze regions");
         analyzeRegionsCheckBox.addActionListener(this);
@@ -76,32 +70,27 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         add(labelPathAditionalDataFile, "");
 
         pathGffFile = new JTextField(40);
-        pathGffFile.addKeyListener(keyListener);
         pathGffFile.setToolTipText("Path to GFF file containing regions of interest");
         add(pathGffFile, "grow");
 
         pathGffFileButton = new JButton();
         pathGffFileButton.setAction(getActionLoadAdditionalFile());
-        pathGffFileButton.addKeyListener(keyListener);
         pathGffFileButton.setText("...");
         add(pathGffFileButton, "align center, wrap");
 
         computeOutsideStats = new JCheckBox("Analyze outside regions");
         computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        computeOutsideStats.addKeyListener(keyListener);
         computeOutsideStats.setToolTipText("<html>Check to perform a separate analysis for the genome " +
                 "<br>regions complement to those in the GFF file</html>");
         add(computeOutsideStats, "wrap");
 
         drawChromosomeLimits = new JCheckBox("Chromosome limits");
         drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        drawChromosomeLimits.addKeyListener(keyListener);
         drawChromosomeLimits.setToolTipText("Check to draw the chromosome limits");
         drawChromosomeLimits.setSelected(true);
         add(drawChromosomeLimits, "wrap");
 
         compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
-        compareGcContentDistr.addKeyListener(keyListener);
         compareGcContentDistr.addActionListener(this);
         compareGcContentDistr.setToolTipText("Compare sample GC distribution with the corresponding genome");
         add(compareGcContentDistr, "span 2, wrap");
@@ -113,7 +102,6 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         // Input Line of information (check to show the advance info)
         advancedInfoCheckBox = new JCheckBox("Advanced options");
         advancedInfoCheckBox.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        advancedInfoCheckBox.addKeyListener(keyListener);
         add(advancedInfoCheckBox,"wrap");
 
         labelNw = new JLabel("Number of windows:");
@@ -123,8 +111,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 		valueNw.setDocument(new JTextFieldLimit(6, true));
         valueNw.setText("" + Constants.DEFAULT_NUMBER_OF_WINDOWS);
         valueNw.setToolTipText("Number of sampling windows across the genome");
-        valueNw.addKeyListener(keyListener);
-	    add(valueNw, "wrap");
+        add(valueNw, "wrap");
 
         labelNumThreads = new JLabel("Number of threads:");
         add(labelNumThreads, "gapleft 20");
@@ -163,7 +150,6 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         startAnalysisButton = new JButton();
         startAnalysisButton.setAction(getActionLoadQualimap());
         startAnalysisButton.setText(startButtonText);
-        startAnalysisButton.addKeyListener(keyListener);
 
         add(new JLabel(""), "span 2");
         add(startAnalysisButton, "wrap");
@@ -171,7 +157,6 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         updateState();
         pack();
 
-        setTitle("Analyze genomic dataset");
         setResizable(false);
 
     }
@@ -233,7 +218,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 					pathDataFile.setText(fileChooser.getSelectedFile().getPath());
 				}
 			}
-		};
+		 };
 
 	}
 
@@ -326,7 +311,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
 			try {
 				FileUtils.checkFile(inputFile);
 			} catch (IOException e) {
-				stringValidation.append(" • " + e.getMessage() + " \n");
+				stringValidation.append(" • ").append( e.getMessage()).append(" \n");
 			}
 		}
 
@@ -413,7 +398,7 @@ public class BamAnalysisDialog extends JDialog implements ActionListener {
         Component[] components = getContentPane().getComponents();
 
         for (Component c : components)  {
-            c.setEnabled(false);
+            c.setEnabled(enabled);
         }
 
         progressBar.setEnabled(true);

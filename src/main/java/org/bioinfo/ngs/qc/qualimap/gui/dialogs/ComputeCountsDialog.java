@@ -1,8 +1,10 @@
 package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
+import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
+import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -21,7 +23,7 @@ import java.util.Map;
  * Date: 1/10/12
  * Time: 3:03 PM
  */
-public class ComputeCountsDialog extends JDialog implements ActionListener{
+public class ComputeCountsDialog extends AnalysisDialog implements ActionListener{
 
 
     JTextField bamPathEdit, gffPathEdit, outputPathField, featureTypeField;
@@ -32,7 +34,9 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
     Thread countReadsThread;
 
 
-    public ComputeCountsDialog() {
+    public ComputeCountsDialog(HomeFrame homeFrame) {
+
+        super(homeFrame, "Compute counts");
 
         getContentPane().setLayout(new MigLayout("insets 20"));
 
@@ -134,8 +138,6 @@ public class ComputeCountsDialog extends JDialog implements ActionListener{
 
         pack();
         updateState();
-
-        setTitle("Compute counts");
 
 
     }
