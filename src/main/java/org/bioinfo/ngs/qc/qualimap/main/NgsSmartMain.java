@@ -43,6 +43,10 @@ public class NgsSmartMain {
                 tool = new EpiTool();
             }
 
+            if (toolName.equals("gccontent")) {
+                tool = new GCContentTool();
+            }
+
             if (toolName.equalsIgnoreCase("run-tests")) {
                 System.out.println("Supposed to run tests...");
                 //runTests();

@@ -42,6 +42,11 @@ public class ProcessBunchOfReadsTask implements Callable {
         int[] readsGContent;
         int[] readsTContent;
         int[] readsNContent;
+        ArrayList<Float> readsGcContent;
+
+        int numBases;
+        int numGC;
+
 
         public int[] getReadsAContent() {
             return readsAContent;
@@ -63,15 +68,29 @@ public class ProcessBunchOfReadsTask implements Callable {
             return readsNContent;
         }
 
-        ReadStatsCollector() {
+        public ArrayList<Float> getReadsGcContent() {
+            return readsGcContent;
+        }
 
+        ReadStatsCollector() {
+            readsGcContent = new ArrayList<Float>();
             readsAContent = new int[INITIAL_SIZE];
             readsCContent = new int[INITIAL_SIZE];
             readsGContent = new int[INITIAL_SIZE];
             readsTContent = new int[INITIAL_SIZE];
             readsNContent = new int[INITIAL_SIZE];
-
         }
+
+        void saveGC() {
+            if (numGC != 0) {
+                float gcContent = (float)numGC / (float)numBases;
+                readsGcContent.add(gcContent);
+            }
+
+            numBases = 0;
+            numGC = 0;
+        }
+
 
         public void collectBases(SAMRecord read) {
             byte[] readBases = read.getReadBases();
@@ -79,16 +98,27 @@ public class ProcessBunchOfReadsTask implements Callable {
                 byte base = readBases[pos];
                 if (base == 'A') {
                     incAsContent(pos);
+                    numBases++;
                 } else if (base == 'C') {
                     incCsContent(pos);
+                    numGC++;
+                    numBases++;
                 } else if (base == 'G') {
                     incGsContent(pos);
+                    numGC++;
+                    numBases++;
                 } else if (base == 'T') {
                     incTsContent(pos);
+                    numBases++;
                 } else if (base == 'N') {
                     incNsContent(pos);
                 }
+
+                if (numBases >= 1000) {
+                    saveGC();
+                }
             }
+
         }
 
         private void incAsContent(int pos) {
@@ -122,8 +152,6 @@ public class ProcessBunchOfReadsTask implements Callable {
     public static class Result {
         Collection<SingleReadData> readsData;
         Collection<SingleReadData> outRegionReadsData;
-        Collection<Float> readsGcContent;
-        Collection<Float> outRegionReadsGcContent;
         ReadStatsCollector readsStatsCollector;
         ReadStatsCollector outRegionReadStatsCollector;
 
@@ -171,20 +199,13 @@ public class ProcessBunchOfReadsTask implements Callable {
             return outRegionReadsData;
         }
 
-        public void setReadsGcContent(Collection<Float> gcContent) {
-            this.readsGcContent = gcContent;
-        }
-
         public Collection<Float> getReadsGcContent() {
-            return readsGcContent;
+            return readsStatsCollector.getReadsGcContent();
         }
 
-        public void setOutOfRegionReadsGcContent(Collection<Float> gcContent) {
-            this.outRegionReadsGcContent = gcContent;
-        }
 
         public Collection<Float> getOutRegionOfReadsGcContent() {
-            return outRegionReadsGcContent;
+            return outRegionReadStatsCollector.getReadsGcContent();
         }
 
 
@@ -308,22 +329,22 @@ public class ProcessBunchOfReadsTask implements Callable {
 
         }
 
-        for (SingleReadData readData : analysisResults.values()) {
+        /*for (SingleReadData readData : analysisResults.values()) {
             float gcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
             readsGcContent.add(gcContent);
-        }
+        }*/
 
+        readStatsCollector.saveGC();
         taskResult.setGlobalReadsData(analysisResults.values());
-        taskResult.setReadsGcContent(readsGcContent);
         taskResult.setReadsStatsCollector(readStatsCollector);
 
         if (analyzeRegions && computeOutsideStats) {
-            for (SingleReadData readData : outOfRegionsResults.values()) {
+            /*for (SingleReadData readData : outOfRegionsResults.values()) {
                 float gcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
                 outOfRegionsReadsGCContent.add(gcContent);
-            }
+            }*/
+            outOfRegionsReadStatsCollector.saveGC();
             taskResult.setOutOfRegionReadsData(outOfRegionsResults.values());
-            taskResult.setOutOfRegionReadsGcContent(outOfRegionsReadsGCContent);
             taskResult.setOutRegionReadStatsCollector(outOfRegionsReadStatsCollector);
         }
 
@@ -344,7 +365,7 @@ public class ProcessBunchOfReadsTask implements Callable {
     }
 
 
-    char[] calculateAlignmentVector(SAMRecord read) {
+    /*char[] calculateAlignmentVector(SAMRecord read) {
 
         Cigar cigar = read.getCigar();
 
@@ -370,7 +391,7 @@ public class ProcessBunchOfReadsTask implements Callable {
     }
 
 
-    /*private boolean processRead(BamGenomeWindow window, SAMRecord read, long alignmentStart ) {
+    private boolean processRead(BamGenomeWindow window, SAMRecord read, long alignmentStart ) {
 
         // init read params
         int alignmentLength = read.getAlignmentEnd() - read.getAlignmentStart() + 1;
@@ -520,7 +541,6 @@ public class ProcessBunchOfReadsTask implements Callable {
             //readData.numberOfOutOfBoundsReads++;
         }
 
-
         // run read
         for(long j=readStart; j<=readEnd; j++){
             relative = (int)(j - windowStart);
@@ -564,46 +584,12 @@ public class ProcessBunchOfReadsTask implements Callable {
                     readData.acumBase(relative, nucleotide, insertSize);
                 }
 
-                // ATCG content
-                /*if(nucleotide=='A'){
-                    readData.acumA(relative);
-                    readData.acumBase(relative);
-                    if(insertSize!=-1){
-                        readData.acumProperlyPairedBase(relative);
-                    }
-                }
-                else if(nucleotide=='C'){
-                    readData.acumC(relative);
-                    readData.acumBase(relative);
-                    if(insertSize!=-1){
-                        readData.acumProperlyPairedBase(relative);
-                    }
-                }
-                else if(nucleotide=='T'){
-                    readData.acumT(relative);
-                    readData.acumBase(relative);
-                    if(insertSize!=-1){
-                        readData.acumProperlyPairedBase(relative);
-                    }
-                }
-                else if(nucleotide=='G'){
-                    readData.acumG(relative);
-                    readData.acumBase(relative);
-                    if(insertSize!=-1){
-                        readData.acumProperlyPairedBase(relative);
-                    }
-                }
-                else if(nucleotide=='-'){
-                }
-                else if(nucleotide=='N'){
-
-                }*/
-
-
-
             }
 
+
+
         }
+
 
         return outOfBounds;
     }

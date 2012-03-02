@@ -1011,20 +1011,43 @@ public class BamQCRegionReporter implements Serializable {
             BufferedReader reader = new BufferedReader( new FileReader(pathToGenomeGCContent));
 
             String line;
+
+            double acum = 0;
+            int counter = -1;
+            double index = 1;
             while ( (line = reader.readLine()) != null ) {
                 if (line.isEmpty() || line.startsWith("#")) {
                     continue;
                 }
                 String[] vals = line.split(" : ");
-                double index = Double.parseDouble(vals[0].trim()) / 10.0;
                 double value = Double.parseDouble(vals[1].trim());
                 // skip the zero value
-                if (index == 0.0) {
-                    continue;
+                //if (index == 0.0) {
+                //    continue;
+                //}
+                acum += value;
+                counter++;
+                if (counter == 10) {
+                    res.addItem(new XYItem(index, acum));
+                    acum = 0;
+                    counter = 0;
+                    index += 1;
                 }
-                res.addItem(new XYItem(index, value));
-
             }
+//            while ( (line = reader.readLine()) != null ) {
+//                if (line.isEmpty() || line.startsWith("#")) {
+//                    continue;
+//                }
+//                String[] vals = line.split(" : ");
+//                double index = Double.parseDouble(vals[0].trim()) / 10.0;
+//                double value = Double.parseDouble(vals[1].trim());
+//                // skip the zero value
+//                if (index == 0.0) {
+//                    continue;
+//                }
+//                res.addItem(new XYItem(index, value));
+//
+//            }
 
 
         } catch (IOException e) {

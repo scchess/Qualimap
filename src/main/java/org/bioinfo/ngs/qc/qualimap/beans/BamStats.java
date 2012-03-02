@@ -232,7 +232,8 @@ public class BamStats implements Serializable {
     private final int CACHE_SIZE = 2000;
 
     // gc content histogram
-    public static int NUM_BINS = 1000;
+    public static int  NUM_BINS = 1000;
+    static int SMOOTH_DISTANCE = 0;
     private double[] gcContentHistogram;
     boolean avaialableGenomeGcContentData;
     long sampleCount;
@@ -784,6 +785,16 @@ public class BamStats implements Serializable {
         for (int i = 0; i < NUM_BINS + 1; ++i) {
             gcContentHistogram[i] /= sampleCount;
         }
+
+        //smooth
+        for (int i = SMOOTH_DISTANCE; i < NUM_BINS - SMOOTH_DISTANCE; ++i) {
+            double res = 0;
+            for (int j = 0; j <= 2*SMOOTH_DISTANCE; ++j) {
+                res += gcContentHistogram[i + j - SMOOTH_DISTANCE];
+            }
+            gcContentHistogram[i] = res / (double) (SMOOTH_DISTANCE*2 + 1 );
+        }
+
 
         /*double sum = 0;
         for (int i = 1; i < NUM_BINS + 1; ++i) {
@@ -2783,9 +2794,20 @@ public class BamStats implements Serializable {
 
     public XYVector getGcContentHistogram() {
         XYVector result = new XYVector();
-        double norm = (double) NUM_BINS / 100;
+
+        int iterCount = NUM_BINS / 100;
+        int counter = 0;
+        double acum = 0;
+        double index = 1;
         for (int i = 1; i < NUM_BINS + 1; ++i) {
-            result.addItem( new XYItem(i / norm, gcContentHistogram[i]));
+            counter++;
+            acum += gcContentHistogram[i];
+            if (counter == iterCount) {
+                result.addItem( new XYItem(index, acum));
+                counter = 0;
+                acum = 0;
+                index++;
+            }
         }
 
         return result;
