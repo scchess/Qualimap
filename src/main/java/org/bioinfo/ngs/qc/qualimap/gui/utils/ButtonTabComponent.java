@@ -47,13 +47,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 /**
@@ -113,6 +107,11 @@ public class ButtonTabComponent extends JPanel {
         }
 
         public void actionPerformed(ActionEvent e) {
+            int res = JOptionPane.showConfirmDialog(pane,
+                    "Close the report window?", "QualiMap", JOptionPane.OK_CANCEL_OPTION);
+            if (res != 0) {
+                return;
+            }
             int i = pane.indexOfTabComponent(ButtonTabComponent.this);
             if (i != -1) {
                 pane.remove(i);

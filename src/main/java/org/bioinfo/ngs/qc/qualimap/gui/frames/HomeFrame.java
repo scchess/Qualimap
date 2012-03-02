@@ -458,8 +458,15 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     }
 	
 	public void myexit() {
-		int n = JOptionPane.showConfirmDialog(this, "Close QualiMap?", "Close QualiMap?", JOptionPane.OK_CANCEL_OPTION);
-		if (n == 0) {
+
+        int n = 0;
+
+        if (tabsPropertiesMap.size() > 0) {
+            n = JOptionPane.showConfirmDialog(this,
+                    "There are open reports. Close QualiMap?", "QualiMap", JOptionPane.OK_CANCEL_OPTION);
+        }
+
+        if (n == 0) {
 			deleteOutputFolders();
 			System.exit(0);
 		}
@@ -700,7 +707,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	@Override
     public void mouseClicked(MouseEvent event) {
 		// Events to change the tab name and close the selected tab
-		if (event.getButton() == MouseEvent.BUTTON3 && event.getClickCount() == 1) {
+		if (event.getButton() == MouseEvent.BUTTON3 && event.getClickCount() == 1 && tabsPropertiesMap.size() > 0) {
 			JPopupMenu popupMenu = new JPopupMenu();
 			JMenuItem renameBtn = new JMenuItem("Rename Tab");
 			renameBtn.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve_edit.png")));
