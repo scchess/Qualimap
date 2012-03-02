@@ -117,6 +117,8 @@ public class BamStatsAnalysis {
 	private boolean isPairedData;
     List<Future<ProcessBunchOfReadsTask.Result>> results;
     long timeToCalcOverlappers;
+    private String pgProgram, pgCommandString;
+
 
     private static Map<String,String> genomeGcContentMap;
 
@@ -144,6 +146,8 @@ public class BamStatsAnalysis {
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.outdir = ".";
+        pgProgram = "";
+        pgCommandString = "";
 		logger = new Logger();
         chromosomeWindowIndexes = new ArrayList<Integer>();
         readStartsHistogram = new ReadStartsHistogram();
@@ -168,6 +172,7 @@ public class BamStatsAnalysis {
         lastActionDone = "loading locator";
         logger.println(lastActionDone);
         loadLocator(header);
+        loadProgramRecords(header.getProgramRecords());
 
         // load reference
         lastActionDone = "loading reference";
@@ -442,6 +447,21 @@ public class BamStatsAnalysis {
 
     }
 
+    private void loadProgramRecords(List<SAMProgramRecord> programRecords) {
+        if (!programRecords.isEmpty()) {
+            SAMProgramRecord rec = programRecords.get(0);
+            pgProgram = rec.getProgramGroupId();
+            String ver = rec.getProgramVersion();
+            if (ver != null ) {
+                pgProgram += " (" + ver + ")";
+            }
+            String cmd = rec.getCommandLine();
+            if (cmd != null ) {
+                pgCommandString = cmd;
+            }
+        }
+    }
+
     private static List<SAMRecord> getShallowCopy(List<SAMRecord> list) {
         ArrayList<SAMRecord> result = new ArrayList<SAMRecord>(list.size());
 
@@ -659,14 +679,14 @@ public class BamStatsAnalysis {
     }
 
 
-    private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
+    /*private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
                                                Map<Long,BamGenomeWindow> openWindows) {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
         FinalizeWindowTask task = new FinalizeWindowTask(bamStats,window);
         return task.call();
-    }
+    }*/
 
 
     private void loadLocator(SAMFileHeader header){
@@ -880,6 +900,14 @@ public class BamStatsAnalysis {
 
     public int getProgress() {
         return progress;
+    }
+
+    public String getPgProgram() {
+        return pgProgram;
+    }
+
+    public String getPgCommandString() {
+        return pgCommandString;
     }
 
     public void setNumberOfReadsInBunch(int bunchSize) {

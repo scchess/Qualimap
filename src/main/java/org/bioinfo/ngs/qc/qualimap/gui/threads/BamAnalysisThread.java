@@ -7,6 +7,7 @@ import java.util.Timer;
 
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.data.bamqc.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -80,7 +81,6 @@ public class BamAnalysisThread extends Thread {
 		tabProperties.setGffSelected(bamDialog.getRegionFile() != null);
         tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
-
 		bamQC.setComputeChromosomeStats(true);
 
 		// reporting
@@ -107,7 +107,7 @@ public class BamAnalysisThread extends Thread {
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
-            prepareInputDescription(reporter);
+            prepareInputDescription(reporter,bamQC);
             if (bamDialog.getRegionFile() != null) {
                 reporter.setNamePostfix(" (inside of regions)");
             }
@@ -137,7 +137,7 @@ public class BamAnalysisThread extends Thread {
 
                 BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 
-                prepareInputDescription(outsideReporter);
+                prepareInputDescription(outsideReporter, bamQC);
 	            outsideReporter.setNamePostfix(" (outside of regions)");
                 outsideReporter.setChromosomeFileName(Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
 				// Draw the Chromosome Limits or not
@@ -170,7 +170,7 @@ public class BamAnalysisThread extends Thread {
 
 		} catch( OutOfMemoryError e) {
             JOptionPane.showMessageDialog(bamDialog, "<html><body align=\"center\">Out of memory!" +
-                    "<br>Try increasing number of windows in Advanced Options" +
+                    "<br>Try decreasing the size of the bunch in the Advanced Options" +
                     "<br>or changing Java virtual machine settings.</body></html>",
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             bamDialog.setUiEnabled(true);
@@ -197,13 +197,17 @@ public class BamAnalysisThread extends Thread {
         return yes ? "yes\n" : "no\n";
     }
 
-    private void prepareInputDescription(BamQCRegionReporter reporter) {
+    private void prepareInputDescription(BamQCRegionReporter reporter, BamStatsAnalysis bamQC) {
 
         HashMap<String,String> alignParams = new HashMap<String, String>();
         alignParams.put("BAM file: ", bamDialog.getInputFile().toString());
         alignParams.put("Number of windows: ", Integer.toString(bamDialog.getNumberOfWindows()));
         Boolean.toString(true);
         alignParams.put("Draw chromosome limits: ", boolToStr(bamDialog.getDrawChromosomeLimits()));
+        if (!bamQC.getPgProgram().isEmpty()) {
+            alignParams.put("Program: ", bamQC.getPgProgram());
+            alignParams.put("Command line: ", bamQC.getPgCommandString() );
+        }
         reporter.addInputDataSection("Alignment", alignParams);
 
         if (bamDialog.getRegionFile() != null) {

@@ -68,8 +68,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	/** Dialog to show beside the window */
 	private JDialog popUpDialog;
 
-	static JFileChooser fileChooser = new JFileChooser();
-
 	public boolean isWebStart;
     private SplashWindow splashWindow;
     private boolean rIsAvailable;
@@ -300,10 +298,11 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         analysisMenu.setIcon(new ImageIcon(this.getClass().getResource(Constants.pathImages + "report.png")));
         fileMenu.add(analysisMenu);
 
-        openReportItem = addMenuItem("Open Report (.zip)", "openproject", "open_folder.png", "ctrl pressed O");
-        fileMenu.add(openReportItem);
-        saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
-        fileMenu.add(saveReportItem);
+        //TODO: improve the reports significantly
+        //openReportItem = addMenuItem("Open Report (.zip)", "openproject", "open_folder.png", "ctrl pressed O");
+        //fileMenu.add(openReportItem);
+        //saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
+        //fileMenu.add(saveReportItem);
         fileMenu.addSeparator();
         exportToHtmlItem = addMenuItem("Export as HTML", "exporthtml", "save_zip.png", "ctrl pressed H");
         fileMenu.add(exportToHtmlItem);
@@ -457,7 +456,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		this.setSize(dim);
     }
 	
-	public void myexit() {
+	public void closeHomeFrame() {
 
         int n = 0;
 
@@ -475,7 +474,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	public void windowActivated(final WindowEvent arg0) {}
 	public void windowClosed(final WindowEvent arg0) {}
 	public void windowClosing(final WindowEvent arg0) {
-		this.myexit();
+		this.closeHomeFrame();
 	}
 	public void windowDeactivated(final WindowEvent arg0) {}
 	public void windowDeiconified(final WindowEvent arg0) {}
@@ -486,7 +485,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public void actionPerformed(ActionEvent e) {
 	    splashWindow.setVisible(false);
         if(e.getActionCommand().equalsIgnoreCase("exit")){
-	    	this.myexit();
+	    	this.closeHomeFrame();
 	    }
 	    else if (e.getActionCommand().equalsIgnoreCase("about")){
 			AboutDialog about = new AboutDialog(HomeFrame.this);
@@ -504,9 +503,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    }
 	    else if(e.getActionCommand().equalsIgnoreCase("closealltabs")){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
-	    		aTabbedPane.removeAll();
-				aTabbedPane = new JTabbedPane();
-				this.validate();
+                int res = JOptionPane.showConfirmDialog(this,
+                                "Close all tabs?", "QualiMap", JOptionPane.OK_CANCEL_OPTION);
+                if (res == 0) {
+	    		    aTabbedPane.removeAll();
+				    aTabbedPane = new JTabbedPane();
+				    this.validate();
+                }
 			}
 	    }else if(e.getActionCommand().equalsIgnoreCase("exporthtml")){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
@@ -646,15 +649,12 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public void updateMenuBar() {
 
         boolean activeTabsAvailable = aTabbedPane != null && aTabbedPane.getTabCount() > 0;
-        boolean canSaveReportToZip = false;
         boolean canExportGeneList = false;
         if (activeTabsAvailable) {
             TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
             if (tabProperties != null ) {
 
                 int typeAnalysis = tabProperties.getTypeAnalysis();
-                canSaveReportToZip = typeAnalysis== Constants.TYPE_BAM_ANALYSIS_EXOME ||
-                        typeAnalysis == Constants.TYPE_BAM_ANALYSIS_DNA;
 
                 canExportGeneList = typeAnalysis == Constants.TYPE_BAM_ANALYSIS_EPI &&
                     !tabProperties.getLoadedGraphicName().isEmpty();
@@ -665,7 +665,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         exportToPdfItem.setEnabled(activeTabsAvailable);
         closeAllTabsItem.setEnabled(activeTabsAvailable);
         exportToHtmlItem.setEnabled(activeTabsAvailable);
-        saveReportItem.setEnabled(canSaveReportToZip);
         exportGeneListItem.setEnabled(canExportGeneList);
 
 
@@ -698,10 +697,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	public JDialog getPopUpDialog() {
 		return popUpDialog;
-	}
-
-	public void setPopUpDialog(JDialog popUpDialog) {
-		this.popUpDialog = popUpDialog;
 	}
 
 	@Override
@@ -740,9 +735,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private boolean createFile(final String resource, final File file ) {
 		BufferedWriter bw = null;
 		BufferedReader br = null;
-		FileWriter  fw = null;
-		InputStreamReader isr = null;
-		String temp = "";
+		FileWriter  fw;
+		InputStreamReader isr;
+		String temp;
 		try {
 			if (this.getClass().getResource(resource) != null){
 				/// write new propertyfile
@@ -764,7 +759,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			try {
 				if(bw!=null)bw.close();
 				if(br!=null)br.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 	}
 

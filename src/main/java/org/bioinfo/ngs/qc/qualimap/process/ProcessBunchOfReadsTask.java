@@ -1,7 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
-import net.sf.samtools.Cigar;
-import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFormatException;
 import net.sf.samtools.SAMRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
