@@ -21,7 +21,6 @@ public class BamQcTool extends NgsSmartTool{
 	private boolean paintChromosomeLimits;
 	private boolean computeChromosomeStats;
 	private boolean computeOutsideStats;
-	private boolean computeInsertSize;
 
     public BamQcTool(){
         super("genomic");
@@ -94,9 +93,9 @@ public class BamQcTool extends NgsSmartTool{
 		}
 
 		// insert size
-		if(commandLine.hasOption("isize")) {
-			computeInsertSize = true;					
-		}
+		//if(commandLine.hasOption("isize")) {
+	    //		computeInsertSize = true;
+		//}
 
         if (commandLine.hasOption("nt")) {
             numThreads = Integer.parseInt(commandLine.getOptionValue("nt"));
@@ -138,7 +137,7 @@ public class BamQcTool extends NgsSmartTool{
 		}
 
 		// insert size
-		bamQC.setComputeInsertSize(computeInsertSize);
+		//bamQC.setComputeInsertSize(computeInsertSize);
 		
 		// chromosome stats
 		bamQC.setComputeChromosomeStats(computeChromosomeStats);

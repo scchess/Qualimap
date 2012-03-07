@@ -102,9 +102,6 @@ public class BamStatsAnalysis {
     RegionLookupTable regionLookupTable;
     IntervalTree<Integer> regionsTree;
 
-	// insert size
-	private boolean computeInsertSize;
-
 	// chromosome
 	private boolean computeChromosomeStats;
 	private ArrayList<Integer> chromosomeWindowIndexes;
@@ -223,10 +220,7 @@ public class BamStatsAnalysis {
 
         currentWindow = nextWindow(bamStats, openWindows, reference, true);
 
-        // init working variables
-		isPairedData = true;
-
-		// run reads
+        // run reads
         SAMRecordIterator iter = reader.iterator();
 
         ArrayList<SAMRecord> readsBunch = new ArrayList<SAMRecord>();
@@ -395,6 +389,10 @@ public class BamStatsAnalysis {
         bamStats.setReadMaxSize(maxReadSize);
         bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
+
+        // init working variables
+        isPairedData = bamStats.getNumberOfPairedReads() > 0;
+
 
         // compute descriptors
         logger.println("Computing descriptors...");
@@ -862,10 +860,6 @@ public class BamStatsAnalysis {
 
     public void setNumberOfWindows(int windowsNum) {
         numberOfWindows = windowsNum;
-    }
-
-    public void setComputeInsertSize(boolean computeInsertSize) {
-        this.computeInsertSize = computeInsertSize;
     }
 
     public void setReferenceFile(String referenceFile) {

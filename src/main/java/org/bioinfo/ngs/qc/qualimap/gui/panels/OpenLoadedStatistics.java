@@ -234,13 +234,15 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         leftPanel.add(j1_2);
 
         JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
-        j1_3.setToolTipText("There is often big picks of coverageData across the reference "
-                + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
+        j1_3.setToolTipText("<html>There is often big picks of coverageData across the reference"
+                + "<br>and the scale of the Coverage Histogram graph scale may not be adequate." +
+                "<br>In order to solve this, in this graph genome locations with a coverageData greater "
+                + "<br>than 50X are grouped into the last bin</html>");
         leftPanel.add(j1_3);
 
         JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
-        j1_4.setToolTipText("Provides an easy way of viewing how much reference has been "
-                + "sequenced with a coverageData higher than a selected level");
+        j1_4.setToolTipText("<html>Provides an easy way of viewing how much reference has been "
+                + "sequenced<br>with a coverageData higher than a selected level</html>");
         leftPanel.add(j1_4);
 
         JLabel readsContent = createImageLinkLabel("Reads content per position", Constants.GRAPHIC_NAME_GENOME_READS_CONTENT);
@@ -263,18 +265,15 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         j1_6.setToolTipText("Frequency histogram of the mapping quality");
         leftPanel.add(j1_6);
 
-        //TODO: bug-201
-        /*if(tabProperties.isPairedData()){
+        if(tabProperties.isPairedData()){
             JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
-            j1_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-            j1_8.setToolTipText("Frequency histogram of the insert size");
+            j1_8.setToolTipText("Insert size across the reference");
             leftPanel.add(j1_8);
 
             JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
-            j1_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
             j1_7.setToolTipText("Frequency histogram of the insert size");
             leftPanel.add(j1_7);
-        }*/
+        }
 
         if (showOutsideStats) {
 
@@ -326,19 +325,16 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			j3_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j3_6);
 
-            //TODO: bug-201
-            /*if(tabProperties.isPairedData()){
+            if(tabProperties.isPairedData()){
                 JLabel j3_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
-                j3_8.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-                j3_8.setToolTipText("Frequency histogram of the insert size");
+                j3_8.setToolTipText("Insert size across the reference");
                 leftPanel.add(j3_8);
 
 
                 JLabel j3_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
-                j3_7.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
                 j3_7.setToolTipText("Frequency histogram of the insert size");
                 leftPanel.add(j3_7);
-            }*/
+            }
         }
 
 	}

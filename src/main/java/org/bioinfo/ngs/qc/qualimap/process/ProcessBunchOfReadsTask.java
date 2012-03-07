@@ -21,7 +21,6 @@ public class ProcessBunchOfReadsTask implements Callable {
     BamStatsAnalysis ctx;
     BamGenomeWindow currentWindow;
     boolean computeInsertSize;
-    long insertSize;
     boolean isPairedData;
     boolean analyzeRegions, computeOutsideStats;
     private static int INITIAL_SIZE = 64;
@@ -232,8 +231,8 @@ public class ProcessBunchOfReadsTask implements Callable {
         this.reads = reads;
         this.ctx = ctx;
         this.analyzeRegions = ctx.selectedRegionsAvailable();
+        computeInsertSize = true;
         isPairedData = true;
-        insertSize = -1;
         currentWindow = window;
         analysisResults = new HashMap<Long, SingleReadData>();
         computeOutsideStats = ctx.getComputeOutsideStats();
@@ -290,12 +289,12 @@ public class ProcessBunchOfReadsTask implements Callable {
             //System.out.println("From ProcessReadTask: computed alignment for read" + read.getHeader().toString());
 
             // insert size
+            long insertSize = -1;
             try {
                 if(computeInsertSize && read.getProperPairFlag()){
                     insertSize = read.getInferredInsertSize();
                 }
             } catch(IllegalStateException ise){
-                insertSize = -1;
                 isPairedData = false;
             }
 
@@ -322,7 +321,7 @@ public class ProcessBunchOfReadsTask implements Callable {
             if(outOfBounds) {
                 //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
                 propagateRead(alignment, position, readEnd, read.getMappingQuality(),
-                        insertSize, true);
+                        insertSize);
             }
 
         }
@@ -593,7 +592,7 @@ public class ProcessBunchOfReadsTask implements Callable {
     }
 
     private void propagateRead(char[] alignment,long readStart, long readEnd,
-                               int mappingQuality,long insertSize,boolean detailed ){
+                               int mappingQuality,long insertSize ){
         // init covering stat
         BamStats bamStats = ctx.getBamStats();
 		int index = bamStats.getNumberOfProcessedWindows()+1;

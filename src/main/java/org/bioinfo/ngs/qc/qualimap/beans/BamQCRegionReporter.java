@@ -553,8 +553,7 @@ public class BamQCRegionReporter implements Serializable {
 				bamStats.getName() + "_mapping_quality_histogram.png",
 				mappingQualityHistogram.getChart());
 
-        //TODO:bug-206
-		/*if(isPairedData){
+		if(isPairedData){
 			// insert size across reference
 			BamQCChart insertSize = new BamQCChart("Insert size across reference",
                     subTitle, "absolute position (bp)", "insert size (bp)");
@@ -573,7 +572,7 @@ public class BamQCRegionReporter implements Serializable {
 			insertSizeHistogram.setNumberOfBins(50);		
 			insertSizeHistogram.render();
 			mapCharts.put(bamStats.getName() + "_insert_size_histogram.png", insertSizeHistogram.getChart());
-		}*/
+		}
 	}
 
 
@@ -822,10 +821,6 @@ public class BamQCRegionReporter implements Serializable {
 		this.gcPercent = gcPercent;
 	}
 
-	public Double getAtPercent() {
-		return atPercent;
-	}
-
 	public void setAtPercent(Double atPercent) {
 		this.atPercent = atPercent;
 	}
@@ -1056,10 +1051,6 @@ public class BamQCRegionReporter implements Serializable {
         }
 
         return res;
-    }
-
-    public String getGenomeGcContentHistogramName() {
-       return genomeGCContentName;
     }
 
     public String getChromosomeFileName() {

@@ -207,10 +207,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             }
 
             if (missingPackages.length() > 0) {
-                return "The following R packages are missing:\n" + missingPackages.toString() +
-                       "Some features are dependent on these packages.\n" +
-                       "To enable them please install the missing packages.\n";
-            }
+                return  "The following R packages are missing:\n" + missingPackages.toString() +
+                       "\nSome features dependent on these packages are disabled.\n" +
+                        "See README file for details.\n";
+                }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,7 +221,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     }
 
-	private static boolean isRunningJavaWebStart() {
+    private static boolean isRunningJavaWebStart() {
     	String jwsVersion = System.getProperty("javawebstart.version", null);
     	if(jwsVersion!=null) System.out.println("Java Web Start Version: "+ jwsVersion);
 	    return  jwsVersion != null;
