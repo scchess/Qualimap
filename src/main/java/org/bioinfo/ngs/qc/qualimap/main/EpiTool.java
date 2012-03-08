@@ -34,8 +34,8 @@ public class EpiTool extends NgsSmartTool {
     @Override
     protected void initOptions() {
 
-        options.addOption(OptionFactory.createOption("cfg", "Configuration file", true, true) );
-		options.addOption(OptionFactory.createOption("viz","Visualization type: " + getVizTypes(),false, true));
+        options.addOption("cfg", true, "configuration file" );
+		options.addOption("viz", true, "visualization type: " + getVizTypes());
 
     }
 

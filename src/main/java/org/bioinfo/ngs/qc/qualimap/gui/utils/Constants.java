@@ -6,7 +6,6 @@ import java.util.Map;
 public final class Constants {
 	public static final int DEFAULT_NUMBER_OF_WINDOWS = 400;
 	public static final int REPORT_INPUT_BAM_FILE = 0;
-	public static final int REPORT_INSIDE_BAM_FILE = 1;
 	public static final int REPORT_OUTSIDE_BAM_FILE = 2;
 	
 	public static final int GRAPHIC_TO_SAVE_WIDTH = 1024;
@@ -258,5 +257,9 @@ public final class Constants {
     public static final String VIZ_TYPE_HEATMAP = "heatmap";
     public static final String VIZ_TYPE_LINE = "line";
 
+    // This is a SAM record custom field, has to be 2 characters
     public static final String READ_IN_REGION = "XX";
+
+    public static final String REPORT_TYPE_HTML = "HTML";
+    public static final String REPORT_TYPE_PDF = "PDF";
 }

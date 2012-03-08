@@ -11,12 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
-import javax.swing.text.html.parser.ParserDelegator;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
@@ -61,6 +58,9 @@ public class SavePdfThread extends Thread{
 	/** Variables that contains the tab properties loaded in the thread*/
 	TabPropertiesVO tabProperties;
 
+    /** Variable that controls weather the GUI should be update during export */
+    boolean guiAvailable;
+
 	
 	public SavePdfThread(String str, Component component, TabPropertiesVO tabProperties, String path) {
         super(str);
@@ -69,8 +69,46 @@ public class SavePdfThread extends Thread{
         }
         this.tabProperties = tabProperties;
         this.path = path;
+        this.guiAvailable = true;
     }
-	
+
+    public SavePdfThread(TabPropertiesVO tabProperties, String path) {
+        this.tabProperties = tabProperties;
+        this.path = path;
+        this.guiAvailable = false;
+    }
+
+	 void setGuiVisible(boolean enable) {
+        if (guiAvailable) {
+             savePanel.getProgressStream().setVisible(enable);
+             savePanel.getProgressBar().setVisible(enable);
+        }
+    }
+
+    void reportFailure(String msg) {
+        if (guiAvailable) {
+            setGuiVisible(false);
+            JOptionPane.showMessageDialog(null,
+                    msg, "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            System.err.println(msg);
+        }
+    }
+
+
+    void reportSuccess(String msg) {
+        if (guiAvailable) {
+        // Close the window and show an info message
+				savePanel.getHomeFrame().getPopUpDialog().setVisible(false);
+				savePanel.getHomeFrame().remove(savePanel.getHomeFrame().getPopUpDialog());
+				JOptionPane.showMessageDialog(null,
+						msg, "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            System.out.println(msg);
+        }
+    }
+
+
 	/**
 	 * Public method to run this thread. Its executed when an user call to method start
 	 * over this thread. */
@@ -83,10 +121,8 @@ public class SavePdfThread extends Thread{
 			
 			boolean loadOutsideReporter = false;
 			
-			 // Show the ProgressBar and the Text Description
-	    	savePanel.getProgressStream().setVisible(true);
-	    	savePanel.getProgressBar().setVisible(true);
-			
+			setGuiVisible(true);
+
 			// Set the number of files saved to initial value
 	    	numSavedFiles = 0;
 	    	
@@ -127,28 +163,20 @@ public class SavePdfThread extends Thread{
  
             document.close();
             file.close();
-            
+
             if(success){
-				// Close the window and show an info message
-				savePanel.getHomeFrame().getPopUpDialog().setVisible(false);
-				savePanel.getHomeFrame().remove(savePanel.getHomeFrame().getPopUpDialog());
-				JOptionPane.showMessageDialog(null,
-						"Pdf File Created Successfully \n", "Success", JOptionPane.INFORMATION_MESSAGE);
+				reportSuccess("Pdf File Created Successfully \n");
 			} else {
 				// If the file could not generate correctly
 				File f = new File(path);
 				f.delete();
-				savePanel.getProgressBar().setVisible(false);
-				savePanel.getProgressStream().setVisible(false);
-				JOptionPane.showMessageDialog(null,
-						"Unable to create the pdf file \n", "Error", JOptionPane.ERROR_MESSAGE);
+                reportFailure("Unable to create the pdf file \n");
 			}
 		} catch (Exception e) {
-			savePanel.getProgressBar().setVisible(false);
+            savePanel.getProgressBar().setVisible(false);
 			savePanel.getProgressStream().setVisible(false);
             e.printStackTrace();
-			JOptionPane.showMessageDialog(null,
-					"Unable to create the pdf file \n", "Error", JOptionPane.ERROR_MESSAGE);
+            reportFailure("Unable to create the pdf file \n" + e.getMessage());
 		}
     }
     
@@ -430,8 +458,7 @@ public class SavePdfThread extends Thread{
         chromoStats.addCell("Mapped bases");
         chromoStats.addCell("Mean coverage");
 
-        String pathToChromosomeStats = HomeFrame.outputpath + tabProperties.getOutputFolder()
-                + Constants.NAME_OF_FILE_CHROMOSOMES;
+        String pathToChromosomeStats = reporter.getChromosomeFilePath();
 
         try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(pathToChromosomeStats)));
@@ -502,7 +529,9 @@ public class SavePdfThread extends Thread{
      * @param numElem number of the element computed
      */
     private void increaseProgressBar(double numElem, String fileName){
-    	increaseProgressBar(numElem, fileName, 2);
+    	if (guiAvailable) {
+            increaseProgressBar(numElem, fileName, 2);
+        }
     }
     
     /**
@@ -511,7 +540,12 @@ public class SavePdfThread extends Thread{
      * @param numElem number of the element computed
      */
     private void increaseProgressBar(double numElem, String fileName, int type){
-    	int result = 0;
+
+        if (!guiAvailable) {
+            return;
+        }
+
+        int result = 0;
     	
     	// Increase the number of files loaded
     	numSavedFiles++;

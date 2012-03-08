@@ -65,6 +65,9 @@ public class BamStatsAnalysis {
 	// working variables
 	private BamGenomeWindow currentWindow;
 	private ConcurrentMap<Long,BamGenomeWindow> openWindows;
+    private int threadNumber;
+    private int numReadsInBunch;
+    private int progress;
 
 	// nucleotide reporting
 	private String outdir;
@@ -76,8 +79,6 @@ public class BamStatsAnalysis {
 
 	// inside
 	private long insideReferenceSize;
-    private int threadNumber;
-    private int numReadsInBunch;
 
 	// outside
 	private boolean computeOutsideStats;
@@ -85,7 +86,6 @@ public class BamStatsAnalysis {
 	private HashMap<Long,BamGenomeWindow> openOutsideWindows;
     private BamStats outsideBamStats;
 	private int numberOfOutsideMappedReads;
-    private int progress;
 
     // counting unique reads
     private ReadStartsHistogram readStartsHistogram;
@@ -862,10 +862,6 @@ public class BamStatsAnalysis {
         numberOfWindows = windowsNum;
     }
 
-    public void setReferenceFile(String referenceFile) {
-        this.referenceFile = referenceFile;
-    }
-
     public void activeReporting(String outdir){
 		this.outdir = outdir;
 		this.activeReporting = true;
@@ -907,4 +903,19 @@ public class BamStatsAnalysis {
     public void setNumberOfReadsInBunch(int bunchSize) {
         numReadsInBunch = bunchSize;
     }
+
+
+    public String getBamFile() {
+        return bamFile;
+    }
+
+    public int getNumberOfWindows() {
+        return numberOfWindows;
+    }
+
+    public String getGffFile() {
+        return gffFile;
+    }
+
+
 }

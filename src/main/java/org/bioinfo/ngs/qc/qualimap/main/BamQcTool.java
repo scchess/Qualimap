@@ -1,108 +1,93 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import java.io.File;
 
-
 public class BamQcTool extends NgsSmartTool{
-	private String bamFile;
+
+    private String bamFile;
 	private String gffFile;
-	private String referenceFile;
-    private boolean referenceAvailable;
 	private boolean selectedRegionsAvailable;
 	private int numberOfWindows;
 	private int numThreads;
-    private boolean saveCoverage;
-	private boolean paintChromosomeLimits;
-	private boolean computeChromosomeStats;
+    private int bunchSize;
+    private boolean paintChromosomeLimits;
 	private boolean computeOutsideStats;
+
+    static String OPTION_NAME_BAM_FILE = "bam";
+    static String OPTION_NAME_GFF_FILE = "gff";
+
 
     public BamQcTool(){
         super("genomic");
         numThreads = Runtime.getRuntime().availableProcessors();
+        paintChromosomeLimits = true;
     }
 
 	@Override
 	protected void initOptions() {
-		
-		options.addOption("i", true, "mapping file (bam format)");
-		options.addOption("gff", true, "region file (gff format)");
-//		options.addOption("reference", true, "reference genome file (fasta format)");
-		
-		options.addOption("nw", true, "number of windows (advanced)");
-        options.addOption("nt", true, "number of threads (advanced)");
 
-		
-		options.addOption("paint_chromosome_limits", false, "paint chromosome limits inside charts");
-		options.addOption("outside_stats", false, "compute region outside stats (with -gff option)");
-		options.addOption("chr_stats", false, "compute chromosome stats");
-		options.addOption("isize", false, "compute insert size chart (only for pair-end seq)");
-		
-		options.addOption("sc", false, "save coverageData per nucleotide");
+        Option opt = new Option(OPTION_NAME_BAM_FILE, true, "input mapping file");
+        opt.setRequired(true);
+        options.addOption( opt );
+
+        options.addOption( OPTION_NAME_GFF_FILE,  true, "region file (gff format)");
+        options.addOption("nw", true, "number of windows (advanced)");
+        options.addOption("nt", true, "number of threads (advanced)");
+        options.addOption("nr", true, "number of reads in the bunch (advanced)");
+
+		options.addOption("c", "paint-chromosome-limits", false, "paint chromosome limits inside charts");
+		options.addOption("o", "outside-stats", false, "compute region outside stats (only with -gff option)");
+
 	}
 
 	@Override
 	protected void checkOptions() throws ParseException {
 		
 		// input
-		if(!commandLine.hasOption("i")) throw new ParseException("input mapping file required");
-		bamFile = commandLine.getOptionValue("i");
+
+        bamFile = commandLine.getOptionValue(OPTION_NAME_BAM_FILE);
 		if(!exists(bamFile)) throw new ParseException("input mapping file not found");
 
 		// gff
-		if(commandLine.hasOption("gff")) {
-			gffFile = commandLine.getOptionValue("gff");
-			if(!exists(gffFile)) throw new ParseException("input region gff file not found");
+		if(commandLine.hasOption(OPTION_NAME_GFF_FILE)) {
+			gffFile = commandLine.getOptionValue(OPTION_NAME_GFF_FILE);
+			if(!exists(gffFile)) {
+                throw new ParseException("input region gff file not found");
+            }
 			selectedRegionsAvailable = true;
 			if(commandLine.hasOption("outside-stats")) {
 				computeOutsideStats = true;					
 			}
 		}
 
-		// reference
-		if(commandLine.hasOption("reference")) {
-			referenceFile = commandLine.getOptionValue("reference");
-			if(!exists(referenceFile)) throw new ParseException("reference file not found");
-			referenceAvailable = true;
-		}
 
-		// number of windows
-		numberOfWindows = Constants.DEFAULT_NUMBER_OF_WINDOWS;
-		if(commandLine.hasOption("nw")) {
-			numberOfWindows = Integer.parseInt(commandLine.getOptionValue("nw"));
-		}
+		numberOfWindows =  commandLine.hasOption("nw") ?
+			Integer.parseInt(commandLine.getOptionValue("nw")) : Constants.DEFAULT_NUMBER_OF_WINDOWS;
 
-		// reporting
-		if(commandLine.hasOption("sc")) {
-			saveCoverage = true;
-		}
+        numThreads = commandLine.hasOption("nt") ?
+                Integer.parseInt(commandLine.getOptionValue("nt")) : Runtime.getRuntime().availableProcessors();
+
+        bunchSize = commandLine.hasOption("bs") ?
+                Integer.parseInt(commandLine.getOptionValue("bs")) : 1000;
+
 
 		// reporting
 		if(commandLine.hasOption("paint_chromosome_limits")) {
 			paintChromosomeLimits = true;
 		}
 
-		// chromosome stats
-		if(commandLine.hasOption("chr_stats")) {
-			computeChromosomeStats = true;					
-		}
-
-		// insert size
-		//if(commandLine.hasOption("isize")) {
-	    //		computeInsertSize = true;
-		//}
-
-        if (commandLine.hasOption("nt")) {
-            numThreads = Integer.parseInt(commandLine.getOptionValue("nt"));
-        }
-
 	}
-
 
     @Override
     protected void initOutputDir() {
@@ -126,21 +111,13 @@ public class BamQcTool extends NgsSmartTool{
 		// init bamqc
 		BamStatsAnalysis bamQC = new BamStatsAnalysis(bamFile);
 
-		if (referenceAvailable) {
-            bamQC.setReferenceFile(referenceFile);
-        }
-
-
         if(selectedRegionsAvailable){
 			bamQC.setSelectedRegions(gffFile);
 			bamQC.setComputeOutsideStats(computeOutsideStats);
 		}
 
-		// insert size
-		//bamQC.setComputeInsertSize(computeInsertSize);
-		
 		// chromosome stats
-		bamQC.setComputeChromosomeStats(computeChromosomeStats);
+		bamQC.setComputeChromosomeStats(true);
 
 		// reporting
 		bamQC.activeReporting(outdir);
@@ -150,6 +127,8 @@ public class BamQcTool extends NgsSmartTool{
 
 		// number of windows
 		bamQC.setNumberOfWindows(numberOfWindows);
+        bamQC.setNumberOfThreads(numThreads);
+        bamQC.setNumberOfReadsInBunch(bunchSize);
 
 		// run evaluation
 		bamQC.run();
@@ -157,41 +136,54 @@ public class BamQcTool extends NgsSmartTool{
 		logger.println("end of bam qc");
 
 		logger.println("Computing report...");
-		// report
+
 		BamQCRegionReporter reporter = new BamQCRegionReporter();
-		// paints
 		reporter.setPaintChromosomeLimits(paintChromosomeLimits);
+        reporter.setChromosomeFilePath(outdir + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES);
+        BamAnalysisThread.prepareInputDescription(reporter, bamQC, paintChromosomeLimits);
+
 		// save stats
-		logger.print("   text report...");
-		reporter.writeReport(bamQC.getBamStats(),outdir);
-		logger.println("OK");		
-		// save charts
-		logger.print("   charts...");
-		reporter.saveCharts(bamQC.getBamStats(), outdir, bamQC.getLocator(), bamQC.isPairedData());
-		logger.println("OK");
 
-		if(selectedRegionsAvailable){
-			// save stats
-			logger.print("   inside text report...");
-			reporter.writeReport(bamQC.getBamStats(),outdir);
-			logger.println("OK");		
-			// save charts
-			logger.print("   inside charts...");
-			reporter.saveCharts(bamQC.getBamStats(), outdir, null, bamQC.isPairedData());
-			logger.println("OK");
+        reporter.writeReport(bamQC.getBamStats(),outdir);
 
-			// save stats
-			if(computeOutsideStats){
-				logger.print("   outside text report...");
-				reporter.writeReport(bamQC.getOutsideBamStats(),outdir);
-				logger.println("OK");		
-				// save charts
-				logger.print("   outside charts...");
-				reporter.saveCharts(bamQC.getOutsideBamStats(), outdir, null, bamQC.isPairedData());
-				logger.println("OK");
-			}
+        TabPropertiesVO tabProperties = new TabPropertiesVO();
+        tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_DNA);
+        tabProperties.setBamStats(bamQC.getBamStats());
+        tabProperties.setPairedData(bamQC.isPairedData());
+        tabProperties.setBamStats(bamQC.getBamStats());
+        tabProperties.setGenomeLocator(bamQC.getLocator());
 
-		}
+        reporter.loadReportData(bamQC.getBamStats());
+        reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
+        tabProperties.setReporter(reporter);
+
+
+        if(selectedRegionsAvailable && computeOutsideStats){
+
+            BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
+            outsideReporter.setNamePostfix(" (outside of regions)");
+            outsideReporter.setChromosomeFilePath(outdir  + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
+            outsideReporter.setPaintChromosomeLimits(paintChromosomeLimits);
+            BamAnalysisThread.prepareInputDescription(outsideReporter, bamQC, paintChromosomeLimits);
+
+
+            outsideReporter.writeReport(bamQC.getOutsideBamStats(),outdir);
+
+            outsideReporter.loadReportData(bamQC.getOutsideBamStats());
+            reporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());
+
+            tabProperties.setOutsideReporter(outsideReporter);
+            tabProperties.setOutsideStatsAvailable(true);
+        }
+
+
+        Thread exportReportThread = new SavePdfThread(tabProperties, outdir + File.separator + "report.pdf");//new ExportHtmlThread(tabProperties, outdir);
+
+        exportReportThread.start();
+        exportReportThread.join();
+
+
+        logger.println("Finished");
 
 	}
 }

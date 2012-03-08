@@ -722,7 +722,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			summaryHtml.append(HtmlJPanel.BR);
 			summaryHtml.append("<b>Per chromosome statistics " +  postfix + ":</b>" + HtmlJPanel.BR);
 			summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-            String pathToChromosomeStats =HomeFrame.outputpath + tabProperties.getOutputFolder() + reporter.getChromosomeFileName();
+            String pathToChromosomeStats = reporter.getChromosomeFilePath();
 			summaryHtml.append(fillHtmlTableFromFile(pathToChromosomeStats));
 			summaryHtml.append(HtmlJPanel.getTableFooter());
 		}

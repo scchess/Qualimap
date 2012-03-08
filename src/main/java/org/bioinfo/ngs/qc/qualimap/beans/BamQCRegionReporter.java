@@ -113,14 +113,14 @@ public class BamQCRegionReporter implements Serializable {
     String namePostfix;
     String pathToGenomeGCContent;
     String genomeGCContentName;
-    String chromosomeFileName;
+    String chromosomeFilePath;
     int numSelectedRegions;
 
     public BamQCRegionReporter() {
         namePostfix = "";
         inputDataSections = new ArrayList<InputDataSection>();
         pathToGenomeGCContent = "";
-        chromosomeFileName = Constants.NAME_OF_FILE_CHROMOSOMES;
+        chromosomeFilePath = "";
     }
 
 
@@ -1053,12 +1053,12 @@ public class BamQCRegionReporter implements Serializable {
         return res;
     }
 
-    public String getChromosomeFileName() {
-        return chromosomeFileName;
+    public String getChromosomeFilePath() {
+        return chromosomeFilePath;
     }
 
-    public void setChromosomeFileName(String chromosomeFileName) {
-        this.chromosomeFileName = chromosomeFileName;
+    public void setChromosomeFilePath(String chromosomeFilePath) {
+        this.chromosomeFilePath = chromosomeFilePath;
     }
 
 

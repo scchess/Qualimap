@@ -7,8 +7,8 @@ import java.util.Timer;
 
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.ngs.data.bamqc.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -107,7 +107,9 @@ public class BamAnalysisThread extends Thread {
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
-            prepareInputDescription(reporter,bamQC);
+            prepareInputDescription(reporter,bamQC,bamDialog.getDrawChromosomeLimits());
+            reporter.setChromosomeFilePath(HomeFrame.outputpath + outputDirPath  + Constants.NAME_OF_FILE_CHROMOSOMES);
+
             if (bamDialog.getRegionFile() != null) {
                 reporter.setNamePostfix(" (inside of regions)");
             }
@@ -124,12 +126,12 @@ public class BamAnalysisThread extends Thread {
 			bamDialog.getProgressStream().setText("   text report...");
 			reporter.loadReportData(bamQC.getBamStats());
 			bamDialog.getProgressStream().setText("OK");
-			tabProperties.setReporter(reporter);
 
 			bamDialog.getProgressStream().setText("   charts...");
 			reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
-			bamDialog.getProgressStream().setText("OK");
-	
+		    bamDialog.getProgressStream().setText("OK");
+
+
 			// Set the reporter into the created tab
 			tabProperties.setReporter(reporter);
 
@@ -137,9 +139,10 @@ public class BamAnalysisThread extends Thread {
 
                 BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
 
-                prepareInputDescription(outsideReporter, bamQC);
+                prepareInputDescription(outsideReporter, bamQC, bamDialog.getDrawChromosomeLimits());
 	            outsideReporter.setNamePostfix(" (outside of regions)");
-                outsideReporter.setChromosomeFileName(Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
+                outsideReporter.setChromosomeFilePath(HomeFrame.outputpath
+                        + outputDirPath  + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
 				// Draw the Chromosome Limits or not
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 
@@ -197,23 +200,24 @@ public class BamAnalysisThread extends Thread {
         return yes ? "yes\n" : "no\n";
     }
 
-    private void prepareInputDescription(BamQCRegionReporter reporter, BamStatsAnalysis bamQC) {
+    public static void prepareInputDescription(BamQCRegionReporter reporter, BamStatsAnalysis bamQC,
+                                         boolean drawChromosomeLimits) {
 
         HashMap<String,String> alignParams = new HashMap<String, String>();
-        alignParams.put("BAM file: ", bamDialog.getInputFile().toString());
-        alignParams.put("Number of windows: ", Integer.toString(bamDialog.getNumberOfWindows()));
+        alignParams.put("BAM file: ", bamQC.getBamFile());
+        alignParams.put("Number of windows: ", Integer.toString(bamQC.getNumberOfWindows()));
         Boolean.toString(true);
-        alignParams.put("Draw chromosome limits: ", boolToStr(bamDialog.getDrawChromosomeLimits()));
+        alignParams.put("Draw chromosome limits: ", boolToStr(drawChromosomeLimits));
         if (!bamQC.getPgProgram().isEmpty()) {
             alignParams.put("Program: ", bamQC.getPgProgram());
             alignParams.put("Command line: ", bamQC.getPgCommandString() );
         }
         reporter.addInputDataSection("Alignment", alignParams);
 
-        if (bamDialog.getRegionFile() != null) {
+        if ( bamQC.selectedRegionsAvailable() ) {
             HashMap<String,String> regionParams = new HashMap<String, String>();
-            regionParams.put("GFF file: ", bamDialog.getRegionFile().toString());
-            regionParams.put("Outside statistics: ", boolToStr(bamDialog.getComputeOutsideRegions()));
+            regionParams.put("GFF file: ", bamQC.getGffFile());
+            regionParams.put("Outside statistics: ", boolToStr(bamQC.getComputeOutsideStats()));
             reporter.addInputDataSection("GFF region", regionParams);
         }
 

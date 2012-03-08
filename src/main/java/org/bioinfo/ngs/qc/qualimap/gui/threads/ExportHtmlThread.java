@@ -9,7 +9,6 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +18,6 @@ import javax.swing.JOptionPane;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenLoadedStatistics;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -49,6 +46,8 @@ public class ExportHtmlThread extends Thread{
 
     static final int WIDTH = 700;
 
+    boolean guiAvailable;
+
 
 	public ExportHtmlThread(String str, Component component, TabPropertiesVO tabProperties, String dirPath) {
         super(str);
@@ -57,6 +56,43 @@ public class ExportHtmlThread extends Thread{
         }
         this.tabProperties = tabProperties;
         this.dirPath = dirPath;
+        this.guiAvailable = true;
+    }
+
+    public ExportHtmlThread(TabPropertiesVO tabProperties, String dirPath) {
+        this.tabProperties = tabProperties;
+        this.dirPath = dirPath;
+        this.guiAvailable = false;
+    }
+
+    void setGuiVisible(boolean enable) {
+        if (guiAvailable) {
+             savePanel.getProgressStream().setVisible(enable);
+             savePanel.getProgressBar().setVisible(enable);
+        }
+    }
+
+    void reportFailure(String msg) {
+        if (guiAvailable) {
+            setGuiVisible(false);
+            JOptionPane.showMessageDialog(null,
+                    msg, "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            System.err.println(msg);
+        }
+    }
+
+
+    void reportSuccess(String msg) {
+        if (guiAvailable) {
+        // Close the window and show an info message
+				savePanel.getHomeFrame().getPopUpDialog().setVisible(false);
+				savePanel.getHomeFrame().remove(savePanel.getHomeFrame().getPopUpDialog());
+				JOptionPane.showMessageDialog(null,
+						msg, "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            System.out.println(msg);
+        }
     }
 
 	/**
@@ -71,10 +107,7 @@ public class ExportHtmlThread extends Thread{
             if (!dir.exists())  {
                 boolean ok = (new File(dirPath)).mkdirs();
                 if (!ok) {
-                    savePanel.getProgressBar().setVisible(false);
-                    savePanel.getProgressStream().setVisible(false);
-                    JOptionPane.showMessageDialog(savePanel,
-                            "Unable to create the output directory for html report \n", "Error", JOptionPane.ERROR_MESSAGE);
+                    reportFailure("Unable to create the output directory for html report\n");
                     return;
                 }
             }
@@ -83,9 +116,8 @@ public class ExportHtmlThread extends Thread{
 
 			boolean loadOutsideReporter = false;
 
-			 // Show the ProgressBar and the Text Description
-	    	savePanel.getProgressStream().setVisible(true);
-	    	savePanel.getProgressBar().setVisible(true);
+			// Show the ProgressBar and the Text Description
+            setGuiVisible(true);
 
 			// Set the number of files saved to initial value
 	    	numSavedFiles = 0;
@@ -144,23 +176,13 @@ public class ExportHtmlThread extends Thread{
             outStream.close();
 
             if(success){
-				// Close the window and show an info message
-				savePanel.getHomeFrame().getPopUpDialog().setVisible(false);
-				savePanel.getHomeFrame().remove(savePanel.getHomeFrame().getPopUpDialog());
-				JOptionPane.showMessageDialog(null,
-						"Html Report Created Successfully \n", "Success", JOptionPane.INFORMATION_MESSAGE);
+				reportSuccess("Html report created successfully\n");
 			} else {
-				savePanel.getProgressBar().setVisible(false);
-				savePanel.getProgressStream().setVisible(false);
-				JOptionPane.showMessageDialog(null,
-						"Failed to create the htmlfile \n", "Error", JOptionPane.ERROR_MESSAGE);
+				reportFailure("Failed to create the HTML file\n");
 			}
 		} catch (Exception e) {
-			savePanel.getProgressBar().setVisible(false);
-			savePanel.getProgressStream().setVisible(false);
-            e.printStackTrace();
-			JOptionPane.showMessageDialog(null,
-					"Unable to create the html file \n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+            reportFailure("Unable to create the html file \n" + e.getMessage());
 		}
     }
 
@@ -271,6 +293,10 @@ public class ExportHtmlThread extends Thread{
 
 
     private void increaseProgressBar(String fileName){
+
+    	if (!guiAvailable) {
+            return;
+        }
 
     	// Increase the number of files loaded
     	numSavedFiles++;
