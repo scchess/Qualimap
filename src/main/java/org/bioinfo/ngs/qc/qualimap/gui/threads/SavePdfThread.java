@@ -169,7 +169,7 @@ public class SavePdfThread extends Thread{
 			} else {
 				// If the file could not generate correctly
 				File f = new File(path);
-				f.delete();
+			    f.delete();
                 reportFailure("Unable to create the pdf file \n");
 			}
 		} catch (Exception e) {
