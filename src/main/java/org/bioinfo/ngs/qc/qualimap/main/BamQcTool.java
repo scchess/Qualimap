@@ -177,13 +177,7 @@ public class BamQcTool extends NgsSmartTool{
         }
 
 
-        Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
-                new SavePdfThread(tabProperties, outdir + File.separator + "report.pdf") :
-                new ExportHtmlThread(tabProperties, outdir);
-
-        exportReportThread.start();
-        exportReportThread.join();
-
+        exportResult(tabProperties);
 
         logger.println("Finished");
 

@@ -108,7 +108,7 @@ public class BamAnalysisThread extends Thread {
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter();
             prepareInputDescription(reporter,bamQC,bamDialog.getDrawChromosomeLimits());
-            reporter.setChromosomeFilePath(HomeFrame.outputpath + outputDirPath  + Constants.NAME_OF_FILE_CHROMOSOMES);
+            reporter.setChromosomeFilePath(outputDirPath  + Constants.NAME_OF_FILE_CHROMOSOMES);
 
             if (bamDialog.getRegionFile() != null) {
                 reporter.setNamePostfix(" (inside of regions)");
@@ -141,8 +141,7 @@ public class BamAnalysisThread extends Thread {
 
                 prepareInputDescription(outsideReporter, bamQC, bamDialog.getDrawChromosomeLimits());
 	            outsideReporter.setNamePostfix(" (outside of regions)");
-                outsideReporter.setChromosomeFilePath(HomeFrame.outputpath
-                        + outputDirPath  + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
+                outsideReporter.setChromosomeFilePath( outputDirPath  + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
 				// Draw the Chromosome Limits or not
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 

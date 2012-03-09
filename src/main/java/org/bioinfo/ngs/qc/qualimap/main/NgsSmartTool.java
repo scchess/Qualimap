@@ -2,7 +2,6 @@ package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.File;
 
-import EDU.oswego.cs.dl.util.concurrent.FJTask;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -10,8 +9,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.tool.OptionFactory;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 public abstract class NgsSmartTool {
 	
@@ -33,7 +34,7 @@ public abstract class NgsSmartTool {
     protected boolean outDirIsRequired;
 
     static String OPTION_NAME_OUTDIR = "outdir";
-    static String OPTION_NAME_HOMDIR = "home";
+    static String OPTION_NAME_HOMEDIR = "home";
     static String OPTION_NAME_OUTPUT_TYPE = "outformat";
 
 	public NgsSmartTool(String toolName){
@@ -46,7 +47,7 @@ public abstract class NgsSmartTool {
 		// environment
 		homePath = System.getenv("QUALIMAP_HOME");
         if (homePath == null) {
-            homePath = "";
+            homePath = new File("").getAbsolutePath() + File.separator;
         }
 		if(homePath.endsWith(File.separator)){
 			homePath = homePath.substring(0,homePath.length()-1);
@@ -64,7 +65,7 @@ public abstract class NgsSmartTool {
 	}
 	
 	private void initCommonOptions(){
-		options.addOption(OPTION_NAME_HOMDIR, true, "home folder of Qualimap");
+		options.addOption(OPTION_NAME_HOMEDIR, true, "home folder of Qualimap");
 		if (outDirIsRequired) {
             options.addOption( OPTION_NAME_OUTDIR, true, "output folder" );
         }
@@ -83,7 +84,7 @@ public abstract class NgsSmartTool {
 
         // fill common options
 		if(commandLine.hasOption(OPTION_NAME_OUTDIR)){
-			outdir = commandLine.getOptionValue(OPTION_NAME_HOMDIR);
+			outdir = commandLine.getOptionValue(OPTION_NAME_OUTDIR);
 		}
 
 
@@ -138,5 +139,13 @@ public abstract class NgsSmartTool {
 	protected boolean exists(String fileName){
 		return new File(fileName).exists();
 	}
+
+    protected void exportResult(TabPropertiesVO tabProperties) {
+         Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
+                new SavePdfThread(tabProperties, outdir + File.separator + "report.pdf") :
+                new ExportHtmlThread(tabProperties, outdir);
+
+         exportReportThread.run();
+    }
 
 }

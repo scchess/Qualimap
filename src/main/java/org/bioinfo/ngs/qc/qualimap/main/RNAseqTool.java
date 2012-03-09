@@ -3,6 +3,9 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import java.io.File;
 
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.process.CountsAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.Rlauncher;
 import org.bioinfo.tool.OptionFactory;
 
@@ -14,8 +17,7 @@ public class RNAseqTool extends NgsSmartTool{
 	private String name2;
 	
 	private String infoFile;
-	private String groupsFile;
-	
+
 	private int k;
 	
 	private String cmd;
@@ -28,6 +30,7 @@ public class RNAseqTool extends NgsSmartTool{
 	public static String SCRIPT_R;
 	private static final String SPECIES_FOLDER = "species";
 	private static final String RFUNCTIONS_FOLDER = "scripts";
+    private boolean secondSampleIsProvided;
 	
 	public RNAseqTool(){
 		super("rna-seq");
@@ -36,27 +39,28 @@ public class RNAseqTool extends NgsSmartTool{
 		RNAseqTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.61.genes.biotypes.txt";
 		RNAseqTool.GROUPS_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.biotypes.groups.txt";
 		RNAseqTool.SCRIPT_R = homePath + File.separator + RFUNCTIONS_FOLDER + File.separator + "qualimapRscript.r";
-	}
+	    secondSampleIsProvided = false;
+        infoFile = "";
+    }
 	
 	@Override
 	protected void initOptions() {
-		//options.addOption("gui", false, "open gui");
-		options.addOption(OptionFactory.createOption("outdir", "o", "output folder", true, true));
 		options.addOption("d1", "data1", true, "First file with counts");
 		options.addOption("d2", "data2", true, "Second file with counts");
 		options.addOption("n1", "name1", true, "Name for the first sample");
 		options.addOption("n2", "name2", true, "Name for second sample");
 		options.addOption("i", "info", true, "Info file.");
 		options.addOption("s", "species", true, "Use default files for the given species [human | mouse]");
-		options.addOption("g", "groups", false, "If passed biotypes will be grouped accordingly to the groping file.");
-		options.addOption("k", "countsThreshold", true, "Threshold for the number of counts");
+		options.addOption("k", "threshold", true, "Threshold for the number of counts");
 	}
 	
 	@Override
 	protected void checkOptions() throws ParseException {
 		// check outdir
-		//if(!commandLine.hasOption("o")) throw new ParseException("output folder required");
-		
+		if(!commandLine.hasOption(OPTION_NAME_OUTDIR)){
+            throw new ParseException("output folder required");
+        }
+
 		// input
 		if(!commandLine.hasOption("data1")){
 			throw new ParseException("input counts file required");
@@ -77,7 +81,7 @@ public class RNAseqTool extends NgsSmartTool{
 		if(commandLine.hasOption("data2")) {
 			data2 = commandLine.getOptionValue("data2");
 			if(!exists(data2)) throw new ParseException("input counts file (--data2) " + data2 + " not found");
-			
+
 			name2 = "\"";
 			if (commandLine.hasOption("name2")){
 				name2 += commandLine.getOptionValue("name2");
@@ -85,35 +89,21 @@ public class RNAseqTool extends NgsSmartTool{
 				name2 += "Sample2";
 			}
 			name2 += "\"";
+            secondSampleIsProvided = true;
 		}
 				
 		// Info file
 		if(commandLine.hasOption("info")) {
 			infoFile = commandLine.getOptionValue("info");
 			if(!exists(infoFile)) throw new ParseException("file of information (--info) " + infoFile + " not found");
-		}
-		
-		// Groups file
-//		if(commandLine.hasOption("groups")) {
-//			groupsFile = commandLine.getOptionValue("groups");
-//			if(!exists(groupsFile)) throw new ParseException("file of groups (--groups) " + groupsFile + " not found");
-//			
-//		}
-		
-		if(commandLine.hasOption("species")) {
+		} else if(commandLine.hasOption("species")) {
 			String species =  commandLine.getOptionValue("species");
 			
 			if(species.equalsIgnoreCase("human")){
 				infoFile = INFO_FILE_HUMAN_60;
-				if(commandLine.hasOption("groups")){
-					groupsFile =  GROUPS_FILE_HUMAN_60;
-				}
 			}else{
 				if(species.equalsIgnoreCase("mouse")){
 					infoFile = INFO_FILE_MOUSE_60;
-					if(commandLine.hasOption("groups")){
-						groupsFile =  GROUPS_FILE_HUMAN_60;
-					}
 				}else{
 					throw new ParseException("species " + species + " not found. Please select [human | mouse]");
 				}
@@ -132,15 +122,41 @@ public class RNAseqTool extends NgsSmartTool{
 	protected void execute() throws Exception {
 		// init output dir
 		initOutputDir();
-		
-		// create command
-		composeCommand();
-		//System.out.println(this.cmd);
-		
-		System.out.println("Hola");
-		Rlauncher R = new Rlauncher(cmd, "Rscript");
-		System.out.println("Adios");
-		R.run();
+
+        TabPropertiesVO tabProperties = new TabPropertiesVO();
+        tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
+
+        CountsAnalysis countsAnalysis = new CountsAnalysis(tabProperties, homePath + File.separator);
+
+        countsAnalysis.setSample1Name( name1 );
+        countsAnalysis.setFirstSampleDataPath( data1 );
+
+        if (secondSampleIsProvided) {
+            countsAnalysis.setSecondSampleIsProvided(true);
+            countsAnalysis.setSample2Name( name2 );
+             countsAnalysis.setSecondSampleDataPath( data2 );
+        }
+
+        countsAnalysis.setThreshold( k );
+
+        if (!infoFile.isEmpty()) {
+
+            countsAnalysis.setInfoFilePath(infoFile);
+        }
+
+
+		try {
+            countsAnalysis.run();
+        } catch (Exception e) {
+            System.err.println("Failed to analyze counts");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+
+        exportResult(tabProperties);
+
+        logger.println("Finished");
 	}
 	
 
@@ -155,7 +171,6 @@ public class RNAseqTool extends NgsSmartTool{
 		if (commandLine.hasOption("data2")) addArgument("--data2", data2);
 		if (commandLine.hasOption("name2")) addArgument("--name2", name2);
 		if (commandLine.hasOption("info") || commandLine.hasOption("species")) addArgument("--info", infoFile);
-		if (commandLine.hasOption("groups")) addArgument("--groups", groupsFile);
 		if (commandLine.hasOption("k")) addArgument("-k", String.valueOf(k));
 		if (commandLine.hasOption("o")) addArgument("-o", outdir);
 		
