@@ -6,8 +6,6 @@ import org.apache.commons.cli.ParseException;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.CountsAnalysis;
-import org.bioinfo.ngs.qc.qualimap.utils.Rlauncher;
-import org.bioinfo.tool.OptionFactory;
 
 
 public class RNAseqTool extends NgsSmartTool{
@@ -20,8 +18,6 @@ public class RNAseqTool extends NgsSmartTool{
 
 	private int k;
 	
-	private String cmd;
-
 	public static String INFO_FILE_HUMAN_60;
 	public static String GROUPS_FILE_HUMAN_60;
 	public static String INFO_FILE_MOUSE_60;
@@ -158,27 +154,5 @@ public class RNAseqTool extends NgsSmartTool{
 
         logger.println("Finished");
 	}
-	
 
-	protected String composeCommand(){
-		this.cmd = SCRIPT_R;
-		addArgument("--data1", data1);
-		
-		// Add the path of the R script
-		addArgument("--homesrc", homePath + "/" + RFUNCTIONS_FOLDER);
-		
-		if (commandLine.hasOption("name1"))addArgument("--name1", name1);
-		if (commandLine.hasOption("data2")) addArgument("--data2", data2);
-		if (commandLine.hasOption("name2")) addArgument("--name2", name2);
-		if (commandLine.hasOption("info") || commandLine.hasOption("species")) addArgument("--info", infoFile);
-		if (commandLine.hasOption("k")) addArgument("-k", String.valueOf(k));
-		if (commandLine.hasOption("o")) addArgument("-o", outdir);
-		
-		return cmd;
-	}
-	
-	
-	protected void addArgument(String name, String value){
-		this.cmd = this.cmd + " " + name + " " + value;
-	}
 }

@@ -1,13 +1,9 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.File;
+import java.util.jar.Attributes;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.*;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
@@ -135,7 +131,13 @@ public abstract class NgsSmartTool {
 			}
 		}
 	}
-	
+
+    protected static Option requiredOption(String shortName, boolean hasArgument, String shortDescription ) {
+        Option option = new Option(shortName, null, hasArgument, shortDescription);
+        option.setRequired(true);
+        return option;
+    }
+
 	protected boolean exists(String fileName){
 		return new File(fileName).exists();
 	}

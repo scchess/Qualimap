@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +41,7 @@ public class EditEpigeneticsInputDataDialog extends JDialog {
 
         initComponents();
 
-        EpigeneticAnalysisDialog.DataItem itemToModify = parentDlg.getDataItem(itemIndex);
+        EpiAnalysis.ReplicateItem itemToModify = parentDlg.getDataItem(itemIndex);
         replicateName.setText(itemToModify.name);
         medipDataField.setText(itemToModify.medipPath);
         inputDataField.setText(itemToModify.inputPath);
@@ -80,7 +81,7 @@ public class EditEpigeneticsInputDataDialog extends JDialog {
             public void actionPerformed(ActionEvent actionEvent) {
                 String errorMessage  = validateInputData();
                 if (errorMessage.isEmpty()) {
-                    EpigeneticAnalysisDialog.DataItem item = new EpigeneticAnalysisDialog.DataItem();
+                    EpiAnalysis.ReplicateItem item = new EpiAnalysis.ReplicateItem();
                     item.name = replicateName.getText();
                     item.inputPath = inputDataField.getText();
                     item.medipPath = medipDataField.getText();

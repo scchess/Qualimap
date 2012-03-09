@@ -7,7 +7,10 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.EpigeneticsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.ReplicateItem;
+
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -44,7 +47,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
-    static final boolean DEBUG = false;
+    static final boolean DEBUG = true;
 
     public String getGeneSelectionPath() {
         return regionsField.getText();
@@ -63,12 +66,12 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     }
 
 
-    public List<DataItem> getSampleItems() {
+    public List<EpiAnalysis.ReplicateItem> getSampleItems() {
         return sampleTableModel.getItems();
     }
 
-    public String[] getClusterNumbers() {
-        return clustersField.getText().trim().split(",");
+    public String getClusterNumbers() {
+        return clustersField.getText().trim();
     }
 
     public String getInputDataName() {
@@ -83,33 +86,31 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         return logArea;
     }
 
-    static public class DataItem {
-        public String name;
-        public String medipPath;
-        public String inputPath;
+    public JLabel getProgressStream() {
+        return progressStream;
     }
 
     static class SampleDataTableModel extends AbstractTableModel {
 
-        List<DataItem> sampleDataList;
+        List<ReplicateItem> sampleReplicateList;
         final String[] columnNames = { "Replicate Name", "Sample BAM file", "Control BAM file"};
 
         public SampleDataTableModel() {
-            sampleDataList = new ArrayList<DataItem>();
+            sampleReplicateList = new ArrayList<EpiAnalysis.ReplicateItem>();
         }
 
-        public void addItem(DataItem item) {
-            sampleDataList.add(item);
+        public void addItem(ReplicateItem item) {
+            sampleReplicateList.add(item);
             fireTableDataChanged();
         }
 
-        public void replaceItem(int index, DataItem newItem) {
-            sampleDataList.set(index, newItem);
+        public void replaceItem(int index, EpiAnalysis.ReplicateItem newItem) {
+            sampleReplicateList.set(index, newItem);
             fireTableDataChanged();
         }
 
         public void removeItem(int index) {
-            sampleDataList.remove(index);
+            sampleReplicateList.remove(index);
             fireTableDataChanged();
         }
 
@@ -120,7 +121,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
         @Override
         public int getRowCount() {
-            return sampleDataList.size();
+            return sampleReplicateList.size();
         }
 
         @Override
@@ -130,14 +131,14 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
         @Override
         public Object getValueAt(int i, int j) {
-            DataItem data = sampleDataList.get(i);
+            EpiAnalysis.ReplicateItem replicate = sampleReplicateList.get(i);
 
             if (j == 0) {
-                return data.name;
+                return replicate.name;
             } else if (j == 1) {
-                return data.medipPath;
+                return replicate.medipPath;
             } else if (j == 2) {
-                return  data.inputPath;
+                return  replicate.inputPath;
             }   else {
                 return "";
             }
@@ -145,12 +146,12 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
         }
 
-        public DataItem getItem(int index) {
-            return sampleDataList.get(index);
+        public EpiAnalysis.ReplicateItem getItem(int index) {
+            return sampleReplicateList.get(index);
         }
 
-        public List<DataItem> getItems() {
-            return sampleDataList;
+        public List<EpiAnalysis.ReplicateItem> getItems() {
+            return sampleReplicateList;
         }
     }
 
@@ -273,13 +274,13 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
             experimentName.setText("24h-i");
 
             // add some preliminary data
-            DataItem item1 = new DataItem();
+            EpiAnalysis.ReplicateItem item1 = new ReplicateItem();
             item1.name = "24h-i_1";
             item1.medipPath = "/home/kokonech/qualimapEpi/src/medip/mapping/24h-i-medip_1.uniq.sorted.noDup.bam.small";
             item1.inputPath = "/home/kokonech/qualimapEpi/src/medip/mapping/24h-i-input.uniq.sorted.noDup.bam.small";
             addDataItem(item1);
 
-            DataItem item2 = new DataItem();
+            ReplicateItem item2 = new EpiAnalysis.ReplicateItem();
             item2.name = "24h-i_2";
             item2.medipPath = "/home/kokonech/qualimapEpi/src/medip/mapping/24h-i-medip_2.uniq.sorted.noDup.bam.small";
             item2.inputPath = "/home/kokonech/qualimapEpi/src/medip/mapping/24h-i-input.uniq.sorted.noDup.bam.small";
@@ -343,18 +344,18 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         updateState();
     }
 
-    public void addDataItem(DataItem item) {
+    public void addDataItem(ReplicateItem item) {
         sampleTableModel.addItem(item);
         updateState();
     }
 
-    public void replaceDataItem(int itemIndex, DataItem item) {
+    public void replaceDataItem(int itemIndex, ReplicateItem item) {
         sampleTableModel.replaceItem(itemIndex, item);
         updateState();
     }
 
 
-    public DataItem getDataItem(int index) {
+    public EpiAnalysis.ReplicateItem getDataItem(int index) {
         return sampleTableModel.getItem(index);
     }
 
@@ -398,7 +399,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
             return "Sample name is not provided!";
         }
 
-        String[] clusterNumbers = getClusterNumbers();
+        String[] clusterNumbers = getClusterNumbers().split(",");
 
         if (clusterNumbers.length == 0) {
             return "Cluster numbers are not provided!";
