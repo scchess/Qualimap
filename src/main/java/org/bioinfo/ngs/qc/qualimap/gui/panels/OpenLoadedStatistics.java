@@ -249,7 +249,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         readsContent.setToolTipText("Provides relative nucleotide content per read position");
         leftPanel.add(readsContent);
 
-        JLabel gcContentHist = createImageLinkLabel("GC content per read", Constants.GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW);
+        JLabel gcContentHist = createImageLinkLabel("GC content distribution", Constants.GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW);
         gcContentHist.setToolTipText("Shows gc content distribution per window ");
         leftPanel.add(gcContentHist);
 
@@ -681,7 +681,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                 + sdf.formatLong(reporter.getNumSingletons()) + "/"
                 + sdf.formatPercentage(reporter.getPercentSingletons()) + HtmlJPanel.COLEND);
 
-         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Read min/max/mean size:" + HtmlJPanel.COLMID
+         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Read min/max/mean size" + HtmlJPanel.COLMID
                 + sdf.formatLong(reporter.getReadMinSize()) + "/"
                 + sdf.formatLong(reporter.getReadMaxSize()) + "/"
                  + sdf.formatDecimal(reporter.getReadMeanSize())
@@ -713,9 +713,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>Mapping Quality" + postfix + ":</b>");
+		summaryHtml.append("<b>Mapping Quality" + postfix + "</b>");
 		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean Mapping Quality:" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanMappingQuality()) + HtmlJPanel.COLEND);
+		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean Mapping Quality" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanMappingQuality()) + HtmlJPanel.COLEND);
 		summaryHtml.append(HtmlJPanel.getTableFooter());
 
 		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
@@ -787,7 +787,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                     htmlTable.append("<th align='left'>Length</th>");
                     htmlTable.append("<th align='left'>Mapped bases</th>");
                     htmlTable.append("<th align='left'>Mean coverage</th>");
-                    htmlTable.append("<th align='left'>Std coverage</th>");
+                    htmlTable.append("<th align='left'>Standard deviation</th>");
             	} else {
 					String[] tableValues = strLine.split("\t");
 					htmlTable.append(HtmlJPanel.COLSTART);

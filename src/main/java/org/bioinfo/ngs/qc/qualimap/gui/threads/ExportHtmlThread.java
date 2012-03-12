@@ -112,7 +112,7 @@ public class ExportHtmlThread extends Thread{
                 }
             }
 
-            String htmlReportFilePath = dirPath + "/report.html";
+            String htmlReportFilePath = dirPath + "/qualimapReport.html";
 
 			boolean loadOutsideReporter = false;
 

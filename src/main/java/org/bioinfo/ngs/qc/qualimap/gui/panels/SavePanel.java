@@ -112,6 +112,7 @@ public class SavePanel extends javax.swing.JPanel {
 
         pathDataDir = new JTextField(40);
         pathDataDir.addKeyListener(keyListener);
+        pathDataDir.setText("qualimapReport." + fileType.toLowerCase() );
         resultContainer.add(pathDataDir, "grow");
 
         JButton pathDirButton = new JButton();
@@ -233,17 +234,12 @@ public class SavePanel extends javax.swing.JPanel {
 
                 if (file.exists() && !file.isDirectory())  {
                     JOptionPane.showMessageDialog(resultContainer,
-                            "Invalid output folder path: file already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                            "Invalid output folder path: target is not a directory!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 // If the file doesn't exists or exits and the user want to replace it
-                if (!file.exists() || (file.exists() && JOptionPane.showConfirmDialog(null,
-                        "The folder " + file.getPath() + " already exists. " +
-                                "Do you want to save report to existing directory?",
-                        "Confirm", JOptionPane.OK_OPTION) == 0)) {
-                    exportToHtml(file.getAbsolutePath());
-                }
+                exportToHtml(file.getAbsolutePath());
             }
         });
 

@@ -64,7 +64,8 @@ public class HtmlJPanel extends JPanel implements HyperlinkListener {
     }
 
 	public static Object getTableHeader(int width, String color) {
-		return "<table BGCOLOR=\"#"+color+"\" cellspacing=\"-1\" border=\"0\" width=\""+width+"\" align=\"center\">";
+		return "<table BGCOLOR=\"#"+color+"\" cellspacing=\"-1\" border=\"0\" " +
+                "width=\""+width+"\" align=\"center\" valign=\"top\">";
     }
     
 	public static Object getTableFooter() {

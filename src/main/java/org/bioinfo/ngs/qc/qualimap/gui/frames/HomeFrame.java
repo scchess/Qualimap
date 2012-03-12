@@ -643,6 +643,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		popUpDialog.setLocationRelativeTo(HomeFrame.this);
 		popUpDialog.setVisible(true);
+
+
     }
 
 
