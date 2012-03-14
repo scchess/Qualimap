@@ -16,7 +16,8 @@ public final class Constants {
 	public static final String pathImages = "/org/bioinfo/ngs/qc/qualimap/gui/images/";
 	
 	/** Path to locate the resources of the application */
-	public static final String pathResources = "/org/bioinfo/ngs/qc/qualimap/resources/";
+	public static final String pathResources = "/org/bioinfo/ngs/qc/qualimap/";
+
 	
 	//******************************************************************************************
 	//****************************** LENGTH AND MARGIN CONSTANTS *******************************

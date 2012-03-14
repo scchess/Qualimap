@@ -11,17 +11,18 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.OpenLoadedStatistics;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.utils.HtmlReportGenerator;
 import org.jfree.chart.JFreeChart;
 
 
@@ -43,8 +44,6 @@ public class ExportHtmlThread extends Thread{
 
 	/** Variables that contains the tab properties loaded in the thread*/
 	TabPropertiesVO tabProperties;
-
-    static final int WIDTH = 700;
 
     boolean guiAvailable;
 
@@ -143,37 +142,17 @@ public class ExportHtmlThread extends Thread{
 
 			// Add the first file of the reporter
 			BamQCRegionReporter reporter = tabProperties.getReporter();
-
-            StringBuffer htmlReport = new StringBuffer();
-
-            addHeader(htmlReport, tabProperties);
-
-            htmlReport.append( addTableOfContents(reporter, genomicAnalysis) );
-
-			if (genomicAnalysis) {
-                htmlReport.append(  OpenLoadedStatistics.prepareHtmlReport(reporter,tabProperties,WIDTH) );
-            }
-
-            htmlReport.append( "<br><br>").append( reporter.getInputDescription(800) ).append("<br><br>");
-
-            boolean success = saveImages(htmlReport, reporter, genomicAnalysis);
+            boolean  success = generateAndSaveReport(reporter, htmlReportFilePath, genomicAnalysis);
 
 			// Add the files of the third reporter
 			if(success && loadOutsideReporter){
 				BamQCRegionReporter outsideReporter = tabProperties.getOutsideReporter();
-
-                htmlReport.append( addTableOfContents(outsideReporter, true) );
-                htmlReport.append( OpenLoadedStatistics.prepareHtmlReport(outsideReporter, tabProperties, WIDTH) );
-                success = saveImages( htmlReport, outsideReporter, true);
-
+                String outsideReportFilePath = dirPath + "/qualimapReportOutsideOfRegions.html";
+                success = generateAndSaveReport(outsideReporter, outsideReportFilePath, genomicAnalysis);
             }
 
-            addFooter(htmlReport);
+            prepareCss();
 
-            PrintStream outStream = new PrintStream( new BufferedOutputStream(new FileOutputStream(htmlReportFilePath)));
-            outStream.print(htmlReport.toString());
-
-            outStream.close();
 
             if(success){
 				reportSuccess("Html report created successfully\n");
@@ -186,66 +165,71 @@ public class ExportHtmlThread extends Thread{
 		}
     }
 
-    private StringBuffer addTableOfContents( BamQCRegionReporter reporter, boolean genomicAnalysis) {
 
-        StringBuffer contents = new StringBuffer();
-        contents.append("<h1 align=\"center\">Qualimap report</h2>\n");
-        contents.append("<br>\n");
+    private boolean generateAndSaveReport(BamQCRegionReporter reporter, String path, boolean genomicAnalysis) throws IOException {
 
-        if (genomicAnalysis) {
-            String fileName = new File(reporter.getBamFileName()).getName();
-            contents.append("<li> <a class=\"content\" href=\"report.html#summary\">").
-                    append("Summary of: ").append(fileName).append("</a>");
-        }
-        contents.append("<li> <a class=\"content\" href=\"report.html#input\">").
-                       append("Input data & parameters").append("</a>");
-
-
-        Set<String> names = genomicAnalysis ? reporter.getMapCharts().keySet() :
-                reporter.getImageMap().keySet();
-
-        for (String name : names) {
-            contents.append("<li> <a class=\"content\" href=\"report.html#").append(name)
-            .append("\">Graph: ").append(name).append("</a>\n");
-        }
-
-        contents.append("<br><br><br>\n");
-
-        return contents;
-    }
-
-    private void addHeader(StringBuffer htmlReport, TabPropertiesVO tabProperties) {
-
-        htmlReport.append("<!DOCTYPE HTML>\n");
-        htmlReport.append("<html>\n");
-
-        String analysis;
-        if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_RNA) {
-            analysis = "RNA=seq";
-        }  else if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI) {
-            analysis = "Epigenetics";
-        } else {
-            analysis = "Genomic analysis";
-        }
-
-
-        htmlReport.append("<head><title>").append("Qualimap report: ").append(analysis)
-                .append("</title>\n");
-
-        htmlReport.append("</head>\n");
-        htmlReport.append("<body>\n");
+        HtmlReportGenerator generator = new HtmlReportGenerator(reporter, dirPath, genomicAnalysis);
+        StringBuffer htmlReport = generator.getReport();
+        saveReport(htmlReport, path);
+        return saveImages(reporter, genomicAnalysis);
 
     }
 
+    private void prepareCss() throws IOException {
+        String newPath = dirPath + "/_static";
+        int BUFFER = 2048;
 
-    private void addFooter(StringBuffer htmlReport) {
-        htmlReport.append("<br><br>Generated by Qualimap\n");
-        htmlReport.append("</body>");
-        htmlReport.append("</html>");
+        File destinationParent = new File(newPath);
+        if (!destinationParent.exists()) {
+            if (!destinationParent.mkdirs()) {
+                throw new IOException("Failed to create sub directory " + destinationParent.getAbsolutePath());
+            }
+        }
+
+        InputStream is = getClass().getResourceAsStream(Constants.pathResources + "css.zip");
+        ZipInputStream zis = new ZipInputStream(is);
+        ZipEntry entry;
+        BufferedInputStream source = new BufferedInputStream(zis);
+
+        while ((entry = zis.getNextEntry()) != null) {
+            String currentEntryName = entry.getName();
+            File destFile = new File(newPath,currentEntryName);
+
+            if (destFile.exists()) {
+                continue;
+            }
+
+            int currentByte;
+
+            byte data[] = new byte[BUFFER];
+
+            BufferedOutputStream dest = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER);
+            while ((currentByte = source.read(data, 0, BUFFER)) != -1) {
+                dest.write(data, 0, currentByte);
+            }
+
+            dest.flush();
+            dest.close();
+
+        }
+
+        source.close();
+
+
 
     }
 
-    public boolean saveImages(StringBuffer htmlReport, BamQCRegionReporter reporter, boolean genomicAnalysis) throws IOException {
+
+    private void saveReport(StringBuffer htmlReport, String path) throws FileNotFoundException {
+        PrintStream outStream = new PrintStream( new BufferedOutputStream(new FileOutputStream(path)));
+        outStream.print(htmlReport.toString());
+
+        outStream.close();
+
+    }
+
+
+    public boolean saveImages(BamQCRegionReporter reporter, boolean genomicAnalysis) throws IOException {
 
         boolean success = true;
 
@@ -254,7 +238,6 @@ public class ExportHtmlThread extends Thread{
 
         // Generate the Graphics images
 
-        htmlReport.append("\n\n");
         while(it.hasNext() && success){
             @SuppressWarnings("unchecked")
             Map.Entry<String, Object> entry = (Map.Entry<String, Object>)it.next();
@@ -276,11 +259,6 @@ public class ExportHtmlThread extends Thread{
             }
             File imageFile = new File(imagePath);
             success = ImageIO.write(bufImage, "PNG", imageFile);
-
-            htmlReport.append("<br><br><p align=\"center\">\n<b>").append("<a name=\"")
-                    .append(entry.getKey()).append("\">")
-                    .append(entry.getKey()).append("</a></b><br><br>\n");
-            htmlReport.append("<div align=\"center\"><img src=").append(imageFile.getName()).append("></div>\n");
 
             increaseProgressBar(entry.getKey());
 

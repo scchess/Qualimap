@@ -16,6 +16,7 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.jfree.chart.JFreeChart;
@@ -497,9 +498,9 @@ public class SavePdfThread extends Thread{
 		//section.setNumberDepth(2);
 		addEmptyLine(paragraph, 1);
 
-        List<BamQCRegionReporter.InputDataSection> inputDescr = reporter.getInputDataSections();
+        List<StatsKeeper.Section> inputDescr = reporter.getInputDataSections();
 
-        for (BamQCRegionReporter.InputDataSection inputSection : inputDescr) {
+        for (StatsKeeper.Section inputSection : inputDescr) {
 
             Paragraph tablePara = new Paragraph(inputSection.getName());
             section.addSection( tablePara, numberDepth + 1);
@@ -510,9 +511,9 @@ public class SavePdfThread extends Thread{
             table.setWidthPercentage(100);
             table.setHorizontalAlignment(Element.ALIGN_LEFT);
 
-            for ( Map.Entry<String,String> entry : inputSection.getData().entrySet()  ) {
-                table.addCell(entry.getKey());
-                PdfPCell column = new PdfPCell(new Phrase(entry.getValue()));
+            for ( String[] entry : inputSection.getRows()  ) {
+                table.addCell(entry[0]);
+                PdfPCell column = new PdfPCell(new Phrase(entry[1]));
 		        column.setHorizontalAlignment(Element.ALIGN_RIGHT);
 		        table.addCell(column);
             }

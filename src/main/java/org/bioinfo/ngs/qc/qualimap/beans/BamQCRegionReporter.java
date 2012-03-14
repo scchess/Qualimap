@@ -11,7 +11,8 @@ import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYBoxAnnotation;
@@ -53,28 +54,6 @@ public class BamQCRegionReporter implements Serializable {
         this.genomeGCContentName = genomeName;
     }
 
-    static public class InputDataSection {
-        String sectionName;
-        Map<String, String> data;
-
-        InputDataSection(String sectionName) {
-            this.sectionName = sectionName;
-        }
-
-        public String getName() {
-            return sectionName;
-        }
-
-        public void setData(Map<String, String> paramsMap) {
-            data = paramsMap;
-        }
-
-        public Map<String,String> getData() {
-            return data;
-        }
-    }
-
-
     private boolean paintChromosomeLimits;
 
 	/** Variable to contain the Charts generated in the class */
@@ -109,7 +88,8 @@ public class BamQCRegionReporter implements Serializable {
     int readMinSize, readMaxSize;
     double readMeanSize;
 
-    List<InputDataSection> inputDataSections;
+    StatsKeeper inputDataKeeper;
+    StatsKeeper summaryStatsKeeper;
     String namePostfix;
     String pathToGenomeGCContent;
     String genomeGCContentName;
@@ -118,7 +98,8 @@ public class BamQCRegionReporter implements Serializable {
 
     public BamQCRegionReporter() {
         namePostfix = "";
-        inputDataSections = new ArrayList<InputDataSection>();
+        inputDataKeeper = new StatsKeeper();
+        summaryStatsKeeper = null;
         pathToGenomeGCContent = "";
         chromosomeFilePath = "";
     }
@@ -510,7 +491,7 @@ public class BamQCRegionReporter implements Serializable {
             mapCharts.put(bamStats.getName() + "_reads_content_per_read_position.png", readsContentChart.getChart());
         }
 
-        BamQCChart gcContentHistChart = new BamQCChart("GC Content Historgram", subTitle,
+        BamQCChart gcContentHistChart = new BamQCChart("GC content historgram", subTitle,
                 "GC content %", "Fraction of reads");
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
         if (!pathToGenomeGCContent.isEmpty()) {
@@ -595,16 +576,16 @@ public class BamQCRegionReporter implements Serializable {
 
     public void addInputDataSection(String name, Map<String,String> paramsMap) {
 
-        InputDataSection section = new InputDataSection(name);
-        section.setData(paramsMap);
+        StatsKeeper.Section section = new StatsKeeper.Section(name);
+        section.addData(paramsMap);
 
-        inputDataSections.add(section);
+        inputDataKeeper.addSection(section);
     }
 
     public String getInputDescription(int tableWidth) {
 
 
-        if (inputDataSections.isEmpty()) {
+        if (inputDataKeeper.getSections().isEmpty()) {
             return "No input description is available";
         }
 
@@ -613,14 +594,15 @@ public class BamQCRegionReporter implements Serializable {
         inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters</b></p>" + HtmlJPanel.BR);
         inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "EEEEEE"));
 
+        List<StatsKeeper.Section> inputDataSections = inputDataKeeper.getSections();
 
-        for (InputDataSection section : inputDataSections) {
+        for (StatsKeeper.Section section : inputDataSections) {
             inputDesc.append(HtmlJPanel.COLSTART).append("<b>").append(section.getName()).append("</b>");
-            Map<String,String> paramsMap = section.getData();
+            List<String[]> params = section.getRows();
             inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "FFFFFF"));
-            for ( Map.Entry<String,String> entry: paramsMap.entrySet() ) {
-                 inputDesc.append(HtmlJPanel.COLSTARTFIX).append(entry.getKey()).
-                         append(HtmlJPanel.COLMID).append( entry.getValue() ).append( HtmlJPanel.COLEND) ;
+            for ( String[] row: params ) {
+                 inputDesc.append(HtmlJPanel.COLSTARTFIX).append(row[0]).
+                         append(HtmlJPanel.COLMID).append( row[1] ).append( HtmlJPanel.COLEND) ;
             }
             inputDesc.append(HtmlJPanel.getTableFooter());
             inputDesc.append(HtmlJPanel.COLEND);
@@ -953,8 +935,96 @@ public class BamQCRegionReporter implements Serializable {
 		this.stdCoverage = stdCoverage;
 	}
 
-    public List<InputDataSection> getInputDataSections() {
-        return inputDataSections;
+    public List<StatsKeeper.Section> getInputDataSections() {
+        return inputDataKeeper.getSections();
+    }
+
+    public List<StatsKeeper.Section> getSummaryInputSections() {
+        if (summaryStatsKeeper == null) {
+            createSummaryStatsKeeper();
+        }
+
+        return summaryStatsKeeper.getSections();
+    }
+
+    private void createSummaryStatsKeeper() {
+        summaryStatsKeeper = new StatsKeeper();
+        StringUtilsSwing sdf = new StringUtilsSwing();
+        String postfix = getNamePostfix();
+
+
+        StatsKeeper.Section globals = new StatsKeeper.Section("Globals");
+
+        globals.addRow("Reference size", sdf.formatLong(getBasesNumber()));
+
+        if (getNumSelectedRegions() > 0) {
+            globals.addRow("Number of selected regions", sdf.formatLong(getNumSelectedRegions()));
+            globals.addRow("Size of selected regions", sdf.formatLong(getInRegionsReferenceSize()));
+            globals.addRow("Size of non-selected regions",
+                    sdf.formatLong(getBasesNumber() - getInRegionsReferenceSize()));
+        }
+        globals.addRow("Number of reads", sdf.formatLong(getNumReads()));
+
+        globals.addRow("Number/percentage of mapped reads", sdf.formatInteger(getNumMappedReads())
+                + " / " + sdf.formatPercentage(getPercentMappedReads()));
+
+        if (getNumSelectedRegions() > 0) {
+            globals.addRow("Number/percentage of mapped reads inside of regions",
+                    sdf.formatLong(getNumInsideMappedReads())
+                            + " / " + sdf.formatPercentage(getPercentageInsideMappedReads()));
+            globals.addRow("Number/percentage of mapped reads outside of regions",
+                    sdf.formatLong(getNumOutsideMappedReads())
+                            + " / " + sdf.formatPercentage(getPercentageOutsideMappedReads()));
+        }
+
+        globals.addRow("Number/percentage of unmapped reads",
+                sdf.formatLong(getNumReads() - getNumMappedReads()) + "/"
+                        + sdf.formatPercentage(100.0 - getPercentMappedReads()));
+
+        globals.addRow("Number/percentage of paired reads",
+                sdf.formatLong(getNumPairedReads()) + "/"
+                        + sdf.formatPercentage(getPercentPairedReads()));
+
+        globals.addRow("Number/percentage of reads both mates paired",
+                sdf.formatLong(getNumPairedReads() - getNumSingletons()) + "/"
+                        + sdf.formatPercentage((getPercentageBothMatesPaired())));
+        globals.addRow("Number/percentage of singletons",
+                sdf.formatLong(getNumSingletons()) + "/"
+                        + sdf.formatPercentage(getPercentSingletons()));
+
+        globals.addRow("Read min/max/mean size",
+                sdf.formatLong(getReadMinSize()) + "/"
+                        + sdf.formatLong(getReadMaxSize()) + "/"
+                        + sdf.formatDecimal(getReadMeanSize()));
+
+        summaryStatsKeeper.addSection(globals);
+
+        StatsKeeper.Section acgtContent = new StatsKeeper.Section("ACGT Content" + postfix);
+
+        acgtContent.addRow("Number/percentage of A's", sdf.formatLong(getaNumber()) +
+                " / " + sdf.formatPercentage(getaPercent()));
+		acgtContent.addRow("Number/percentage of C's",sdf.formatLong(getcNumber()) +
+                " / " + sdf.formatPercentage(getcPercent()));
+		acgtContent.addRow("Number/percentage of T's", sdf.formatLong(gettNumber()) +
+                " / " + sdf.formatPercentage(gettPercent()));
+		acgtContent.addRow("Number/percentage of G's",sdf.formatLong(getgNumber()) +
+                " / " + sdf.formatPercentage(getgPercent()));
+		acgtContent.addRow("Number/percentage of N's",sdf.formatLong(getnNumber()) +
+                " / " + sdf.formatPercentage(getnPercent()));
+		acgtContent.addRow("GC Percentage", sdf.formatPercentage(getGcPercent()));
+
+        summaryStatsKeeper.addSection(acgtContent);
+
+
+		StatsKeeper.Section coverageSection = new StatsKeeper.Section("Coverage" + postfix);
+		coverageSection.addRow("Mean", sdf.formatDecimal(getMeanCoverage()));
+		coverageSection.addRow("Standard Deviation",sdf.formatDecimal(getStdCoverage()) );
+		summaryStatsKeeper.addSection(coverageSection);
+
+		StatsKeeper.Section mappingQualitySection = new StatsKeeper.Section("Mapping Quality" + postfix);
+		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(getMeanMappingQuality()));
+		summaryStatsKeeper.addSection(mappingQualitySection);
+
     }
 
     public void setNamePostfix(String namePostfix) {
@@ -1060,8 +1130,6 @@ public class BamQCRegionReporter implements Serializable {
     public void setChromosomeFilePath(String chromosomeFilePath) {
         this.chromosomeFilePath = chromosomeFilePath;
     }
-
-
 
 
 }
