@@ -2,10 +2,10 @@ package org.bioinfo.ngs.qc.qualimap.utils;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 import org.jfree.chart.JFreeChart;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -138,9 +138,10 @@ public class HtmlReportGenerator {
         for(Section s : sections) {
             append("\n<div class=table-summary>");
             append("<h3>" + s.getName() + "</h3>" );
-            append("<table class=summary>");
+            append("<table class=\"summary hovertable\">");
             for (String[] row : s.getRows()) {
-                append("<tr>");
+                append("<tr onmouseover=\"this.style.backgroundColor='#EEEEEC';\" " +
+                        "onmouseout=\"this.style.backgroundColor='#FFFFFF';\">");
                 append("<td class=column1>" + row[0] + "</td>");
                 append("<td class=column2>" + row[1] + "</td>");
                 append("</tr>");
@@ -157,12 +158,13 @@ public class HtmlReportGenerator {
 
         append("\n<div class=table-summary>");
         append("<h3>" + "Per chromosome statistics" + reporter.getNamePostfix() + "</h3>" );
-        append("<table class=summary>");
+        append("<table class=\"summary hovertable\">");
 
         for(Section s : sections) {
             boolean sectionIsHeader = s.getName().equals(Constants.CHROMOSOME_STATS_HEADER);
             for (String[] row : s.getRows()) {
-                append("<tr>");
+                append("<tr onmouseover=\"this.style.backgroundColor='#EEEEEC';\" " +
+                        "onmouseout=\"this.style.backgroundColor='#FFFFFF';\">");
                 for (String item : row) {
                     if (sectionIsHeader) {
                         append("<td><b>" + item + "</b></td>");
@@ -211,6 +213,8 @@ public class HtmlReportGenerator {
 
             if(entry.getValue() instanceof JFreeChart){
                 name = ((JFreeChart)entry.getValue()).getTitle().getText();
+            } else {
+                name = new File(entry.getKey()).getName();
             }
 
             String imagePath = getImagePath(entry.getKey());
@@ -219,10 +223,10 @@ public class HtmlReportGenerator {
             plotLinks.add(entry.getKey());
 
             append("<div class=section>\n");
-            append("<h2>" + name + "</h2><a class=\"headerlink\" name=\""
-                    + entry.getKey() + "\">"
+            append("<h2>" + name + "<a class=\"headerlink\" name=\""
+                    + entry.getKey() + "\" "
                     + "title=\"Permalink to this headline\">&nbsp;</a></h2>\n");
-            append("<div><img src=" + imagePath + "></div>\n");
+            append("<div><img width=100% src=\"" + imagePath + "\"></div>\n");
             append("</div><!-- graph section -->\n\n");
 
 
@@ -231,7 +235,7 @@ public class HtmlReportGenerator {
     }
 
     String getImagePath(String imageName) {
-        String imagePath = dirPath + "/" + imageName;
+        String imagePath = imageName;
         String extension = imageName.substring(imageName.lastIndexOf(".") + 1);
         if (!extension.equalsIgnoreCase("png")) {
             imagePath += ".png";
