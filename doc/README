@@ -1,0 +1,16 @@
+The documentation is written in ReStructuredText and can generated with Sphinx.
+
+Sphinx can be downloaded from here:
+http://sphinx.pocoo.org/
+
+To generate documentation install Sphinx and use the following commands::
+
+make html 
+make pdflatex
+
+
+
+
+
+
+
