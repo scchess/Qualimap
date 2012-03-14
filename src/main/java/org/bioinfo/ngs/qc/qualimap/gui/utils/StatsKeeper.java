@@ -49,6 +49,10 @@ public class StatsKeeper {
             }
 
         }
+
+        public void addRow(String[] tableValues) {
+            rows.add(tableValues);
+        }
     }
 
     List<Section> sectionList;
@@ -59,6 +63,16 @@ public class StatsKeeper {
 
     public void addSection(Section section) {
         sectionList.add(section);
+    }
+
+    public Section getSectionByName(String name) {
+        for (Section s : sectionList ) {
+            if (s.getName().equals(name)) {
+                return s;
+            }
+        }
+
+        return null;
     }
 
     public List<Section> getSections() {

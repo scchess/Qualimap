@@ -1,6 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.utils;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 import org.jfree.chart.JFreeChart;
 
@@ -121,17 +123,12 @@ public class HtmlReportGenerator {
         List<Section> summarySections = reporter.getSummaryInputSections();
         appendTableFromStats(summarySections);
 
-        append("</div>");
 
-		//TODO: add chromosome stats
-		/*if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
-			summaryHtml.append( BR);
-			summaryHtml.append("<b>Per chromosome statistics " +  postfix + ":</b>" +  BR);
-			summaryHtml.append( getTableHeader(width, "FFFFFF"));
-            String pathToChromosomeStats = reporter.getChromosomeFilePath();
-			summaryHtml.append(fillHtmlTableFromFile(pathToChromosomeStats));
-			summaryHtml.append( getTableFooter());
-		}*/
+		if (genomicAnalysis) {
+			appendChromosomeStats();
+        }
+
+        append("</div>");
 
         append("</div> <!-- summary section -->\n");
 
@@ -151,6 +148,34 @@ public class HtmlReportGenerator {
             append("</table>");
             append("</div>\n");
         }
+
+    }
+
+    void appendChromosomeStats() {
+
+        List<Section> sections = reporter.getChromosomeSections();
+
+        append("\n<div class=table-summary>");
+        append("<h3>" + "Per chromosome statistics" + reporter.getNamePostfix() + "</h3>" );
+        append("<table class=summary>");
+
+        for(Section s : sections) {
+            boolean sectionIsHeader = s.getName().equals(Constants.CHROMOSOME_STATS_HEADER);
+            for (String[] row : s.getRows()) {
+                append("<tr>");
+                for (String item : row) {
+                    if (sectionIsHeader) {
+                        append("<td><b>" + item + "</b></td>");
+                    } else {
+                        append("<td>" + item + "</b></td>");
+                    }
+                }
+                append("</tr>");
+            }
+        }
+
+        append("</table>");
+        append("</div>\n");
 
     }
 

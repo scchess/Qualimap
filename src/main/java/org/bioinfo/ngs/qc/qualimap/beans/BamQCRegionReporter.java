@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
@@ -90,6 +91,8 @@ public class BamQCRegionReporter implements Serializable {
 
     StatsKeeper inputDataKeeper;
     StatsKeeper summaryStatsKeeper;
+    StatsKeeper chromosomeStatsKeeper;
+
     String namePostfix;
     String pathToGenomeGCContent;
     String genomeGCContentName;
@@ -100,6 +103,7 @@ public class BamQCRegionReporter implements Serializable {
         namePostfix = "";
         inputDataKeeper = new StatsKeeper();
         summaryStatsKeeper = null;
+        chromosomeStatsKeeper = null;
         pathToGenomeGCContent = "";
         chromosomeFilePath = "";
     }
@@ -1024,6 +1028,62 @@ public class BamQCRegionReporter implements Serializable {
 		StatsKeeper.Section mappingQualitySection = new StatsKeeper.Section("Mapping Quality" + postfix);
 		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(getMeanMappingQuality()));
 		summaryStatsKeeper.addSection(mappingQualitySection);
+
+    }
+
+    public List<StatsKeeper.Section> getChromosomeSections() {
+        if (chromosomeStatsKeeper == null) {
+            createChromosomeStatsKeeper();
+        }
+        return chromosomeStatsKeeper.getSections();
+    }
+
+    private void createChromosomeStatsKeeper() {
+
+        chromosomeStatsKeeper = new StatsKeeper();
+
+        StatsKeeper.Section headerSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_HEADER);
+        String[] header = {
+                "Name", "Length", "Mapped bases", "Mean coverage", "Standard deviation"
+        };
+        headerSection.addRow(header);
+        chromosomeStatsKeeper.addSection(headerSection);
+
+        StatsKeeper.Section dataSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_DATA);
+        BufferedReader br = null;
+
+        try {
+            br = new BufferedReader(new FileReader(new File(chromosomeFilePath)));
+            String strLine;
+            // Iterate the file reading the lines
+            while ((strLine = br.readLine()) != null) {
+                // Test if the read is the header of the table or not
+
+                if (!strLine.startsWith("#")) {
+                    String[] tableValues = strLine.split("\t");
+                    String[] coords = tableValues[1].split(":");
+                    long len = Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;
+                    tableValues[1] = Long.toString(len);
+                    dataSection.addRow(tableValues);
+
+                }
+            }
+
+            chromosomeStatsKeeper.addSection(dataSection);
+
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
 
     }
 

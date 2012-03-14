@@ -263,4 +263,7 @@ public final class Constants {
 
     public static final String REPORT_TYPE_HTML = "HTML";
     public static final String REPORT_TYPE_PDF = "PDF";
+    public static final String CHROMOSOME_STATS_HEADER = "header";
+    public static final String CHROMOSOME_STATS_DATA = "data";
+
 }
