@@ -22,6 +22,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
+import sun.management.*;
 
 
 /**
@@ -46,7 +47,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     // Menu items with configurable state
     JMenuItem saveReportItem, exportToPdfItem, exportToHtmlItem, openReportItem, exportGeneListItem, closeAllTabsItem;
-	
+	JMenuItem openPdfItem;
+    
 	/** Logger to print information */
 	protected Logger logger;
 
@@ -326,9 +328,14 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
         toolsMenu.add(addMenuItem("Compute counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
 
-		helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","ctrl pressed H"));
-		helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "help.png",null));
-		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "help.png",null));
+		if (checkForUserManual()) {
+            helpMenu.add(addMenuItem("User Manual", "manual", "help.png", "F1"));
+            
+        }
+        helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "world_go.png",null));
+		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "world_go.png",null));
+        helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","F12"));
+
 
         JMenuBar menuBar = getJMenuBar();
         menuBar.add(fileMenu);
@@ -339,8 +346,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 
    }
-	
-	private JMenu getMenu(String name, int vkH) {
+
+    private boolean checkForUserManual() {
+        File manualFile =  new File(qualimapFolder + File.separator + "QualimapManual.pdf");
+        return manualFile.exists();
+    }
+
+    private JMenu getMenu(String name, int vkH) {
 		JMenu m = new JMenu();
 		m.setText(name);
 		m.setMnemonic(vkH);
@@ -573,7 +585,21 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             showCountReadsDialog(this);
         } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
             showExportGenesDialog(this, getSelectedTabPropertiesVO());
+        } else if (e.getActionCommand().equals("manual")) {
+            openUserManual();
         }
+    }
+
+    private void openUserManual() {
+        File manualFile = new File(qualimapFolder + File.separator + "QualimapManual.pdf");
+            try {
+                Desktop.getDesktop().open(manualFile);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "No application is registered for viewing PDF files.",
+                        getTitle(),
+                        JOptionPane.ERROR_MESSAGE);
+            }
     }
 
     public static void showExportGenesDialog(Component frame, TabPropertiesVO tabProperties) {
