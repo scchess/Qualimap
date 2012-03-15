@@ -29,7 +29,7 @@ public class RNAseqTool extends NgsSmartTool{
     private boolean secondSampleIsProvided;
 	
 	public RNAseqTool(){
-		super("rna-seq");
+		super(Constants.TOOL_NAME_RNA_SEQ);
         RNAseqTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.61.genes.biotypes.txt";
 		RNAseqTool.GROUPS_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.biotypes.groups.txt";
 		RNAseqTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.61.genes.biotypes.txt";
@@ -37,17 +37,18 @@ public class RNAseqTool extends NgsSmartTool{
 		RNAseqTool.SCRIPT_R = homePath + File.separator + RFUNCTIONS_FOLDER + File.separator + "qualimapRscript.r";
 	    secondSampleIsProvided = false;
         infoFile = "";
-    }
+        k = DEFAULT_NUMBER_OF_COUNTS;
+	}
 	
 	@Override
 	protected void initOptions() {
-		options.addOption("d1", "data1", true, "First file with counts");
-		options.addOption("d2", "data2", true, "Second file with counts");
-		options.addOption("n1", "name1", true, "Name for the first sample");
-		options.addOption("n2", "name2", true, "Name for second sample");
-		options.addOption("i", "info", true, "Info file.");
-		options.addOption("s", "species", true, "Use default files for the given species [human | mouse]");
-		options.addOption("k", "threshold", true, "Threshold for the number of counts");
+		options.addOption(requiredOption("d1", "data1", true, "first file with counts"));
+		options.addOption("d2", "data2", true, "second file with counts");
+		options.addOption("n1", "name1", true, "name for the first sample");
+		options.addOption("n2", "name2", true, "name for second sample");
+		options.addOption("i", "info", true, "info file");
+		options.addOption("s", "species", true, "use default file for the given species [human | mouse]");
+		options.addOption("k", "threshold", true, "threshold for the number of counts");
 	}
 	
 	@Override
@@ -62,13 +63,15 @@ public class RNAseqTool extends NgsSmartTool{
 			throw new ParseException("input counts file required");
 		}else{
 			data1 = commandLine.getOptionValue("data1");
-			if(!exists(data1)) throw new ParseException("input counts file (--data1) " + data1 + " not found");
+			if(!exists(data1)) {
+                throw new ParseException("input counts file (--data1) " + data1 + " not found");
+            }
 			
 			name1 = "\"";
 			if (commandLine.hasOption("name1")){
 				name1 += commandLine.getOptionValue("name1");
 			}else{
-				name1 += "Sample1";
+				name1 += "Sample 1";
 			}
 			name1 += "\"";
 		}
@@ -91,23 +94,23 @@ public class RNAseqTool extends NgsSmartTool{
 		// Info file
 		if(commandLine.hasOption("info")) {
 			infoFile = commandLine.getOptionValue("info");
-			if(!exists(infoFile)) throw new ParseException("file of information (--info) " + infoFile + " not found");
+			if(!exists(infoFile)) {
+                throw new ParseException("file of information (--info) " + infoFile + " not found");
+            }
 		} else if(commandLine.hasOption("species")) {
 			String species =  commandLine.getOptionValue("species");
-			
-			if(species.equalsIgnoreCase("human")){
-				infoFile = INFO_FILE_HUMAN_60;
-			}else{
-				if(species.equalsIgnoreCase("mouse")){
-					infoFile = INFO_FILE_MOUSE_60;
-				}else{
-					throw new ParseException("species " + species + " not found. Please select [human | mouse]");
-				}
-			}
-		}
+
+            if(species.equalsIgnoreCase("human")){
+                infoFile = INFO_FILE_HUMAN_60;
+            }else if(species.equalsIgnoreCase("mouse")){
+                infoFile = INFO_FILE_MOUSE_60;
+            }else{
+                throw new ParseException("species " + species + " not found. Please select [human | mouse]");
+            }
+        }
+
 		
 		// threshold for the number of counts 
-		k = DEFAULT_NUMBER_OF_COUNTS;
 		if(commandLine.hasOption("k")) {
 			k = Integer.parseInt(commandLine.getOptionValue("k"));
 		}

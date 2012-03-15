@@ -47,7 +47,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     public String getGeneSelectionPath() {
         return regionsField.getText();
@@ -267,7 +267,6 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         setResizable(false);
 
         if (DEBUG) {
-
 
             regionsField.setText("/home/kokonech/sample_data/clustering_sample/CpGIslandsByTakai.wihtNames.short.bed");
 

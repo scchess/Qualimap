@@ -4,6 +4,7 @@ import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 import java.io.File;
 
@@ -15,7 +16,7 @@ import java.io.File;
 public class GCContentTool extends NgsSmartTool  {
 
     GCContentTool() {
-        super("gccontent");
+        super(Constants.TOOL_NAME_GC_CONTENT);
     }
 
     @Override

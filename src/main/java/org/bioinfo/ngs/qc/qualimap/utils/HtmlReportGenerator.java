@@ -209,7 +209,7 @@ public class HtmlReportGenerator {
             @SuppressWarnings("unchecked")
             Map.Entry<String, Object> entry = (Map.Entry<String, Object>)it.next();
 
-            String name = entry.getKey();
+            String name;
 
             if(entry.getValue() instanceof JFreeChart){
                 name = ((JFreeChart)entry.getValue()).getTitle().getText();

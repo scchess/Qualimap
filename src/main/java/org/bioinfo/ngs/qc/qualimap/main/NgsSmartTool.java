@@ -27,7 +27,7 @@ public abstract class NgsSmartTool {
 	protected String outdir;
     protected String toolName;
     protected String outputType;
-    protected boolean outDirIsRequired;
+    protected boolean outDirIsRequired,outFormatIsRequired;
 
     static String OPTION_NAME_OUTDIR = "outdir";
     static String OPTION_NAME_HOMEDIR = "home";
@@ -36,11 +36,27 @@ public abstract class NgsSmartTool {
 	public NgsSmartTool(String toolName){
 
 		this.toolName = toolName;
-		// log
-		logger = new Logger();
-        outDirIsRequired = true;
+		this.outDirIsRequired = true;
+        this.outFormatIsRequired = true;
+        init();
+    }
 
-		// environment
+    public NgsSmartTool(String toolName, boolean outDirIsRequired, boolean outFormatIsRequired){
+
+		this.toolName = toolName;
+		this.outDirIsRequired = outDirIsRequired;
+        this.outFormatIsRequired = outFormatIsRequired;
+        init();
+    }
+
+
+
+    public void init() {
+
+        // log
+        logger = new Logger();
+
+        // environment
 		homePath = System.getenv("QUALIMAP_HOME");
         if (homePath == null) {
             homePath = new File("").getAbsolutePath() + File.separator;
@@ -56,18 +72,19 @@ public abstract class NgsSmartTool {
         outputType = Constants.REPORT_TYPE_HTML;
 
 		initCommonOptions();
-		
+
 		initOptions();
-	}
+
+    }
 	
 	private void initCommonOptions(){
 		options.addOption(OPTION_NAME_HOMEDIR, true, "home folder of Qualimap");
 		if (outDirIsRequired) {
             options.addOption( OPTION_NAME_OUTDIR, true, "output folder" );
         }
-
-        options.addOption( OPTION_NAME_OUTPUT_TYPE, true, "output report format (PDF or HTML, default is HTML)");
-
+        if (outFormatIsRequired) {
+            options.addOption( OPTION_NAME_OUTPUT_TYPE, true, "output report format (PDF or HTML, default is HTML)");
+        }
 	}
 	
 	// init options
@@ -131,6 +148,13 @@ public abstract class NgsSmartTool {
 			}
 		}
 	}
+
+    protected static Option requiredOption(String shortName, String longName, boolean hasArgument, String shortDescription ) {
+            Option option = new Option(shortName, longName, hasArgument, shortDescription);
+            option.setRequired(true);
+            return option;
+    }
+
 
     protected static Option requiredOption(String shortName, boolean hasArgument, String shortDescription ) {
         Option option = new Option(shortName, null, hasArgument, shortDescription);

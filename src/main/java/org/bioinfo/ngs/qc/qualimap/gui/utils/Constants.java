@@ -266,4 +266,10 @@ public final class Constants {
     public static final String CHROMOSOME_STATS_HEADER = "header";
     public static final String CHROMOSOME_STATS_DATA = "data";
 
+    public static final String TOOL_NAME_GENOMIC = "genomic";
+    public static final String TOOL_NAME_RNA_SEQ = "rna-seq";
+    public static final String TOOL_NAME_EPIGENOMIC = "epigenomic";
+    public static final String TOOL_NAME_COMPUTE_COUNTS = "counts";
+    public static final String TOOL_NAME_GC_CONTENT = "gc-content";
+
 }

@@ -1,8 +1,9 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
-import org.bioinfo.tool.OptionFactory;
 
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
@@ -25,16 +26,16 @@ public class CountReadsTool extends NgsSmartTool {
     }
 
     public CountReadsTool() {
-        super("counts");
+        super(Constants.TOOL_NAME_COMPUTE_COUNTS,false,false);
     }
 
     @Override
     protected void initOptions() {
 
-        options.addOption( OptionFactory.createOption("in", "Mapping file in Bam format)", true, true) );
-		options.addOption(OptionFactory.createOption("gff", "Region file in GFF format", true, true) );
-        options.addOption(OptionFactory.createOption("output", "Output file.", false, true) );
-        options.addOption(OptionFactory.createOption("protocol", getProtocolTypes(), false, true) );
+        options.addOption( requiredOption("bam", true, "mapping file in BAM format)") );
+		options.addOption(requiredOption("gff", true, "region file in GFF format") );
+        options.addOption(new Option("f", "output", true, "path to output file") );
+        options.addOption(new Option("p", "protocol", true, getProtocolTypes()) );
 
     }
 

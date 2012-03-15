@@ -3,6 +3,7 @@
 Analysis types
 ==============
 
+.. _genomic:
 
 Genomic
 -------
@@ -79,6 +80,7 @@ Output
 :guilabel:`Mapping quality histogram` 
   Histogram of the mapping quality frequency
 
+.. _rna-seq:
 
 RNA-seq
 -------
@@ -140,7 +142,9 @@ When an :guilabel:`Info File` is provided by the user or chosen from the ones su
 :guilabel:`Counts & Sequencing Depth`
   For each group (or biotype), a plot is generated containing a boxplot with the distribution of counts at each sequencing depth. X-axis shows the increasing sequencing depths of randomly generated samples from the original one till the true sequencing depth is reached. This plot allows the user to see how the increase of sequencing depth is changing the expression level quantification. 
 
-Epigenomics (Clustering)
+.. _epigenomic:
+
+Epigenomic (Clustering)
 ------------------------
 
 This analysis type allows to cluster the regions of interest in the input alignment based on the coverage. Typical usecase for such clustering can be evaluation of epigenomics experiment. For example due to epigenetics changes When analyzing promoter regions one should expect some genes to be activated and some silenced. 

@@ -7,6 +7,7 @@ import org.apache.commons.cli.ParseException;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 public class NgsSmartMain {
 	
@@ -27,23 +28,23 @@ public class NgsSmartMain {
 
 			// TODO: use factories map to create tools
 			// tools
-			if(toolName.equalsIgnoreCase("genomic")){
+			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_GENOMIC)){
 				tool = new BamQcTool();
 			}
 			
-			if(toolName.equalsIgnoreCase("rna-seq")){
+			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_RNA_SEQ)){
 				tool = new RNAseqTool();
 			}
 
-            if (toolName.equals("counts")) {
+            if (toolName.equals(Constants.TOOL_NAME_COMPUTE_COUNTS)) {
                 tool = new CountReadsTool();
             }
 
-            if (toolName.equals("epi")) {
+            if (toolName.equals(Constants.TOOL_NAME_EPIGENOMIC)) {
                 tool = new EpiTool();
             }
 
-            if (toolName.equals("gccontent")) {
+            if (toolName.equals(Constants.TOOL_NAME_GC_CONTENT)) {
                 tool = new GCContentTool();
             }
 

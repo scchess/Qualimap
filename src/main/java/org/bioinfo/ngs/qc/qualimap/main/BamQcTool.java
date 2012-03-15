@@ -29,7 +29,7 @@ public class BamQcTool extends NgsSmartTool{
 
 
     public BamQcTool(){
-        super("genomic");
+        super(Constants.TOOL_NAME_GENOMIC);
         numThreads = Runtime.getRuntime().availableProcessors();
         paintChromosomeLimits = true;
     }
@@ -170,7 +170,7 @@ public class BamQcTool extends NgsSmartTool{
             outsideReporter.writeReport(bamQC.getOutsideBamStats(),outdir);
 
             outsideReporter.loadReportData(bamQC.getOutsideBamStats());
-            reporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());
+            outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 
             tabProperties.setOutsideReporter(outsideReporter);
             tabProperties.setOutsideStatsAvailable(true);

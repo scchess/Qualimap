@@ -6,6 +6,8 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
 
+import java.io.File;
+
 /**
  * Created by kokonech
  * Date: 1/27/12
@@ -24,7 +26,7 @@ public class EpiTool extends NgsSmartTool {
     }
 
     public EpiTool() {
-        super("epigenetics");
+        super(Constants.TOOL_NAME_EPIGENOMIC);
         cfg = new EpiAnalysis.Config();
 
     }
@@ -54,10 +56,19 @@ public class EpiTool extends NgsSmartTool {
         }
 
         cfg.pathToRegions = commandLine.getOptionValue(OPTION_NAME_REGIONS);
+        if (! (new File(cfg.pathToRegions)).exists()) {
+            throw new ParseException("Regions file doesn't exists");
+        }
 
         EpiAnalysis.ReplicateItem item = new EpiAnalysis.ReplicateItem();
         item.medipPath =  commandLine.getOptionValue(OPTION_NAME_SAMPLE);
+        if (! (new File(item.medipPath)).exists()) {
+            throw new ParseException("Sample file doesn't exists");
+        }
         item.inputPath = commandLine.getOptionValue(OPTION_NAME_CONTROL);
+        if (! (new File(item.inputPath)).exists()) {
+                    throw new ParseException("Control file doesn't exists");
+        }
         if (commandLine.hasOption("name")) {
             item.name = commandLine.getOptionValue("name");
         } else {
