@@ -183,12 +183,14 @@ public class BamAnalysisThread extends Thread {
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             se.printStackTrace();
             bamDialog.setUiEnabled(true);
+            timer.cancel();
             return;
         } catch (Exception e) {
 		    JOptionPane.showMessageDialog(null, "Analysis is failed. Reason: " + e.getMessage(),
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             bamDialog.setUiEnabled(true);
+            timer.cancel();
             return;
 		}
 		bamDialog.addNewPane(tabProperties);

@@ -55,7 +55,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         add(labelPathDataFile, "");
 
         pathDataFile = new JTextField(40);
-        pathDataFile.setToolTipText("Path to BAM alignment file");
+        pathDataFile.setToolTipText("Path to the alignment file. Note: BAM file has to be sorted by coordinate.");
         add(pathDataFile, "grow");
 
         pathDataFileButton = new JButton();
@@ -407,7 +407,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         }
 
         progressBar.setEnabled(true);
+        progressBar.setValue(0);
+
         progressStream.setEnabled(true);
+        progressStream.setText("Status");
 
     }
 

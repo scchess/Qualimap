@@ -11,17 +11,12 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 public class NgsSmartMain {
 	
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
-
-    public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		Logger logger = new Logger();
         NgsSmartTool tool = null;
 
 		if(args.length == 0 || args[0].equals("--home")){
-			launchGUI(args,logger);
+			launchGUI(args);
 		} else {
 						
 			String toolName = args[0];
@@ -76,7 +71,7 @@ public class NgsSmartMain {
 		}
 	}
 	
-	public static void launchGUI(String[] args, Logger logger) throws ParseException{
+	public static void launchGUI(String[] args) throws ParseException{
 		
 
 		String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");

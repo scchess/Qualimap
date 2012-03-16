@@ -165,6 +165,19 @@ public class BamStatsAnalysis {
 		logger.println(lastActionDone);
 		SAMFileHeader header = reader.getFileHeader();
 
+
+        String textHeader = header.getTextHeader();
+        if (!textHeader.isEmpty()) {
+            if (textHeader.contains("@HD")){
+            SAMFileHeader.SortOrder sortOrder = header.getSortOrder();
+            if (sortOrder != SAMFileHeader.SortOrder.coordinate) {
+                logger.warn("According to header the BAM file is not sorted by coordinate!");
+            }
+            }else {
+                logger.warn("@HD line is not presented in the BAM file header.");
+            }
+        }
+
         // load locator
         lastActionDone = "loading locator";
         logger.println(lastActionDone);
@@ -271,6 +284,10 @@ public class BamStatsAnalysis {
                     if (read.getMateUnmappedFlag()) {
                         numberOfSingletons++;
                     }
+                }
+
+                if (position < currentWindow.getStart()) {
+                    throw new RuntimeException("The alignment file is unsorted.\nPlease sort the BAM file by coordinate.");
                 }
 
                 long findOverlappersStart = System.currentTimeMillis();
@@ -816,7 +833,7 @@ public class BamStatsAnalysis {
                         //System.out.println("Chromosome window break: " + (windowStarts.size() + 1));
                         chromosomeWindowIndexes.add(windowStarts.size());
                         windowStarts.add(nextContigStart);
-                        System.out.println("window start: " + nextContigStart);
+                        //System.out.println("window start: " + nextContigStart);
                     }
                     i++;
                 } else {

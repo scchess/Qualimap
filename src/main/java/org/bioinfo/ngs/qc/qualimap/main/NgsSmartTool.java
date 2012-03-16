@@ -1,7 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.File;
-import java.util.jar.Attributes;
 
 import org.apache.commons.cli.*;
 import org.bioinfo.commons.log.Logger;
@@ -103,7 +102,7 @@ public abstract class NgsSmartTool {
 
         if (commandLine.hasOption(OPTION_NAME_OUTPUT_TYPE)) {
             outputType = commandLine.getOptionValue(OPTION_NAME_OUTPUT_TYPE);
-            if (outputType != Constants.REPORT_TYPE_HTML && outputType != Constants.REPORT_TYPE_PDF) {
+            if (!outputType.equals(Constants.REPORT_TYPE_HTML) && !outputType.equals(Constants.REPORT_TYPE_PDF)) {
                 throw new ParseException("Unknown output report format " + outputType);
             }
         }
@@ -144,7 +143,10 @@ public abstract class NgsSmartTool {
         	if(new File(outdir).exists()){
 				logger.warn("output folder already exists");
 			} else {
-				new File(outdir).mkdirs();
+				boolean ok = new File(outdir).mkdirs();
+                if (!ok) {
+                    logger.error("Failed to create output directory.");
+                }
 			}
 		}
 	}
