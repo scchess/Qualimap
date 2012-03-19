@@ -1,17 +1,39 @@
 #!/bin/bash
 
+
+# This script launches Qualimap on Linux
+
+
+# Change memory settings here
+
+
 if [ "$JAVA_OPTS" != "" ]
 then
 	java_options=$JAVA_OPTS
 	echo "detected environment java options $java_options"
 else
-	java_options="-Xms32m -Xmx2G -XX:MaxPermSize=2048m"
+	java_options="-Xms32m -Xmx1G -XX:MaxPermSize=2048m"
 fi
 
 
 CLASSPATH=""
 
-shell_path=`dirname "$0"`;
+prg=$0
+
+# check if symbolic link
+
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+        prg="$link"
+    else
+        prg="`dirname $PRG`/$link"
+    fi
+done
+
+
+shell_path=`dirname "$prg"`;
 absolute=`echo $shell_path | grep "^/"`;
 
 if [ -z $absolute ]
@@ -21,7 +43,7 @@ else
 	export QUALIMAP_HOME="$shell_path"
 fi
 
-java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain $@ --home $QUALIMAP_HOME
+java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain $@
 
 
 
