@@ -64,7 +64,7 @@ public class HtmlReportGenerator {
         append("\t<div class=\"header-wrapper\">");
         append("\t\t<div class=\"header\">");
         append("\t\t<p class=\"logo\"><a href=\"http://qualimap.bioinfo.cipf.es/\">");
-        append("\t\t<img class=\"logo\" src=\"/home/kokonech/_static/qualimap_logo_small.png\" " +
+        append("\t\t<img class=\"logo\" src=\"_static/qualimap_logo_small.png\" " +
                 "alt=\"Logo\"/>");
         append("\t\t</a></p>");
         append("<div class=\"headertitle\">" +

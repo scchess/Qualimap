@@ -253,11 +253,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
-        String missingPackagesMsg = checkForRDependencies();
-        if (!missingPackagesMsg.isEmpty() ) {
-            JOptionPane.showMessageDialog(this, missingPackagesMsg, "Checking for required R packages",
-                    JOptionPane.INFORMATION_MESSAGE);
-            rIsAvailable = false;
+        if (rIsAvailable) {
+            String missingPackagesMsg = checkForRDependencies();
+            if (!missingPackagesMsg.isEmpty() ) {
+                JOptionPane.showMessageDialog(this, missingPackagesMsg, "Checking for required R packages",
+                        JOptionPane.INFORMATION_MESSAGE);
+                rIsAvailable = false;
+            }
         }
 
         if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
