@@ -14,7 +14,7 @@ Input
 ^^^^^
 
 :guilabel:`BAM file` 
-  Path to the sequence alignment file in BAM format.
+  Path to the sequence alignment file in BAM format. Note, that the BAM file has to be sorted. Sorting can be performed with `satmtools <http://samtools.sourceforge.net/>`_.
 
 :guilabel:`Draw chromosome limits` 
   If selected, vertical dotted lines will be placed at the beginning of each chromosome according to the information found in the header of the BAM file.
