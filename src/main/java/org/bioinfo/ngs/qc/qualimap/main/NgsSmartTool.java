@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.commons.cli.*;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -170,7 +171,7 @@ public abstract class NgsSmartTool {
 
     protected void exportResult(TabPropertiesVO tabProperties) {
          Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
-                new SavePdfThread(tabProperties, outdir + File.separator + "report.pdf") :
+                new ExportPdfThread(tabProperties, outdir + File.separator + "report.pdf") :
                 new ExportHtmlThread(tabProperties, outdir);
 
          exportReportThread.run();

@@ -21,6 +21,7 @@ import net.miginfocom.swing.MigLayout;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.SaveZipThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -112,7 +113,8 @@ public class SavePanel extends javax.swing.JPanel {
 
         pathDataDir = new JTextField(40);
         pathDataDir.addKeyListener(keyListener);
-        pathDataDir.setText("qualimapReport." + fileType.toLowerCase() );
+        pathDataDir.setText(new File("").getAbsolutePath() + File.separator +
+                "qualimapReport." + fileType.toLowerCase() );
         resultContainer.add(pathDataDir, "grow");
 
         JButton pathDirButton = new JButton();
@@ -281,20 +283,22 @@ public class SavePanel extends javax.swing.JPanel {
 		
 		t.start();
 	}
-	
-	/**
+
+
+/**
 	 * Function that calls a thread that create the pdf file with the data read in the selected tab
 	 * and save it into the disk.
      * @param path Output PDF path
      */
-	private void createPdfFile(String path){
+	private void exportToPdf(String path){
 		TabPropertiesVO tabProperties = homeFrame.getSelectedTabPropertiesVO();
-		
-		SavePdfThread t = 
-			new SavePdfThread("Save to Pdf Thread", this, tabProperties, path);
-		
+
+		ExportPdfThread t =
+			new ExportPdfThread("Export to Pdf Thread", this, tabProperties, path);
+
 		t.start();
 	}
+
 	
 	private void exportToHtml(String dirPath) {
         TabPropertiesVO tabPropertiesVO = homeFrame.getSelectedTabPropertiesVO();
@@ -367,7 +371,8 @@ public class SavePanel extends javax.swing.JPanel {
 							"The file " + file.getPath() + "already exists." +
 							"Do you want to replace the existing file?", 
 							"Confirm", JOptionPane.OK_OPTION) == 0)) {
-						createPdfFile(file.getAbsolutePath());
+						//createPdfFile(file.getAbsolutePath());
+                        exportToPdf(file.getAbsolutePath());
 					}
 				} else {
 					JOptionPane.showMessageDialog(null,

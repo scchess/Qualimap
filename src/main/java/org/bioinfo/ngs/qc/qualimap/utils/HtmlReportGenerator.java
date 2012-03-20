@@ -120,7 +120,7 @@ public class HtmlReportGenerator {
 
         append("<div class=summary>\n");
 
-        List<Section> summarySections = reporter.getSummaryInputSections();
+        List<Section> summarySections = reporter.getSummaryDataSections();
         appendTableFromStats(summarySections);
 
 

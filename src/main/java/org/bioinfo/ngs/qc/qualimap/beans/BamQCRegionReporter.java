@@ -943,7 +943,7 @@ public class BamQCRegionReporter implements Serializable {
         return inputDataKeeper.getSections();
     }
 
-    public List<StatsKeeper.Section> getSummaryInputSections() {
+    public List<StatsKeeper.Section> getSummaryDataSections() {
         if (summaryStatsKeeper == null) {
             createSummaryStatsKeeper();
         }
