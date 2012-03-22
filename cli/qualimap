@@ -22,13 +22,13 @@ prg=$0
 
 # check if symbolic link
 
-while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
+while [ -h "$prg" ] ; do
+    ls=`ls -ld "$prg"`
     link=`expr "$ls" : '.*-> \(.*\)$'`
     if expr "$link" : '.*/.*' > /dev/null; then
         prg="$link"
     else
-        prg="`dirname $PRG`/$link"
+        prg="`dirname $prg`/$link"
     fi
 done
 
@@ -42,6 +42,12 @@ then
 else 
 	export QUALIMAP_HOME="$shell_path"
 fi
+
+# For debug purposes
+
+#echo $QUALIMAP_HOME
+#echo
+
 
 java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain $@
 
