@@ -90,9 +90,12 @@ public class GtfParser {
         r.strand =  items[6];
         r.frame = items[7];
 
-        String[] attrs = items[8].split(";");
+        String[] attrs = items[8].trim().split(";");
         for (String attr: attrs) {
             String[] pair = attr.trim().split(" ");
+            if (pair.length < 2) {
+                throw new RuntimeException("Badly formatted gff file!\nProblematic line is " + line);
+            }
             String value = pair[1];
             //remove surrounding quotes
             if (value.startsWith("\"") && value.endsWith("\"")) {

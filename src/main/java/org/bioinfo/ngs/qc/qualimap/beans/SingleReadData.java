@@ -13,16 +13,11 @@ public class SingleReadData {
     public long numberOfSequencedBases;
     public long numberOfMappedBases;
     public long numberOfMappedBasesSquared;
-    //public long acumMappingQuality;
-    public long correctInsertSizes;
     public long acumInsertSize;
     public long numberOfAs;
     public long numberOfTs;
     public long numberOfCs;
     public long numberOfGs;
-
-    //public long numberOfProcessedReads;
-    //public long numberOfOutOfBoundsReads;
     public long numberOfAlignedBases;
 
     public static class Cell {
@@ -82,7 +77,7 @@ public class SingleReadData {
             acumG(relative);
         }
 
-        if ( insertSize!=-1 ){
+        if ( insertSize != -1 ){
             acumProperlyPairedBase(relative);
         }
 
@@ -123,10 +118,9 @@ public class SingleReadData {
 
 	public void acumInsertSize(long relative, long insertSize){
 		if(insertSize>0 & insertSize<5000){
-			correctInsertSizes++;
 			acumInsertSize+=Math.abs(insertSize);
 		}
-        insertSizeData.add( new Cell((int) relative, (int) Math.abs(insertSize)) );
+        insertSizeData.add( new Cell((int) relative, (int) Math.abs( insertSize)) );
     }
 
 }

@@ -31,7 +31,7 @@ public class EpigeneticsAnalysisThread extends Thread {
         }
 
         @Override
-        protected void logLine(String msg) {
+        public void logLine(String msg) {
             System.out.println(msg);
             if (msg.contains("STATUS:")) {
                 parentDialog.setProgressStatus(msg.split(":")[1]);

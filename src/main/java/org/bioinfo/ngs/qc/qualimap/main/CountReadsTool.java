@@ -42,7 +42,7 @@ public class CountReadsTool extends NgsSmartTool {
     @Override
     protected void checkOptions() throws ParseException {
 
-        bamFile = commandLine.getOptionValue("in");
+        bamFile = commandLine.getOptionValue("bam");
 		if (!exists(bamFile))
             throw new ParseException("input mapping file not found");
 
@@ -94,6 +94,7 @@ public class CountReadsTool extends NgsSmartTool {
 
         } catch (Exception e) {
             System.err.println("Error while calculating counts! " + e.getMessage());
+            e.printStackTrace();
             return;
         }
 

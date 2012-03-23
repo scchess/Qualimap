@@ -8,6 +8,7 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
+import sun.security.krb5.internal.KdcErrException;
 
 
 public class BamStats implements Serializable {
@@ -119,8 +120,11 @@ public class BamStats implements Serializable {
     private XYVector coverageHistogram;
 	private XYVector acumCoverageHistogram;
     private XYVector uniqueReadStartsHistogram;
+    private XYVector balancedCoverageHistogram;
 	private int maxCoverageQuota;
 	private XYVector coverageQuotes;
+    private Map<Double, String> balancedCoverageBarNames;
+
 	
 	// quality
 	private double meanMappingQualityPerWindow;
@@ -270,6 +274,7 @@ public class BamStats implements Serializable {
 		stdCoverageAcrossReference = new ArrayList<Double>(numberOfWindows);
 		coverageHistogramMap = new HashMap<Long,Long>(numberOfWindows);
         coverageHistogramCache = new long[CACHE_SIZE];
+
 
 		
 		// quality
@@ -665,11 +670,15 @@ public class BamStats implements Serializable {
 			// coverageData
 			updateHistogramValue(coverageHistogramCache, coverageHistogramMap, window.getCoverageAcrossReference()[i]);
 			
-			// quality
-			updateHistogramValue(mappingQualityHistogramCache, mappingQualityHistogramMap, window.getMappingQualityAcrossReference()[i]);
-
+			long quality = window.getMappingQualityAcrossReference()[i];
+            if (quality != -1) {
+			    updateHistogramValue(mappingQualityHistogramCache, mappingQualityHistogramMap, quality);
+            }
             // insert size
-            updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, window.getInsertSizeAcrossReference()[i]);
+            long insertSize =   window.getInsertSizeAcrossReference()[i];
+            if (insertSize != -1) {
+                updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, insertSize);
+            }
         }
 	}
 
@@ -865,7 +874,47 @@ public class BamStats implements Serializable {
 		for(int i=0; i<sortedCoverages.length; i++){
 			coverageHistogram.addItem(new XYItem(sortedCoverages[i],sortedFreqs[i]));
 		} 
-		
+
+
+        // compute balanced coverage histogram
+        balancedCoverageHistogram = new XYVector();
+        balancedCoverageBarNames = new HashMap<Double, String>();
+        double maxCoverage = sortedCoverages[coverages.length - 1];
+        int binCount = 30;
+        double n = Math.pow(maxCoverage, 1.0 / binCount );
+
+        int border = 0;
+
+        ArrayList<Integer> balancedCoverages = new ArrayList<Integer>();
+        balancedCoverages.add(0);
+
+        for (int i = 0; i <= binCount; ++i) {
+            int newBorder = (int) Math.round( Math.pow(n, i) );
+            if (newBorder > border) {
+                balancedCoverages.add(newBorder);
+                border = newBorder;
+            }
+        }
+
+        int borderIndex = 0;
+        for (int i = 0; i < balancedCoverages.size(); ++i) {
+            int coverage = balancedCoverages.get(i);
+            double sum = 0;
+            int prevIndex = borderIndex;
+            while(  borderIndex < sortedCoverages.length && sortedCoverages[borderIndex] <= coverage) {
+                sum += sortedFreqs[borderIndex];
+                ++borderIndex;
+            }
+            System.out.println("i = " + i + " ,borderIndex = " + borderIndex + " ,sum= " + sum) ;
+            String barName = borderIndex == prevIndex + 1 ? prevIndex + "" :
+                    prevIndex +" - " + (borderIndex - 1);
+            //System.out.println("Bar name is " + barName);
+            balancedCoverageBarNames.put((double)i, barName);
+            balancedCoverageHistogram.addItem(new XYItem(i, sum));
+
+        }
+
+
 		// compute acum histogram
 		acumCoverageHistogram = new XYVector();
 		double acum = 0.0;
@@ -917,7 +966,7 @@ public class BamStats implements Serializable {
 		long totalCoverage = 0;
 		for(int i=0; i<raw.length; i++) {
 			coverages[i] = (Long)raw[i];
-			freqs[i] = new Double(map.get(raw[i]));
+			freqs[i] = (double) map.get(raw[i]);
 			totalCoverage+=freqs[i];
 		}
 
@@ -2978,5 +3027,13 @@ public class BamStats implements Serializable {
         }
 
         chromoWriter.close();
+    }
+
+    public XYVector getBalancedCoverageHistogram() {
+        return balancedCoverageHistogram;
+    }
+
+    public Map<Double,String> getBalancedCoverageBarNames() {
+        return balancedCoverageBarNames;
     }
 }

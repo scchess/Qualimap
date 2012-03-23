@@ -298,6 +298,8 @@ public class ProcessBunchOfReadsTask implements Callable {
                 isPairedData = false;
             }
 
+            int mappingQuality = read.getMappingQuality();
+
             // NEW VERSION
             /*try {
                 boolean outOfBounds = processRead(currentWindow, read, position);
@@ -316,12 +318,11 @@ public class ProcessBunchOfReadsTask implements Callable {
 
             //regionLookupTable = createRegionLookupTable(position, readEnd, ctx.getRegionsTree());
             boolean outOfBounds = processRead(currentWindow, alignment, position, readEnd,
-                    read.getMappingQuality(), insertSize);
+                    mappingQuality, insertSize);
 
             if(outOfBounds) {
                 //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
-                propagateRead(alignment, position, readEnd, read.getMappingQuality(),
-                        insertSize);
+                propagateRead(alignment, position, readEnd, mappingQuality, insertSize);
             }
 
         }
@@ -336,10 +337,6 @@ public class ProcessBunchOfReadsTask implements Callable {
         taskResult.setReadsStatsCollector(readStatsCollector);
 
         if (analyzeRegions && computeOutsideStats) {
-            /*for (SingleReadData readData : outOfRegionsResults.values()) {
-                float gcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
-                outOfRegionsReadsGCContent.add(gcContent);
-            }*/
             outOfRegionsReadStatsCollector.saveGC();
             taskResult.setOutOfRegionReadsData(outOfRegionsResults.values());
             taskResult.setOutRegionReadStatsCollector(outOfRegionsReadStatsCollector);
@@ -572,12 +569,13 @@ public class ProcessBunchOfReadsTask implements Callable {
 
                 // aligned bases
                 readData.numberOfAlignedBases++;
-                // mapping quality
-                readData.acumMappingQuality(relative, mappingQuality);
-                // insert size
-                readData.acumInsertSize(relative, insertSize);
 
                 if (nucleotide != '-' && nucleotide != 'N') {
+                    // mapping quality
+                    readData.acumMappingQuality(relative, mappingQuality);
+                    // insert size
+                    readData.acumInsertSize(relative, insertSize);
+                    // base stats
                     readData.acumBase(relative, nucleotide, insertSize);
                 }
 

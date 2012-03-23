@@ -430,17 +430,18 @@ public class BamQCRegionReporter implements Serializable {
         mapCharts.put(bamStats.getName() + "_coverage_across_reference.png",combinedChart);
 
 		// coverageData histogram
-		BamQCXYHistogramChart coverageHistogram = new BamQCXYHistogramChart("Coverage histogram", subTitle, "coverageData (bp)", "frequency");
-		coverageHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
-		coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
-		coverageHistogram.setDomainAxisIntegerTicks(true);
-	    coverageHistogram.render();
+		BamQCHistogramChart coverageHistogram = new BamQCHistogramChart("Coverage histogram (scaled)",
+                subTitle, "Coverage rate", "Frequency",
+                bamStats.getBalancedCoverageHistogram(), bamStats.getBalancedCoverageBarNames());
+		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
+		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
+		coverageHistogram.render();
 		// TODO: move this code to render() method?
-        if (bamStats.getCoverageHistogram().getSize() > 0) {
+        /*if (bamStats.getCoverageHistogram().getSize() > 0) {
             double lower = bamStats.getCoverageHistogram().get(0).getX();
             double upper = bamStats.getCoverageHistogram().get(bamStats.getCoverageHistogram().getSize()-1).getX();
             coverageHistogram.getChart().getXYPlot().getDomainAxis().setRange(lower,upper);
-        }
+        }*/
         mapCharts.put(
 				bamStats.getName() + "_coverage_histogram.png",
 				coverageHistogram.getChart());
@@ -532,8 +533,8 @@ public class BamQCRegionReporter implements Serializable {
                 new BamQCXYHistogramChart("Mapping quality histogram",
                         subTitle, "mapping quality", "frequency");
 		mappingQualityHistogram.addHistogram("mapping quality", bamStats.getMappingQualityHistogram(), Color.blue);
-		mappingQualityHistogram.setNumberOfBins(50);		
-		mappingQualityHistogram.render();
+		mappingQualityHistogram.setNumberOfBins(50);
+        mappingQualityHistogram.render();
 		mapCharts.put(
 				bamStats.getName() + "_mapping_quality_histogram.png",
 				mappingQualityHistogram.getChart());
@@ -554,7 +555,8 @@ public class BamQCRegionReporter implements Serializable {
 			BamQCXYHistogramChart insertSizeHistogram =
                     new BamQCXYHistogramChart("Insert size histogram", subTitle, "insert size (bp)", "frequency");
 			insertSizeHistogram.addHistogram("insert size", bamStats.getInsertSizeHistogram(), new Color(15,170,90,150));
-			insertSizeHistogram.setNumberOfBins(50);		
+			insertSizeHistogram.setNumberOfBins(50);
+            insertSizeHistogram.setRangeAxisIntegerTicks(true);
 			insertSizeHistogram.render();
 			mapCharts.put(bamStats.getName() + "_insert_size_histogram.png", insertSizeHistogram.getChart());
 		}

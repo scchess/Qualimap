@@ -95,11 +95,13 @@ public class EpiAnalysis {
         String workDir = tabProperties.createDirectory().toString();
 
         reportProgress("Generating configuration file...");
-        createConfigFile(workDir.toString(), "config.xml");
+        createConfigFile(workDir, "config.xml");
 
         // Create the command to execute
-        String commandString = createCommand(workDir.toString());
-        reportProgress(commandString);
+        String commandString = createCommand(workDir);
+        if (outputParsingThread != null) {
+            outputParsingThread.logLine(commandString);
+        }
 
         reportProgress("Running R script");
         Process p = Runtime.getRuntime().exec(commandString);

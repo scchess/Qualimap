@@ -12,7 +12,7 @@ public abstract class LoggerThread extends Thread {
 
     BufferedReader outputReader;
 
-    protected  abstract void logLine(String msg);
+    public abstract void logLine(String msg);
 
     public void start(BufferedReader reader) {
         this.outputReader = reader;
@@ -35,6 +35,8 @@ public abstract class LoggerThread extends Thread {
             System.err.println("Failed to parse output stream.");
         }
     }
+
+
 
 
 }

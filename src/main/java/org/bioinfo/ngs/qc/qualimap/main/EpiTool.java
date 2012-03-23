@@ -120,7 +120,7 @@ public class EpiTool extends NgsSmartTool {
         EpiAnalysis epiAnalysis = new EpiAnalysis(tabProperties,homePath,cfg);
 
         LoggerThread loggerThread = new LoggerThread() {
-            protected void logLine(String msg) {
+            public void logLine(String msg) {
                 System.out.println(msg);
             }
         };

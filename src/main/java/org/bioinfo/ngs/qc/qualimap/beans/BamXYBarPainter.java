@@ -28,8 +28,8 @@ public class BamXYBarPainter implements XYBarPainter, Serializable {
 	public void paintBar(Graphics2D g, XYBarRenderer renderer, int row, int column, RectangularShape shape, RectangleEdge edge) {
 		// create shape		
 		RectangularShape myshape = (RectangularShape)shape.clone(); 
-		barwidth = (g.getClip().getBounds().getWidth()/(double)numberOfBars)*0.9;
-		myshape.setFrame(shape.getMinX(),shape.getMinY(),barwidth,shape.getHeight());
+		//barwidth = (g.getClip().getBounds().getWidth()/(double)numberOfBars)*0.9;
+		//myshape.setFrame(shape.getMinX(),shape.getMinY(),barwidth,shape.getHeight());
 		
 		// fill
 		g.setColor(barColor);

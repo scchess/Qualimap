@@ -1117,7 +1117,7 @@ public class BamGenomeWindow {
         numberOfTs += readData.numberOfTs;
 
         acumInsertSize += readData.acumInsertSize;
-        correctInsertSizes += readData.correctInsertSizes;
+        //correctInsertSizes += readData.correctInsertSizes;
 
 
     }

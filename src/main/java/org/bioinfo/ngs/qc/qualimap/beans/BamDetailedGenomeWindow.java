@@ -3,6 +3,8 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.math.util.MathUtils;
 
+import javax.swing.*;
+
 
 public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	// reference sequence	
@@ -133,13 +135,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 			long coverageAtPosition =  coverageAcrossReference[i];
 
             if(coverageAtPosition > 0){
-				
-				// GC/AT contents
-				// TODO: optimize no one is using this variable
-                //gcContentAcrossReference[i] = (float)(gcContentAcrossReference[i])/coverageAtPosition;
-                //TODO: why to keep this?
-                //atContentAcrossReference[i] = (float)(aContentAcrossReference[i] + tContentAcrossReference[i])/(float)coverageAcrossReference[i];
-				
+
 				// quality
 				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i] / coverageAtPosition;
 //				System.err.println(properlyPairedCoverageAcrossReference[i]);
@@ -148,7 +144,11 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 
                 sumCoverageSquared += coverageAtPosition*coverageAtPosition;
 				
-			}
+			} else {
+                // make it invalid for histogram
+                mappingQualityAcrossReference[i] = -1;
+                insertSizeAcrossReference[i] = -1;
+            }
 		}
 				
 		// compute std coverageData
