@@ -234,6 +234,8 @@ public class BamStats implements Serializable {
 	transient private PrintWriter coverageReport;
     private long sumCoverageSquared;
     private final int CACHE_SIZE = 2000;
+    private Map<String,String> warnings;
+
 
     // gc content histogram
     public static int  NUM_BINS = 1000;
@@ -324,7 +326,9 @@ public class BamStats implements Serializable {
 		// others		
 		maxCoverageQuota = 50;
 		numberOfProcessedWindows = 0;
-		numberOfInitializedWindows = 0;
+        numberOfInitializedWindows = 0;
+
+        warnings = new HashMap<String, String>() ;
 		
 	}
 
@@ -905,7 +909,7 @@ public class BamStats implements Serializable {
                 sum += sortedFreqs[borderIndex];
                 ++borderIndex;
             }
-            System.out.println("i = " + i + " ,borderIndex = " + borderIndex + " ,sum= " + sum) ;
+            //System.out.println("i = " + i + " ,borderIndex = " + borderIndex + " ,sum= " + sum) ;
             String barName = borderIndex == prevIndex + 1 ? prevIndex + "" :
                     prevIndex +" - " + (borderIndex - 1);
             //System.out.println("Bar name is " + barName);
@@ -3035,5 +3039,13 @@ public class BamStats implements Serializable {
 
     public Map<Double,String> getBalancedCoverageBarNames() {
         return balancedCoverageBarNames;
+    }
+
+    public void addWarning(String warningIdChromosomeNotFound, String msg) {
+        warnings.put(warningIdChromosomeNotFound, msg);
+    }
+
+    public Map<String,String> getWarnings() {
+        return warnings;
     }
 }

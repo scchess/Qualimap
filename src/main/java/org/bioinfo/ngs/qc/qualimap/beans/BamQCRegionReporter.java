@@ -25,7 +25,6 @@ import org.jfree.ui.RectangleInsets;
 
 public class BamQCRegionReporter implements Serializable {
 
-
     public String getNamePostfix() {
         return namePostfix;
     }
@@ -93,6 +92,7 @@ public class BamQCRegionReporter implements Serializable {
     StatsKeeper summaryStatsKeeper;
     StatsKeeper chromosomeStatsKeeper;
 
+    private Map<String,String> warnings;
     String namePostfix;
     String pathToGenomeGCContent;
     String genomeGCContentName;
@@ -958,6 +958,13 @@ public class BamQCRegionReporter implements Serializable {
         StringUtilsSwing sdf = new StringUtilsSwing();
         String postfix = getNamePostfix();
 
+        if (warnings != null && !warnings.isEmpty()) {
+            StatsKeeper.Section warningsSection = new StatsKeeper.Section("Warnings");
+            for (Map.Entry<String,String> entry : warnings.entrySet()) {
+                warningsSection.addRow(entry.getKey(), entry.getValue());
+            }
+            summaryStatsKeeper.addSection(warningsSection);
+        }
 
         StatsKeeper.Section globals = new StatsKeeper.Section("Globals");
 
@@ -1193,5 +1200,9 @@ public class BamQCRegionReporter implements Serializable {
         this.chromosomeFilePath = chromosomeFilePath;
     }
 
+
+    public void setWarningInfo(Map<String, String> warnings) {
+        this.warnings  = warnings;
+    }
 
 }

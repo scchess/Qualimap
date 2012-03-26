@@ -43,7 +43,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         ComputeCountsDialog dlg;
         Set<String> featuresTypes, featureNames;
-        static final int NUM_LINES = 1000;
+        static final int NUM_LINES = 100000;
 
         public BrowseGffButtonListener(ComputeCountsDialog parent, JTextField textField) {
             super(parent, textField, "GTF files", "gtf");

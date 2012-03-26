@@ -221,6 +221,8 @@ public class BamAnalysisThread extends Thread {
             reporter.addInputDataSection("GFF region", regionParams);
         }
 
+        reporter.setWarningInfo(bamQC.getBamStats().getWarnings());
+
     }
 
 

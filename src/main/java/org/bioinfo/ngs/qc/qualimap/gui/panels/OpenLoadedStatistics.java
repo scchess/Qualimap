@@ -217,6 +217,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         leftPanel.add(checkFirstSection);
 
         JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
+        //String iconM
         j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 	    leftPanel.add(j1_0);
         initialLabel = j1_0;

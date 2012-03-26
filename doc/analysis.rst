@@ -40,8 +40,8 @@ Advanced parameters
 :guilabel:`Number of threads` 
   The genomic analysis computation can be performed in parallel on a multicore system using the given number of threads. The default number of threads equals number of available processors.
 
-:guilabel:`Size of the bunch` 
-  To speed up the computation reads are analyzed in bunches. Each bunch is analyzed by single thread. This option controls the number of reads in bunch. Smaller number may result in lower performance, but also the memory consumption will be reduced. 
+:guilabel:`Reads per chunk` 
+  To speed up the computation reads are analyzed in chunks. Each chunk is analyzed by single thread. This option controls the number of reads in a chunk. Smaller number may result in lower performance, but also the memory consumption will be reduced. 
 
 
 Output
@@ -65,13 +65,13 @@ Output
 :guilabel:`Coverage quota`
   Provides an easy way of viewing how much reference has been sequenced with a coverage higher than a selected level.
 
-:guilabel:`Reads content per position` 
+:guilabel:`Mapped Reads Nucleotide Content` 
   This plot demonstrates the nucleotide content per read position.
 
-:guilabel:`GC content per read` 
+:guilabel:`Mapped Reads GC Content Distribution` 
   This graph shows the distribution of GC content per read. When compared with genome distribution this plot allows to check if there is a shift in the GC content. 
 
-:guilabel:`Unique reads per position` 
+:guilabel:`Duplication Rate Histogram` 
   The histogram shows how many reads start at unique position. This plot is helpful to see if the fragment distribution across genome. 
 
 :guilabel:`Mapping quality across reference` 

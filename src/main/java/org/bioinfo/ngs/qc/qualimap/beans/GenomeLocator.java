@@ -89,4 +89,13 @@ public class GenomeLocator implements Externalizable {
         totalSize = objectInput.readLong();
 
     }
+
+    public boolean containsContig(String seqName) {
+        for (ContigRecord contigRecord : contigs) {
+            if (contigRecord.getName().equals(seqName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

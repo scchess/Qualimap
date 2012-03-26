@@ -121,6 +121,8 @@ public class CountsAnalysis {
         }
         percentLoad = (100.0 / numStepsRnaToDo);
 
+        System.out.println("Command: " + command);
+
         increaseProgressBar(currentStepLoaded, "Running Rscript command... ");
 
         Process p = Runtime.getRuntime().exec(command);

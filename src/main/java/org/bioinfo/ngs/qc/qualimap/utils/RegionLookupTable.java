@@ -47,4 +47,8 @@ public class RegionLookupTable {
         }
         return tree.overlappers(readStart, readEnd).hasNext();
     }
+
+    public Set<String> getSequenceNames() {
+        return intervalTreeMap.keySet();
+    }
 }

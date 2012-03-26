@@ -34,7 +34,7 @@ import sun.management.*;
 public class HomeFrame extends JFrame implements WindowListener, ActionListener, MouseListener {
 	private static final long serialVersionUID = -3290549319383957609L;
 	
-	public static String outputpath =File.separator+"tmp/outputs"+File.separator; 
+	public static String outputpath =File.separator+"tmp"+File.separator + "qualimap";
 	
 	private static String title = "QualiMap v.1.0.1";
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);

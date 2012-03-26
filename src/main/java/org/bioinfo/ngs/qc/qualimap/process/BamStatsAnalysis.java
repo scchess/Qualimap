@@ -116,6 +116,7 @@ public class BamStatsAnalysis {
     long timeToCalcOverlappers;
     private String pgProgram, pgCommandString;
 
+    static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Sequence is missing";
 
     private static Map<String,String> genomeGcContentMap;
 
@@ -792,6 +793,22 @@ public class BamStatsAnalysis {
 			//System.err.println(region.getStart() + ":" + region.getEnd() + "       " + pos + ":" + (pos + region.getEnd()-region.getStart()) + "      "  + selectedRegionStarts[index] + ":" + selectedRegionEnds[index] +  "     " + relative);
 			index++;
 		}
+
+        validateSequenceNames();
+
+    }
+
+    private void validateSequenceNames() {
+        Set<String> seqNames = regionLookupTable.getSequenceNames();
+
+        for (String seqName : seqNames) {
+            if (!locator.containsContig(seqName)) {
+                String msg = "Sequence id " + seqName + " from regions is not found.";
+                bamStats.addWarning(WARNING_ID_CHROMOSOME_NOT_FOUND, msg);
+                logger.warn(msg);
+            }
+        }
+
 
     }
 
