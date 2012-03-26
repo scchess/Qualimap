@@ -5,6 +5,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -16,7 +17,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by kokonech
@@ -26,13 +30,105 @@ import java.util.Map;
 public class ComputeCountsDialog extends AnalysisDialog implements ActionListener{
 
 
-    JTextField bamPathEdit, gffPathEdit, outputPathField, featureTypeField;
+    JTextField bamPathEdit, gffPathEdit, outputPathField, featureNameField, featureTypeField;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
-    JComboBox strandTypeCombo, featureNameCombo, countingAlgoCombo;
+    JComboBox strandTypeCombo, countingAlgoCombo;
+    JComboBox availableFeatureTypesCombo, availableFeatureNamesCombo;
     JCheckBox saveStatsBox,advancedOptions;
     JLabel countingMethodLabel;
     Thread countReadsThread;
 
+
+    static class BrowseGffButtonListener extends BrowseButtonActionListener {
+
+        ComputeCountsDialog dlg;
+        Set<String> featuresTypes, featureNames;
+        static final int NUM_LINES = 1000;
+
+        public BrowseGffButtonListener(ComputeCountsDialog parent, JTextField textField) {
+            super(parent, textField, "GTF files", "gtf");
+            this.dlg = parent;
+            featuresTypes = new HashSet<String>();
+            featureNames = new HashSet<String>();
+        }
+
+        @Override
+        public void performAdditionalOperations() {
+            dlg.availableFeatureTypesCombo.removeAllItems();
+            dlg.availableFeatureNamesCombo.removeAllItems();
+
+            String filePath = pathEdit.getText();
+            try {
+                preloadGff(filePath);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(parent,
+                        "Failed to preload GTF file, please make sure the file has correct format.",
+                        dlg.getTitle(), JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (featuresTypes.isEmpty()) {
+                JOptionPane.showMessageDialog(parent,
+                        "No features are found in GTF file, please make sure the file is not empty.",
+                        dlg.getTitle(), JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            for (String s : featuresTypes) {
+                dlg.availableFeatureTypesCombo.addItem(s);
+            }
+            if (featuresTypes.contains(ComputeCountsTask.EXON_TYPE_ATTR)) {
+                dlg.availableFeatureTypesCombo.setSelectedItem(ComputeCountsTask.EXON_TYPE_ATTR);
+            }
+
+            for (String s : featureNames) {
+                dlg.availableFeatureNamesCombo.addItem(s);
+            }
+            if (featureNames.contains(ComputeCountsTask.GENE_ID_ATTR)) {
+                dlg.availableFeatureNamesCombo.setSelectedItem(ComputeCountsTask.GENE_ID_ATTR);
+            }
+
+        }
+
+        void preloadGff(String filePath) throws Exception {
+            GtfParser parser = new GtfParser(filePath);
+            for (int i = 0; i < NUM_LINES; ++i) {
+                GtfParser.Record rec = parser.readNextRecord();
+                if (rec == null) {
+                    break;
+                }
+                String featureType = rec.getFeature();
+                featuresTypes.add(featureType);
+                Collection<String> fNames = rec.getAttributeNames();
+                for (String name : fNames) {
+                    featureNames.add(name);
+                }
+            }
+
+        }
+    }
+
+    static class FeatureComboBoxListener implements ActionListener {
+
+        JTextField targetField;
+        JComboBox featuresCombo;
+
+        FeatureComboBoxListener(JComboBox featuresCombo, JTextField targetField) {
+            this.featuresCombo = featuresCombo;
+            this.targetField = targetField;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            Object curItem = featuresCombo.getSelectedItem();
+            if (curItem == null) {
+                return;
+            }
+                if (!curItem.toString().isEmpty()) {
+                    targetField.setText(curItem.toString());
+                }
+        }
+    }
 
     public ComputeCountsDialog(HomeFrame homeFrame) {
 
@@ -60,8 +156,8 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         browseGffButton = new JButton();
 		browseGffButton.setText("...");
-		browseGffButton.addActionListener(new BrowseButtonActionListener(this,
-                gffPathEdit, "GTF files", "gtf"));
+		browseGffButton.addActionListener(new BrowseGffButtonListener(this, gffPathEdit));
+        browseBamButton.addActionListener(this);
         add(browseGffButton, "align center, wrap");
 
 
@@ -73,18 +169,38 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         strandTypeCombo.setToolTipText("Select the corresponding sequencing protocol");
         add(strandTypeCombo, "wrap");
 
-        add(new JLabel("Feature type:"));
+        JPanel ftPanel = new JPanel();
+        ftPanel.setLayout(new MigLayout("insets 5"));
+        ftPanel.add(new JLabel("Feature type:"));
         featureTypeField = new JTextField(10);
         featureTypeField.setToolTipText("Third column of the GTF. All the features of other types will be ignored.");
-        featureTypeField.setText("exon");
-        add(featureTypeField, " wrap");
+        featureTypeField.setText(ComputeCountsTask.EXON_TYPE_ATTR);
+        ftPanel.add(featureTypeField, "");
+        ftPanel.add(new JLabel("Available feature types:"));
+        availableFeatureTypesCombo = new JComboBox();
+        availableFeatureTypesCombo.addItem("");
+        availableFeatureTypesCombo.setToolTipText("These types of features were found in first 1000 of the GFF file");
+        availableFeatureTypesCombo.addActionListener(
+                new FeatureComboBoxListener(availableFeatureTypesCombo,featureTypeField));
+        ftPanel.add(availableFeatureTypesCombo, "wrap");
 
-        add(new JLabel("Feature name:"));
-        String[] attrIems = {ComputeCountsTask.GENE_ID_ATTR,
-                ComputeCountsTask.TRANSCRIPT_ID_ATTR};
-        featureNameCombo = new JComboBox(attrIems);
-        featureNameCombo.setToolTipText("The name of the feature (attribute) to be count.");
-        add(featureNameCombo, "wrap");
+        add(ftPanel, "span, wrap");
+
+        JPanel fnPanel = new JPanel();
+        fnPanel.setLayout(new MigLayout("insets 5"));
+        fnPanel.add(new JLabel("Feature name:"));
+        featureNameField = new JTextField(10);
+        featureNameField.setText(ComputeCountsTask.GENE_ID_ATTR);
+        featureNameField.setToolTipText("The name of the feature (attribute) to be count.");
+        fnPanel.add(featureNameField, "");
+        fnPanel.add(new JLabel("Available feature names:"));
+        availableFeatureNamesCombo = new JComboBox();
+        availableFeatureNamesCombo.setToolTipText("These types of features were found in first 1000 of the GFF file");
+        availableFeatureNamesCombo.addActionListener(
+                new FeatureComboBoxListener(availableFeatureNamesCombo, featureNameField));
+        fnPanel.add(availableFeatureNamesCombo, "wrap");
+
+        add(fnPanel, "span, wrap");
 
         advancedOptions = new JCheckBox("Advanced options:");
         advancedOptions.addActionListener(this);
@@ -163,7 +279,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                     computeCountsTask.setProtocol(strandTypeCombo.getSelectedItem().toString());
                     computeCountsTask.setCountingAlgorithm(countingAlgoCombo.getSelectedItem().toString());
                     computeCountsTask.addSupportedFeatureType(featureType);
-                    computeCountsTask.setAttrName(featureNameCombo.getSelectedItem().toString());
+                    computeCountsTask.setAttrName(featureNameField.getText());
 
                     try {
                         computeCountsTask.run();

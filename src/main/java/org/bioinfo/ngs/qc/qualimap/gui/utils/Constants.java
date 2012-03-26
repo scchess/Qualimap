@@ -254,6 +254,7 @@ public final class Constants {
 
     public static final String OK_COMMAND = "ok";
     public static final String CANCEL_COMMAND = "cancel";
+    public static final String OPEN_COMMAND = "open";
 
     public static final String VIZ_TYPE_HEATMAP = "heatmap";
     public static final String VIZ_TYPE_LINE = "line";

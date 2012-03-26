@@ -38,7 +38,7 @@ public class ComputeCountsTask  {
     public static final String PROTOCOL_FORWARD_STRAND = "forward-stranded";
     public static final String PROTOCOL_REVERSE_STRAND = "reverse-stranded";
     public static final String GENE_ID_ATTR = "gene_id";
-    public static final String TRANSCRIPT_ID_ATTR = "transcript_id";
+    public static final String EXON_TYPE_ATTR = "exon";
     public static final String COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED = "uniquely-mapped-reads";
     public static final String COUNTING_ALGORITHM_PROPORTIONAL = "proportional";
 

@@ -3,8 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.utils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by kokonech
@@ -50,6 +49,10 @@ public class GtfParser {
 
         public String getAttribute(String attrName) {
             return attributes.get(attrName);
+        }
+
+        public Set<String> getAttributeNames() {
+            return attributes.keySet();
         }
     }
 

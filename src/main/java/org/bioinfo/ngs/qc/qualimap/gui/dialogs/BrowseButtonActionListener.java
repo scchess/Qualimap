@@ -17,12 +17,10 @@ import java.io.File;
 
 public class BrowseButtonActionListener implements ActionListener {
 
-    JTextField pathEdit;
-    Component parent;
-    String description;
-    String extention;
-
-
+    protected JTextField pathEdit;
+    protected Component parent;
+    protected String description;
+    protected String extention;
 
     public BrowseButtonActionListener(Component parent, JTextField field, String description) {
         this.parent = parent;
@@ -67,5 +65,11 @@ public class BrowseButtonActionListener implements ActionListener {
         if (result == JFileChooser.APPROVE_OPTION) {
             pathEdit.setText(fileOpenChooser.getSelectedFile().getPath());
         }
+
+        performAdditionalOperations();
+    }
+
+    protected void performAdditionalOperations() {
+
     }
 }
