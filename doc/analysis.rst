@@ -8,77 +8,89 @@ Analysis types
 Genomic
 -------
 
-Genomic analysis reports information for the evaluation of the quality of the alignment data provided. This information eases decision-making for further analysis of the data. In short, the basic statistics of the alignment (number of reads, coverage, GC content, etc.) are summarized and a number of useful graphs are produced. In addition, the user can provide an annotation file so the results are provided for the reads mapping inside (and optionally outside) of the corresponding genomic regions.
- 
+Genomic analysis reports information for the evaluation of the quality of the alignment data provided. This information eases decision-making for further analysis of the data. In short, the basic statistics of the alignment (number of reads, coverage, GC content, etc.) are summarized and a number of useful graphs are produced. In addition, the user can introduce an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions.
+
 Input
 ^^^^^
 
 :guilabel:`BAM file` 
-  Path to the sequence alignment file in BAM format. Note, that the BAM file has to be sorted by coordinate. Sorting can be performed with `satmtools <http://samtools.sourceforge.net/>`_.
+  Path to the sequence alignment file in BAM format. Note, that the BAM file has to be sorted by chromosomal coordinates. Sorting can be performed with `satmtools sort <http://samtools.sourceforge.net/>`_.
 
 :guilabel:`Draw chromosome limits` 
   If selected, vertical dotted lines will be placed at the beginning of each chromosome according to the information found in the header of the BAM file.
 
-:guilabel:`Analyze regions` 
-  Activating this option results in analysis of the alignment data only in specified region. 
+:guilabel:`Analyze Regions` 
+  Activating this option allows the analysis of the alignment data for the regions of interest. 
 
-:guilabel:`GFF file` 
-  The path to the annotation file that specifies regions of interest.
+:guilabel:`GFF File` 
+  The path to the annotation file that specifies the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ or `GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_ format.
 
-:guilabel:`Analyze outside regions` 
-  This option allows to provide the information about the alignment data outside of the regions of interest. Useful for comparison purposes.
+:guilabel:`Analyze Outside Regions` 
+  If checked, the information about the reads that mapped outside of the regions of interest will be also computed and shown in a separated section.
 
-:guilabel:`Compare GC content distribution with...` 
-  Option allows to compare calculated distribution with selected precalculated genome distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9)
+.. _input-gc-content:
+
+:guilabel:`Compare GC Content Distribution with...` 
+  This allows to compare calculated distribution with selected precalculated genome distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More genomes will be included in future releases.
 
 Advanced parameters
 """""""""""""""""""
 
-:guilabel:`Number of windows` 
-  Number of windows used to split the selected genome reference. Default is 400.
+:guilabel:`Number of Windows` 
+  Number of windows used to split the reference genome. This value is used for computing the graphs that plot information across the reference. Basically, reads falling in the same window are aggregated. The higher the number, the bigger the resolution of the plots but also longer time will be used to process the data. By default 400 windows are used.
 
-:guilabel:`Number of threads` 
-  The genomic analysis computation can be performed in parallel on a multicore system using the given number of threads. The default number of threads equals number of available processors.
+:guilabel:`Number of Threads` 
+  In order to speed up the computation, the genomic analysis computation can be performed in parallel on a multicore system using the given number of threads. More information on the paralization of qualimap can be found `here <poner>`_ the The default number of threads equals number of available processors.
 
-:guilabel:`Reads per chunk` 
-  To speed up the computation reads are analyzed in chunks. Each chunk is analyzed by single thread. This option controls the number of reads in a chunk. Smaller number may result in lower performance, but also the memory consumption will be reduced. 
+:guilabel:`Reads per Chunk` 
+  In order to reduce the load of I/O, reads are analyzed in chunks. Each chunk contains the selected number of reads which will be loaded into memore and analyzed by a single thread. Smaller number may result in lower performance, but also the memory consumption will be reduced. The default value is 1000 reads.
 
 
 Output
 ^^^^^^
 
+Example
+"""""""
+
+
+Click `here <plasmodium/qualimapReport.html>`_ for an example of the produced output. This report was produced by Qualimap using the DNA sequencing data of *Plasmodium falciparum* from produced by *Wellcome Trust Sanger Institute* [#sanger]_
+
+
+Details
+"""""""
+
 :guilabel:`Summary` 
-  Basic information and statistics for the alignment sequencing input. For example, number of reads, number of mapped reads, mean coverage, chromosome-based statistics, etc.
+  **Basic information** and statistics for the alignment data. Qualimap reports here information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, insert size, nucleotide content, coverage, mapping quaility and chromosome-based statistics.
 
-:guilabel:`Input data & parameters` 
-  Section provides the information about selected input parameters. 
+:guilabel:`Input` 
+  In this section information about the **input data** and parameters is shown.
 
-:guilabel:`Coverage arcross reference` 
-  This plot consists of two figures. The upper figure provides the coverage (red color) and coverage deviation across the reference sequence. The lower figure show gc-content across reference (black color) and it’s deviation. 
+:guilabel:`Coverage Across Reference`
+  This plot consists of two figures. The upper figure provides the **coverage distribution** (red line) and coverage deviation across the reference sequence. The coverage is measured in *X* [#X]_. The lower figure shows **GC content** across reference (black line) together with its average value (red dotted line).
 
-:guilabel:`Coverage` 
-  Histogram Frequency histogram of the coverage.
+:guilabel:`Coverage Histogram (scaled)` 
+  Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x* axis are conviniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
 
-:guilabel:`Coverage histogram (0-50X)` 
-  There is often big picks of coverage across the reference and the scale of the Coverage Histogram graph scale may not be adequate. In order to solve this, in this graph genome locations with a coverage greater than 50X are groped into the last bin. 
+:guilabel:`Coverage Histogram (0-50X)` 
+   Histogram of the number of **genomic locations** having a given **coverage rate**. In this graph genome locations with a coverage greater than **50X** are grouped into the last bin. By doing so a higher resolution of the most common values for the coverage rate is obtained.
 
-:guilabel:`Coverage quota`
-  Provides an easy way of viewing how much reference has been sequenced with a coverage higher than a selected level.
+:guilabel:`Genome Fraction by Coverage`
+  Provides a visual way for viewing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as follows: If I select a coverage rate of **at least 10X** (*x* axis), how much of my reference (*y* axis )will be consider? The answer to this question in the case of the `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
 
 :guilabel:`Mapped Reads Nucleotide Content` 
-  This plot demonstrates the nucleotide content per read position.
+  This plot shows the **nucleotide content per position** of the **mapped reads**.
 
 :guilabel:`Mapped Reads GC Content Distribution` 
-  This graph shows the distribution of GC content per read. When compared with genome distribution this plot allows to check if there is a shift in the GC content. 
+  This graph shows the distribution of **GC content** per **mapped read**. If compared with a precomputed :ref:`genome distribution <input-gc-content>`, this plot allows to check if there is a shift in the GC content. 
 
 :guilabel:`Duplication Rate Histogram` 
-  The histogram shows how many reads start at unique position. This plot is helpful to see if the fragment distribution across genome. 
+  Histogram of the duplication rate... **!CHECK with Konstantin again! what is the y axis? it does not sum up the number of reads** of how many reads start at unique position. This plot is helpful to see if the fragment distribution across genome. 
 
-:guilabel:`Mapping quality across reference` 
-  Plot provides mapping quality across reference as indicate by the parameters.
+:guilabel:`Mapping Quality Across Reference` 
+  This plot provides the **mapping quality** distribution **across the reference**.
 
-:guilabel:`Mapping quality histogram` 
-  Histogram of the mapping quality frequency
+:guilabel:`Mapping Quality Histogram` 
+  Histogram of the **!CHECK with Konstantin again! what is the y axis? it does not sum up the number of reads**
 
 .. _rna-seq:
 
@@ -236,4 +248,5 @@ Input
   This option controls whether to save overall computation statistics.
 
 
-
+.. [#sanger] The actual BAM file can be downloaded from `here <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/5428_3%234.bam>`_.
+.. [#X] *X* units explanation: If one genomic position has a coverage of 10X means that 10 different reads are mapped to it.
