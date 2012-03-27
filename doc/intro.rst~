@@ -107,7 +107,7 @@ Use special script from Qualimap pacage:
 
 :samp:`Rscript $QUALIMAP_HOME/scripts/installDependencies.r`
 
-where :samp:`$QUALIMAP_HOME` is the full path to the Qualimap installation folder.
+where :samp:`QUALIMAP_HOME` contains full path to the Qualimap folder.
 
 
 

@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command line interface &mdash; Qualimap v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Qualimap v1.0 documentation" href="index.html" />
+    <link rel="prev" title="Analysis types" href="analysis.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="header">
+          <p class="logo"><a href="index.html">
+            <img class="logo" src="_static/qualimap_logo_small.png" alt="Logo"/>
+          </a></p>
+        <h1><a href="index.html">Qualimap v1.0 documentation</a></h1>
+        <div class="rel">
+          <a href="analysis.html" title="Analysis types"
+             accesskey="P">previous</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="command-line-interface">
+<span id="command-line"></span><h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="general-description">
+<h2>General description<a class="headerlink" href="#general-description" title="Permalink to this headline">¶</a></h2>
+<p>Each analysis type presented in QualiMap GUI is also available as command line tool. The common pattern to launch the tool is the following:</p>
+<div class="highlight-python"><pre>qualimap &lt;tool_name&gt; &lt;tool_options&gt;</pre>
+</div>
+<p><em class="guilabel">&lt;tool_name&gt;</em> is the name of the desired analysis. This could be: <a class="reference internal" href="#cmdline-genomic"><em>genomic</em></a>, <a class="reference internal" href="#cmdline-rnaseq"><em>rna-seq</em></a>, <a class="reference internal" href="#cmdline-epigenomic"><em>epigenomic</em></a> or <a class="reference internal" href="#cmdline-counts"><em>counts</em></a>.</p>
+<p><em class="guilabel">&lt;tool_options&gt;</em> are specific to each type analysis. If not option is provided for the specific tool a full list of available options will be shown</p>
+<p>To show available tools use command:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">qualimap</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="genomic">
+<span id="cmdline-genomic"></span><h2>Genomic<a class="headerlink" href="#genomic" title="Permalink to this headline">¶</a></h2>
+<p>The following command allows to perform genomic analysis:</p>
+<div class="highlight-python"><pre>qualimap genomic -bam &lt;arg&gt; [-c] [-gff &lt;arg&gt;] [-home &lt;arg&gt;] [-nr &lt;arg&gt;] [-nt &lt;arg&gt;] [-nw &lt;arg&gt;] [-o] [-outdir &lt;arg&gt;] [-outformat &lt;arg&gt;]
+-bam &lt;arg&gt;                     input mapping file
+-c,--paint-chromosome-limits   paint chromosome limits inside charts
+-gff &lt;arg&gt;                     region file (gff format)
+-home &lt;arg&gt;                    home folder of Qualimap
+-nr &lt;arg&gt;                      number of reads in the bunch (advanced)
+-nt &lt;arg&gt;                      number of threads (advanced)
+-nw &lt;arg&gt;                      number of windows (advanced)
+-o,--outside-stats             compute region outside stats (only with -gff option)
+-outdir &lt;arg&gt;                  output folder
+-outformat &lt;arg&gt;               output report format (PDF or HTML, default is HTML)</pre>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">The only required parameter is <em class="guilabel">bam</em> &#8211; the input mapping file.</div>
+<div class="line">If <em class="guilabel">outdir</em> is not provided, it will be created automatically in the same folder where BAM file is located.</div>
+<div class="line"><br /></div>
+<div class="line">Detailed explanation of available options can be found <a class="reference internal" href="analysis.html#genomic"><em>here</em></a>.</div>
+</div>
+<p>Example:</p>
+<div class="highlight-python"><pre>./qualimap genomic -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.gff --outside-stats</pre>
+</div>
+</div>
+<div class="section" id="rna-seq">
+<span id="cmdline-rnaseq"></span><h2>RNA-seq<a class="headerlink" href="#rna-seq" title="Permalink to this headline">¶</a></h2>
+<p>To perform RNA-seq analysis use the following command:</p>
+<div class="highlight-python"><pre>qualimap rna-seq -d1 &lt;arg&gt; [-d2 &lt;arg&gt;] [-home &lt;arg&gt;] [-i &lt;arg&gt;] [-k &lt;arg&gt;] [-n1 &lt;arg&gt;] [-n2 &lt;arg&gt;]
+[-outdir &lt;arg&gt;] [-outformat &lt;arg&gt;] [-s &lt;arg&gt;]
+-d1,--data1 &lt;arg&gt;      first file with counts
+-d2,--data2 &lt;arg&gt;      second file with counts
+-home &lt;arg&gt;            home folder of Qualimap
+-i,--info &lt;arg&gt;        info file
+-k,--threshold &lt;arg&gt;   threshold for the number of counts
+-n1,--name1 &lt;arg&gt;      name for the first sample
+-n2,--name2 &lt;arg&gt;      name for second sample
+-outdir &lt;arg&gt;          output folder
+-outformat &lt;arg&gt;       output report format (PDF or HTML, default is HTML)
+-s,--species &lt;arg&gt;     use default file for the given species [human | mouse]</pre>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">Detailed explanation of available options can be found <a class="reference internal" href="analysis.html#rna-seq"><em>here</em></a>.</div>
+</div>
+<p>Example:</p>
+<div class="highlight-python"><pre>./qualimap rna-seq -d1 ~/sample_data/counts-kidney.txt -d2 ~/sample_data/counts-liver.txt -s human -outdir ~/sample_data/result</pre>
+</div>
+</div>
+<div class="section" id="epigenomic">
+<span id="cmdline-epigenomic"></span><h2>Epigenomic<a class="headerlink" href="#epigenomic" title="Permalink to this headline">¶</a></h2>
+<p>To perform epigenomic analysis use the following command:</p>
+<div class="highlight-python"><pre>qualimap epigenomic [-b &lt;arg&gt;] [-c &lt;arg&gt;] -control &lt;arg&gt; [-expr &lt;arg&gt;] [-f &lt;arg&gt;] [-home &lt;arg&gt;]
+[-l &lt;arg&gt;] [-name &lt;arg&gt;] [-outdir &lt;arg&gt;] [-outformat &lt;arg&gt;] [-r &lt;arg&gt;] -regions &lt;arg&gt; -sample &lt;arg&gt; [-viz &lt;arg&gt;]
+-b,--bin-size &lt;arg&gt;          size of the bin (default is 100)
+-c,--clusters &lt;arg&gt;          comma-separated list of cluster sizes
+-control &lt;arg&gt;               path to control BAM file
+-expr &lt;arg&gt;                  name of the experiment
+-f,--fragment-length &lt;arg&gt;   smoothing length of a fragment
+-home &lt;arg&gt;                  home folder of Qualimap
+-l &lt;arg&gt;                     left offset (default is 2000)
+-name &lt;arg&gt;                  name of the replicate
+-outdir &lt;arg&gt;                output folder
+-outformat &lt;arg&gt;             output report format (PDF or HTML, default is HTML)
+-r &lt;arg&gt;                     right offset (default is 500)
+-regions &lt;arg&gt;               path to regions file
+-sample &lt;arg&gt;                path to sample BAM file
+-viz &lt;arg&gt;                   visualization type: heatmap or line</pre>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">Detailed explanation of available options can be found <a class="reference internal" href="analysis.html#epigenomic"><em>here</em></a>.</div>
+</div>
+<p>Example:</p>
+<div class="highlight-python"><pre>./qualimap epigenomic -sample ~/sample_data/24h-i-medip.bam -control ~/sample_data/24h-i-control.bam -regions ~/sample_data/CpGislands.bed -outdir ~/sample_data/result</pre>
+</div>
+</div>
+<div class="section" id="compute-counts">
+<span id="cmdline-counts"></span><h2>Compute counts<a class="headerlink" href="#compute-counts" title="Permalink to this headline">¶</a></h2>
+<p>To compute counts from mapping data use the following command:</p>
+<div class="highlight-python"><pre>qualimap counts -bam &lt;arg&gt; [-f &lt;arg&gt;] -gff &lt;arg&gt; [-home &lt;arg&gt;] [-p &lt;arg&gt;]
+-bam &lt;arg&gt;            mapping file in BAM format)
+-f,--output &lt;arg&gt;     path to output file
+-gff &lt;arg&gt;            region file in GFF format
+-home &lt;arg&gt;           home folder of Qualimap
+-p,--protocol &lt;arg&gt;   forward-stranded,reverse-stranded or non-strand-specific</pre>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">Detailed explanation of available options can be found <a class="reference internal" href="analysis.html#compute-counts"><em>here</em></a>.</div>
+</div>
+<p>Example:</p>
+<div class="highlight-python"><pre>./qualimap counts -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.bam</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">Analysis types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Command line interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-description">General description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#genomic">Genomic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rna-seq">RNA-seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#epigenomic">Epigenomic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compute-counts">Compute counts</a></li>
+</ul>
+</li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Search</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" size="18" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+            Enter search terms or a module, class or function name.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="analysis.html" title="Analysis types"
+             >previous</a>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer">
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

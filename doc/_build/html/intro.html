@@ -1,0 +1,195 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; Qualimap v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Qualimap v1.0 documentation" href="index.html" />
+    <link rel="next" title="Workflow" href="workflow.html" />
+    <link rel="prev" title="Contents" href="index.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="header">
+          <p class="logo"><a href="index.html">
+            <img class="logo" src="_static/qualimap_logo_small.png" alt="Logo"/>
+          </a></p>
+        <h1><a href="index.html">Qualimap v1.0 documentation</a></h1>
+        <div class="rel">
+          <a href="index.html" title="Contents"
+             accesskey="P">previous</a> |
+          <a href="workflow.html" title="Workflow"
+             accesskey="N">next</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<span id="intro"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-qualimap">
+<h2>What is Qualimap?<a class="headerlink" href="#what-is-qualimap" title="Permalink to this headline">¶</a></h2>
+<p>Qualimap is a platform-independent application written in Java and R that provides both a Graphical User Interface (GUI) and a command-line interface to facilitate the quality control of alignment sequecing data. The aim of Qualimap is to provide an easy way for the quality control of mapping data, considering the sequence features and their genomic properties.</p>
+<p>Basically, the application accepts and examines sequence alignment data, summarizing some interesting issues found in such data. The main features offered by Qualimap are: fast analysis across the reference genome of mapping coverage and nucleotide relative content; easy-to-interpret summary of the main properties of the alignment data; analysis of the reads mapped inside/outside of the regions defined in an annotation reference; analysis of the adequacy of the sequencing depth in RNA-seq experiments and clustering of !HERE!.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Download the ZIP archive with Qualimap from the <a class="reference external" href="http://qualimap.org">Qualimap web page</a>.</p>
+<p>Unpack it to desired directory.</p>
+<p>Now you can run Qualimap from this directory using the prebuilt script:</p>
+<p><tt class="samp docutils literal"><span class="pre">./qualimap</span></tt></p>
+<p>Qualimap was tested on GNU Linux, MacOS and MS Windows. !Revise Windows!</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">On MS Windows use script qualimap.bat to launch Qualimap.</p>
+</div>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>Qualimap requires</p>
+<ul class="simple">
+<li>JAVA runtime (6 or above)</li>
+<li>R enviroment (2.14 or above)</li>
+</ul>
+<p>The JAVA runtime can be downloaded from the <a class="reference external" href="http://www.java.com">official web-site</a>.
+There are prebuilt binaries available for many platforms.</p>
+<p>R enviroment can be downloaded from <a class="reference external" href="http://www.r-project.org">R project web-site</a>.</p>
+<p>Several Qualimap features are implemented in R, using a number of external packages.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If R enviroment is not availble, &#8220;Epigenetics&#8221; and &#8220;RNA-seq&#8221; features will be disabled.</p>
+</div>
+<p>Currently Qualimap requires the following R-packages:</p>
+<ul class="simple">
+<li>optparse (available from <a class="reference external" href="http://cran.r-project.org">CRAN</a>)</li>
+<li>Repitools, Rsamtools, GenomicFeatures, rtracklayer (available from <a class="reference external" href="http://bioconductor.org">Bioconductor</a>)</li>
+</ul>
+<p>One can install these packages manually or use the script from Qualimap distribution.</p>
+<p>Once R envronment is available the installation script can be invoked from Qualimap installation folder:</p>
+<p><tt class="samp docutils literal"><span class="pre">Rscript</span> <span class="pre">scripts/installDependencies.r</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In general the installation of R packages is platform-specific and may required additional effort.</p>
+</div>
+</div>
+<div class="section" id="installing-qualimap-on-ubuntu">
+<h2>Installing Qualimap on Ubuntu<a class="headerlink" href="#installing-qualimap-on-ubuntu" title="Permalink to this headline">¶</a></h2>
+<p>This manual is specific for Ubuntu(Debian) Linux distributive !distributive?!, however with slight differences this can be applied for others Unix systems.</p>
+<div class="section" id="install-java">
+<h3>Install JAVA<a class="headerlink" href="#install-java" title="Permalink to this headline">¶</a></h3>
+<p>It is possible to use openjdk:</p>
+<p><tt class="samp docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">openjdk-6-jre</span></tt></p>
+</div>
+<div class="section" id="install-r">
+<h3>Install R<a class="headerlink" href="#install-r" title="Permalink to this headline">¶</a></h3>
+<p>!Modify!
+The R latest version can be installede from public repos.</p>
+<p>However, the repos must be added to the sources. Open sources.list:</p>
+<p><tt class="samp docutils literal"><span class="pre">sudo</span> <span class="pre">gedit</span> <span class="pre">/etc/apt/sources.list</span></tt></p>
+<p>Add the following lines:</p>
+<p><tt class="samp docutils literal"><span class="pre">deb</span> <span class="pre">http://&lt;my.favorite.cran.mirror&gt;/bin/linux/ubuntu</span> <span class="pre">&lt;name.of.your.distribution&gt;/</span></tt></p>
+<p>Then install R:</p>
+<p><tt class="samp docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">update</span></tt></p>
+<p><tt class="samp docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">r-base-core</span></tt></p>
+<p>If you don&#8217;t have the public key for the mirror add it:</p>
+<p><tt class="samp docutils literal"><span class="pre">gpg</span> <span class="pre">--keyserver</span> <span class="pre">subkeys.pgp.net</span> <span class="pre">--recv-key</span> <span class="pre">&lt;required.key&gt;</span></tt></p>
+<p><tt class="samp docutils literal"><span class="pre">gpg</span> <span class="pre">-a</span> <span class="pre">--export</span> <span class="pre">&lt;required.key&gt;</span> <span class="pre">|</span> <span class="pre">sudo</span> <span class="pre">apt-key</span> <span class="pre">add</span> <span class="pre">-</span></tt></p>
+<p>More details available here:</p>
+<blockquote>
+<div><p><a class="reference external" href="https://stat.ethz.ch/pipermail/r-help/2009-February/187644.html">https://stat.ethz.ch/pipermail/r-help/2009-February/187644.html</a></p>
+<p><a class="reference external" href="http://cran.r-project.org/bin/linux/ubuntu/README">http://cran.r-project.org/bin/linux/ubuntu/README</a></p>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Alternatively it is possible to build R enviroment directly from sources downloaded from r-project.org.</p>
+</div>
+</div>
+<div class="section" id="install-required-r-packages">
+<h3>Install required R-packages<a class="headerlink" href="#install-required-r-packages" title="Permalink to this headline">¶</a></h3>
+<p>Use special script from Qualimap pacage:</p>
+<p><tt class="samp docutils literal"><span class="pre">Rscript</span> <span class="pre">$QUALIMAP_HOME/scripts/installDependencies.r</span></tt></p>
+<p>where <tt class="samp docutils literal"><span class="pre">$QUALIMAP_HOME</span></tt> is the full path to the Qualimap installation folder.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-qualimap">What is Qualimap?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-qualimap-on-ubuntu">Installing Qualimap on Ubuntu</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">Analysis types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line interface</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Search</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" size="18" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+            Enter search terms or a module, class or function name.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="index.html" title="Contents"
+             >previous</a> |
+          <a href="workflow.html" title="Workflow"
+             >next</a>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer">
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
