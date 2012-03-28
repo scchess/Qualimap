@@ -17,12 +17,17 @@ import java.util.Map;
  */
 public class CountReadsTool extends NgsSmartTool {
 
-    String bamFile, gffFile, outFile, protocol;
+    String bamFile, gffFile, outFile, protocol, featureType, attrName, alg;
 
     static String getProtocolTypes() {
         return  ComputeCountsTask.PROTOCOL_FORWARD_STRAND + ","
                 + ComputeCountsTask.PROTOCOL_REVERSE_STRAND + " or "
                 + ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC;
+    }
+
+    static String getAlgorithmTypes() {
+        return ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED + "(default) or " +
+                ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL;
     }
 
     public CountReadsTool() {
@@ -34,8 +39,12 @@ public class CountReadsTool extends NgsSmartTool {
 
         options.addOption( requiredOption("bam", true, "mapping file in BAM format)") );
 		options.addOption(requiredOption("gff", true, "region file in GFF format") );
-        options.addOption(new Option("f", "output", true, "path to output file") );
+        options.addOption(new Option("o", "output", true, "path to output file") );
         options.addOption(new Option("p", "protocol", true, getProtocolTypes()) );
+        options.addOption(new Option("feature", true, "feature type, default is \"exon\" "));
+        options.addOption(new Option("attr", true, "attribute to count, default is \"gene\" "));
+        options.addOption(new Option("alg", true, getAlgorithmTypes()));
+
 
     }
 
@@ -51,7 +60,7 @@ public class CountReadsTool extends NgsSmartTool {
             throw new ParseException("input region gff file not found");
 
         if(commandLine.hasOption("protocol")) {
-		    protocol = commandLine.getOptionValue("stranded");
+		    protocol = commandLine.getOptionValue("protocol");
             if ( !(protocol.equals( ComputeCountsTask.PROTOCOL_FORWARD_STRAND ) ||
                     protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC ) ||
                     protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
@@ -61,11 +70,39 @@ public class CountReadsTool extends NgsSmartTool {
             protocol = ComputeCountsTask.PROTOCOL_FORWARD_STRAND;
         }
 
-        if (commandLine.hasOption("outfile")) {
-            outFile = commandLine.getOptionValue("outfile");
+        if (commandLine.hasOption("o")) {
+            outFile = commandLine.getOptionValue("o");
         } else {
             outFile = "";
         }
+
+        if (commandLine.hasOption("feature")) {
+            featureType = commandLine.getOptionValue("feature");
+        } else {
+            featureType = ComputeCountsTask.EXON_TYPE_ATTR;
+        }
+
+        if (commandLine.hasOption("attr")) {
+            attrName = commandLine.getOptionValue("attr");
+        } else {
+            attrName = ComputeCountsTask.GENE_ID_ATTR;
+        }
+
+        if (commandLine.hasOption("alg")) {
+            alg = commandLine.getOptionValue("alg");
+            if (! (alg.equals(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED) ) ||
+                    ! (alg.equals(ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL))) {
+                throw new ParseException("Unknow algorithm! Possible values are: " + getAlgorithmTypes());
+            }
+        } else {
+            alg = ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
+        }
+
+
+
+
+
+
 
     }
 
@@ -74,6 +111,9 @@ public class CountReadsTool extends NgsSmartTool {
 
         ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamFile, gffFile);
         computeCountsTask.setProtocol(protocol);
+        computeCountsTask.setCountingAlgorithm(alg);
+        computeCountsTask.setAttrName(attrName);
+        computeCountsTask.addSupportedFeatureType(featureType);
 
         PrintWriter outWriter = outFile.isEmpty() ?
                 new PrintWriter(new OutputStreamWriter(System.out)) :
