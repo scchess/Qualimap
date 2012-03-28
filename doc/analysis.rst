@@ -10,6 +10,8 @@ Genomic
 
 Genomic analysis reports information for the evaluation of the quality of the alignment data provided. This information eases decision-making for further analysis of the data. In short, the basic statistics of the alignment (number of reads, coverage, GC content, etc.) are summarized and a number of useful graphs are produced. In addition, the user can introduce an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions.
 
+To start a new Genomic analysis just activate from the main menu :menuselection:`File --> New Analysis --> Genomics`.
+
 Input
 ^^^^^
 
@@ -53,43 +55,56 @@ Example
 """""""
 
 
-Click `here <plasmodium/qualimapReport.html>`_ for an example of the produced output. This report was produced by Qualimap using the DNA sequencing data of *Plasmodium falciparum* from produced by *Wellcome Trust Sanger Institute* [#sanger]_
+In `<plasmodium/qualimapReport.html>`_ for an example of the produced output. This report was produced by Qualimap (see :ref:`export`) using the DNA sequencing data of *Plasmodium falciparum* from produced by *Wellcome Trust Sanger Institute* [#sanger]_.
 
 
 Details
 """""""
 
 :guilabel:`Summary` 
+
   **Basic information** and statistics for the alignment data. Qualimap reports here information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, insert size, nucleotide content, coverage, mapping quaility and chromosome-based statistics.
 
 :guilabel:`Input` 
+
   In this section information about the **input data** and parameters is shown.
 
 :guilabel:`Coverage Across Reference`
+
   This plot consists of two figures. The upper figure provides the **coverage distribution** (red line) and coverage deviation across the reference sequence. The coverage is measured in *X* [#X]_. The lower figure shows **GC content** across reference (black line) together with its average value (red dotted line).
 
 :guilabel:`Coverage Histogram (scaled)` 
+
   Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x* axis are conviniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
 
 :guilabel:`Coverage Histogram (0-50X)` 
+
    Histogram of the number of **genomic locations** having a given **coverage rate**. In this graph genome locations with a coverage greater than **50X** are grouped into the last bin. By doing so a higher resolution of the most common values for the coverage rate is obtained.
 
 :guilabel:`Genome Fraction by Coverage`
-  Provides a visual way for viewing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as follows: If I select a coverage rate of **at least 10X** (*x* axis), how much of my reference (*y* axis )will be consider? The answer to this question in the case of the `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
+
+  Provides a visual way for viewing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as follows:
+
+  If I select a coverage rate of **at least 10X** (*x* axis), how much of my reference (*y* axis )will be consider? The answer to this question in the case of the `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
 
 :guilabel:`Mapped Reads Nucleotide Content` 
+
   This plot shows the **nucleotide content per position** of the **mapped reads**.
 
 :guilabel:`Mapped Reads GC Content Distribution` 
+
   This graph shows the distribution of **GC content** per **mapped read**. If compared with a precomputed :ref:`genome distribution <input-gc-content>`, this plot allows to check if there is a shift in the GC content. 
 
 :guilabel:`Duplication Rate Histogram` 
+
   Histogram of the duplication rate... **!CHECK with Konstantin again! what is the y axis? it does not sum up the number of reads** of how many reads start at unique position. This plot is helpful to see if the fragment distribution across genome. 
 
 :guilabel:`Mapping Quality Across Reference` 
+
   This plot provides the **mapping quality** distribution **across the reference**.
 
 :guilabel:`Mapping Quality Histogram` 
+
   Histogram of the **!CHECK with Konstantin again! what is the y axis? it does not sum up the number of reads**
 
 .. _rna-seq:
@@ -97,40 +112,49 @@ Details
 RNA-seq
 -------
 
-In RNA-seq experiments, the reads are mapped to a reference genome. If the total amount of sequencing reads is enough, the number of those reads mapping to a certain biological feature of interest (gene,
-transcript, exon, ...) is an estimation of the abundance of that feature in the sample and can be used
-as the quantification of its expression level. 
+In RNA-seq experiments, usually the reads are first mapped to a reference genome. It is assumed that if the number of reads mapping to a certain biological feature of interest (gene, transcript, exon, ...) is enough, it can be used as an estimation of the abundance of that feature in the sample and can be used as the quantification of its expression level.
 
-These count data are usually utilized to assess differential expression between two or more experimental conditions. But before computing differential expression, users should be aware of some potential limitations of the RNA-seq data they are working with, as for example: has the saturation been reached or could more features be detected by increasing sequencing  depth? Which kind of features are being detected in the experiment? how good is the quantification of expression in the sample? All of these questions are easily answered by looking at the plots generated by Qualimap.
+These count data can be utilized for example to assess differential expression between two or more experimental conditions. But before assesing differential expression analysis, researchers should be aware of some potential limitations of the RNA-seq data they are working with, as for example: Has the saturation been reached or more features could be detected by increasing the sequencing depth? Which type of features are being detected in the experiment? How good is the quantification of expression in the sample? All of these questions are easily answered by looking at the plots generated by Qualimap.
 
-To study the quality of a sample from the count data in a RNA-seq experiment, please use the
-RNA-seq option from the Analysis menu. 
+To study the quality of a sample from the count data in a RNA-seq experiment, just activate from the main menu :menuselection:`File --> New Analysis --> RNA-seq`. 
 
-For this option to work, the R language must be installed in the user’s computer along with the R library “optparse” (both are freely available from http://cran.r-project.org/ ).
+.. note::
+
+    If count data need to be generated, one can use the provided tool :ref:`compute-counts`.
+
+.. note::
+
+   For this option to work, the **R** language must be **installed** along with the R package **optparse** (both are freely available from http://cran.r-project.org/).
 
 Input
 ^^^^^
 
 :guilabel:`First sample (counts)` 
-  File containing the count data from sample. Count data must be provided in a tab-delimited txt file, with the features names or IDs in the first column and counts in the second column. This file must not contain any header or column names. One can calculate the counts from a GFF file and a BAM file using option :menuselection:`Tools --> Compute Counts`
 
-:guilabel:`First sample name` 
-  Name for sample 1 to appear in plots legends
+  File containing the count data from the sample. This must be a **two-column** **tab-delimited** text file, with the feature IDs in the first column and the counts in the second column (see http://example for an example!!). This file must not contain any header or column names.
 
-:guilabel:`Second sample (counts)` 
-  Optional. If a second sample is available, this file should contain the same information as in :guilabel:`First sample`, but for the second sample. Mark the :guilabel:`Compare with other sample` box to enable this option.
+:guilabel:`First sample name`
+ 
+  Name for the first sample that will be used as legend in the plots.
 
-:guilabel:`Second sample name` 
-  Name for second sample to appear in plots legends.
+:guilabel:`Second sample (counts)`
 
-:guilabel:`Count threshold` 
-  A feature is considered as detected if the corresponding number of counts isgreater than this count threshold. By default, the theshold value is set to 5 counts.
+  **Optional**. If a second sample is available, this file should contain the same information as in :guilabel:`First sample` for the second sample, i.e. the same feature IDs (first column) and the corresponding number of counts (second column). Mark the :guilabel:`Compare with other sample` checkbox to enable this option.
 
-:guilabel:`Info File` 
-  Optional. File containing the biological classification of features in the count files. The info file must be a tab-delimited txt file, with the features names or IDs in the first column and the biological group (e.g. the biotype field from Biomart in the Ensembl database) in the second column. Again, the file must not contain any header or column names. If this file is provided, further exploratory plots can be generated to evaluate characteristics of the sample such us the kind of features being detected or the counts distribution for detected features. Please, make sure that the features IDs are the same in the :guilabel:`Info file` and in the :guilabel:`Count file`.
+:guilabel:`Second sample name`
+
+  Name for the second sample that will be used as legend in the plots.
+
+:guilabel:`Count threshold`
+
+  In order to **remove** the influence of **spurious reads**, a feature is considered as detected if its corresponding number of counts is **greater than this threshold**. By default, the theshold value is set to 5 counts, meaning that features habing less than 5 counts will not be taken into account.
+
+:guilabel:`Info File`
+
+  **Optional**. File containing a classification of the features of the count files. It must be a **two columns** **tab-delimited** text file, with the features names or IDs in the first column and the group (e.g. the biotype from Ensembl database) in the second column (see http://example!). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
 
 :guilabel:`Species` 
-  Optional. If the Info File is not given by the user, Qualimap provides the Ensembl biotype classification for certain species (human and  mouse in Qualimap version 1.0), whenever the features names in the counts file are the Ensembl gene or transcripts IDs (e.g. ENSG00000251282 or ENST00000508921). If so, mark the box to enable this option and select the species. 
+  **Optional**. **CHECK and rewrite!!** If the Info File is not given by the user, Qualimap provides the Ensembl biotype classification for certain species (human and  mouse in Qualimap version 1.0), whenever the features names in the counts file are the Ensembl gene or transcripts IDs (e.g. ENSG00000251282 or ENST00000508921). If so, mark the box to enable this option and select the species. 
 
 Output
 ^^^^^^
@@ -248,5 +272,6 @@ Input
   This option controls whether to save overall computation statistics.
 
 
-.. [#sanger] The actual BAM file can be downloaded from `here <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/5428_3%234.bam>`_.
-.. [#X] *X* units explanation: If one genomic position has a coverage of 10X means that 10 different reads are mapped to it.
+.. [#sanger] The actual BAM file can be downloaded from `Sanger FTP <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/5428_3%234.bam>`_.
+.. [#X] Example for the meaning of *X*: If one genomic region has a coverage of 10X, it means that on average 10 different reads are mapped to each nucleotide of the region.
+.. [#bias] 

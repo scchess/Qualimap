@@ -33,6 +33,8 @@ In the left part of the report window one can find a list containing available r
 
 For example, :guilabel:`Summary` section provides a short summary of performed quality control checks, while :guilabel:`Input` section lists all the input parameters. Further information about each specific result is provided :ref:`here <analysis-types>`.
 
+.. _export:
+
 Exporting results
 -----------------
 
