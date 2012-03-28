@@ -15,6 +15,7 @@ Contents
    workflow 
    analysis
    command_line   
+   samples
 
 .. Indices and tables
   ==================

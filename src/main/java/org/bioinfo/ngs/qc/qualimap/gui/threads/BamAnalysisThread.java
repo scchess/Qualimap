@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -205,12 +206,17 @@ public class BamAnalysisThread extends Thread {
 
         HashMap<String,String> alignParams = new HashMap<String, String>();
         alignParams.put("BAM file: ", bamQC.getBamFile());
+        Date date = new Date();
+        alignParams.put("Analysis date: ", date.toString() );
         alignParams.put("Number of windows: ", Integer.toString(bamQC.getNumberOfWindows()));
+
         Boolean.toString(true);
         alignParams.put("Draw chromosome limits: ", boolToStr(drawChromosomeLimits));
         if (!bamQC.getPgProgram().isEmpty()) {
             alignParams.put("Program: ", bamQC.getPgProgram());
-            alignParams.put("Command line: ", bamQC.getPgCommandString() );
+            if (!bamQC.getPgCommandString().isEmpty()) {
+                alignParams.put("Command line: ", bamQC.getPgCommandString() );
+            }
         }
         reporter.addInputDataSection("Alignment", alignParams);
 
