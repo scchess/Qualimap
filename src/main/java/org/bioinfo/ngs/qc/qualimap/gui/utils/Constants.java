@@ -82,7 +82,18 @@ public final class Constants {
 	// Extension for the PDF File
 	public static final String FILE_EXTENSION_PDF_FILE = "PDF";
 	
-	
+    public static final String PLOT_TITLE_COVERAGE_ACROSS_REFERENCE = "Coverage Across Reference";
+    public static final String PLOT_TITLE_COVERAGE_HISTOGRAM = "Coverage Histogram (scaled)";
+    public static final String PLOT_TITLE_COVERAGE_HISTOGRAM_0_50 = "Coverage Histogram (0-50X)";
+    public static final String PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE = "Mapping Quality Across Reference";
+    public static final String PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM = "Mapping Quality Histogram";
+    public static final String PLOT_TITLE_INSERT_SIZE_ACROSS_REFERENCE = "Insert Size Across Reference";
+    public static final String PLOT_TITLE_INSERT_SIZE_HISTOGRAM = "Insert Size Histogram";
+    public static final String PLOT_TITLE_READS_NUCLEOTIDE_CONTENT = "Mapped Reads Nucleotide Content";
+    public static final String PLOT_TITLE_GENOME_FRACTION_COVERAGE = "Genome Fraction Coverage";
+    public static final String PLOT_TITLE_READS_GC_CONTENT = "Mapped Reads GC-content Distribution";
+    public static final String PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM = "Duplication Rate Histogram";
+
 	//******************************************************************************************
 	//******************************* GRAPHICS NAMES CONSTANTS *********************************
 	//******************************************************************************************
@@ -127,37 +138,7 @@ public final class Constants {
 	
 	// Name of the graphic for the Outside Mapping_Quality_Histogram
 	public static final String GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM = "genome_insert_size_histogram.png";
-	
-	// Name of the graphic for the Inside Coverage Across Reference
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_ACROSS_REFERENCE = "inside_coverage_across_reference.png";
-	
-	// Name of the graphic for the Inside Coverage Histogram
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM = "inside_coverage_histogram.png";
-	
-	// Name of the graphic for the Inside Coverage Histogram (0-50x)
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_HISTOGRAM_0_50 = "inside_coverage_0to50_histogram.png";
 
-	// Name of the graphic for the Inside Coverage Quotes
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_COVERAGE_QUOTA = "inside_coverage_quotes.png";
-	
-	// Name of the graphic for the Inside Nucleotide Relative Content
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_NUCLEOTIDE_RELATIVE_CONTENT = "inside_actg_across_reference.png";
-	
-	// Name of the graphic for the Inside GC/AT Relative Content
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_GC_AT_RELATIVE_CONTENT = "inside_gc_across_reference.png";
-	
-	// Name of the graphic for the Inside Mapping_Quality_Acorss_Reference
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_INSERT_SIZE_ACROSS_REFERENCE = "inside_insert_size_across_reference.png";
-	
-	// Name of the graphic for the Inside Mapping_Quality_Histogram
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_INSERT_SIZE_HISTOGRAM = "inside_insert_size_histogram.png";
-		
-	// Name of the graphic for the Inside Mapping_Quality_Acorss_Reference
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_ACROSS_REFERENCE = "inside_mapping_quality_across_reference.png";
-	
-	// Name of the graphic for the Inside Mapping_Quality_Histogram
-	public static final String GRAPHIC_NAME_GENOME_INSIDE_MAPPING_QUALITY_HISTOGRAM = "inside_mapping_quality_histogram.png";
-	
 	// Name of the graphic for the Outside Coverage Across Reference
 	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE = "outside_coverage_across_reference.png";
 	
@@ -210,10 +191,7 @@ public final class Constants {
 	//******************************************************************************************
 	// Name of property file that contains the data in the Zip file for the reference input
 	public static final String NAME_OF_PROPERTIES_IN_ZIP_FILE  = "reference.properties";
-	
-	// Name of property file that contains the data in the Zip file for the inside reference input
-	public static final String NAME_OF_INSIDE_PROPERTIES_IN_ZIP_FILE  = "inside_reference.properties";
-	
+
 	// Name of property file that contains the data in the Zip file for the outside reference input
 	public static final String NAME_OF_OUTSIDE_PROPERTIES_IN_ZIP_FILE  = "outside_reference.properties";
 	

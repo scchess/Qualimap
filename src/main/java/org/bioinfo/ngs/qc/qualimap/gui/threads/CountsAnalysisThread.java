@@ -51,7 +51,7 @@ public class CountsAnalysisThread extends Thread {
 
         if (settingsDlg.secondSampleIsProvided()) {
             countsAnalysis.setSecondSampleIsProvided(true);
-            countsAnalysis.setSample2Name( settingsDlg.getName1() );
+            countsAnalysis.setSample2Name( settingsDlg.getName2() );
             countsAnalysis.setSecondSampleDataPath( settingsDlg.getSecondSampleDataPath() );
         }
 

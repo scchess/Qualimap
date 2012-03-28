@@ -220,51 +220,62 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
         leftPanel.add(j1_0_1);
 
-        JLabel j1_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
+        JLabel j1_1 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_ACROSS_REFERENCE,
+                Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
         leftPanel.add(j1_1);
 
-        JLabel j1_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
+        JLabel j1_2 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
+                Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
         j1_2.setToolTipText("Frequency histogram of the coverageData");
         leftPanel.add(j1_2);
 
-        JLabel j1_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
+        JLabel j1_3 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
+                Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
         j1_3.setToolTipText("<html>There is often big picks of coverageData across the reference"
                 + "<br>and the scale of the Coverage Histogram graph scale may not be adequate." +
                 "<br>In order to solve this, in this graph genome locations with a coverageData greater "
                 + "<br>than 50X are grouped into the last bin</html>");
         leftPanel.add(j1_3);
 
-        JLabel j1_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
+        JLabel j1_4 = createImageLinkLabel(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE,
+                Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
         j1_4.setToolTipText("<html>Provides an easy way of viewing how much reference has been "
                 + "sequenced<br>with a coverageData higher than a selected level</html>");
         leftPanel.add(j1_4);
 
-        JLabel readsContent = createImageLinkLabel("Reads content per position", Constants.GRAPHIC_NAME_GENOME_READS_CONTENT);
+        JLabel readsContent = createImageLinkLabel(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
+                Constants.GRAPHIC_NAME_GENOME_READS_CONTENT);
         readsContent.setToolTipText("Provides relative nucleotide content per read position");
         leftPanel.add(readsContent);
 
-        JLabel gcContentHist = createImageLinkLabel("GC content distribution", Constants.GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW);
+        JLabel gcContentHist = createImageLinkLabel(Constants.PLOT_TITLE_READS_GC_CONTENT,
+                Constants.GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW);
         gcContentHist.setToolTipText("Shows gc content distribution per window ");
         leftPanel.add(gcContentHist);
 
-        JLabel uniqReadsLabel = createImageLinkLabel("Unique reads per position", Constants.GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS);
+        JLabel uniqReadsLabel = createImageLinkLabel(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
+                Constants.GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS);
         uniqReadsLabel.setToolTipText("Provides a histogram of unique read starts per position.");
         leftPanel.add(uniqReadsLabel);
 
-        JLabel j1_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
+        JLabel j1_5 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE,
+                Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
         j1_5.setToolTipText("Mapping Quality Across Reference");
         leftPanel.add(j1_5);
 
-        JLabel j1_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
+        JLabel j1_6 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM,
+                Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
         j1_6.setToolTipText("Frequency histogram of the mapping quality");
         leftPanel.add(j1_6);
 
         if(tabProperties.isPairedData()){
-            JLabel j1_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
+            JLabel j1_8 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_ACROSS_REFERENCE,
+                    Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
             j1_8.setToolTipText("Insert size across the reference");
             leftPanel.add(j1_8);
 
-            JLabel j1_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
+            JLabel j1_7 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_HISTOGRAM,
+                    Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
             j1_7.setToolTipText("Frequency histogram of the insert size");
             leftPanel.add(j1_7);
         }
@@ -284,48 +295,59 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			inputDesc.setToolTipText("Input data description");
             leftPanel.add(inputDesc);
 
-			JLabel j3_1 = createImageLinkLabel("Coverage Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
+			JLabel j3_1 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_ACROSS_REFERENCE,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
 			leftPanel.add(j3_1);
 
-			JLabel j3_2 = createImageLinkLabel("Coverage Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
+			JLabel j3_2 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
 			j3_2.setToolTipText("Frequency histogram of the coverageData");
 			leftPanel.add(j3_2);
 
-			JLabel j3_3 = createImageLinkLabel("Coverage Histogram (0-50x)", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
+			JLabel j3_3 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
 			j3_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
 			leftPanel.add(j3_3);
 
-			JLabel j3_4 = createImageLinkLabel("Coverage Quota", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
+			JLabel j3_4 = createImageLinkLabel(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
 			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
 			leftPanel.add(j3_4);
 
-            JLabel readsContentOutside = createImageLinkLabel("Reads content per position", Constants.GRAPHIC_NAME_OUTSIDE_READS_CONTENT);
+            JLabel readsContentOutside = createImageLinkLabel(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
+                    Constants.GRAPHIC_NAME_OUTSIDE_READS_CONTENT);
             readsContentOutside.setToolTipText("Provides relative nucleotide content per read position");
             leftPanel.add(readsContentOutside);
 
-            JLabel gcContentHistOutside = createImageLinkLabel("GC content per read", Constants.GRAPHIC_NAME_OUTSIDE_GC_CONTENT_PER_WINDOW);
+            JLabel gcContentHistOutside = createImageLinkLabel(Constants.PLOT_TITLE_READS_GC_CONTENT,
+                    Constants.GRAPHIC_NAME_OUTSIDE_GC_CONTENT_PER_WINDOW);
             gcContentHistOutside.setToolTipText("Shows gc content distribution per window ");
             leftPanel.add(gcContentHistOutside);
 
-            JLabel uniqReadsLabelOutside = createImageLinkLabel("Unique reads per position", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS);
+            JLabel uniqReadsLabelOutside = createImageLinkLabel(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS);
             uniqReadsLabelOutside.setToolTipText("Provides a histogram of unique read starts per position.");
             leftPanel.add(uniqReadsLabelOutside);
 
-			JLabel j3_5 = createImageLinkLabel("Mapping Quality Across Ref.", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
+			JLabel j3_5 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
 			j3_5.setToolTipText("Mapping Quality Across Reference");
 			leftPanel.add(j3_5);
 
-			JLabel j3_6 = createImageLinkLabel("Mapping Quality Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
+			JLabel j3_6 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM,
+                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
 			j3_6.setToolTipText("Frequency histogram of the mapping quality");
 			leftPanel.add(j3_6);
 
             if(tabProperties.isPairedData()){
-                JLabel j3_8 = createImageLinkLabel("Insert Size Across Reference", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
+                JLabel j3_8 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_ACROSS_REFERENCE,
+                        Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
                 j3_8.setToolTipText("Insert size across the reference");
                 leftPanel.add(j3_8);
 
 
-                JLabel j3_7 = createImageLinkLabel("Insert Size Histogram", Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
+                JLabel j3_7 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_HISTOGRAM,
+                        Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
                 j3_7.setToolTipText("Frequency histogram of the insert size");
                 leftPanel.add(j3_7);
             }
