@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.commons.io.utils.IOUtils;
@@ -14,6 +15,8 @@ public class NgsSmartMain {
 	public static void main(String[] args) throws Exception {
 		Logger logger = new Logger();
         NgsSmartTool tool = null;
+
+        tryLoadingAppProperties();
 
 		if(args.length == 0 || args[0].equals("--home")){
 			launchGUI(args);
@@ -70,8 +73,34 @@ public class NgsSmartMain {
 			}
 		}
 	}
-	
-	public static void launchGUI(String[] args) throws ParseException{
+
+    private static void tryLoadingAppProperties()  {
+        InputStream inStream = ClassLoader.getSystemClassLoader().getResourceAsStream("app.properties");
+        if (inStream == null) {
+            return;
+        }
+
+        Properties appProperties = new Properties();
+        try {
+            appProperties.load(inStream);
+        } catch (IOException e) {
+            System.err.println("Failed to load app propreties");
+            return;
+        }
+
+        String version =  appProperties.get("app.version").toString();
+        String timestamp =  appProperties.get("app.buildTime").toString();
+
+        if (version != null) {
+            System.out.println("QualiMap v." + appProperties.get("app.version").toString());
+        }
+
+        if (timestamp != null) {
+            System.out.println("Built on " + appProperties.get("app.buildTime").toString());
+        }
+    }
+
+    public static void launchGUI(String[] args) throws ParseException{
 		
 
 		String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");

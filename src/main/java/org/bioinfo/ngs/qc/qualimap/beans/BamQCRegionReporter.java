@@ -73,7 +73,8 @@ public class BamQCRegionReporter implements Serializable {
 	tReferenceNumber, nReferenceNumber, numBasesInsideRegions;
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
-	gcPercent, atPercent, percentMappedReads, meanMappingQuality,
+	gcPercent, atPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
+    medianInsertSize,
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
@@ -288,6 +289,10 @@ public class BamQCRegionReporter implements Serializable {
 
 		// mapping quality		
 		this.meanMappingQuality = bamStats.getMeanMappingQualityPerWindow();
+
+        // insert size
+        this.meanInsertSize = bamStats.getMeanInsertSize();
+        this.medianInsertSize = bamStats.getMedianInsertSize();
 
 		// actg content
 		this.aNumber = bamStats.getNumberOfAs();
@@ -1038,6 +1043,13 @@ public class BamQCRegionReporter implements Serializable {
 		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(getMeanMappingQuality()));
 		summaryStatsKeeper.addSection(mappingQualitySection);
 
+        if (meanInsertSize != 0)
+        {
+            StatsKeeper.Section insertSizeSection = new StatsKeeper.Section("Insert size" + postfix);
+            insertSizeSection.addRow("Mean", sdf.formatDecimal(meanInsertSize));
+            insertSizeSection.addRow("Median Estimation", sdf.formatDecimal(medianInsertSize));
+            summaryStatsKeeper.addSection(insertSizeSection);
+        }
     }
 
     public List<StatsKeeper.Section> getChromosomeSections() {

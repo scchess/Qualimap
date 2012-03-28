@@ -3,13 +3,10 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,11 +15,7 @@ import javax.swing.filechooser.FileFilter;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.GraphicImagePanel;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.JLabelMouseListener;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -638,102 +631,73 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     }
 
 
-    public static StringBuffer prepareHtmlReport(BamQCRegionReporter reporter, TabPropertiesVO tabProperties, int width) {
-        StringUtilsSwing sdf = new StringUtilsSwing();
+    public static void addSummarySection(StringBuffer buf, StatsKeeper.Section s, int width) {
 
-        StringBuffer summaryHtml = new StringBuffer("");
-        String postfix = reporter.getNamePostfix();
+        buf.append(HtmlJPanel.COLSTART).append("<b>").append(s.getName()).append("</b>");
+        buf.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 
-		summaryHtml.append("<p align=center><a name=\"summary\"> <b>Summary</b></p>" + HtmlJPanel.BR);
-		summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
-		summaryHtml.append(HtmlJPanel.COLSTART + "<b>Globals:</b>");
-		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Reference size" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getBasesNumber()) + HtmlJPanel.COLEND);
-        if (reporter.getNumSelectedRegions() > 0) {
-            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of selected regions" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumSelectedRegions()) + HtmlJPanel.COLEND);
-            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Size of selected regions" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getInRegionsReferenceSize()) + HtmlJPanel.COLEND);
-            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Size of non-selected regions" + HtmlJPanel.COLMID +
-                    sdf.formatLong(reporter.getBasesNumber() - reporter.getInRegionsReferenceSize()) + HtmlJPanel.COLEND);
-        }
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number of reads" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumReads()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads" + HtmlJPanel.COLMID + sdf.formatInteger(reporter.getNumMappedReads())
-                + " / " + sdf.formatPercentage(reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
-        if (reporter.getNumSelectedRegions() > 0) {
-            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads inside of regions"
-                    + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumInsideMappedReads())
-                    + " / " + sdf.formatPercentage(reporter.getPercentageInsideMappedReads()) + HtmlJPanel.COLEND);
-            summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of mapped reads outside of regions"
-                    + HtmlJPanel.COLMID + sdf.formatLong(reporter.getNumOutsideMappedReads())
-                    + " / " + sdf.formatPercentage(reporter.getPercentageOutsideMappedReads()) + HtmlJPanel.COLEND);
+        for (String[] row : s.getRows()) {
+            buf.append(HtmlJPanel.COLSTARTFIX).append(row[0]).append(HtmlJPanel.COLMID)
+                    .append(row[1]).append(HtmlJPanel.COLEND);
         }
 
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of unmapped reads" + HtmlJPanel.COLMID
-                + sdf.formatLong(reporter.getNumReads() - reporter.getNumMappedReads()) + "/"
-                + sdf.formatPercentage(100.0 - reporter.getPercentMappedReads()) + HtmlJPanel.COLEND);
-
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of paired reads"+ HtmlJPanel.COLMID
-                 + sdf.formatLong(reporter.getNumPairedReads()) + "/"
-                + sdf.formatPercentage(reporter.getPercentPairedReads()) + HtmlJPanel.COLEND);
-
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of reads both mates paired"+ HtmlJPanel.COLMID
-                 + sdf.formatLong(reporter.getNumPairedReads() - reporter.getNumSingletons()) + "/"
-                + sdf.formatPercentage( (reporter.getPercentageBothMatesPaired())  ) + HtmlJPanel.COLEND);
-        summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of singletons" + HtmlJPanel.COLMID
-                + sdf.formatLong(reporter.getNumSingletons()) + "/"
-                + sdf.formatPercentage(reporter.getPercentSingletons()) + HtmlJPanel.COLEND);
-
-         summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Read min/max/mean size" + HtmlJPanel.COLMID
-                + sdf.formatLong(reporter.getReadMinSize()) + "/"
-                + sdf.formatLong(reporter.getReadMaxSize()) + "/"
-                 + sdf.formatDecimal(reporter.getReadMeanSize())
-                 + HtmlJPanel.COLEND);
-
-        summaryHtml.append(HtmlJPanel.getTableFooter());
-
-		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>ACGT Content" + postfix + ": </b>" + HtmlJPanel.BR);
-		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of A's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getaNumber()) +
-                " / " + sdf.formatPercentage(reporter.getaPercent())+ HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of C's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getcNumber()) +
-                " / " + sdf.formatPercentage(reporter.getcPercent()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of T's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.gettNumber()) +
-                " / " + sdf.formatPercentage(reporter.gettPercent()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of G's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getgNumber()) +
-                " / " + sdf.formatPercentage(reporter.getgPercent()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Number/percentage of N's" + HtmlJPanel.COLMID + sdf.formatLong(reporter.getnNumber()) +
-                " / " + sdf.formatPercentage(reporter.getnPercent()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "GC Percentage" + HtmlJPanel.COLMID + sdf.formatPercentage(reporter.getGcPercent()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.getTableFooter());
-
-		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>Coverage" + postfix + ":</b>" + HtmlJPanel.BR);
-		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanCoverage()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Standard Deviation" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getStdCoverage()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.getTableFooter());
-
-		summaryHtml.append(HtmlJPanel.BR);
-		summaryHtml.append("<b>Mapping Quality" + postfix + "</b>");
-		summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-		summaryHtml.append(HtmlJPanel.COLSTARTFIX + "Mean Mapping Quality" + HtmlJPanel.COLMID + sdf.formatDecimal(reporter.getMeanMappingQuality()) + HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.getTableFooter());
-
-		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0) {
-			summaryHtml.append(HtmlJPanel.BR);
-			summaryHtml.append("<b>Per chromosome statistics " +  postfix + ":</b>" + HtmlJPanel.BR);
-			summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-            String pathToChromosomeStats = reporter.getChromosomeFilePath();
-			summaryHtml.append(fillHtmlTableFromFile(pathToChromosomeStats));
-			summaryHtml.append(HtmlJPanel.getTableFooter());
-		}
-		summaryHtml.append(HtmlJPanel.COLEND);
-		summaryHtml.append(HtmlJPanel.getTableFooter());
-
-        return summaryHtml;
+        buf.append(HtmlJPanel.getTableFooter());
+        buf.append(HtmlJPanel.COLEND);
 
 
     }
+
+    public static void addChromosomesSections(StringBuffer summaryHtml,
+                                              int width,
+                                              List<StatsKeeper.Section> chromosomeSections) {
+        summaryHtml.append(HtmlJPanel.COLSTART).append("<b>").append("Chromosome stats").append("</b>");
+        summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
+
+        for (StatsKeeper.Section s : chromosomeSections ) {
+            boolean  header = s.getName().equals(Constants.CHROMOSOME_STATS_HEADER);
+            List<String[]> rows = s.getRows();
+            for (String[] row : rows) {
+                summaryHtml.append("<tr>");
+                for (String item : row) {
+                    if (header) {
+                        summaryHtml.append("<td><b>").append(item).append("</b></td>");
+                    }   else {
+                        summaryHtml.append("<td>").append(item).append("</td>");
+                    }
+                }
+                summaryHtml.append("</tr>");
+            }
+
+        }
+
+        summaryHtml.append(HtmlJPanel.getTableFooter());
+        summaryHtml.append(HtmlJPanel.COLEND);
+    }
+
+
+    public static StringBuffer prepareHtmlReport(BamQCRegionReporter reporter, int width) {
+
+
+        StringBuffer summaryHtml = new StringBuffer("");
+
+        List<StatsKeeper.Section> summarySections = reporter.getSummaryDataSections();
+        summaryHtml.append("<p align=center> <b>Summary</b></p>").append(HtmlJPanel.BR);
+        summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
+
+        for (StatsKeeper.Section s: summarySections) {
+            addSummarySection(summaryHtml, s, width);
+        }
+
+        List<StatsKeeper.Section> chromosomeSections = reporter.getChromosomeSections();
+
+        addChromosomesSections(summaryHtml, width, chromosomeSections);
+
+        summaryHtml.append(HtmlJPanel.getTableFooter());
+
+        return summaryHtml;
+
+    }
+
 
 	/**
 	 * Show into the split of the selected tab the text values selected.
@@ -750,7 +714,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         StringBuffer summaryHtml = new StringBuffer();
 
         summaryHtml.append( HtmlJPanel.getHeader() );
-        summaryHtml.append(prepareHtmlReport(reporter, tabProperties, width));
+        summaryHtml.append(prepareHtmlReport(reporter, width));
         summaryHtml.append( HtmlJPanel.getHeadFooter() );
 
         panelDerecha.setHtmlPage(summaryHtml.toString());
@@ -772,57 +736,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         rightScrollPane.setViewportView(htmlPanel);
     }
-
-
-	private static String fillHtmlTableFromFile(String pathToChromosomeStats) {
-		StringBuffer htmlTable = new StringBuffer("");
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(new File(pathToChromosomeStats)));
-			String strLine;
-			// Iterate the file reading the lines
-			while ((strLine = br.readLine()) != null) {
-				// Test if the read is the header of the table or not
-				if (strLine.startsWith("#")) {
-                    htmlTable.append("<th align='left'>Name</th>");
-                    htmlTable.append("<th align='left'>Length</th>");
-                    htmlTable.append("<th align='left'>Mapped bases</th>");
-                    htmlTable.append("<th align='left'>Mean coverage</th>");
-                    htmlTable.append("<th align='left'>Standard deviation</th>");
-            	} else {
-					String[] tableValues = strLine.split("\t");
-					htmlTable.append(HtmlJPanel.COLSTART);
-					int i = 0;
-					for (String s : tableValues) {
-					    if (i == 1) {
-                            String[] coords = s.split(":");
-                            assert(coords.length == 2);
-                            long len = Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;
-                            s = Long.toString(len);
-                        }
-                        i++;
-                        htmlTable.append(s);
-						if (i < tableValues.length) {
-							htmlTable.append(HtmlJPanel.COLMID);
-						}
-					}
-					htmlTable.append(HtmlJPanel.COLEND);
-				}
-			}
-		} catch (FileNotFoundException e) {
-			System.out.println(e.getMessage());
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-		return htmlTable.toString();
-	}
 
 	/**
 	 * Action to show or hide the submenu of graphics images

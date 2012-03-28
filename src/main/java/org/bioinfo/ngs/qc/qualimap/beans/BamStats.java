@@ -3,12 +3,12 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
-import sun.security.krb5.internal.KdcErrException;
 
 
 public class BamStats implements Serializable {
@@ -191,7 +191,9 @@ public class BamStats implements Serializable {
 		
 	// insert size
 	private double meanInsertSize;
-	private double meanInsertSizePerWindow;	
+	private double meanInsertSizePerWindow;
+    private double medianInsertSize;
+    private double modeEstimation;
 	private List<Double> insertSizeAcrossReference;
 	private XYVector insertSizeHistogram;
 	private HashMap<Long,Long> insertSizeHistogramMap;
@@ -645,8 +647,11 @@ public class BamStats implements Serializable {
         }
 
 		// insert size
-		meanInsertSizePerWindow = MathUtils.mean(ListUtils.toDoubleArray(insertSizeAcrossReference));
+        double[] insertData = ListUtils.toDoubleArray(insertSizeAcrossReference);
+		meanInsertSizePerWindow = MathUtils.mean(insertData);
 		meanInsertSize = meanInsertSizePerWindow;
+        medianInsertSize = StatUtils.percentile(insertData, 50);
+
 
 		// reporting
 		if(activeWindowReporting) {
@@ -679,8 +684,8 @@ public class BamStats implements Serializable {
 			    updateHistogramValue(mappingQualityHistogramCache, mappingQualityHistogramMap, quality);
             }
             // insert size
-            long insertSize =   window.getInsertSizeAcrossReference()[i];
-            if (insertSize != -1) {
+            long insertSize = window.getInsertSizeAcrossReference()[i];
+            if (insertSize > 0) {
                 updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, insertSize);
             }
         }
@@ -721,7 +726,7 @@ public class BamStats implements Serializable {
     public void computeHistograms() {
         addCacheDataToMap(insertSizeHistogramCache,insertSizeHistogramMap);
         insertSizeHistogram = computeVectorHistogram(insertSizeHistogramMap);
-
+        medianInsertSize = calcMedianInsertSize(insertSizeHistogram);
         addCacheDataToMap(mappingQualityHistogramCache,mappingQualityHistogramMap);
         mappingQualityHistogram = computeVectorHistogram(mappingQualityHistogramMap);
 
@@ -731,6 +736,23 @@ public class BamStats implements Serializable {
         computeGCContentHistogram();
         computeReadsContentHistogrmas();
 
+    }
+
+    private double calcMedianInsertSize(XYVector insertSizeHistogram) {
+        int size = insertSizeHistogram.getSize();
+        double[] values = insertSizeHistogram.getYVector();
+        double maxValue = values[0];
+        int maxValueIndex = 0;
+
+        for (int i = 1; i < size; ++i) {
+            double curVal = values[i];
+            if (curVal > maxValue) {
+                maxValue = curVal;
+                maxValueIndex = i;
+            }
+        }
+
+        return insertSizeHistogram.get(maxValueIndex).getX();
     }
 
     public XYVector getReadsAsHistogram() {
@@ -3047,5 +3069,9 @@ public class BamStats implements Serializable {
 
     public Map<String,String> getWarnings() {
         return warnings;
+    }
+
+    public double getMedianInsertSize() {
+        return medianInsertSize;
     }
 }

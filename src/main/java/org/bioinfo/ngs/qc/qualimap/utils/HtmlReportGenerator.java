@@ -169,7 +169,7 @@ public class HtmlReportGenerator {
                     if (sectionIsHeader) {
                         append("<td><b>" + item + "</b></td>");
                     } else {
-                        append("<td>" + item + "</b></td>");
+                        append("<td>" + item + "</td>");
                     }
                 }
                 append("</tr>");

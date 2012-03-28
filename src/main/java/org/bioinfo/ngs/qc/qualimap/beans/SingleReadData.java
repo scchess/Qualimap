@@ -117,8 +117,8 @@ public class SingleReadData {
     }
 
 	public void acumInsertSize(long relative, long insertSize){
-		if(insertSize>0 & insertSize<5000){
-			acumInsertSize+=Math.abs(insertSize);
+		if(insertSize > 0 & insertSize < 5000){
+			acumInsertSize += Math.abs(insertSize);
 		}
         insertSizeData.add( new Cell((int) relative, (int) Math.abs( insertSize)) );
     }

@@ -4,7 +4,13 @@
 	<groupId>org.bioinfo.ngs</groupId>
 	<artifactId>qualimap</artifactId>
 	<version>0.2</version>
-	<name>qualimap</name>
+    <name>qualimap</name>
+    
+    <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <buildTime>${maven.build.timestamp}</buildTime>
+    </properties>
+
 	<dependencies>
 		
 		<dependency>
@@ -86,7 +92,15 @@
 
 		<finalName>${project.artifactId}</finalName>
  		<sourceDirectory>src/main/java</sourceDirectory>
-    		<testSourceDirectory>src/test/java</testSourceDirectory>
+    	<testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
 
 		<plugins>
         		<plugin>

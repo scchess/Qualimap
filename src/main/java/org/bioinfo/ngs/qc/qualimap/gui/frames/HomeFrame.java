@@ -111,7 +111,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
 	public HomeFrame(String homeFolder) {
 		super(title);
-		System.out.println(title);
 		isWebStart = isRunningJavaWebStart();
 		if(isWebStart){
 			copyFilesFromResourcesToFolder();
