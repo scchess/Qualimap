@@ -113,6 +113,7 @@ public class BamStatsAnalysis {
 	private boolean saveCoverage;
 	private boolean isPairedData;
     List<Future<ProcessBunchOfReadsTask.Result>> results;
+    Future<Integer> finalizeWindowResult;
     long timeToCalcOverlappers;
     private String pgProgram, pgCommandString;
 
@@ -664,7 +665,7 @@ public class BamStatsAnalysis {
         // position is still far away
         while(position > lastWindow.getEnd() ) {
             updateProgress();
-            //finalizeWindowInSameThread(lastWindow);
+            //finalizeWindowInSameThread(lastWindow, bamStats, openWindows);
             finalizeWindow(lastWindow, bamStats, openWindows);
             lastWindow = nextWindow(bamStats,openWindows,reference,detailed);
             if (lastWindow == null) {
@@ -685,25 +686,31 @@ public class BamStatsAnalysis {
                     outsideBamStats.getNumberOfProcessedWindows()) * 50) / (effectiveNumberOfWindows);
         }
     }
-    private Future<Integer> finalizeWindow(BamGenomeWindow window, BamStats bamStats,
-                                           Map<Long,BamGenomeWindow> openWindows) {
+    private void finalizeWindow(BamGenomeWindow window, BamStats bamStats,
+                                           Map<Long,BamGenomeWindow> openWindows) throws ExecutionException, InterruptedException {
+        if (finalizeWindowResult != null) {
+            // We only run finalization of one window in parallel to prevent to many open windows
+            finalizeWindowResult.get();
+
+        }
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
         //System.out.println("Time taken to count overlappers: " + timeToCalcOverlappers);
         timeToCalcOverlappers = 0;
-        return workerThreadPool.submit( new FinalizeWindowTask(bamStats,window));
+        finalizeWindowResult = workerThreadPool.submit( new FinalizeWindowTask(bamStats,window));
+
     }
 
 
-    /*private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
+    private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
                                                Map<Long,BamGenomeWindow> openWindows) {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
         FinalizeWindowTask task = new FinalizeWindowTask(bamStats,window);
         return task.call();
-    }*/
+    }
 
 
     private void loadLocator(SAMFileHeader header){
