@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.utils;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 import org.jfree.chart.JFreeChart;
@@ -200,31 +201,18 @@ public class HtmlReportGenerator {
     }
 
     void appendGraphs() {
-        Iterator<?> it = genomicAnalysis ? reporter.getMapCharts().entrySet().iterator()
-                : reporter.getImageMap().entrySet().iterator();
-
 
         htmlReport.append("\n\n");
-        while(it.hasNext()){
-            @SuppressWarnings("unchecked")
-            Map.Entry<String, Object> entry = (Map.Entry<String, Object>)it.next();
+        for (QChart chart : reporter.getCharts()) {
 
-            String name;
+            String imagePath = getImagePath(chart.getName());
 
-            if(entry.getValue() instanceof JFreeChart){
-                name = ((JFreeChart)entry.getValue()).getTitle().getText();
-            } else {
-                name = new File(entry.getKey()).getName();
-            }
-
-            String imagePath = getImagePath(entry.getKey());
-
-            plotNames.add(name);
-            plotLinks.add(entry.getKey());
+            plotNames.add(chart.getTitle());
+            plotLinks.add(chart.getName());
 
             append("<div class=section>\n");
-            append("<h2>" + name + "<a class=\"headerlink\" name=\""
-                    + entry.getKey() + "\" "
+            append("<h2>" + chart.getTitle() + "<a class=\"headerlink\" name=\""
+                    + chart.getName() + "\" "
                     + "title=\"Permalink to this headline\">&nbsp;</a></h2>\n");
             append("<div><img width=100% src=\"" + imagePath + "\"></div>\n");
             append("</div><!-- graph section -->\n\n");

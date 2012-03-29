@@ -10,7 +10,6 @@ import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,11 +18,11 @@ import javax.swing.JOptionPane;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.HtmlReportGenerator;
-import org.jfree.chart.JFreeChart;
 
 
 public class ExportHtmlThread extends Thread{
@@ -121,21 +120,18 @@ public class ExportHtmlThread extends Thread{
 			// Set the number of files saved to initial value
 	    	numSavedFiles = 0;
 
-	    	int numItemsToSave;
+	    	int numItemsToSave = tabProperties.getReporter().getCharts().size();
 	    	boolean genomicAnalysis = false;
 
             if  (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME ||
                     tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_DNA ) {
-                numItemsToSave = tabProperties.getReporter().getMapCharts().size();
                 genomicAnalysis = true;
-            } else {
-                numItemsToSave = tabProperties.getReporter().getImageMap().size();
             }
 
 	    	if(tabProperties.getOutsideReporter() != null &&
 					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
 	    		loadOutsideReporter = true;
-	    		numItemsToSave += tabProperties.getOutsideReporter().getMapCharts().size() + 1;
+	    		numItemsToSave += tabProperties.getOutsideReporter().getCharts().size() + 1;
 	    	}
 
 	    	percentLoad = (100.0/numItemsToSave);
@@ -171,7 +167,7 @@ public class ExportHtmlThread extends Thread{
         HtmlReportGenerator generator = new HtmlReportGenerator(reporter, dirPath, genomicAnalysis);
         StringBuffer htmlReport = generator.getReport();
         saveReport(htmlReport, path);
-        return saveImages(reporter, genomicAnalysis);
+        return saveImages(reporter);
 
     }
 
@@ -229,38 +225,37 @@ public class ExportHtmlThread extends Thread{
     }
 
 
-    public boolean saveImages(BamQCRegionReporter reporter, boolean genomicAnalysis) throws IOException {
+    public boolean saveImages(BamQCRegionReporter reporter) throws IOException {
 
         boolean success = true;
 
-        Iterator<?> it = genomicAnalysis ? reporter.getMapCharts().entrySet().iterator()
-                : reporter.getImageMap().entrySet().iterator();
+        Iterator<QChart> it = reporter.getCharts().iterator();
 
         // Generate the Graphics images
 
         while(it.hasNext() && success){
-            @SuppressWarnings("unchecked")
-            Map.Entry<String, Object> entry = (Map.Entry<String, Object>)it.next();
 
+            QChart chart = it.next();
             BufferedImage bufImage;
 
-            if(entry.getValue() instanceof JFreeChart){
-                bufImage = ((JFreeChart)entry.getValue()).createBufferedImage(
-                        Constants.GRAPHIC_TO_SAVE_WIDTH,
-                        Constants.GRAPHIC_TO_SAVE_HEIGHT);
+            if(chart.isBufferedImage()){
+                bufImage = chart.getBufferedImage();
             } else {
-                bufImage = (BufferedImage)entry.getValue();
+                bufImage = chart.getJFreeChart().createBufferedImage(
+                                    Constants.GRAPHIC_TO_SAVE_WIDTH,
+                                    Constants.GRAPHIC_TO_SAVE_HEIGHT);
             }
 
-            String imagePath = dirPath + "/" + entry.getKey();
-            String extension = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+            String chartName = chart.getName();
+            String imagePath = dirPath + "/" + chartName;
+            String extension = chartName.substring(chartName.lastIndexOf(".") + 1);
             if (!extension.equalsIgnoreCase("png")) {
                 imagePath += ".png";
             }
             File imageFile = new File(imagePath);
             success = ImageIO.write(bufImage, "PNG", imageFile);
 
-            increaseProgressBar(entry.getKey());
+            increaseProgressBar(chart.getTitle());
 
         }
 

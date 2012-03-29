@@ -1,20 +1,15 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
-import org.bioinfo.ngs.qc.qualimap.utils.GraphUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYBoxAnnotation;
 import org.jfree.chart.axis.*;
@@ -55,12 +50,7 @@ public class BamQCRegionReporter implements Serializable {
     }
 
     private boolean paintChromosomeLimits;
-
-	/** Variable to contain the Charts generated in the class */
-	private Map<String, JFreeChart> mapCharts;
-
-    /** Contains buffered images of the charts */
-    private Map<String, BufferedImage> imageMap;
+    private List<QChart> charts;
 
 	/** Variable that contains the input files names */
 	private String bamFileName, referenceFileName;
@@ -225,21 +215,7 @@ public class BamQCRegionReporter implements Serializable {
 
     }
 
-    public void saveCharts(BamStats bamStats, String outdir, GenomeLocator locator, boolean isPairedData) throws IOException{
-
-		if (mapCharts == null) {
-            computeChartsBuffers(bamStats, locator, isPairedData);
-        }
-
-        for (Map.Entry<String, JFreeChart> entry : mapCharts.entrySet()) {
-            String fileName = entry.getKey();
-            JFreeChart chart = entry.getValue();
-            GraphUtils.saveChart(chart, outdir + "/" + fileName, 800, 600);
-        }
-
-	}
-
-	/**
+    /**
 	 * Function to load the data variables obtained from the input file/s
 	 * @param bamStats data read in the input file
 	 */
@@ -330,9 +306,9 @@ public class BamQCRegionReporter implements Serializable {
 		// define a stroke
 		Stroke stroke = new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, new float[] {4.0f, 8.0f}, 0.0f);
 
-		if(mapCharts == null){
-			mapCharts = new HashMap<String, JFreeChart>();
-		}
+		if (charts == null) {
+            charts = new ArrayList<QChart>();
+        }
 
 		// some variables		
 		double maxValue = 50;
@@ -433,7 +409,7 @@ public class BamQCRegionReporter implements Serializable {
         JFreeChart combinedChart = new JFreeChart("Coverage across reference",plot);
 		combinedChart.setPadding(new RectangleInsets(30,20,30,20));
 		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
-        mapCharts.put(bamStats.getName() + "_coverage_across_reference.png",combinedChart);
+        charts.add(new QChart(bamStats.getName() + "_coverage_across_reference.png", combinedChart) );
 
 		// coverageData histogram
 		BamQCHistogramChart coverageHistogram = new BamQCHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
@@ -442,15 +418,15 @@ public class BamQCRegionReporter implements Serializable {
 		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
 		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
 		coverageHistogram.render();
-		// TODO: move this code to render() method?
+		// TODO: move this code to render() method? Update: remove commented code after May 1, 2012
         /*if (bamStats.getCoverageHistogram().getSize() > 0) {
             double lower = bamStats.getCoverageHistogram().get(0).getX();
             double upper = bamStats.getCoverageHistogram().get(bamStats.getCoverageHistogram().getSize()-1).getX();
             coverageHistogram.getChart().getXYPlot().getDomainAxis().setRange(lower,upper);
         }*/
-        mapCharts.put(
-				bamStats.getName() + "_coverage_histogram.png",
-				coverageHistogram.getChart());
+
+        charts.add( new QChart(bamStats.getName() + "_coverage_histogram.png",
+				coverageHistogram.getChart()));
 
 		// coverageData ranged histogram
 		BamQCXYHistogramChart coverageRangedHistogram =
@@ -462,9 +438,9 @@ public class BamQCRegionReporter implements Serializable {
 		coverageRangedHistogram.setDomainAxisIntegerTicks(true);
 		coverageRangedHistogram.setDomainAxisTickUnitSize(1.0);
         coverageRangedHistogram.render();
-		mapCharts.put(
-				bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
-				coverageRangedHistogram.getChart());
+
+        charts.add( new QChart(bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
+                coverageRangedHistogram.getChart() ) );
 
 
         // coverageData ranged histogram
@@ -475,8 +451,10 @@ public class BamQCRegionReporter implements Serializable {
 		uniqueReadStartsHistogram.setDomainAxisIntegerTicks(true);
 		uniqueReadStartsHistogram.setDomainAxisTickUnitSize(1.0);
         uniqueReadStartsHistogram.render();
-		mapCharts.put( bamStats.getName() + "_uniq_read_starts_histogram.png",
-				uniqueReadStartsHistogram.getChart());
+
+        charts.add(new QChart( bamStats.getName() + "_uniq_read_starts_histogram.png",
+                uniqueReadStartsHistogram.getChart() ) );
+
 
 		// coverageData quota
 		BamQCChart coverageQuota = new BamQCChart(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE, subTitle,
@@ -486,7 +464,8 @@ public class BamQCRegionReporter implements Serializable {
 		coverageQuota.setDomainAxisIntegerTicks(true);
         coverageQuota.setDomainAxisTickUnitSize(1.0);
         coverageQuota.render();
-		mapCharts.put(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart());
+		charts.add( new QChart(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart() ) );
+
 
         if (bamStats.getReadMaxSize() > 0) {
             BamQCChart readsContentChart = new BamQCChart(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
@@ -495,12 +474,14 @@ public class BamQCRegionReporter implements Serializable {
             readsContentChart.addSeries("% C", bamStats.getReadsCsHistogram(), new Color(0, 0,255,255));
             readsContentChart.addSeries("% G", bamStats.getReadsGsHistogram(), new Color(0, 255,0,255));
             readsContentChart.addSeries("% T", bamStats.getReadsTsHistogram(), new Color(0, 0, 0,255));
-            readsContentChart.addSeries("% N", bamStats.getReadsNsHistogram(), new Color(0, 255, 255,255));
+            readsContentChart.addSeries("% N", bamStats.getReadsNsHistogram(), new Color(0, 255, 255, 255));
             readsContentChart.setAdjustDomainAxisLimits(false);
             readsContentChart.setDomainAxisIntegerTicks(true);
             readsContentChart.setPercentageChart(true);
             readsContentChart.render();
-            mapCharts.put(bamStats.getName() + "_reads_content_per_read_position.png", readsContentChart.getChart());
+            charts.add(new QChart(bamStats.getName() + "_reads_content_per_read_position.png",
+                    readsContentChart.getChart() ));
+
         }
 
         BamQCChart gcContentHistChart = new BamQCChart(Constants.PLOT_TITLE_READS_GC_CONTENT, subTitle,
@@ -516,7 +497,8 @@ public class BamQCRegionReporter implements Serializable {
         gcContentHistChart.setAdjustDomainAxisLimits(false);
         gcContentHistChart.setPercentageChart(false);
         gcContentHistChart.render();
-		mapCharts.put(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart());
+		charts.add(new QChart(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart()));
+
 
 
 		///////////////// mapping quality charts ///////////////
@@ -531,9 +513,9 @@ public class BamQCRegionReporter implements Serializable {
         }
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
-		mapCharts.put(
-				bamStats.getName() + "_mapping_quality_across_reference.png",
-				mappingQuality.getChart());
+		charts.add(new QChart(bamStats.getName() + "_mapping_quality_across_reference.png",
+                mappingQuality.getChart()) );
+
 
 		// mapping quality histogram
 		BamQCXYHistogramChart mappingQualityHistogram =
@@ -542,9 +524,8 @@ public class BamQCRegionReporter implements Serializable {
 		mappingQualityHistogram.addHistogram("mapping quality", bamStats.getMappingQualityHistogram(), Color.blue);
 		mappingQualityHistogram.setNumberOfBins(50);
         mappingQualityHistogram.render();
-		mapCharts.put(
-				bamStats.getName() + "_mapping_quality_histogram.png",
-				mappingQualityHistogram.getChart());
+		charts.add(new QChart( bamStats.getName() + "_mapping_quality_histogram.png",
+                mappingQualityHistogram.getChart() ) );
 
 		if(isPairedData){
 			// insert size across reference
@@ -556,7 +537,8 @@ public class BamQCRegionReporter implements Serializable {
                         false,chromosomeAnnotations);
             }
             insertSize.render();
-			mapCharts.put(bamStats.getName() + "_insert_size_across_reference.png", insertSize.getChart());
+			charts.add(new QChart( bamStats.getName() + "_insert_size_across_reference.png",
+                    insertSize.getChart() ));
 	
 			// mapping quality histogram
 			BamQCXYHistogramChart insertSizeHistogram =
@@ -566,7 +548,7 @@ public class BamQCRegionReporter implements Serializable {
 			insertSizeHistogram.setNumberOfBins(50);
             insertSizeHistogram.setRangeAxisIntegerTicks(true);
 			insertSizeHistogram.render();
-			mapCharts.put(bamStats.getName() + "_insert_size_histogram.png", insertSizeHistogram.getChart());
+			charts.add(new QChart(bamStats.getName() + "_insert_size_histogram.png", insertSizeHistogram.getChart()));
 		}
 	}
 
@@ -640,316 +622,158 @@ public class BamQCRegionReporter implements Serializable {
 		this.paintChromosomeLimits = paintChromosomeLimits;
 	}
 
-    public Object getChart(String name) {
-        if (mapCharts != null && mapCharts.containsKey(name)) {
-            return mapCharts.get(name);
-        } else if (imageMap != null && imageMap.containsKey(name)) {
-            return imageMap.get(name);
-        } else {
-            return null;
+
+    public QChart findChartByName(String name) {
+        for (QChart chart : charts) {
+            if (chart.getName().equals(name)) {
+                return chart;
+            }
         }
+
+        return null;
     }
-
-	//TODO: getMapCharts() and get getImageMap() should be somehow replaced by generic functions
-    // For example it is possible to introduce generic class ChartImage and hide impl details
-    public Map<String, JFreeChart> getMapCharts() {
-		return mapCharts;
-	}
-
-    public Map<String, BufferedImage> getImageMap() {
-            return imageMap;
-    }
-
-    public void setImageMap(Map<String, BufferedImage> imageMap) {
-        this.imageMap = imageMap;
-    }
-
 
 	public String getBamFileName() {
 		return bamFileName;
-	}
-
-	public void setBamFileName(String bamFileName) {
-		this.bamFileName = bamFileName;
 	}
 
 	public String getReferenceFileName() {
 		return referenceFileName;
 	}
 
-	public void setReferenceFileName(String referenceFileName) {
-		this.referenceFileName = referenceFileName;
-	}
-
 	public Integer getNumWindows() {
 		return numWindows;
-	}
-
-	public void setNumWindows(Integer numWindows) {
-		this.numWindows = numWindows;
 	}
 
 	public Long getBasesNumber() {
 		return referenceSize;
 	}
 
-	public void setBasesNumber(Long basesNumber) {
-		this.referenceSize = basesNumber;
-	}
-
 	public Long getContigsNumber() {
 		return contigsNumber;
-	}
-
-	public void setContigsNumber(Long contigsNumber) {
-		this.contigsNumber = contigsNumber;
 	}
 
 	public Long getaNumber() {
 		return aNumber;
 	}
 
-	public void setaNumber(Long aNumber) {
-		this.aNumber = aNumber;
-	}
-
 	public Long getcNumber() {
 		return cNumber;
-	}
-
-	public void setcNumber(Long cNumber) {
-		this.cNumber = cNumber;
 	}
 
 	public Long getgNumber() {
 		return gNumber;
 	}
 
-	public void setgNumber(Long gNumber) {
-		this.gNumber = gNumber;
-	}
-
 	public Long gettNumber() {
 		return tNumber;
-	}
-
-	public void settNumber(Long tNumber) {
-		this.tNumber = tNumber;
 	}
 
 	public Long getnNumber() {
 		return nNumber;
 	}
 
-	public void setnNumber(Long nNumber) {
-		this.nNumber = nNumber;
-	}
-
 	public Long getNumReads() {
 		return numReads;
-	}
-
-	public void setNumReads(Long numReads) {
-		this.numReads = numReads;
 	}
 
 	public Integer getNumMappedReads() {
 		return numMappedReads;
 	}
 
-	public void setNumMappedReads(Integer numMappedReads) {
-		this.numMappedReads = numMappedReads;
-	}
-
 	public Long getNumMappedBases() {
 		return numMappedBases;
-	}
-
-	public void setNumMappedBases(Long numMappedBases) {
-		this.numMappedBases = numMappedBases;
 	}
 
 	public Double getaPercent() {
 		return aPercent;
 	}
 
-	public void setaPercent(Double aPercent) {
-		this.aPercent = aPercent;
-	}
-
 	public Double getcPercent() {
 		return cPercent;
-	}
-
-	public void setcPercent(Double cPercent) {
-		this.cPercent = cPercent;
 	}
 
 	public Double getgPercent() {
 		return gPercent;
 	}
 
-	public void setgPercent(Double gPercent) {
-		this.gPercent = gPercent;
-	}
-
 	public Double gettPercent() {
 		return tPercent;
-	}
-
-	public void settPercent(Double tPercent) {
-		this.tPercent = tPercent;
 	}
 
 	public Double getnPercent() {
 		return nPercent;
 	}
 
-	public void setnPercent(Double nPercent) {
-		this.nPercent = nPercent;
-	}
-
 	public Double getGcPercent() {
 		return gcPercent;
-	}
-
-	public void setGcPercent(Double gcPercent) {
-		this.gcPercent = gcPercent;
-	}
-
-	public void setAtPercent(Double atPercent) {
-		this.atPercent = atPercent;
 	}
 
 	public Double getPercentMappedReads() {
 		return percentMappedReads;
 	}
 
-	public void setPercentMappedReads(Double percentMappedReads) {
-		this.percentMappedReads = percentMappedReads;
-	}
-
 	public Long getNumSequencedBases() {
 		return numSequencedBases;
-	}
-
-	public void setNumSequencedBases(Long numSequencedBases) {
-		this.numSequencedBases = numSequencedBases;
 	}
 
 	public Long getNumAlignedBases() {
 		return numAlignedBases;
 	}
 
-	public void setNumAlignedBases(Long numAlignedBases) {
-		this.numAlignedBases = numAlignedBases;
-	}
-
 	public Long getaReferenceNumber() {
 		return aReferenceNumber;
-	}
-
-	public void setaReferenceNumber(Long aReferenceNumber) {
-		this.aReferenceNumber = aReferenceNumber;
 	}
 
 	public Long getcReferenceNumber() {
 		return cReferenceNumber;
 	}
 
-	public void setcReferenceNumber(Long cReferenceNumber) {
-		this.cReferenceNumber = cReferenceNumber;
-	}
-
 	public Long getgReferenceNumber() {
 		return gReferenceNumber;
-	}
-
-	public void setgReferenceNumber(Long gReferenceNumber) {
-		this.gReferenceNumber = gReferenceNumber;
 	}
 
 	public Long gettReferenceNumber() {
 		return tReferenceNumber;
 	}
 
-	public void settReferenceNumber(Long tReferenceNumber) {
-		this.tReferenceNumber = tReferenceNumber;
-	}
-
 	public Long getnReferenceNumber() {
 		return nReferenceNumber;
-	}
-
-	public void setnReferenceNumber(Long nReferenceNumber) {
-		this.nReferenceNumber = nReferenceNumber;
 	}
 
 	public Double getMeanMappingQuality() {
 		return meanMappingQuality;
 	}
 
-	public void setMeanMappingQuality(Double meanMappingQuality) {
-		this.meanMappingQuality = meanMappingQuality;
-	}
-
 	public Double getaReferencePercent() {
 		return aReferencePercent;
-	}
-
-	public void setaReferencePercent(Double aReferencePercent) {
-		this.aReferencePercent = aReferencePercent;
 	}
 
 	public Double getcReferencePercent() {
 		return cReferencePercent;
 	}
 
-	public void setcReferencePercent(Double cReferencePercent) {
-		this.cReferencePercent = cReferencePercent;
-	}
-
 	public Double getgReferencePercent() {
 		return gReferencePercent;
-	}
-
-	public void setgReferencePercent(Double gReferencePercent) {
-		this.gReferencePercent = gReferencePercent;
 	}
 
 	public Double gettReferencePercent() {
 		return tReferencePercent;
 	}
 
-	public void settReferencePercent(Double tReferencePercent) {
-		this.tReferencePercent = tReferencePercent;
-	}
-
 	public Double getnReferencePercent() {
 		return nReferencePercent;
-	}
-
-	public void setnReferencePercent(Double nReferencePercent) {
-		this.nReferencePercent = nReferencePercent;
 	}
 
 	public Double getMeanCoverage() {
 		return meanCoverage;
 	}
 
-	public void setMeanCoverage(Double meanCoverage) {
-		this.meanCoverage = meanCoverage;
-	}
-
 	public Double getStdCoverage() {
 		return stdCoverage;
 	}
 
-	public void setStdCoverage(Double stdCoverage) {
-		this.stdCoverage = stdCoverage;
-	}
-
-    public List<StatsKeeper.Section> getInputDataSections() {
+	public List<StatsKeeper.Section> getInputDataSections() {
         return inputDataKeeper.getSections();
     }
 
@@ -1219,5 +1043,74 @@ public class BamQCRegionReporter implements Serializable {
     public void setWarningInfo(Map<String, String> warnings) {
         this.warnings  = warnings;
     }
+
+    public List<QChart> getCharts() {
+        return charts;
+    }
+
+    public void setChartList(List<QChart> chartList) {
+        charts = chartList;
+    }
+
+
+public static void generateBamQcProperties(Properties prop, BamQCRegionReporter reporter) {
+            prop.setProperty("bamFileName", reporter.getBamFileName());
+			prop.setProperty("basesNumber", reporter.getBasesNumber().toString());
+			prop.setProperty("contigsNumber", reporter.getContigsNumber().toString());
+            prop.setProperty("numRegions", Integer.toString(reporter.getNumSelectedRegions()));
+            prop.setProperty("numInRegionMappedReads", Long.toString(reporter.getNumInsideMappedReads()));
+            prop.setProperty("numInRegionBases", Long.toString(reporter.getInRegionsReferenceSize()));
+
+            //TODO: in region related info (num regions, regions size etc)
+
+			if (reporter.getReferenceFileName() != null && !reporter.getReferenceFileName().isEmpty()) {
+				prop.setProperty("referenceFileName", reporter.getReferenceFileName());
+				prop.setProperty("aReferenceNumber", reporter.getaReferenceNumber().toString());
+				prop.setProperty("aReferencePercent", reporter.getaReferencePercent().toString());
+				prop.setProperty("cReferenceNumber", reporter.getcReferenceNumber().toString());
+				prop.setProperty("cReferencePercent", reporter.getcReferencePercent().toString());
+				prop.setProperty("tReferenceNumber", reporter.gettReferenceNumber().toString());
+				prop.setProperty("tReferencePercent", reporter.gettReferencePercent().toString());
+				prop.setProperty("gReferenceNumber", reporter.getgReferenceNumber().toString());
+				prop.setProperty("gReferencePercent", reporter.getgReferencePercent().toString());
+				prop.setProperty("nReferenceNumber", reporter.getnReferenceNumber().toString());
+				prop.setProperty("nReferencePercent", reporter.getnReferencePercent().toString());
+			}
+
+			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
+			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
+
+			// globals
+			prop.setProperty("numWindows", reporter.getNumWindows().toString());
+			prop.setProperty("numReads", reporter.getNumReads().toString());
+			prop.setProperty("numMappedReads", reporter.getNumMappedReads().toString());
+			prop.setProperty("percentMappedReads", reporter.getPercentMappedReads().toString());
+			prop.setProperty("numMappedBases", reporter.getNumMappedBases().toString());
+			prop.setProperty("numSequencedBases", reporter.getNumSequencedBases().toString());
+			prop.setProperty("numAlignedBases", reporter.getNumAlignedBases().toString());
+
+			// mapping quality
+			prop.setProperty("meanMappingQuality", reporter.getMeanMappingQuality().toString());
+
+			// actg content
+			prop.setProperty("aNumber", reporter.getaNumber().toString());
+			prop.setProperty("aPercent", reporter.getaPercent().toString());
+			prop.setProperty("cNumber", reporter.getcNumber().toString());
+			prop.setProperty("cPercent", reporter.getcPercent().toString());
+			prop.setProperty("tNumber", reporter.gettNumber().toString());
+			prop.setProperty("tPercent", reporter.gettPercent().toString());
+			prop.setProperty("gNumber", reporter.getgNumber().toString());
+			prop.setProperty("gPercent", reporter.getgPercent().toString());
+			prop.setProperty("nNumber", reporter.getnNumber().toString());
+			prop.setProperty("nPercent", reporter.getnPercent().toString());
+			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
+			//TODO: add relative content?
+			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
+
+			// coverageData
+			prop.setProperty("meanCoverage", reporter.getMeanCoverage().toString());
+			prop.setProperty("stdCoverage", reporter.getStdCoverage().toString());
+    }
+
 
 }

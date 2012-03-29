@@ -22,8 +22,6 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.SaveZipThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -278,10 +276,10 @@ public class SavePanel extends javax.swing.JPanel {
      * @param path Output ZIP path
      */
 	private void createZipFile(String path){
-		SaveZipThread t = new SaveZipThread("Save to Zip Thread", this,
-			homeFrame.getSelectedTabPropertiesVO(), path);
+		//SaveZipThread t = new SaveZipThread("Save to Zip Thread", this,
+		//	homeFrame.getSelectedTabPropertiesVO(), path);
 		
-		t.start();
+		//t.start();
 	}
 
 

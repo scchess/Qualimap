@@ -1,7 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.SaveZipThread;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 import org.junit.Test;
 
@@ -56,7 +55,7 @@ public class BamQCTest {
             }
 
             Properties calculatedProps = new Properties();
-            SaveZipThread.generateBamQcProperties(calculatedProps, bamQcReporter);
+            BamQCRegionReporter.generateBamQcProperties(calculatedProps, bamQcReporter);
 
             /*try {
                 calculatedProps.store(new FileOutputStream(test.getResultsPath()), null);
@@ -70,7 +69,7 @@ public class BamQCTest {
                 Properties outsideProps = new Properties();
                 BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
                 outsideReporter.loadReportData(bamQc.getOutsideBamStats());
-                SaveZipThread.generateBamQcProperties(outsideProps, outsideReporter);
+                BamQCRegionReporter.generateBamQcProperties(outsideProps, outsideReporter);
 
                 /*try {
                     outsideProps.store(new FileOutputStream(test.getOutsideResultsPath()), null);

@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -14,6 +13,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 
@@ -84,7 +84,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                                     if (path.endsWith(".png")) {
                                         path = path + ".png";
                                     }
-                                    BufferedImage image = tabProperties.getReporter().getImageMap().get(graphicName);
+                                    BufferedImage image =
+                                            tabProperties.getReporter().findChartByName(graphicName).getBufferedImage();
                                     try {
                                         ImageIO.write(image, "png", new File(path));
                                     } catch (IOException e1) {
@@ -188,10 +189,10 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
         leftPanel.add(j1_0_1);
 
-        Map<String,BufferedImage> imageMap = tabProperties.getReporter().getImageMap();
+        List<QChart> charts = tabProperties.getReporter().getCharts();
 
-        for (Map.Entry<String,BufferedImage> entry : imageMap.entrySet() ) {
-            JLabel j = createImageLinkLabel(entry.getKey(), entry.getKey() );
+        for (QChart chart : charts ) {
+            JLabel j = createImageLinkLabel(chart.getTitle(), chart.getName() );
             leftPanel.add(j);
         }
 
@@ -205,79 +206,31 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		boolean isGffSelected = tabProperties.isGffSelected();
 		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
 
+        BamQCRegionReporter reporter = tabProperties.getReporter();
+
         String sectionName = isGffSelected ? "Results inside of regions" : "Results";
         JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
         leftPanel.add(checkFirstSection);
 
         JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
         //String iconM
-        j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+        //TODO: make red color of button if warning
+        j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
 	    leftPanel.add(j1_0);
         initialLabel = j1_0;
 
         JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", Constants.REPORT_INPUT_BAM_FILE);
 		j1_0_1.setToolTipText("Input data description");
-        j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+        j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
         leftPanel.add(j1_0_1);
 
-        JLabel j1_1 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_ACROSS_REFERENCE,
-                Constants.GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE);
-        leftPanel.add(j1_1);
+        List<QChart> charts = reporter.getCharts();
 
-        JLabel j1_2 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
-                Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM);
-        j1_2.setToolTipText("Frequency histogram of the coverageData");
-        leftPanel.add(j1_2);
 
-        JLabel j1_3 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
-                Constants.GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50);
-        j1_3.setToolTipText("<html>There is often big picks of coverageData across the reference"
-                + "<br>and the scale of the Coverage Histogram graph scale may not be adequate." +
-                "<br>In order to solve this, in this graph genome locations with a coverageData greater "
-                + "<br>than 50X are grouped into the last bin</html>");
-        leftPanel.add(j1_3);
-
-        JLabel j1_4 = createImageLinkLabel(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE,
-                Constants.GRAPHIC_NAME_GENOME_COVERAGE_QUOTA);
-        j1_4.setToolTipText("<html>Provides an easy way of viewing how much reference has been "
-                + "sequenced<br>with a coverageData higher than a selected level</html>");
-        leftPanel.add(j1_4);
-
-        JLabel readsContent = createImageLinkLabel(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
-                Constants.GRAPHIC_NAME_GENOME_READS_CONTENT);
-        readsContent.setToolTipText("Provides relative nucleotide content per read position");
-        leftPanel.add(readsContent);
-
-        JLabel gcContentHist = createImageLinkLabel(Constants.PLOT_TITLE_READS_GC_CONTENT,
-                Constants.GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW);
-        gcContentHist.setToolTipText("Shows gc content distribution per window ");
-        leftPanel.add(gcContentHist);
-
-        JLabel uniqReadsLabel = createImageLinkLabel(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
-                Constants.GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS);
-        uniqReadsLabel.setToolTipText("Provides a histogram of unique read starts per position.");
-        leftPanel.add(uniqReadsLabel);
-
-        JLabel j1_5 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE,
-                Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE);
-        j1_5.setToolTipText("Mapping Quality Across Reference");
-        leftPanel.add(j1_5);
-
-        JLabel j1_6 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM,
-                Constants.GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM);
-        j1_6.setToolTipText("Frequency histogram of the mapping quality");
-        leftPanel.add(j1_6);
-
-        if(tabProperties.isPairedData()){
-            JLabel j1_8 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_ACROSS_REFERENCE,
-                    Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE);
-            j1_8.setToolTipText("Insert size across the reference");
-            leftPanel.add(j1_8);
-
-            JLabel j1_7 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_HISTOGRAM,
-                    Constants.GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM);
-            j1_7.setToolTipText("Frequency histogram of the insert size");
-            leftPanel.add(j1_7);
+        for (QChart chart : charts) {
+            JLabel linkLabel = createImageLinkLabel(chart.getTitle(), chart.getName());
+            linkLabel.setToolTipText(chart.getToolTip());
+            leftPanel.add(linkLabel);
         }
 
         if (showOutsideStats) {
@@ -291,86 +244,46 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 			leftPanel.add(summary);
 
             JLabel inputDesc = createInputDescriptionLinkLabel("Input", Constants.REPORT_OUTSIDE_BAM_FILE);
-			inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+			inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
 			inputDesc.setToolTipText("Input data description");
             leftPanel.add(inputDesc);
 
-			JLabel j3_1 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_ACROSS_REFERENCE,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE);
-			leftPanel.add(j3_1);
-
-			JLabel j3_2 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM);
-			j3_2.setToolTipText("Frequency histogram of the coverageData");
-			leftPanel.add(j3_2);
-
-			JLabel j3_3 = createImageLinkLabel(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50);
-			j3_3.setToolTipText("There is often big picks of coverageData across the reference " + "and the scale of the Coverage Histogram graph scale may not be adequate. " + "In order to solve this, in this graph genome locations with a coverageData greater " + "than 50X are groped into the last bin");
-			leftPanel.add(j3_3);
-
-			JLabel j3_4 = createImageLinkLabel(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA);
-			j3_4.setToolTipText("Provides an easy way of viewing how much reference has been " + "sequenced with a coverageData higher than a selected level");
-			leftPanel.add(j3_4);
-
-            JLabel readsContentOutside = createImageLinkLabel(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
-                    Constants.GRAPHIC_NAME_OUTSIDE_READS_CONTENT);
-            readsContentOutside.setToolTipText("Provides relative nucleotide content per read position");
-            leftPanel.add(readsContentOutside);
-
-            JLabel gcContentHistOutside = createImageLinkLabel(Constants.PLOT_TITLE_READS_GC_CONTENT,
-                    Constants.GRAPHIC_NAME_OUTSIDE_GC_CONTENT_PER_WINDOW);
-            gcContentHistOutside.setToolTipText("Shows gc content distribution per window ");
-            leftPanel.add(gcContentHistOutside);
-
-            JLabel uniqReadsLabelOutside = createImageLinkLabel(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS);
-            uniqReadsLabelOutside.setToolTipText("Provides a histogram of unique read starts per position.");
-            leftPanel.add(uniqReadsLabelOutside);
-
-			JLabel j3_5 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE);
-			j3_5.setToolTipText("Mapping Quality Across Reference");
-			leftPanel.add(j3_5);
-
-			JLabel j3_6 = createImageLinkLabel(Constants.PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM,
-                    Constants.GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM);
-			j3_6.setToolTipText("Frequency histogram of the mapping quality");
-			leftPanel.add(j3_6);
-
-            if(tabProperties.isPairedData()){
-                JLabel j3_8 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_ACROSS_REFERENCE,
-                        Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE);
-                j3_8.setToolTipText("Insert size across the reference");
-                leftPanel.add(j3_8);
+            List<QChart> outsideCharts = tabProperties.getOutsideReporter().getCharts();
 
 
-                JLabel j3_7 = createImageLinkLabel(Constants.PLOT_TITLE_INSERT_SIZE_HISTOGRAM,
-                        Constants.GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM);
-                j3_7.setToolTipText("Frequency histogram of the insert size");
-                leftPanel.add(j3_7);
+            for (QChart chart : outsideCharts) {
+                JLabel linkLabel = createImageLinkLabel(chart.getTitle(), chart.getName());
+                linkLabel.setToolTipText(chart.getToolTip());
+                leftPanel.add(linkLabel);
             }
-        }
+
+
+		}
 
 	}
 
 	/**
 	 * Function that load the left panel with the statistics links for the
-	 * RNA-sqe
+	 * RNA-seq
 	 */
 	private void fillLeftRnaSplit() {
-
-        boolean infoFileIsSet = tabProperties.getRnaAnalysisVO().getInfoFileIsSet();
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
 
 		JLabel inputDesc = createInputDescriptionLinkLabel("Input", 0 );
-        inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
+        inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
         leftPanel.add(inputDesc);
 
-        JLabel j1_0 = createImageLinkLabel("Global Saturation", Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
+        List<QChart> charts = tabProperties.getReporter().getCharts();
+
+        for (QChart chart : charts ) {
+            JLabel j = createImageLinkLabel(chart.getTitle(), chart.getName() );
+            leftPanel.add(j);
+        }
+
+        // TODO: provide the grouping of items as it was before
+        /*JLabel j1_0 = createImageLinkLabel("Global Saturation", Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
 		j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
 		j1_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
 		leftPanel.add(j1_0);
@@ -409,7 +322,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 				JLabel j = createImageLinkLabel(entry.getKey().toString(), entry.getKey().toString() + "_boxplot.png");
 				leftPanel.add(j);
 			}
-		}
+		}*/
 
     }
 
@@ -616,12 +529,52 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 */
 	private void showGraphic(String name, BamQCRegionReporter reporter) {
 
-        Object imageToDisplay = reporter.getChart(name);
 
-		tabProperties.setLoadedGraphicName(name);
+
+		QChart chart = reporter.findChartByName(name);
+        if (chart == null) {
+            logger.error("Can not find chart " + name);
+            return;
+        }
+
+	    if (chart.isBufferedImage()) {
+
+            // Get a Singleton to manage the image to display
+            GraphicImagePanel panelImage = tabProperties.getGraphicImage();
+            BufferedImage imageToDisplay = chart.getBufferedImage();
+  			// Set the image with the file image get
+			panelImage.setImage(imageToDisplay);
+            // Scale the image
+            if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI ) {
+                int width = imageToDisplay.getWidth();
+                int height  =  imageToDisplay.getHeight();
+                panelImage.setPreferredSize(new Dimension(width, height));
+                panelImage.resizeImage(width, height);
+            } else {
+                panelImage.resizeImage(rightScrollPane.getWidth(), rightScrollPane.getHeight());
+            }
+            rightScrollPane.setViewportView(panelImage);
+
+        } else {
+
+            JFreeChart jFreeChart = chart.getJFreeChart();
+            ChartPanel panelImage = new ChartPanel( jFreeChart);
+			panelImage.setSize(rightScrollPane.getSize());
+        	rightScrollPane.setViewportView(panelImage);
+
+        }
+
+        tabProperties.setLoadedGraphicName(name);
+
+
+
+        //Object imageToDisplay = reporter.getChart(name);
+
+
 		// The image can be a JFreeChart generated of come from a file like a
+
 		// BufferedImage
-		if (imageToDisplay instanceof JFreeChart) {
+		/*if (imageToDisplay instanceof JFreeChart) {
 			// Create the ChartPanel that contains the chart
 			ChartPanel panelImage = new ChartPanel((JFreeChart) imageToDisplay);
 			panelImage.setSize(rightScrollPane.getSize());
@@ -646,8 +599,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             }
 
             rightScrollPane.setViewportView(panelImage);
-        }
-        //TODO: better approach -> add event listener to homeframe
+        }*/
         homeFrame.updateMenuBar();
 
     }
@@ -733,7 +685,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		panelDerecha.setFont(HomeFrame.defaultFont);
         int width = rightScrollPane.getWidth() - 100;
 
-        StringBuffer summaryHtml = new StringBuffer();
+        StringBuilder summaryHtml = new StringBuilder();
 
         summaryHtml.append( HtmlJPanel.getHeader() );
         summaryHtml.append(prepareHtmlReport(reporter, width));
@@ -749,7 +701,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		htmlPanel.setFont(HomeFrame.defaultFont);
         int width = rightScrollPane.getWidth() - 100;
 
-        StringBuffer inputDesc = new StringBuffer();
+        StringBuilder inputDesc = new StringBuilder();
         inputDesc.append( HtmlJPanel.getHeader() );
         inputDesc.append( reporter.getInputDescription(width) );
         inputDesc.append( HtmlJPanel.getHeadFooter() );

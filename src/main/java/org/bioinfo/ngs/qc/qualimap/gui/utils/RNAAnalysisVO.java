@@ -23,13 +23,13 @@ public class RNAAnalysisVO {
 	 * Variable to contain the different classes into the info file
 	 * if the info file is selected
 	 */
-	private Map<String, Object> mapClassesInfoFile;
+	private Map<String, String> mapClassesInfoFile;
 	
 	
 	public RNAAnalysisVO(){
 		this.infoFileIsSet = false;
 		this.specieFileIsSet = false;
-		this.mapClassesInfoFile = new HashMap<String, Object>();
+		this.mapClassesInfoFile = new HashMap<String, String>();
 	}
 	
 	
@@ -52,12 +52,9 @@ public class RNAAnalysisVO {
 		this.specieFileIsSet = specieFileIsSet;
 	}
 
-	public Map<String, Object> getMapClassesInfoFile() {
+	public Map<String, String> getMapClassesInfoFile() {
 		return mapClassesInfoFile;
 	}
 
-	public void setMapClassesInfoFile(Map<String, Object> mapClassesInfoFile) {
-		this.mapClassesInfoFile = mapClassesInfoFile;
-	}
 }
 

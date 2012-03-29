@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
@@ -125,7 +126,7 @@ public class EpiAnalysis {
         }
 
         reportProgress("Loading images...");
-        if (!loadBufferedImages(tabProperties, workDir.toString()) ) {
+        if (!loadBufferedImages(tabProperties, workDir) ) {
             throw new RuntimeException("No images generated.");
         }
 
@@ -294,7 +295,7 @@ public class EpiAnalysis {
 
     public static boolean loadBufferedImages(TabPropertiesVO tabProperties, String outDir) throws IOException {
 
-        HashMap<String,BufferedImage> imageMap = new HashMap<String, BufferedImage>();
+        List<QChart> chartList = new ArrayList<QChart>();
         int imageCount = 0;
 
         File dir = new File(outDir);
@@ -306,7 +307,7 @@ public class EpiAnalysis {
             if (fileName.endsWith(".jpg")) {
                 String imageName = fileName.subSequence(0,  fileName.length() - 4).toString();
                 BufferedImage image = ImageIO.read(new FileInputStream(child));
-                imageMap.put(imageName, image);
+                chartList.add(new QChart(imageName, imageName, image) );
                 imageCount++;
             }
         }
@@ -316,7 +317,7 @@ public class EpiAnalysis {
         }
 
         BamQCRegionReporter reporter = tabProperties.getReporter();
-        reporter.setImageMap(imageMap);
+        reporter.setChartList(chartList);
 
         return true;
 

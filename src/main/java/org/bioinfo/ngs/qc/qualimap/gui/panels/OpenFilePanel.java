@@ -10,12 +10,10 @@ import java.io.IOException;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -26,10 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.GraphicsFromZipAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -259,9 +255,9 @@ public class OpenFilePanel extends JPanel {
 	 * zip file generated before
 	 */
 	private synchronized void loadZipFileStatistics(TabPropertiesVO tabProperties) {
-		GraphicsFromZipAnalysisThread t;
-		t = new GraphicsFromZipAnalysisThread("StatisticsZipProcessThread", this, tabProperties);
-		t.start(); 
+		//GraphicsFromZipAnalysisThread t;
+		//t = new GraphicsFromZipAnalysisThread("StatisticsZipProcessThread", this, tabProperties);
+		//t.start();
 	}
 
 

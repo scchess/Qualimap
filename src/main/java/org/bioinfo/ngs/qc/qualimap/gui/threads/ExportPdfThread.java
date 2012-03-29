@@ -4,6 +4,7 @@ import com.lowagie.text.*;
 import com.lowagie.text.Document;
 import com.lowagie.text.pdf.PdfWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
@@ -105,7 +106,7 @@ public class ExportPdfThread extends Thread {
             initDocument(document);
 
         	// Number of items to save into the PDF file (graphics + 3 files of properties + Header + Footer)
-	    	int numItemsToSave =  tabProperties.getReporter().getMapCharts().size();
+	    	int numItemsToSave =  tabProperties.getReporter().getCharts().size();
 
             genomicAnalysis = tabProperties.getTypeAnalysis().equals(Constants.TYPE_BAM_ANALYSIS_EXOME) ||
                     tabProperties.getTypeAnalysis().equals(Constants.TYPE_BAM_ANALYSIS_DNA);
@@ -113,7 +114,7 @@ public class ExportPdfThread extends Thread {
 	    	if(tabProperties.getOutsideReporter() != null &&
 					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
 	    		loadOutsideReporter = true;
-	    		numItemsToSave += tabProperties.getOutsideReporter().getMapCharts().size();
+	    		numItemsToSave += tabProperties.getOutsideReporter().getCharts().size();
 	    	}
 
 	    	percentLoad = (100.0/numItemsToSave);
@@ -226,30 +227,20 @@ public class ExportPdfThread extends Thread {
     }
 
     private void addPlots(Document document, BamQCRegionReporter reporter) throws Exception {
-        Iterator<?> it = genomicAnalysis ? reporter.getMapCharts().entrySet().iterator()
-                : reporter.getImageMap().entrySet().iterator();
+       for (QChart chart : reporter.getCharts() ){
 
-
-        // Generate the Graphics images
-        while(it.hasNext()){
-            @SuppressWarnings("unchecked")
-            Map.Entry<String, Object> entry = (Map.Entry<String, Object>)it.next();
-
-            String chartName = entry.getKey();
+            String chartTitle = chart.getTitle();
 
             BufferedImage bufImage;
-            if(entry.getValue() instanceof JFreeChart){
-                JFreeChart chart = (JFreeChart)entry.getValue();
-                bufImage = chart.createBufferedImage(
+            if (chart.isBufferedImage()) {
+                bufImage = chart.getBufferedImage();
+           } else {
+                bufImage = chart.getJFreeChart().createBufferedImage(
                         Constants.GRAPHIC_TO_SAVE_WIDTH,
                         Constants.GRAPHIC_TO_SAVE_HEIGHT);
-                chartName = chart.getTitle().getText();
+           }
 
-            } else {
-                bufImage = (BufferedImage)entry.getValue();
-            }
-
-            Paragraph chartsTitle = createChapterTitle(chartName + reporter.getNamePostfix());
+            Paragraph chartsTitle = createChapterTitle(chartTitle + reporter.getNamePostfix());
             Chapter chapter = new Chapter(chartsTitle, curChapterNum);
 
 
@@ -266,7 +257,7 @@ public class ExportPdfThread extends Thread {
 
             document.add(chapter);
             curChapterNum++;
-            increaseProgressBar(chartName);
+            increaseProgressBar(chartTitle);
         }
 
     }

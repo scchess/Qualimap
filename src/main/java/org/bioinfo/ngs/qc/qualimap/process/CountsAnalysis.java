@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
@@ -10,9 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by kokonech
@@ -138,51 +137,57 @@ public class CountsAnalysis {
 
 
     /**
-	 * Function to load the images into a map of buffered images
+	 * Function to load the images to list of QCharts
 	 *
      * @throws java.io.IOException In case the images ca not be saved
      */
 	private void loadBufferedImages() throws IOException {
 		BamQCRegionReporter reporter = tabProperties.getReporter();
         prepareInputDescription(reporter);
-        reporter.setImageMap(new HashMap<String, BufferedImage>());
-		increaseProgressBar(currentStepLoaded, "Loading graphic: Global Saturation");
-		// Insert in the tab the graphic of the Global Saturations
-		addImage(reporter, Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
 
-		Iterator it = tabProperties.getRnaAnalysisVO().getMapClassesInfoFile().entrySet().iterator();
+        List<QChart> chartList = new ArrayList<QChart>();
+
+        increaseProgressBar(currentStepLoaded, "Loading graphic: Global Saturation");
+		addImage(chartList, Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, "Global Saturation");
+
+		Iterator<Map.Entry<String,String>> it =
+                tabProperties.getRnaAnalysisVO().getMapClassesInfoFile().entrySet().iterator();
+
 		// If a info_file or species is selected, add the Saturation per class,
 		// the counts per class and the graphics of each biotype
 		if (it.hasNext()) {
 			increaseProgressBar(currentStepLoaded, "Loading graphic: Detection per Class");
-			addImage(reporter,Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS);
+			addImage(chartList,Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS, "Detection Per Class");
 			increaseProgressBar(currentStepLoaded, "Loading graphic: Counts per Class");
-			addImage(reporter,Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS);
+			addImage(chartList,Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS, "Counts Per Class");
 
 			while (it.hasNext()) {
-				Map.Entry<String, String> aux = (Map.Entry<String, String>) it.next();
+				Map.Entry<String, String> aux =  it.next();
 				increaseProgressBar(currentStepLoaded, "Loading graphic: " + aux.getKey());
-				addImage(reporter,aux.getValue());
-				addImage(reporter,aux.getKey()+"_boxplot.png");
+				addImage(chartList,aux.getValue(), aux.getKey());
+				addImage(chartList, aux.getKey()+"_boxplot.png", aux.getKey() + " (boxplot)");
 			}
-			addImage(reporter,"unknown.png");
-			addImage(reporter,"unknown_boxplot.png");
+			addImage(chartList,"unknown.png", "Unknown");
+			addImage(chartList,"unknown_boxplot.png", "Unknown (boxplot)");
 		}
+
+        reporter.setChartList(chartList);
 	}
 
 
-     private void addImage(BamQCRegionReporter reporter, String name){
+     private void addImage(List<QChart> chartList, String name, String title) {
 		String path = HomeFrame.outputpath + tabProperties.getOutputFolder().toString() + name;
 		BufferedImage imageToDisplay;
         try {
 	        imageToDisplay = ImageIO.read(new FileInputStream(new File(path)));
-			reporter.getImageMap().put(name, imageToDisplay);
-        } catch (FileNotFoundException e) {
-	       System.out.println("Image not found: " + path );
-        } catch (IOException e) {
-        	System.out.println("Image not found: " + path );
+		} catch (Exception e) {
+	        System.out.println("Image not found: " + path );
+            return;
         }
+        chartList.add(new QChart(name, title, imageToDisplay));
+
 	}
+
 
 	/**
 	 * Increase the progress bar in the percent depends on the number of the
