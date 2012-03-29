@@ -172,7 +172,7 @@ public class BamAnalysisThread extends Thread {
 
 		} catch( OutOfMemoryError e) {
             JOptionPane.showMessageDialog(bamDialog, "<html><body align=\"center\">Out of memory!" +
-                    "<br>Try decreasing the size of the bunch in the Advanced Options" +
+                    "<br>Try decreasing the size of the chunk in the Advanced Options" +
                     "<br>or changing Java virtual machine settings.</body></html>",
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             bamDialog.setUiEnabled(true);

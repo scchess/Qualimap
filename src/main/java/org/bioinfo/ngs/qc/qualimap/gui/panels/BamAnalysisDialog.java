@@ -1,7 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
-import org.apache.commons.lang.ArrayUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
@@ -19,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -125,11 +123,11 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         numThreadsSpinner.setToolTipText("Number of computational threads");
         add(numThreadsSpinner, "wrap");
 
-        labelNumReadsPerBunch = new JLabel("Size of the bunch:");
+        labelNumReadsPerBunch = new JLabel("Size of the chunk:");
         add(labelNumReadsPerBunch, "gapleft 20");
-        numReadsPerBunchSpinner = new JSpinner(new SpinnerNumberModel(1000, 100, 5000, 1));
-        numReadsPerBunchSpinner.setToolTipText("<html>To speed up the computation reads are analyzed in bunches. " +
-                "Each bunch is analyzed by single thread. <br>This option controls the number of reads in the bunch." +
+        numReadsPerBunchSpinner = new JSpinner(new SpinnerNumberModel(500, 100, 5000, 1));
+        numReadsPerBunchSpinner.setToolTipText("<html>To speed up the computation reads are analyzed in chunks. " +
+                "Each bunch is analyzed by single thread. <br>This option controls the number of reads in the chunk." +
                 "<br>Smaller number may result in lower performance, " +
                 "but also the memory consumption will be reduced.</html>");
         add(numReadsPerBunchSpinner, "wrap 20px");

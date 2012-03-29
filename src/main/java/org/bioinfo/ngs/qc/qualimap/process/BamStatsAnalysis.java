@@ -136,7 +136,7 @@ public class BamStatsAnalysis {
     public BamStatsAnalysis(String bamFile) {
 		this.bamFile = bamFile;
 		this.numberOfWindows = 400;
-        this.numReadsInBunch = 1000;
+        this.numReadsInBunch = 500;
         this.maxSizeOfTaskQueue = 10;
         this.minReadSize = Integer.MAX_VALUE;
         this.threadNumber = 4;
@@ -288,7 +288,8 @@ public class BamStatsAnalysis {
                 }
 
                 if (position < currentWindow.getStart()) {
-                    throw new RuntimeException("The alignment file is unsorted.\nPlease sort the BAM file by coordinate.");
+                    throw new RuntimeException("The alignment file is unsorted.\n" +
+                            "Please sort the BAM file by coordinate.");
                 }
 
                 long findOverlappersStart = System.currentTimeMillis();
