@@ -90,9 +90,9 @@ public class CountReadsTool extends NgsSmartTool {
 
         if (commandLine.hasOption("alg")) {
             alg = commandLine.getOptionValue("alg");
-            if (! (alg.equals(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED) ) ||
-                    ! (alg.equals(ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL))) {
-                throw new ParseException("Unknow algorithm! Possible values are: " + getAlgorithmTypes());
+            if (! ( alg.equalsIgnoreCase(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)  ||
+                     alg.equalsIgnoreCase(ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL)) ) {
+                throw new ParseException("Unknown algorithm! Possible values are: " + getAlgorithmTypes());
             }
         } else {
             alg = ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
