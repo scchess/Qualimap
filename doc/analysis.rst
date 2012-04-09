@@ -12,6 +12,15 @@ Genomic analysis reports information for the evaluation of the quality of the al
 
 To start a new Genomic analysis just activate from the main menu :menuselection:`File --> New Analysis --> Genomics`.
 
+
+Example
+^^^^^^^
+
+
+In `<plasmodium/qualimapReport.html>`_ there is an example of the produced output. This report was produced by Qualimap (see :ref:`export`) using the provided `example data <konstantin>`_ of the whole-genome sequencing of *Plasmodium falciparum* from produced by *Wellcome Trust Sanger Institute* [#sanger]_.
+
+
+
 Input
 ^^^^^
 
@@ -51,16 +60,6 @@ Advanced parameters
 Output
 ^^^^^^
 
-Example
-"""""""
-
-
-In `<plasmodium/qualimapReport.html>`_ for an example of the produced output. This report was produced by Qualimap (see :ref:`export`) using the DNA sequencing data of *Plasmodium falciparum* from produced by *Wellcome Trust Sanger Institute* [#sanger]_.
-
-
-Details
-"""""""
-
 :guilabel:`Summary` 
 
   **Basic information** and statistics for the alignment data. Qualimap reports here information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, insert size, nucleotide content, coverage, mapping quaility and chromosome-based statistics.
@@ -75,7 +74,7 @@ Details
 
 :guilabel:`Coverage Histogram (scaled)` 
 
-  Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x* axis are conviniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
+  Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x*-axis are conviniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
 
 :guilabel:`Coverage Histogram (0-50X)` 
 
@@ -83,9 +82,9 @@ Details
 
 :guilabel:`Genome Fraction by Coverage`
 
-  Provides a visual way for viewing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as follows:
+  Provides a visual way for viewing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as in this example:
 
-  If I select a coverage rate of **at least 10X** (*x* axis), how much of my reference (*y* axis )will be consider? The answer to this question in the case of the `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
+  If I select a coverage rate of **at least 10X** (*x*-axis), how much of my reference (*y*-axis )will be considered? The answer to this question in the case of the `provided results <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
 
 :guilabel:`Mapped Reads Nucleotide Content` 
 
@@ -97,7 +96,7 @@ Details
 
 :guilabel:`Duplication Rate Histogram` 
 
-  Histogram of the duplication rate... **!CHECK with Konstantin again! what is the y axis? it does not sum up the number of reads** of how many reads start at unique position. This plot is helpful to see if the fragment distribution across genome. 
+  This plots shows the **distribution** of **duplicated** read **starts**. Due to several factors (e.g. amount of starting material, sample preparation, etc) it is possible that the same **fragments** are **sequenced several times**. For some experiments where enrichment is used (e.g. ChIP-seq ) this is expected at some *low* rate. If most of the reads share the exact same genomic positions there is very likely an associated bias.  
 
 :guilabel:`Mapping Quality Across Reference` 
 
@@ -105,7 +104,7 @@ Details
 
 :guilabel:`Mapping Quality Histogram` 
 
-  Histogram of the **!CHECK with Konstantin again! what is the y axis? it does not sum up the number of reads**
+  Histogram of the number of **genomic locations** having a given **mapping quality**. According to Specification of the `SAM format <http://samtools.sourceforge.net/SAM1.pdf>`_ the range for the mapping quality is [0-255].
 
 .. _rna-seq:
 
@@ -125,6 +124,11 @@ To study the quality of a sample from the count data in a RNA-seq experiment, ju
 .. note::
 
    For this option to work, the **R** language must be **installed** along with the R package **optparse** (both are freely available from http://cran.r-project.org/).
+
+Example
+^^^^^^^
+
+In `<rna-seq-example/qualimapReport.html>`_ an example of the produced output can be found. This report was produced by Qualimap (see :ref:`export`) using the counts from the RNA-seq `example data <konstantin>`_ of kidney and liver samples [Marioni]_. These counts can be generated using the :ref:`compute-counts` tool with the BAM files as it shown in this :ref:`example-compute-counts`.
 
 Input
 ^^^^^
@@ -149,34 +153,50 @@ Input
 
   In order to **remove** the influence of **spurious reads**, a feature is considered as detected if its corresponding number of counts is **greater than this threshold**. By default, the theshold value is set to 5 counts, meaning that features habing less than 5 counts will not be taken into account.
 
-:guilabel:`Info File`
+:guilabel:`Group File`
 
   **Optional**. File containing a classification of the features of the count files. It must be a **two columns** **tab-delimited** text file, with the features names or IDs in the first column and the group (e.g. the biotype from Ensembl database) in the second column (see http://example!). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
 
-:guilabel:`Species` 
-  **Optional**. **CHECK and rewrite!!** If the Info File is not given by the user, Qualimap provides the Ensembl biotype classification for certain species (human and  mouse in Qualimap version 1.0), whenever the features names in the counts file are the Ensembl gene or transcripts IDs (e.g. ENSG00000251282 or ENST00000508921). If so, mark the box to enable this option and select the species. 
+:guilabel:`Species`
+
+   **Optional**. For convinience, Qualimap provides the `Ensembl <http://www.ensembl.org/>`_ biotype classification [#biomart]_ for certain species (currently *Human* and  *Mouse*). In order to use these annotations, **Ensembl Gene IDs** should be used as the feature IDs on the **count files** (e.g. ENSG00000251282). If so, mark the box to enable this option and select the corresponding species. More annotions and species will be made available in future releases.
 
 Output
 ^^^^^^
+
+Global Plots
+""""""""""""
 
 :guilabel:`Global Saturation`
 
   This plot provides information about the level of saturation in the sample, so it helps the user to decide if more sequencing is needed or if no many more features will detected when increasing the number of reads. These are some tips for the interpretation of the plot: 
   
-  * The increasing sequencing depth of the sample is represented at the X-axis. The maximum value is the real sequencing depth of the sample(s). Smaller sequencing depths correspond to samples   randomly generated from the original sample(s).
-  *  The curve(s) is associated to the left Y-axis and represents the number of detected features when working with each of the sequencing depths in the X-axis. “Detected features” mean features with more than k counts, where k is the Count threshold chosen by the user.
-  * The bars are associated to the right Y-axis and they represent the number of newly detected features when increasing the sequencing depth in one million reads at each sequencing depth value.
+  * The increasing sequencing depth of the sample is represented at the *x*-axis. The maximum value is the real sequencing depth of the sample(s). Smaller sequencing depths correspond to samples   randomly generated from the original sample(s).
+  *  The curve(s) is associated to the left *y*-axis and represents the number of detected features when working with each of the sequencing depths in the *x*-axis. “Detected features” mean features with more than k counts, where k is the Count threshold chosen by the user.
+  * The bars are associated to the right *y*-axis and they represent the number of newly detected features when increasing the sequencing depth in one million reads at each sequencing depth value.
+  
+  An example for this plot can be seen in `<rna-seq-example/qualimapReport.html#GlobalSaturation.png>`_. 
 
-When an :guilabel:`Info File` is provided by the user or chosen from the ones supplied by Qualimap, a series of plots are additionally generated that are described next.
+  When an :guilabel:`Group File` is provided by the user or chosen from the ones supplied by Qualimap, a series of plots are additionally generated:
 
 :guilabel:`Detection per group`
-  This barplot allows the user to know which kind of features are being detected in their sample(s). The X-axis shows all the biological groups included in the Info file (or the biotypes supplied by Qualimap). The grey bar is the percentage of features in each biological group within the reference genome (or transcriptome, etc.). The striped color bar is the percentage detected in the sample with regard to the genome. The solid color bar is the percentage that the group (or biotype) represents in the total detected features in the sample.
+
+  This barplot allows the user to know which kind of features are being detected his sample(s). The *x*-axis shows all the groups included in the :guilabel:`Group File` (or the biotypes supplied by Qualimap). The grey bars are the percentage of features of each group within the reference genome (or transcriptome, etc.). The striped color bars are the percentages of features of each group detected in the sample with regard to the genome. The solid color bars are the percentages that each group represents in the total detected features in the sample.
+
 :guilabel:`Counts per group`
-  A boxplot per each group (or biotype) describes the counts distribution for the detected features in that group.
+
+  A boxplot per each group describes the counts distribution for the detected features in that group.
+
+Individual Group Plots
+""""""""""""""""""""""
+
 :guilabel:`Saturation per group`
- For each group (or biotype), a saturation plot is generated like the one described above.
+
+ For each group, a saturation plot is generated like the one described in :guilabel:`Global Saturation`.
+
 :guilabel:`Counts & Sequencing Depth`
-  For each group (or biotype), a plot is generated containing a boxplot with the distribution of counts at each sequencing depth. X-axis shows the increasing sequencing depths of randomly generated samples from the original one till the true sequencing depth is reached. This plot allows the user to see how the increase of sequencing depth is changing the expression level quantification. 
+
+  For each group, a plot is generated containing a boxplot with the distribution of counts at each sequencing depth. *x*-axis shows the increasing sequencing depths of randomly generated samples from the original one till the true sequencing depth is reached. This plot allows the user to see how the increase of sequencing depth is changing the expression level quantification. 
 
 .. _epigenomic:
 
@@ -245,6 +265,13 @@ Compute counts
 
 This tool allows to calculate how many reads belong to each region if interest in the alignment. To access the tool use menu item :menuselection:`Tools --> Compute counts`. 
 
+.. _example-compute-counts:
+
+Example
+^^^^^^^
+
+dsafasdfs
+
 Input
 ^^^^^
 
@@ -271,7 +298,14 @@ Input
 :guilabel:`Save computation summary`
   This option controls whether to save overall computation statistics.
 
+Output
+^^^^^^
+
 
 .. [#sanger] The actual BAM file can be downloaded from `Sanger FTP <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/5428_3%234.bam>`_.
+
 .. [#X] Example for the meaning of *X*: If one genomic region has a coverage of 10X, it means that on average 10 different reads are mapped to each nucleotide of the region.
-.. [#bias] 
+
+.. [#biomart] Downloaded from `Biomart v.61 <http://feb2011.archive.ensembl.org/biomart/martview>`_. 
+
+.. [Marioni] Marioni JC et al, "RNA-seq: An assessment of technical reproducibility and comparison with gene expression arrays". Genome Res. 2008. 18: 1509-1517.
