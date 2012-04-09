@@ -98,9 +98,18 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>app.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>app.properties</exclude>
+                </excludes>
             </resource>
         </resources>
-
 
 		<plugins>
         		<plugin>

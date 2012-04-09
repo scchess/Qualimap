@@ -6,7 +6,6 @@ import org.apache.commons.cli.*;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.SavePdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
