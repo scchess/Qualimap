@@ -31,7 +31,7 @@ After the selected analysis is finished the results are shown as an interactive 
 
 In the left part of the report window one can find a list containing available result items. Clicking on an item will automatically show the corresponding information report or graph. Some report items are common for different types of analysis. 
 
-For example, :guilabel:`Summary` section provides a short summary of performed quality control checks, while :guilabel:`Input` section lists all the input parameters. Further information about each specific result is provided :ref:`here <analysis-types>`.
+For example, the :guilabel:`Summary` section provides a short summary of performed quality control checks, while the :guilabel:`Input` section lists all the input parameters. Further information about each specific result is provided :ref:`here <analysis-types>`.
 
 .. _export:
 
@@ -40,7 +40,7 @@ Exporting results
 
 The resulting report can be saved to HTML page or PDF document.
 
-To export results to HTML use a main menu item :menuselection:`File --> Export to HTML`. In the appeared window one can select the path to the output folder. After clicking :guilabel:`OK` button the web-page, containing analysis results will be saved to specified directory.
+To export results to HTML use a main menu item :menuselection:`File --> Export to HTML`. In the dialog window one can select the output folder. After clicking :guilabel:`OK` button the web-page, containing analysis results will be saved to the specified directory.
 
 Similarly one can save the report to a PDF document by using a main menu item :menuselection:`File --> Export to PDF`.
 
