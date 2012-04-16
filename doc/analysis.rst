@@ -8,7 +8,7 @@ Analysis types
 Genomic
 -------
 
-Genomic analysis reports information for the evaluation of the quality of the provided alignment data. This information eases decision-making for further analysis of the data. In short, the basic statistics of the alignment (number of reads, coverage, GC content, etc.) are summarized and a number of useful graphs are produced. In addition, the user can introduce an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions.
+Genomic analysis reports information for the evaluation of the quality of the provided alignment data. In short, the basic statistics of the alignment (number of reads, coverage, GC-content, etc.) are summarized and a number of useful graphs are produced. In addition, it is possible to provide an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions.
 
 To start a new Genomic analysis just activate from the main menu :menuselection:`File --> New Analysis --> Genomics`.
 
@@ -20,9 +20,8 @@ Example
 In `<plasmodium/qualimapReport.html>`_ there is an example of the produced output. This report was produced by Qualimap (see :ref:`export`) using the provided `example data <konstantin>`_ of the whole-genome sequencing of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* [#sanger]_.
 
 
-
-Input
-^^^^^
+Input Parameters
+^^^^^^^^^^^^^^^^
 
 :guilabel:`BAM file` 
   Path to the sequence alignment file in **BAM format**. Note, that the BAM file has to be **sorted by chromosomal coordinates**. Sorting can be performed with `satmtools sort <http://samtools.sourceforge.net/>`_.
@@ -34,20 +33,20 @@ Input
   Activating this option allows the analysis of the alignment data for the **regions of interest**. 
 
 :guilabel:`GFF File` 
-  The path to the annotation file that specifies the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ or `GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_ format.
+  The path to the annotation file that defines the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ or `GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_ format.
 
 :guilabel:`Analyze Outside Regions` 
-  If checked, the information about the **reads** that **mapped outside** of the regions of interest will be also computed and shown in a separated section.
+  If checked, the information about the **reads** that are **mapped outside** of the regions of interest will be also computed and shown in a separated section.
 
 .. _input-gc-content:
 
 :guilabel:`Compare GC Content Distribution with...` 
-  This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More specie will be included in future releases.
+  This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More specia will be included in future releases.
 
 Advanced parameters
 """""""""""""""""""
 
-:guilabel:`Number of Windows` 
+:guilabel:`Number of Windows`
   Number of **windows** used to **split** the reference **genome**. This value is used for computing the graphs that plot information across the reference. Basically, reads falling in the same window are aggregated in the same bin. The higher the number, the bigger the resolution of the plots but also longer time will be used to process the data. By default 400 windows are used.
 
 :guilabel:`Number of Threads`
@@ -111,9 +110,9 @@ Output
 RNA-seq
 -------
 
-In RNA-seq experiments, the reads are usually first mapped to a reference genome. It is assumed that if the number of reads mapping to a certain biological feature of interest (gene, transcript, exon, ...) is sufficient, it can be used as an estimation of the abundance of that feature in the sample and interpreted as the quantification of the expression level of the corresponding region.
+In **RNA-seq** experiments, the reads are usually **first mapped** to a reference genome. It is assumed that if the **number of reads** mapping to a certain biological feature of interest (gene, transcript, exon, ...) is sufficient, it can be used as an **estimation** of the **abundance** of that feature in the sample and interpreted as the quantification of the **expression level** of the corresponding region.
 
-These count data can be utilized for example to assess differential expression between two or more experimental conditions. Before assesing differential expression analysis, researchers should be aware of some potential limitations of RNA-seq data, as for example: Has the saturation been reached or more features could be detected by increasing the sequencing depth? Which type of features are being detected in the experiment? How good is the quantification of expression in the sample? All of these questions are easily answered by looking at the plots generated by Qualimap.
+These count data can be utilized for example to assess differential expression between two or more experimental conditions. Before assesing differential expression analysis, researchers should be aware of some potential **limitations** of RNA-seq data, as for example: Has the **saturation** been reached or more features could be detected by increasing the sequencing depth? Which **type of features** are being detected in the experiment? How good is the **quantification** of expression in the sample? All of these questions are answered by interpreting the plots generated by Qualimap.
 
 For assesing this analysis just activate from the main menu :menuselection:`File --> New Analysis --> RNA-seq`. 
 
@@ -130,8 +129,8 @@ Example
 
 In `<rna-seq-example/qualimapReport.html>`_ an example of the produced output can be found. This report was produced by Qualimap (see :ref:`export`) using the counts from the RNA-seq `example data <konstantin>`_ of kidney and liver samples [Marioni]_. These counts can be generated using the :ref:`compute-counts` tool with the BAM files as it shown in this :ref:`example-compute-counts`.
 
-Input
-^^^^^
+Input Parameters
+^^^^^^^^^^^^^^^^
 
 :guilabel:`First sample (counts)` 
 
@@ -207,8 +206,8 @@ This analysis type allows to cluster the regions of interest in the input alignm
 
 To perform this evaluation you need to provide alignment data ( both methylated and control) and list of transcript ids as BED annotation file.
 
-Input
-^^^^^
+Input Parameters
+^^^^^^^^^^^^^^^^
 
 :guilabel:`Experiment ID`
   The experiment name
