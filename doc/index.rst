@@ -16,6 +16,7 @@ Contents
    analysis
    command_line   
    samples
+   faq
 
 .. Indices and tables
   ==================

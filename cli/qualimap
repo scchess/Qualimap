@@ -12,7 +12,7 @@ then
 	java_options=$JAVA_OPTS
 	echo "detected environment java options $java_options"
 else
-	java_options="-Xms32m -Xmx1G -XX:MaxPermSize=2048m"
+	java_options="-Xms32m -Xmx1G -XX:MaxPermSize=1024m"
 fi
 
 
