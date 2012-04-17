@@ -14,6 +14,7 @@ Contents
    intro
    workflow 
    analysis
+   tools
    command_line   
    samples
    faq

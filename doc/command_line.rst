@@ -1,9 +1,9 @@
 .. _command-line:
 
-Command line interface
+Command Line Interface
 ======================
 
-General description
+General Description
 -------------------
 
 Each analysis type presented in QualiMap GUI is also available as command line tool. The common pattern to launch the tool is the following::
