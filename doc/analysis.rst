@@ -176,7 +176,7 @@ Global Plots
   
   An example for this plot can be seen in `<rna-seq-example/qualimapReport.html#GlobalSaturation.png>`_. 
 
-  When a :guilabel:`Group File` is provided by the user or chosen from those supplied by Qualimap, a series of plots are additionally generated:
+  When a **Group File** is **provided** by the user or chosen from those supplied by Qualimap, a series of **plots** are **additionally **generated**:
 
 :guilabel:`Detection per group`
 
