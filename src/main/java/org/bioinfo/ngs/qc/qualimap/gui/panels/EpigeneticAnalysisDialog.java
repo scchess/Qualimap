@@ -10,6 +10,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.ReplicateItem;
+import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
 
 
 import javax.swing.*;
@@ -387,15 +388,16 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         String geneSelectionPath = getGeneSelectionPath();
 
         if (geneSelectionPath.isEmpty()) {
-            return "Transcripts id path is not set!";
+            return "Path to regions is not set!";
         }
 
         if ( !(new File(geneSelectionPath)).exists() ) {
             return "Gene selection path is not valid!";
         }
 
-        if (experimentName.getText().isEmpty()) {
-            return "Sample name is not provided!";
+        String errMsg = DocumentUtils.validateTabDelimitedFile(geneSelectionPath, 4);
+        if (!errMsg.isEmpty()) {
+            return errMsg;
         }
 
         String[] clusterNumbers = getClusterNumbers().split(",");

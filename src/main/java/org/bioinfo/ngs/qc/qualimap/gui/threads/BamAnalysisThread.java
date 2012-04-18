@@ -186,7 +186,7 @@ public class BamAnalysisThread extends Thread {
             timer.cancel();
             return;
         } catch (Exception e) {
-		    JOptionPane.showMessageDialog(null, "Analysis is failed. Reason: " + e.getMessage(),
+		    JOptionPane.showMessageDialog(null, "Analysis is failed. " + e.getMessage(),
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             bamDialog.setUiEnabled(true);

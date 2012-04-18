@@ -76,6 +76,7 @@ public class CountsAnalysisThread extends Thread {
             JOptionPane.showMessageDialog(settingsDlg, "Failed to analyze counts data. " + e.getMessage(),
                     settingsDlg.getTitle(), JOptionPane.ERROR_MESSAGE);
             settingsDlg.setUiEnabled(true);
+            settingsDlg.resetUi();
             return;
         }
 

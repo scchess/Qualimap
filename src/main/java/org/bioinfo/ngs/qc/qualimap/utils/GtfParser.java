@@ -83,6 +83,10 @@ public class GtfParser {
 
         String[] items = line.split("\t");
 
+        if (items.length < 9) {
+            throw new RuntimeException("GTF format error, not enough fields.\nProblematic line is " + line);
+        }
+
         Record r = new Record();
         r.seqName = items[0];
         r.source = items[1];
@@ -97,7 +101,7 @@ public class GtfParser {
         for (String attr: attrs) {
             String[] pair = attr.trim().split(" ");
             if (pair.length < 2) {
-                throw new RuntimeException("Badly formatted gff file!\nProblematic line is " + line);
+                throw new RuntimeException("GTF format error, attributes are missing.\nProblematic line is " + line);
             }
             String value = pair[1];
             //remove surrounding quotes
@@ -115,5 +119,6 @@ public class GtfParser {
     public void close() throws IOException {
         br.close();
     }
+
 
 }

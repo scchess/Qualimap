@@ -15,6 +15,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 import org.bioinfo.ngs.qc.qualimap.utils.RegionLookupTable;
 
@@ -384,7 +385,7 @@ public class BamStatsAnalysis {
         // summarize
 
         if (numberOfReads == 0) {
-            throw new RuntimeException("The BAM file is empty");
+            throw new RuntimeException("The BAM file is empty or corrupt");
         }
 
 
@@ -754,6 +755,12 @@ public class BamStatsAnalysis {
 	}
 
     private void loadSelectedRegions() throws SecurityException, IOException, NoSuchMethodException, FileFormatException {
+
+		String errMsg = DocumentUtils.validateTabDelimitedFile(gffFile,9);
+        if (!errMsg.isEmpty()) {
+            throw new RuntimeException(errMsg);
+        }
+
 
 		// init gff reader
 		numberOfSelectedRegions = 0;

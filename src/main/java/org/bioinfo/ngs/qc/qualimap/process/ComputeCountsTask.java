@@ -78,6 +78,8 @@ public class ComputeCountsTask  {
 
         boolean strandSpecificAnalysis = !protocol.equals(PROTOCOL_NON_STRAND_SPECIFIC);
 
+        int readCount = 0;
+
         while (iter.hasNext()) {
 
             SAMRecord read = iter.next();
@@ -86,6 +88,8 @@ public class ComputeCountsTask  {
                 notAligned++;
                 continue;
             }
+
+            readCount++;
 
             double readWeight = 1.0;
             int nh = 1;
@@ -178,6 +182,7 @@ public class ComputeCountsTask  {
                 intIndex++;
             }
 
+
             Set<String> features = new HashSet<String>();
 
             for (Map.Entry<String,BitSet> entry : featureIntervalMap.entrySet() ) {
@@ -199,6 +204,10 @@ public class ComputeCountsTask  {
                 ambiguous++;
             }
 
+        }
+
+        if (readCount == 0) {
+            throw new RuntimeException("BAM file is empty.");
         }
 
     }

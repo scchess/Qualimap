@@ -6,6 +6,8 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
+import org.jdom.Document;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -52,6 +54,8 @@ public class CountsAnalysis {
 
 
     public void run() throws Exception{
+
+        checkInput();
 
         RNAAnalysisVO rnaAnalysisVO = tabProperties.getRnaAnalysisVO();
 
@@ -134,6 +138,28 @@ public class CountsAnalysis {
 
     }
 
+    private void checkInput() throws RuntimeException {
+        String errMsg = DocumentUtils.validateCountsFile(firstSampleDataPath);
+        if (!errMsg.isEmpty()) {
+            throw new RuntimeException(errMsg);
+        }
+
+
+        if (secondSampleIsProvided) {
+            errMsg = DocumentUtils.validateCountsFile(secondSampleDataPath);
+            if (!errMsg.isEmpty()) {
+                throw new RuntimeException(errMsg);
+            }
+        }
+
+         if (includeInfoFile) {
+             // Info file has the same format as counts file
+             errMsg = DocumentUtils.validateCountsFile(infoFilePath);
+             if (!errMsg.isEmpty()) {
+                throw new RuntimeException(errMsg);
+             }
+         }
+    }
 
 
     /**

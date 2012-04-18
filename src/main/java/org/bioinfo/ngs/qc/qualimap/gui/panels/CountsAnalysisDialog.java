@@ -387,8 +387,11 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
         for (Component component : components) {
             component.setEnabled(enabled);
         }
+    }
 
-
+    public void resetUi() {
+        progressBar.setValue(0);
+        progressStream.setText("Status");
     }
 
     public boolean includeInfoFile() {
