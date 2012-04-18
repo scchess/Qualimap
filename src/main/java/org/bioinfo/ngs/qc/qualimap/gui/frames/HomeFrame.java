@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -155,9 +157,29 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
         try {
             Process p = Runtime.getRuntime().exec("Rscript --version");
+            BufferedReader outputReader = new BufferedReader( new InputStreamReader(
+                                new SequenceInputStream( p.getInputStream(), p.getErrorStream() )
+            ) );
             int res = p.waitFor();
             if (res != 0) {
                 return "Rscript process resulted with non-zero exit code";
+            }
+
+            String output = outputReader.readLine();
+            Pattern pattern = Pattern.compile("2.(\\d\\d)");
+            Matcher matcher = pattern.matcher(output);
+            boolean versionOk = false;
+            if (matcher.find() ) {
+                int minorVersion = Integer.parseInt( matcher.group(1) );
+                if (minorVersion >= 14) {
+                    versionOk = true;
+                }
+            }
+
+            if (!versionOk) {
+                errMsg = "Unsupported version of RScript " + output;
+                errMsg += "Please use RScript 2.14. or higher. Refer to documentation for details.";
+                return errMsg;
             }
 
         } catch (Exception e) {
@@ -247,7 +269,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             logger.error(errMsg);
             JOptionPane.showMessageDialog(this,
                     "" + "Some features of Qualimap, relying on the R language, will be disabled.\n" +
-                    "To enable them please install R v2.14 and\nmake sure the Rscript command is available" +
+                    "To enable them please install R v2.14 or higher and\nmake sure the Rscript command is available" +
                             " from PATH.", "Rscript is not found",
                     JOptionPane.INFORMATION_MESSAGE);
         }
