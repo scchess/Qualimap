@@ -36,6 +36,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     JComboBox availableFeatureTypesCombo, availableFeatureNamesCombo;
     JCheckBox saveStatsBox,advancedOptions;
     JLabel countingMethodLabel;
+    JPanel ftPanel, fnPanel;
     Thread countReadsThread;
 
 
@@ -161,15 +162,16 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         add(browseGffButton, "align center, wrap");
 
 
-        add(new JLabel("Strand Specificity:"));
+        add(new JLabel("Protocol:"));
         String[] protocolComboItems = {ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC,
                 ComputeCountsTask.PROTOCOL_FORWARD_STRAND,
                 ComputeCountsTask.PROTOCOL_REVERSE_STRAND};
         strandTypeCombo = new JComboBox(protocolComboItems);
         strandTypeCombo.setToolTipText("Select the corresponding sequencing protocol");
+        strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
 
-        JPanel ftPanel = new JPanel();
+        ftPanel = new JPanel();
         ftPanel.setLayout(new MigLayout("insets 5"));
         ftPanel.add(new JLabel("Feature type:"));
         featureTypeField = new JTextField(10);
@@ -186,7 +188,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         add(ftPanel, "span, wrap");
 
-        JPanel fnPanel = new JPanel();
+        fnPanel = new JPanel();
         fnPanel.setLayout(new MigLayout("insets 5"));
         fnPanel.add(new JLabel("Feature name:"));
         featureNameField = new JTextField(10);
@@ -218,6 +220,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         add(new JLabel("Output:"), "");
         outputPathField = new JTextField(40);
+        outputPathField.setToolTipText("Path to the file which will contain output");
         bamPathEdit.addCaretListener( new CaretListener() {
             @Override
             public void caretUpdate(CaretEvent caretEvent) {
@@ -234,8 +237,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         add(browseOutputPathButton, "wrap");
 
         saveStatsBox = new JCheckBox("Save computation summary");
-        saveStatsBox.setToolTipText("<html>The summary of the counts will be saved to the " +
-                "<br>same folder where output is located.</html>");
+        saveStatsBox.setToolTipText("<htmlThis option controls whether to save overall computation statistics.</html>");
         add(saveStatsBox, "span 2, wrap");
 
         JPanel buttonPanel = new JPanel();
@@ -347,6 +349,21 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         countingAlgoCombo.setToolTipText(algorithmHint);
 
+
+        String protocol =  strandTypeCombo.getSelectedItem().toString();
+        if (protocol.equals(ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC))  {
+            strandTypeCombo.setToolTipText("Reads are counted if mapped to a feature independent of strand");
+        }   else if (protocol.equals(ComputeCountsTask.PROTOCOL_FORWARD_STRAND)) {
+            strandTypeCombo.setToolTipText("<html>The single-end reads must have the same strand as the feature." +
+                    "<br>For paired-end reads first of a pair must have the same strand as the feature," +
+                    "<br>while the second read must be on the opposite strand</html>");
+        } else {
+            strandTypeCombo.setToolTipText("<html>The single-end reads must have the strand opposite to the feature." +
+                    "<br>For paired-end reads first of a pair must have on the opposite strand," +
+                    "<br>while the second read must be on the same strand as the feature.</html>");
+        }
+
+
     }
 
 
@@ -354,6 +371,15 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         for( Component c : getContentPane().getComponents()) {
             c.setEnabled(enabled);
         }
+
+        for (Component c : fnPanel.getComponents()) {
+            c.setEnabled(enabled);
+        }
+
+        for (Component c: ftPanel.getComponents()) {
+            c.setEnabled(enabled);
+        }
+
         okButton.setEnabled(enabled);
         cancelButton.setEnabled(enabled);
     }

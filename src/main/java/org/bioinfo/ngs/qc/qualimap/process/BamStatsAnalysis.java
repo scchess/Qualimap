@@ -383,6 +383,11 @@ public class BamStatsAnalysis {
 
         // summarize
 
+        if (numberOfReads == 0) {
+            throw new RuntimeException("The BAM file is empty");
+        }
+
+
         percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
         bamStats.setNumberOfReads(numberOfReads);
         if (selectedRegionsAvailable) {
