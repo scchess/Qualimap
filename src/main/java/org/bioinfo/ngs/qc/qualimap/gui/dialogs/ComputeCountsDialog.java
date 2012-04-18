@@ -6,6 +6,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
+import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -31,6 +32,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
 
     JTextField bamPathEdit, gffPathEdit, outputPathField, featureNameField, featureTypeField;
+    JTextArea logArea;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
     JComboBox availableFeatureTypesCombo, availableFeatureNamesCombo;
@@ -240,6 +242,15 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         saveStatsBox.setToolTipText("<htmlThis option controls whether to save overall computation statistics.</html>");
         add(saveStatsBox, "span 2, wrap");
 
+        add(new JLabel("Log:"), "wrap");
+        logArea = new JTextArea(5,40);
+        logArea.setEditable(false);
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setViewportView(logArea);
+        add(scrollPane, "span, grow, wrap 30px");
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 20"));
 
@@ -274,6 +285,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                 public void run() {
 
                     frame.setUiEnabled(false);
+                    logArea.setText("");
                     String bamPath = bamPathEdit.getText();
                     String gffPath = gffPathEdit.getText();
                     String featureType = featureTypeField.getText();
@@ -282,6 +294,17 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                     computeCountsTask.setCountingAlgorithm(countingAlgoCombo.getSelectedItem().toString());
                     computeCountsTask.addSupportedFeatureType(featureType);
                     computeCountsTask.setAttrName(featureNameField.getText());
+
+                    final JTextArea loggerDestArea = logArea;
+
+                    computeCountsTask.setLogger( new LoggerThread() {
+                        @Override
+                        public void logLine(String msg) {
+                            loggerDestArea.append(msg + "\n");
+                            loggerDestArea.setCaretPosition(loggerDestArea.getText().length());
+                        }
+                    });
+
 
                     try {
                         computeCountsTask.run();

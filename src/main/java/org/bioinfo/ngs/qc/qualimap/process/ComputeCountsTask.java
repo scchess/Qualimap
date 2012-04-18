@@ -9,6 +9,7 @@ import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.utils.GenomicRegionSet;
 import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
+import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class ComputeCountsTask  {
     String protocol;
     String countingAlgorithm;
     String attrName;
+    LoggerThread logger;
 
     String pathToBamFile, pathToGffFile;
 
@@ -50,6 +52,14 @@ public class ComputeCountsTask  {
         countingAlgorithm = COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
+
+        logger = new LoggerThread() {
+            @Override
+            public void logLine(String msg) {
+                System.out.println(msg);
+            }
+        };
+
     }
 
     public void addSupportedFeatureType(String featureName) {
@@ -60,17 +70,21 @@ public class ComputeCountsTask  {
         this.protocol =  protocol;
     }
 
+    public void setLogger(LoggerThread thread) {
+        this.logger = thread;
+    }
+
     public void run() throws FileFormatException, IOException, NoSuchMethodException {
 
-         if (allowedFeatureList.isEmpty()) {
+        if (allowedFeatureList.isEmpty()) {
             // default feature to consider
             addSupportedFeatureType("exon");
-         }
+        }
+
 
         loadRegions();
 
-
-        System.out.println("Starting BAM file processing...");
+        logger.logLine("Starting BAM file analysis\n");
 
         SAMFileReader reader = new SAMFileReader(new File(pathToBamFile));
 
@@ -99,10 +113,10 @@ public class ComputeCountsTask  {
                 //System.err.println("The read " + read.getReadName() + " doesn't have NH attribute");
             }
             if (nh > 1) {
-                if (countingAlgorithm == COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED) {
+                if (countingAlgorithm.equals(COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)) {
                     alignmentNotUnique++;
                     continue;
-                } else if (countingAlgorithm == COUNTING_ALGORITHM_PROPORTIONAL) {
+                } else if (countingAlgorithm.equals(COUNTING_ALGORITHM_PROPORTIONAL)) {
                     readWeight = 1.0 / nh;
                 }
             }
@@ -204,11 +218,19 @@ public class ComputeCountsTask  {
                 ambiguous++;
             }
 
+            if (readCount % 500000 == 0) {
+                logger.logLine("Analyzed " + readCount + " reads...");
+            }
+
         }
 
         if (readCount == 0) {
             throw new RuntimeException("BAM file is empty.");
         }
+        logger.logLine("\nProcessed " + readCount + " reads in total");
+        logger.logLine("\nBAM file analysis finished");
+
+
 
     }
 
@@ -216,18 +238,23 @@ public class ComputeCountsTask  {
     void loadRegions() throws IOException, NoSuchMethodException, FileFormatException {
 
         GtfParser gtfParser = new GtfParser(pathToGffFile);
-		System.out.println("initializing regions from " + pathToGffFile + "...");
+		logger.logLine("Initializing regions from " + pathToGffFile + "...\n");
 
         chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
         readCounts = new HashMap<String, Double>();
 
 
         GtfParser.Record record;
+        int recordCount = 0;
         while((record = gtfParser.readNextRecord())!=null){
 
             for (String featureType: allowedFeatureList) {
                 // TODO: consider different type of features here
 
+                recordCount++;
+                if (recordCount % 100000 == 0) {
+                    logger.logLine("Initialized " + recordCount + " regions...");
+                }
                 if (record.getFeature().equalsIgnoreCase(featureType)) {
                     addRegionToIntervalMap(record);
                     // init results map
@@ -235,12 +262,17 @@ public class ComputeCountsTask  {
                     break;
                 }
 
+
+
+
             }
         }
 
         if (chromosomeRegionSetMap.isEmpty()) {
             throw new RuntimeException("Unable to load any regions from file.");
         }
+
+        logger.logLine("\nInitialized " + recordCount + " regions it total\n\n");
 
         gtfParser.close();
 
