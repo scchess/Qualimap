@@ -64,7 +64,7 @@ Provided R is properly installed, the R packages can be installed by executing t
 Installing Qualimap on Ubuntu
 -----------------------------
 
-This manual is specific for Ubuntu(Debian) Linux distributive !distributive?!, however with slight differences this can be applied for others Unix systems. 
+This manual is specific for Ubuntu(Debian) Linux distribution, however with slight differences this can be applied for others Unix systems. 
 
 Install JAVA
 ^^^^^^^^^^^^
@@ -76,7 +76,7 @@ It is possible to use openjdk:
 Install R
 ^^^^^^^^^
 !Modify! 
-The R latest version can be installede from public repos.
+The R latest version can be installed from public repos.
 
 However, the repos must be added to the sources. Open sources.list:
 

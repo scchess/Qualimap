@@ -79,8 +79,6 @@ Example::
     ./qualimap rna-seq -d1 ~/sample_data/counts-kidney.txt -d2 ~/sample_data/counts-liver.txt -s human -outdir ~/sample_data/result
 
 
-
-
 .. _cmdline-epigenomic:
 
 Epigenomic
