@@ -34,10 +34,10 @@ public class EpiTool extends NgsSmartTool {
     @Override
     protected void initOptions() {
 
-        options.addOption(requiredOption("sample", true, "path to sample BAM file"));
-        options.addOption(requiredOption("control", true, "path to control BAM file"));
+        options.addOption(requiredOption("sample", true, "comma-separated list of sample BAM files"));
+        options.addOption(requiredOption("control", true, "comma-separated list of control BAM files"));
         options.addOption(requiredOption("regions", true, "path to regions file"));
-        options.addOption("name", true , "name of the replicate");
+        options.addOption("name", true , "comma-separated names of the replicates");
         options.addOption("l", true, "left offset (default is 2000)");
         options.addOption("r", true, "right offset (default is 500)");
         options.addOption("b", "bin-size", true, "size of the bin (default is 100)");
@@ -60,21 +60,50 @@ public class EpiTool extends NgsSmartTool {
             throw new ParseException("Regions file doesn't exists");
         }
 
-        EpiAnalysis.ReplicateItem item = new EpiAnalysis.ReplicateItem();
-        item.medipPath =  commandLine.getOptionValue(OPTION_NAME_SAMPLE);
-        if (! (new File(item.medipPath)).exists()) {
-            throw new ParseException("Sample file doesn't exists");
+        String[] samples = commandLine.getOptionValue(OPTION_NAME_SAMPLE).split(",");
+
+        for (String sample : samples) {
+            if (! (new File(sample)).exists()) {
+                throw new ParseException("Sample file " + sample + " doesn't exists");
+            }
         }
-        item.inputPath = commandLine.getOptionValue(OPTION_NAME_CONTROL);
-        if (! (new File(item.inputPath)).exists()) {
-                    throw new ParseException("Control file doesn't exists");
+
+        String[] controls =  commandLine.getOptionValue(OPTION_NAME_CONTROL).split(",");
+
+        for (String control : controls) {
+            if (! (new File(control)).exists()) {
+                throw new ParseException("Control file " + control + " doesn't exists");
+            }
         }
+
+        if (controls.length != samples.length) {
+            throw new ParseException("Number of samples doesn't match number of controls");
+        }
+
+        int numReplicates = samples.length;
+
+
+        String names[];
+
         if (commandLine.hasOption("name")) {
-            item.name = commandLine.getOptionValue("name");
+            names = commandLine.getOptionValue("name").split(",");
+            if (names.length != numReplicates) {
+                throw new ParseException("Number of names doesn't match number of replicates");
+            }
         } else {
-            item.name = "Sample 1";
+            names = new String[numReplicates];
+            for (int i = 0; i < numReplicates; ++i ) {
+                names[i] = "Sample " + (i + 1);
+            }
         }
-        cfg.replicates.add(item);
+
+        for (int i = 0; i < numReplicates; ++i) {
+            EpiAnalysis.ReplicateItem item = new EpiAnalysis.ReplicateItem();
+            item.medipPath =  samples[i];
+            item.inputPath = controls[i];
+            item.name = names[i];
+            cfg.replicates.add(item);
+        }
 
         if (commandLine.hasOption("expr")) {
             cfg.experimentName = commandLine.getOptionValue("expr");
