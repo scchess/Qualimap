@@ -100,7 +100,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
                         // TODO: Each reporter should add own items to the popup menu.
                         if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI) {
-                            JMenuItem exportGeneListItem = new JMenuItem("Export gene list...");
+                            JMenuItem exportGeneListItem = new JMenuItem("Export feature list...");
                             exportGeneListItem.addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent actionEvent) {

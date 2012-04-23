@@ -48,7 +48,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
-    static final boolean DEBUG = false;
+    static final boolean DEBUG = true;
 
     public String getGeneSelectionPath() {
         return regionsField.getText();

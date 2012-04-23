@@ -333,7 +333,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.add(exportToHtmlItem);
         exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
-        exportGeneListItem = addMenuItem("Export gene list", "exportgenelist", "save_zip.png", null);
+        exportGeneListItem = addMenuItem("Export feature list", "exportgenelist", "save_zip.png", null);
         fileMenu.add(exportGeneListItem);
         fileMenu.addSeparator();
         fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
@@ -631,7 +631,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             String exprName = tabProperties.getLoadedGraphicName();
             if (exprName.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "There is no chart selected! Please select chart.",
-                        "Export gene list", JOptionPane.ERROR_MESSAGE);
+                        "Export feature list", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             String path = HomeFrame.outputpath + tabProperties.getOutputFolder() + "/" +
@@ -642,8 +642,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             dlg.setLocationRelativeTo(frame);
             dlg.setVisible(true);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Can not prepare gene list! "+ e.getMessage(),
-                    "Export genes list", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Can not prepare feature list! "+ e.getMessage(),
+                    "Export feature list", JOptionPane.ERROR_MESSAGE);
         }
 
     }
