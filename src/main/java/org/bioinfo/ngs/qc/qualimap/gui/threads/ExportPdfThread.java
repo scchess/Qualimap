@@ -247,11 +247,21 @@ public class ExportPdfThread extends Thread {
             com.lowagie.text.Image image =
                     com.lowagie.text.Image.getInstance(
                             bufImage.getScaledInstance(
-                                    Constants.GRAPHIC_TO_SAVE_WIDTH,
-                                    Constants.GRAPHIC_TO_SAVE_HEIGHT,
+                                    bufImage.getWidth() /*Constants.GRAPHIC_TO_SAVE_WIDTH*/,
+                                    bufImage.getHeight() /*(Constants.GRAPHIC_TO_SAVE_HEIGHT*/,
                                     Image.SCALE_REPLICATE), null);
 
-            image.scaleToFit(400,300);
+
+            float scaledWidth = 400;
+            float scaledHeight = 600;
+
+            if (bufImage.getWidth() < bufImage.getHeight()) {
+                scaledWidth = scaledHeight * ( (float) bufImage.getWidth() / bufImage.getHeight() );
+            } else {
+                scaledHeight = scaledWidth * ( (float) bufImage.getHeight() / bufImage.getTileWidth() );
+            }
+
+            image.scaleToFit(scaledWidth,scaledHeight);
             image.setAlignment(com.lowagie.text.Image.MIDDLE);
             chapter.add(image);
 
