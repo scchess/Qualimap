@@ -1,5 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import org.bioinfo.formats.core.feature.Gff;
+import org.bioinfo.formats.core.feature.io.GffReader;
+import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -95,6 +98,9 @@ public class EpiAnalysis {
 
         String workDir = tabProperties.createDirectory().toString();
 
+        setupAnnotationsFile(workDir);
+
+
         reportProgress("Generating configuration file...");
         createConfigFile(workDir, "config.xml");
 
@@ -134,7 +140,39 @@ public class EpiAnalysis {
 
     }
 
-     String createCommand(String outputDir) {
+    private void setupAnnotationsFile(String workDir) throws Exception {
+        if (cfg.pathToRegions.endsWith("gff")) {
+            // we have gff file -> convert it to BED
+            String bedFile  =   workDir + "/file.bed";
+            PrintWriter outWriter = new PrintWriter( new FileWriter(bedFile) );
+
+            GffReader gffReader = new GffReader(cfg.pathToRegions);
+            Gff region;
+
+            int numLines = 0;
+
+            while((region = gffReader.read())!=null){
+                StringBuilder buf = new StringBuilder();
+                buf.append(region.getSequenceName()).append("\t");
+                buf.append(region.getStart()).append("\t");
+                buf.append(region.getEnd()).append("\t");
+                buf.append(region.getFeature()).append("\t");
+                buf.append(region.getScore()).append("\t");
+                buf.append(region.getStrand()).append("\n");
+                outWriter.print(buf.toString());
+                numLines++;
+            }
+
+            outWriter.close();
+            if (numLines == 0) {
+                throw new RuntimeException("Failed to process GFF file, make sure it is correctly formatted");
+            }
+
+            cfg.pathToRegions = bedFile;
+        }
+    }
+
+    String createCommand(String outputDir) {
         String commandString = "Rscript " + homePath
                 + File.separator + "scripts"+ File.separator + "paintLocation.r";
 
@@ -149,71 +187,71 @@ public class EpiAnalysis {
 
          FileOutputStream stream = new FileOutputStream(outDir + configFileName);
 
-        XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-        XMLStreamWriter xmlWriter = outputFactory.createXMLStreamWriter(stream);
+         XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+         XMLStreamWriter xmlWriter = outputFactory.createXMLStreamWriter(stream);
 
-        xmlWriter.writeStartDocument();
-        xmlWriter.writeCharacters("\n");
+         xmlWriter.writeStartDocument();
+         xmlWriter.writeCharacters("\n");
 
-        xmlWriter.writeStartElement(TAG_PARAMETERS);
-        xmlWriter.writeCharacters("\n\n\t");
-
-
-        // dirOut
-        xmlWriter.writeStartElement(TAG_DIR_OUT);
-        xmlWriter.writeCharacters(outDir);
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\n\t");
-
-        // expId
-        xmlWriter.writeStartElement(TAG_EXP_ID);
-        xmlWriter.writeCharacters(cfg.experimentName);
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\n\t");
+         xmlWriter.writeStartElement(TAG_PARAMETERS);
+         xmlWriter.writeCharacters("\n\n\t");
 
 
-        // gene selection
-        xmlWriter.writeStartElement(TAG_REGIONS);
-        xmlWriter.writeCharacters("\n\t\t");
-        xmlWriter.writeCharacters(cfg.pathToRegions);
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\n\t");
+         // dirOut
+         xmlWriter.writeStartElement(TAG_DIR_OUT);
+         xmlWriter.writeCharacters(outDir);
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\n\t");
 
-        //location
-        xmlWriter.writeStartElement(TAG_LOCATION);
-        xmlWriter.writeCharacters("\n\t\t");
-        xmlWriter.writeStartElement(TAG_UP);
-        xmlWriter.writeCharacters(Integer.toString(cfg.leftOffset));
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\t\t");
-        xmlWriter.writeStartElement(TAG_DOWN);
-        xmlWriter.writeCharacters(Integer.toString(cfg.rightOffset));
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\t\t");
-        xmlWriter.writeStartElement(TAG_FREQ);
-        xmlWriter.writeCharacters(Integer.toString(cfg.binSize));
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\t");
-        xmlWriter.writeEndElement();
-        xmlWriter.writeCharacters("\n\n\t");
+         // expId
+         xmlWriter.writeStartElement(TAG_EXP_ID);
+         xmlWriter.writeCharacters(cfg.experimentName);
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\n\t");
 
-        // samples
-        xmlWriter.writeStartElement(TAG_SAMPLES);
 
-            xmlWriter.writeCharacters("\n\t\t");
-            xmlWriter.writeStartElement("sample1");
-            List<EpiAnalysis.ReplicateItem> sampleItems = cfg.replicates;
-            for (EpiAnalysis.ReplicateItem item : sampleItems) {
-                xmlWriter.writeCharacters("\n\t\t\t");
-                xmlWriter.writeStartElement(TAG_REPLICATE);
+         // gene selection
+         xmlWriter.writeStartElement(TAG_REGIONS);
+         xmlWriter.writeCharacters("\n\t\t");
+         xmlWriter.writeCharacters(cfg.pathToRegions);
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\n\t");
 
-                xmlWriter.writeCharacters("\n\t\t\t\t");
-                xmlWriter.writeStartElement(TAG_MEDIPS);
-                xmlWriter.writeCharacters(item.medipPath);
-                xmlWriter.writeEndElement();
-                xmlWriter.writeCharacters("\n\t\t\t\t");
-                xmlWriter.writeStartElement(TAG_INPUT);
-                xmlWriter.writeCharacters(item.inputPath);
+         //location
+         xmlWriter.writeStartElement(TAG_LOCATION);
+         xmlWriter.writeCharacters("\n\t\t");
+         xmlWriter.writeStartElement(TAG_UP);
+         xmlWriter.writeCharacters(Integer.toString(cfg.leftOffset));
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\t\t");
+         xmlWriter.writeStartElement(TAG_DOWN);
+         xmlWriter.writeCharacters(Integer.toString(cfg.rightOffset));
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\t\t");
+         xmlWriter.writeStartElement(TAG_FREQ);
+         xmlWriter.writeCharacters(Integer.toString(cfg.binSize));
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\t");
+         xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\n\t");
+
+         // samples
+         xmlWriter.writeStartElement(TAG_SAMPLES);
+
+         xmlWriter.writeCharacters("\n\t\t");
+         xmlWriter.writeStartElement("sample1");
+         List<EpiAnalysis.ReplicateItem> sampleItems = cfg.replicates;
+         for (EpiAnalysis.ReplicateItem item : sampleItems) {
+             xmlWriter.writeCharacters("\n\t\t\t");
+             xmlWriter.writeStartElement(TAG_REPLICATE);
+
+             xmlWriter.writeCharacters("\n\t\t\t\t");
+             xmlWriter.writeStartElement(TAG_MEDIPS);
+             xmlWriter.writeCharacters(item.medipPath);
+             xmlWriter.writeEndElement();
+             xmlWriter.writeCharacters("\n\t\t\t\t");
+             xmlWriter.writeStartElement(TAG_INPUT);
+             xmlWriter.writeCharacters(item.inputPath);
                 xmlWriter.writeEndElement();
                 xmlWriter.writeCharacters("\n\t\t\t\t");
                 xmlWriter.writeStartElement(TAG_NAME);
@@ -227,8 +265,8 @@ public class EpiAnalysis {
 
 
 
-        xmlWriter.writeCharacters("\n\t");
-        xmlWriter.writeEndElement();
+         xmlWriter.writeCharacters("\n\t");
+         xmlWriter.writeEndElement();
 
         // MAYBE WILL BE INCLUDED IN FUTURE VERSIONS
         /*if (settingsDialog.microArrayDataAvailable()) {

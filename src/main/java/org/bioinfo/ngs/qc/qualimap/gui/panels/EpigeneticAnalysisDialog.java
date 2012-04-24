@@ -196,13 +196,14 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         // Gene selection
         add(new JLabel("Regions of interest:"));
         regionsField = new JTextField(40);
-        regionsField.setToolTipText("Path to annotation file in BED");
+        regionsField.setToolTipText("Path to annotation file in BED or GFF format");
         add(regionsField, "grow");
 
         browseGeneSelectionButton = new JButton();
 		browseGeneSelectionButton.setText("...");
+        String[] supportedExtentions =  { "bed", "gff"};
 		browseGeneSelectionButton.addActionListener(
-                new BrowseButtonActionListener(this, regionsField,"BED annotation files", "bed"));
+                new BrowseButtonActionListener(this, regionsField,"Annotation files", supportedExtentions ));
         add(browseGeneSelectionButton, "align center, wrap");
 
         add(new JLabel("Location"), "span 2, wrap");
