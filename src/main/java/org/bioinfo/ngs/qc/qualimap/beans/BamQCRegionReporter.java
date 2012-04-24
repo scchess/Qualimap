@@ -805,9 +805,12 @@ public class BamQCRegionReporter implements Serializable {
 
         if (getNumSelectedRegions() > 0) {
             globals.addRow("Number of selected regions", sdf.formatLong(getNumSelectedRegions()));
-            globals.addRow("Size of selected regions", sdf.formatLong(getInRegionsReferenceSize()));
-            globals.addRow("Size of non-selected regions",
-                    sdf.formatLong(getBasesNumber() - getInRegionsReferenceSize()));
+            globals.addRow("Size/percentage of selected regions",
+                    sdf.formatLong(getInRegionsReferenceSize()) + "/"
+                            + sdf.formatPercentage(getSelectedRegionsPercentage()) );
+            globals.addRow("Size/percentage of non-selected regions",
+                    sdf.formatLong(getBasesNumber() - getInRegionsReferenceSize()) + "/" +
+            sdf.formatPercentage(100.0 - getSelectedRegionsPercentage()) );
         }
         globals.addRow("Number of reads", sdf.formatLong(getNumReads()));
 
@@ -1114,4 +1117,7 @@ public static void generateBamQcProperties(Properties prop, BamQCRegionReporter 
     }
 
 
+    public double getSelectedRegionsPercentage() {
+        return (numBasesInsideRegions / (double) referenceSize) * 100.0;
+    }
 }
