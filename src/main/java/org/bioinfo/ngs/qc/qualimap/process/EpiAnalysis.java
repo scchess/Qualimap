@@ -369,8 +369,8 @@ public class EpiAnalysis {
         reporter.addInputDataSection("Experiment", selectionParams);
 
         HashMap<String,String> locationParams = new HashMap<String, String>();
-        locationParams.put("Left offset (bp): ", Integer.toString(cfg.leftOffset) );
-        locationParams.put("Right offset (bp): ", Integer.toString( cfg.rightOffset) );
+        locationParams.put("Upstream offset (bp): ", Integer.toString(cfg.leftOffset) );
+        locationParams.put("Downstream offset (bp): ", Integer.toString( cfg.rightOffset) );
         locationParams.put("Bin size: ", Integer.toString( cfg.binSize ));
         reporter.addInputDataSection("Location: ",  locationParams);
 

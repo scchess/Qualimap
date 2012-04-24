@@ -38,8 +38,8 @@ public class EpiTool extends NgsSmartTool {
         options.addOption(requiredOption("control", true, "comma-separated list of control BAM files"));
         options.addOption(requiredOption("regions", true, "path to regions file"));
         options.addOption("name", true , "comma-separated names of the replicates");
-        options.addOption("l", true, "left offset (default is 2000)");
-        options.addOption("r", true, "right offset (default is 500)");
+        options.addOption("l", true, "upstream offset (default is 2000)");
+        options.addOption("r", true, "downstream offset (default is 500)");
         options.addOption("b", "bin-size", true, "size of the bin (default is 100)");
         options.addOption("expr", true, "name of the experiment");
         options.addOption("c", "clusters", true, "comma-separated list of cluster sizes");

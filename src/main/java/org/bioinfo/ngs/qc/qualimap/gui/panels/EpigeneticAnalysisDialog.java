@@ -211,10 +211,10 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         locationPanel = new JPanel();
         locationPanel.setLayout(new MigLayout("insets 5"));
 
-        locationPanel.add(new JLabel("Left offset (bp):"));
+        locationPanel.add(new JLabel("Upstream offset (bp):"));
         leftOffsetSpinner = new JSpinner(new SpinnerNumberModel(2000, 1,1000000,1));
         locationPanel.add(leftOffsetSpinner, "");
-        locationPanel.add(new JLabel("Right offset (bp):"));
+        locationPanel.add(new JLabel("Downstream offset (bp):"));
         rightOffsetSpinner = new JSpinner(new SpinnerNumberModel(500, 1,10000000,1));
         locationPanel.add(rightOffsetSpinner, "");
         locationPanel.add(new JLabel("Bin size (bp):"));
