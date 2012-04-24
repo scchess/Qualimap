@@ -23,6 +23,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
 import sun.management.*;
 
@@ -38,7 +39,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	
 	public static String outputpath =File.separator+"tmp"+File.separator + "qualimap";
 	
-	private static String title = "QualiMap v.1.0.1";
+	//private static String title = "QualiMap v.1.0.1";
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 	public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
 	public static Font defaultFontItalic = new Font(Font.DIALOG, Font.ITALIC, 12);
@@ -112,7 +113,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	}
 
 	public HomeFrame(String homeFolder) {
-		super(title);
+		super("Qualimap " + NgsSmartMain.APP_VERSION);
 		isWebStart = isRunningJavaWebStart();
 		if(isWebStart){
 			copyFilesFromResourcesToFolder();

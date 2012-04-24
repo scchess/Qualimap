@@ -11,7 +11,11 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 public class NgsSmartMain {
-	
+
+
+    public static String APP_VERSION = "debug";
+
+
 	public static void main(String[] args) throws Exception {
 		Logger logger = new Logger();
         NgsSmartTool tool = null;
@@ -93,6 +97,7 @@ public class NgsSmartMain {
 
         if (version != null) {
             System.out.println("QualiMap v." + appProperties.get("app.version").toString());
+            APP_VERSION = "v." + version;
         }
 
         if (timestamp != null) {
