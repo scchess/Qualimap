@@ -8,23 +8,29 @@ Analysis types
 Genomic
 -------
 
-Genomic analysis reports information for the evaluation of the quality of the provided alignment data. In short, the basic statistics of the alignment (number of reads, coverage, GC-content, etc.) are summarized and a number of useful graphs are produced. In addition, it is possible to provide an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions.
+Genomic analysis reports information for the evaluation of the quality of the provided alignment data (a BAM file). In short, the basic statistics of the alignment (number of reads, coverage, GC-content, etc.) are summarized and a number of useful graphs are produced. This analysis can be performed with any kind of sequencing data, e.g. whole-genome sequencing, exome sequencing, RNA-seq, ChIP-seq, etc.
+
+In addition, it is possible to provide an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions, especially useful for RNA-seq studies.
 
 To start a new Genomic analysis just activate from the main menu :menuselection:`File --> New Analysis --> Genomics`.
 
 
-Example
-^^^^^^^
+Examples
+^^^^^^^^
 
 
-In `<plasmodium/qualimapReport.html>`_ there is an example of the produced output. This report was produced by Qualimap (see :ref:`export`) using the provided `example data <konstantin>`_ of the whole-genome sequencing of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* [#sanger]_.
+- `Whole-genome sequencing <plasmodium/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
+
+- `RNA-seq <plasmodium_RNA-seq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
+
+- See the :ref:`Sample data <samples>` section for more details about the data used in the examples.
 
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
 
 :guilabel:`BAM file` 
-  Path to the sequence alignment file in **BAM format**. Note, that the BAM file has to be **sorted by chromosomal coordinates**. Sorting can be performed with `satmtools sort <http://samtools.sourceforge.net/>`_.
+  Path to the sequence alignment file in **BAM format**. Note, that the BAM file has to be **sorted by chromosomal coordinates**. Sorting can be performed with `samtools sort <http://samtools.sourceforge.net/>`_.
 
 :guilabel:`Draw chromosome limits` 
   If selected, vertical dotted lines will be placed at the beginning of each chromosome according to the information found in the header of the BAM file.
@@ -41,7 +47,7 @@ Input Parameters
 .. _input-gc-content:
 
 :guilabel:`Compare GC Content Distribution with...` 
-  This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More specia will be included in future releases.
+  This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
 
 Advanced parameters
 """""""""""""""""""
@@ -71,7 +77,7 @@ Output
 
   This plot consists of two figures. The upper figure provides the **coverage distribution** (red line) and coverage deviation across the reference sequence. The coverage is measured in *X* [#X]_. The lower figure shows **GC content** across reference (black line) together with its average value (red dotted line).
 
-:guilabel:`Coverage Histogram (scaled)` 
+:guilabel:`Coverage Histogram` 
 
   Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x*-axis are conviniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
 
@@ -83,7 +89,7 @@ Output
 
   Provides a visual way of knowing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as in this example:
 
-  If I aim a coverage rate of **at least 10X** (*x*-axis), how much of my reference (*y*-axis) will be considered? The answer to this question in the case of the `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
+  If I aim a coverage rate of **at least 10X** (*x*-axis), how much of my reference (*y*-axis) will be considered? The answer to this question in the case of the whole-genome sequencing `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
 
 :guilabel:`Mapped Reads Nucleotide Content` 
 
@@ -112,7 +118,7 @@ RNA-seq
 
 In **RNA-seq** experiments, the reads are usually **first mapped** to a reference genome. It is assumed that if the **number of reads** mapping to a certain biological feature of interest (gene, transcript, exon, ...) is sufficient, it can be used as an **estimation** of the **abundance** of that feature in the sample and interpreted as the quantification of the **expression level** of the corresponding region.
 
-These count data can be utilized for example to assess differential expression between two or more experimental conditions. Before assesing differential expression analysis, researchers should be aware of some potential **limitations** of RNA-seq data, as for example: Has the **saturation** been reached or more features could be detected by increasing the sequencing depth? Which **type of features** are being detected in the experiment? How good is the **quantification** of expression in the sample? All of these questions are answered by interpreting the plots generated by Qualimap.
+These **count data** can be utilized for example to assess differential expression between two or more experimental conditions. Before assesing differential expression analysis, researchers should be aware of some potential **limitations** of RNA-seq data, as for example: Has the **saturation** been reached or more features could be detected by increasing the sequencing depth? Which **type of features** are being detected in the experiment? How good is the **quantification** of expression in the sample? All of these questions are answered by interpreting the plots generated by Qualimap.
 
 For assesing this analysis just activate from the main menu :menuselection:`File --> New Analysis --> RNA-seq`. 
 
@@ -127,7 +133,8 @@ For assesing this analysis just activate from the main menu :menuselection:`File
 Example
 ^^^^^^^
 
-In `<rna-seq-example/qualimapReport.html>`_ an example of the produced output can be found. This report was produced by Qualimap (see :ref:`export`) using the counts from the RNA-seq `example data <konstantin>`_ of kidney and liver samples [Marioni]_. These counts can be generated using the :ref:`compute-counts` tool with the BAM files as it shown in this :ref:`example-compute-counts`.
+- `RNA-seq count data <count-data/qualimapReport.html>`_. This report was produced using the counts from the RNA-seq of *Homo sapiens* kidney and liver samples [Marioni]_.
+- These counts can be downloaded from `here <webpage>`_ or generated using the :ref:`compute-counts` tool with the BAM files as it shown in this :ref:`example-compute-counts`.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
@@ -158,7 +165,7 @@ Input Parameters
 
 :guilabel:`Species`
 
-   **Optional**. For convinience, Qualimap provides the `Ensembl <http://www.ensembl.org/>`_ biotype classification [#biomart]_ for certain species (currently *Human* and  *Mouse*). In order to use these annotations, **Ensembl Gene IDs** should be used as the feature IDs on the **count files** (e.g. ENSG00000251282). If so, mark the box to enable this option and select the corresponding species. More annotations and specia will be made available in future releases.
+   **Optional**. For convinience, Qualimap provides the `Ensembl <http://www.ensembl.org/>`_ biotype classification [#biomart]_ for certain species (currently *Human* and  *Mouse*). In order to use these annotations, **Ensembl Gene IDs** should be used as the feature IDs on the **count files** (e.g. ENSG00000251282). If so, mark the box to enable this option and select the corresponding species. More annotations and species will be made available in future releases.
 
 Output
 ^^^^^^
@@ -176,7 +183,7 @@ Global Plots
   
   An example for this plot can be seen in `<rna-seq-example/qualimapReport.html#GlobalSaturation.png>`_. 
 
-  When a **Group File** is **provided** by the user or chosen from those supplied by Qualimap, a series of **plots** are **additionally **generated**:
+  When a **Group File** is **provided** by the user or chosen from those supplied by Qualimap, a series of **plots** are **additionally generated**:
 
 :guilabel:`Detection per group`
 
@@ -257,9 +264,6 @@ After the analysis is performed, the regions of interest are clustered in groups
 
 It is possible to export list of features beloning to the particular cluster. To do this use main menu item :menuselection:`File --> Export gene list` or context menu item :menuselection:`Export gene list`. After activating the item a dialog will appear where you can choose some specific cluster. One can either copy the list of features belonging to this cluster in the clipboard or export it to a text file. 
 
-
-
-.. [#sanger] The actual BAM file can be downloaded from `Sanger FTP <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/5428_3%234.bam>`_.
 
 .. [#X] Example for the meaning of *X*: If one genomic region has a coverage of 10X, it means that, on average, 10 different reads are mapped to each nucleotide of the region.
 
