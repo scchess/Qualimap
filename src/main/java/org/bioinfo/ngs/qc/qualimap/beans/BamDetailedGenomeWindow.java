@@ -55,8 +55,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		if(reference!=null){
 			this.reference = reference;
 		}
-		
-		// init arrays		
+
+        // init arrays
 		coverageAcrossReference = new long[(int)this.windowSize];
 //		properlyPairedCoverageAcrossReference = new long[(int)this.windowSize];
 		for(int i=0; i<this.windowSize; i++){
