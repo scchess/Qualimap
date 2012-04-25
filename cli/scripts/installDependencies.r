@@ -5,7 +5,7 @@ if(!require("optparse")) {
 }
 
 if(!require("XML")) { 
-  install.packages("XML", repos = "http://cran.r-project.org") 
+    install.packages("XML", repos = "http://www.omegahat.org/R")
 }
    
 if(!require("Repitools")) {
