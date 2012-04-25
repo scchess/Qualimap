@@ -388,10 +388,11 @@ public class BamQCRegionReporter implements Serializable {
         coverageChart.render();
 		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
         // gc content
-		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle, "absolute position (bp)", "%");
+		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle,
+                "absolute position (bp)", "GC (%)");
 		gcContentChart.setToolTipGenerator(toolTipGenerator);
         gcContentChart.setPercentageChart(true);
-		gcContentChart.addSeries("GC content", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
+		gcContentChart.addSeries("GC content(%)", new XYVector(windowReferences,bamStats.getGcRelativeContentAcrossReference()), new Color(50,50,50,150));
 		gcContentChart.addSeries("mean GC content", new XYVector(Arrays.asList(0.0,lastReference), Arrays.asList(bamStats.getMeanGcRelativeContentPerWindow(),bamStats.getMeanGcRelativeContentPerWindow())),new Color(255,0,0,180),stroke,true);
 		if(paintChromosomeLimits && locator!=null) {
             gcContentChart.addSeries("chromosomes",chromosomePercentageLimits,chromosomeColor,stroke,
@@ -413,7 +414,7 @@ public class BamQCRegionReporter implements Serializable {
 
 		// coverageData histogram
 		BamQCHistogramChart coverageHistogram = new BamQCHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
-                subTitle, "X", "Number of reads",
+                subTitle, "Coverage (X)", "Number of reads",
                 bamStats.getBalancedCoverageHistogram(), bamStats.getBalancedCoverageBarNames());
 		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
 		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
@@ -431,7 +432,7 @@ public class BamQCRegionReporter implements Serializable {
 		// coverageData ranged histogram
 		BamQCXYHistogramChart coverageRangedHistogram =
                 new BamQCXYHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
-                subTitle, "X", "Number of reads");
+                subTitle, "Coverage (X)", "Number of reads");
 		coverageRangedHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		coverageRangedHistogram.setNumberOfBins(50);
 		coverageRangedHistogram.zoom(maxValue);
@@ -458,7 +459,7 @@ public class BamQCRegionReporter implements Serializable {
 
 		// coverageData quota
 		BamQCChart coverageQuota = new BamQCChart(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE, subTitle,
-                "X", "Fraction of reference (%)");
+                "Coverage (X)", "Fraction of reference (%)");
 		coverageQuota.setPercentageChart(true);
 		coverageQuota.addBarRenderedSeries("Coverage", bamStats.getCoverageQuotes(), new Color(255,20,20,150));
 		coverageQuota.setDomainAxisIntegerTicks(true);
@@ -469,7 +470,7 @@ public class BamQCRegionReporter implements Serializable {
 
         if (bamStats.getReadMaxSize() > 0) {
             BamQCChart readsContentChart = new BamQCChart(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
-                    subTitle, " Position (bp)", " % ");
+                    subTitle, " Position (bp)", " Nucleotide Content (%) ");
             readsContentChart.addSeries("% A", bamStats.getReadsAsHistogram(), new Color(255, 0,0,255));
             readsContentChart.addSeries("% C", bamStats.getReadsCsHistogram(), new Color(0, 0,255,255));
             readsContentChart.addSeries("% G", bamStats.getReadsGsHistogram(), new Color(0, 255,0,255));
@@ -485,7 +486,7 @@ public class BamQCRegionReporter implements Serializable {
         }
 
         BamQCChart gcContentHistChart = new BamQCChart(Constants.PLOT_TITLE_READS_GC_CONTENT, subTitle,
-                "GC content %", "Fraction of reads");
+                "GC Content (%)", "Fraction of reads");
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
         if (!pathToGenomeGCContent.isEmpty()) {
             XYVector gcContentHist = getGenomeGcContentHistogram();
@@ -804,9 +805,12 @@ public class BamQCRegionReporter implements Serializable {
 
         if (getNumSelectedRegions() > 0) {
             globals.addRow("Number of selected regions", sdf.formatLong(getNumSelectedRegions()));
-            globals.addRow("Size of selected regions", sdf.formatLong(getInRegionsReferenceSize()));
-            globals.addRow("Size of non-selected regions",
-                    sdf.formatLong(getBasesNumber() - getInRegionsReferenceSize()));
+            globals.addRow("Size/percentage of selected regions",
+                    sdf.formatLong(getInRegionsReferenceSize()) + "/"
+                            + sdf.formatPercentage(getSelectedRegionsPercentage()) );
+            globals.addRow("Size/percentage of non-selected regions",
+                    sdf.formatLong(getBasesNumber() - getInRegionsReferenceSize()) + "/" +
+            sdf.formatPercentage(100.0 - getSelectedRegionsPercentage()) );
         }
         globals.addRow("Number of reads", sdf.formatLong(getNumReads()));
 
@@ -1113,4 +1117,7 @@ public static void generateBamQcProperties(Properties prop, BamQCRegionReporter 
     }
 
 
+    public double getSelectedRegionsPercentage() {
+        return (numBasesInsideRegions / (double) referenceSize) * 100.0;
+    }
 }

@@ -196,13 +196,14 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         // Gene selection
         add(new JLabel("Regions of interest:"));
         regionsField = new JTextField(40);
-        regionsField.setToolTipText("Path to annotation file in BED");
+        regionsField.setToolTipText("Path to annotation file in BED or GFF format");
         add(regionsField, "grow");
 
         browseGeneSelectionButton = new JButton();
 		browseGeneSelectionButton.setText("...");
+        String[] supportedExtentions =  { "bed", "gff"};
 		browseGeneSelectionButton.addActionListener(
-                new BrowseButtonActionListener(this, regionsField,"BED annotation files", "bed"));
+                new BrowseButtonActionListener(this, regionsField,"Annotation files", supportedExtentions ));
         add(browseGeneSelectionButton, "align center, wrap");
 
         add(new JLabel("Location"), "span 2, wrap");
@@ -210,10 +211,10 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         locationPanel = new JPanel();
         locationPanel.setLayout(new MigLayout("insets 5"));
 
-        locationPanel.add(new JLabel("Left offset (bp):"));
+        locationPanel.add(new JLabel("Upstream offset (bp):"));
         leftOffsetSpinner = new JSpinner(new SpinnerNumberModel(2000, 1,1000000,1));
         locationPanel.add(leftOffsetSpinner, "");
-        locationPanel.add(new JLabel("Right offset (bp):"));
+        locationPanel.add(new JLabel("Downstream offset (bp):"));
         rightOffsetSpinner = new JSpinner(new SpinnerNumberModel(500, 1,10000000,1));
         locationPanel.add(rightOffsetSpinner, "");
         locationPanel.add(new JLabel("Bin size (bp):"));

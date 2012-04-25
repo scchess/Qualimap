@@ -20,22 +20,30 @@ public class BrowseButtonActionListener implements ActionListener {
     protected JTextField pathEdit;
     protected Component parent;
     protected String description;
-    protected String extention;
+    protected String[] extentions;
 
     public BrowseButtonActionListener(Component parent, JTextField field, String description) {
         this.parent = parent;
         this.pathEdit = field;
         this.description = description;
-        this.extention = "";
+        this.extentions = null;
     }
 
-
-
-    public BrowseButtonActionListener(Component parent, JTextField field, String description, String extention) {
+    public BrowseButtonActionListener(Component parent, JTextField field, String description, String ext) {
         this.parent = parent;
         this.pathEdit = field;
         this.description = description;
-        this.extention = extention;
+
+        this.extentions = new String[1];
+        extentions[0] = ext;
+    }
+
+
+    public BrowseButtonActionListener(Component parent, JTextField field, String description, String[] extentions) {
+        this.parent = parent;
+        this.pathEdit = field;
+        this.description = description;
+        this.extentions = extentions;
     }
 
 
@@ -46,11 +54,19 @@ public class BrowseButtonActionListener implements ActionListener {
 
         FileFilter filter = new FileFilter() {
             public boolean accept(File fileShown) {
-                if (!extention.isEmpty()) {
-                    return (fileShown.getName().endsWith(extention) || fileShown.isDirectory());
-                } else {
+
+                if (extentions == null) {
                     return true;
                 }
+
+                for (String ext : extentions) {
+                    if (fileShown.getName().endsWith(ext) || fileShown.isDirectory() ) {
+                        return true;
+                    }
+                }
+
+                return false;
+
             }
 
             public String getDescription() {

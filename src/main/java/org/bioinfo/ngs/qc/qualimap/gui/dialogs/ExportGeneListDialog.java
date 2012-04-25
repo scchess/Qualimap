@@ -99,7 +99,7 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
         pack();
 
         setResizable(false);
-        setTitle("Export gene list: " + exprName);
+        setTitle("Export feature list: " + exprName);
 
 
     }

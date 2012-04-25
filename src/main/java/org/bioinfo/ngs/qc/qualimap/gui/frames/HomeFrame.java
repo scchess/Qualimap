@@ -23,6 +23,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
 import sun.management.*;
 
@@ -38,7 +39,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	
 	public static String outputpath =File.separator+"tmp"+File.separator + "qualimap";
 	
-	private static String title = "QualiMap v.1.0.1";
+	//private static String title = "QualiMap v.1.0.1";
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 	public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
 	public static Font defaultFontItalic = new Font(Font.DIALOG, Font.ITALIC, 12);
@@ -112,7 +113,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	}
 
 	public HomeFrame(String homeFolder) {
-		super(title);
+		super("Qualimap " + NgsSmartMain.APP_VERSION);
 		isWebStart = isRunningJavaWebStart();
 		if(isWebStart){
 			copyFilesFromResourcesToFolder();
@@ -333,7 +334,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.add(exportToHtmlItem);
         exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
-        exportGeneListItem = addMenuItem("Export gene list", "exportgenelist", "save_zip.png", null);
+        exportGeneListItem = addMenuItem("Export feature list", "exportgenelist", "save_zip.png", null);
         fileMenu.add(exportGeneListItem);
         fileMenu.addSeparator();
         fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
@@ -631,7 +632,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             String exprName = tabProperties.getLoadedGraphicName();
             if (exprName.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "There is no chart selected! Please select chart.",
-                        "Export gene list", JOptionPane.ERROR_MESSAGE);
+                        "Export feature list", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             String path = HomeFrame.outputpath + tabProperties.getOutputFolder() + "/" +
@@ -642,8 +643,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             dlg.setLocationRelativeTo(frame);
             dlg.setVisible(true);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Can not prepare gene list! "+ e.getMessage(),
-                    "Export genes list", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Can not prepare feature list! "+ e.getMessage(),
+                    "Export feature list", JOptionPane.ERROR_MESSAGE);
         }
 
     }

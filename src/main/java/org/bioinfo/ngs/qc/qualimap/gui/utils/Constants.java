@@ -83,7 +83,7 @@ public final class Constants {
 	public static final String FILE_EXTENSION_PDF_FILE = "PDF";
 	
     public static final String PLOT_TITLE_COVERAGE_ACROSS_REFERENCE = "Coverage Across Reference";
-    public static final String PLOT_TITLE_COVERAGE_HISTOGRAM = "Coverage Histogram (scaled)";
+    public static final String PLOT_TITLE_COVERAGE_HISTOGRAM = "Coverage Histogram";
     public static final String PLOT_TITLE_COVERAGE_HISTOGRAM_0_50 = "Coverage Histogram (0-50X)";
     public static final String PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE = "Mapping Quality Across Reference";
     public static final String PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM = "Mapping Quality Histogram";

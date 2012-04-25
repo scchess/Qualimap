@@ -741,6 +741,11 @@ public class BamStats implements Serializable {
     private double calcMedianInsertSize(XYVector insertSizeHistogram) {
         int size = insertSizeHistogram.getSize();
         double[] values = insertSizeHistogram.getYVector();
+
+        if (values.length == 0) {
+            return 0;
+        }
+
         double maxValue = values[0];
         int maxValueIndex = 0;
 
@@ -792,6 +797,12 @@ public class BamStats implements Serializable {
             return;
         }
 
+        // make sure that we have enough data
+        ensureListSize(readsAsData, readMaxSize);
+        ensureListSize(readsCsData, readMaxSize);
+        ensureListSize(readsGsData, readMaxSize);
+        ensureListSize(readsTsData, readMaxSize);
+        ensureListSize(readsNsData, readMaxSize);
 
         for (int i = 0; i <= readMaxSize; ++i ) {
 
