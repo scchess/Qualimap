@@ -159,7 +159,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
     public EpigeneticAnalysisDialog(HomeFrame homeFrame) {
 
-        super(homeFrame,"Epigenomics") ;
+        super(homeFrame,"Cluster epigenomic signals") ;
 
         getContentPane().setLayout(new MigLayout("insets 20"));
 

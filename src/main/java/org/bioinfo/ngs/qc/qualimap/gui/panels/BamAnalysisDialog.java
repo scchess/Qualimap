@@ -44,7 +44,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public BamAnalysisDialog(HomeFrame homeFrame) {
 
-        super(homeFrame, "Analyze genomic dataset" );
+        super(homeFrame, "Analyze alignment" );
 
         getContentPane().setLayout(new MigLayout("insets 20"));
 
@@ -63,7 +63,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
         analyzeRegionsCheckBox = new JCheckBox("Analyze regions");
         analyzeRegionsCheckBox.addActionListener(this);
-        analyzeRegionsCheckBox.setToolTipText("Check to analyze the genomic regions defined in the GFF file");
+        analyzeRegionsCheckBox.setToolTipText("Check to only analyze the regions defined in the GFF file");
         add(analyzeRegionsCheckBox, "wrap");
 
         labelPathAditionalDataFile = new JLabel("GFF file:");

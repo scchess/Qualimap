@@ -529,9 +529,7 @@ public class BamStatsAnalysis {
             if (selectedRegionsAvailable && computeOutsideStats) {
                 Collection<SingleReadData> outsideData = taskResult.getOutOfRegionReadsData();
                 for (SingleReadData rd : outsideData) {
-                    BamGenomeWindow w = getOpenWindow(rd.getWindowStart(),
-                            outsideBamStats,
-                            openOutsideWindows);
+                    BamGenomeWindow w = openOutsideWindows.get( rd.getWindowStart() );
                     w.addReadData(rd);
                 }
                 outsideBamStats.addGcContentData( taskResult.getOutRegionOfReadsGcContent());
@@ -624,8 +622,7 @@ public class BamStatsAnalysis {
                                              boolean detailed){
 
         byte[]miniReference = null;
-		if(reference!=null) {
-			miniReference = new byte[(int)(windowEnd-windowStart+1)];
+		if(reference != null) {
 			miniReference = Arrays.copyOfRange(reference, (int) (windowStart - 1), (int) (windowEnd - 1));
 		}
 
@@ -899,6 +896,12 @@ public class BamStatsAnalysis {
     public BamStats getOutsideBamStats() {
         return outsideBamStats;
     }
+
+    HashMap<Long,BamGenomeWindow> getOpenOutsideWindows() {
+        return openOutsideWindows;
+    }
+
+
 
     ConcurrentMap<Long,BamGenomeWindow> getOpenWindows() {
         return openWindows;

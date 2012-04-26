@@ -22,9 +22,9 @@ Run Qualimap from this directory using the prebuilt script:
 
 :samp:`./qualimap`
 
-Qualimap was tested on GNU Linux, MacOS and MS Windows. !Revise Windows!
+Qualimap was tested on GNU Linux and MacOS.
 
-.. note:: On MS Windows use script :samp:`qualimap.bat` to launch Qualimap.
+.. note:: On MS Windows use script :samp:`qualimap.bat` to launch Qualimap. 
 
 Requirements
 ------------
@@ -59,12 +59,12 @@ Provided R is properly installed, the R packages can be installed by executing t
 
 :samp:`Rscript scripts/installDependencies.r`
 
-.. note:: In general the installation of R packages is platform-specific and may required additional effort.
+.. note:: In general the installation of R packages is platform-specific and may require additional efforts.
 
 Installing Qualimap on Ubuntu
 -----------------------------
 
-This manual is specific for Ubuntu(Debian) Linux distribution, however with slight differences this can be applied for others Unix systems. 
+This manual is specific for Ubuntu(Debian) Linux distribution, however with slight differences this can be applied for other Linux systems. 
 
 Install JAVA
 ^^^^^^^^^^^^
@@ -75,23 +75,29 @@ It is possible to use openjdk:
 
 Install R
 ^^^^^^^^^
-!Modify! 
+
 The R latest version can be installed from public repos.
 
-However, the repos must be added to the sources. Open sources.list:
+However, the repos must be added to the sources file. Open sources.list:
 
 :samp:`sudo gedit /etc/apt/sources.list`
 
-Add the following lines:
+Add the following line:
 
 :samp:`deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu <name.of.your.distribution>/`
- 
-Then install R:
+
+List of cran mirrors can be found `here <http://cran.r-project.org/mirrors.html>`_
+
+Here is an example for Ubuntu 10.04 (Lucid):
+
+:samp:`deb http://cran.stat.ucla.edu/bin/linux/ubuntu lucid/`
+
+Then Install R:
 
 :samp:`sudo apt-get update`  
 
 :samp:`sudo apt-get install r-base-core`
- 
+
 If you don't have the public key for the mirror add it:
 
 :samp:`gpg --keyserver subkeys.pgp.net --recv-key <required.key>`
@@ -100,20 +106,29 @@ If you don't have the public key for the mirror add it:
 
 More details available here:
  
-   https://stat.ethz.ch/pipermail/r-help/2009-February/187644.html
+    http://cran.r-project.org/bin/linux/ubuntu/README
 
-   http://cran.r-project.org/bin/linux/ubuntu/README
 
 .. note:: Alternatively it is possible to build R enviroment directly from sources downloaded from r-project.org.
 
 Install required R-packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use special script from Qualimap pacage:
+Some packages depend on external libraries, so you might need to install them either:
 
-:samp:`Rscript $QUALIMAP_HOME/scripts/installDependencies.r`
+:samp:`sudo apt-get install libxml2-dev`
+
+:samp:`sudo apt-get install libcurl4-openssl-dev`
+
+
+You can install required packages manually or use special script from Qualimap package:
+
+:samp:`sudo Rscript $QUALIMAP_HOME/scripts/installDependencies.r`
 
 where :samp:`$QUALIMAP_HOME` is the full path to the Qualimap installation folder.
+
+
+
 
 Citing Qualimap
 ---------------

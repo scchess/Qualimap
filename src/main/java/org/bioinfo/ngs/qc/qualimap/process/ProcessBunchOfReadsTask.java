@@ -605,6 +605,10 @@ public class ProcessBunchOfReadsTask implements Callable {
 		    synchronized (lock) {
                 ConcurrentMap<Long,BamGenomeWindow> openWindows = ctx.getOpenWindows();
                 adjacentWindow = ctx.getOpenWindow(ws, bamStats, openWindows);
+                if (computeOutsideStats) {
+                    Map<Long,BamGenomeWindow> openOutsideWindows = ctx.getOpenOutsideWindows();
+                    ctx.getOpenWindow(ws, ctx.getOutsideBamStats(), openOutsideWindows);
+                }
             }
 
             // acum read

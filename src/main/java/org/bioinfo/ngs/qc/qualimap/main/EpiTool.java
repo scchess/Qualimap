@@ -26,7 +26,7 @@ public class EpiTool extends NgsSmartTool {
     }
 
     public EpiTool() {
-        super(Constants.TOOL_NAME_EPIGENOMIC);
+        super(Constants.TOOL_NAME_CLUSTERING);
         cfg = new EpiAnalysis.Config();
 
     }

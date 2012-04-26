@@ -30,7 +30,7 @@ public class NgsSmartMain {
 
 			// TODO: use factories map to create tools
 			// tools
-			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_GENOMIC)){
+			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_BAMQC)){
 				tool = new BamQcTool();
 			}
 			
@@ -42,7 +42,7 @@ public class NgsSmartMain {
                 tool = new CountReadsTool();
             }
 
-            if (toolName.equals(Constants.TOOL_NAME_EPIGENOMIC)) {
+            if (toolName.equals(Constants.TOOL_NAME_CLUSTERING)) {
                 tool = new EpiTool();
             }
 
