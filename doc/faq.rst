@@ -37,7 +37,7 @@ Also you can override this parameter by setting environment variable $JAVA_OPTS.
 Installation
 ------------
 
-**Q**: How to install the latest possible R environment on Ubuntu?
+**Q**: *How to install the latest possible R environment on Ubuntu?*
 
 **A**: The latest R can be installed from official repos.
 
@@ -76,6 +76,26 @@ More details available here:
 
 Performance
 -----------
+
+
+**Q**: *Does Qualimap make use of multicore systems to improve computation speed?*
+
+**A**: Yes, Qualimap uses threads to perform BAM QC analysis.
+
+In short, reads are processed in chunks and each chunk is analyzed independtly from others.
+
+Below you can find a schema, depicting the applied algorithm.
+
+
+.. image:: images/parallel.png
+    :width: 450pt
+    :align: center
+
+Here each block denotes a certain algorithm step. Analysis starts with dividing reference genome into windows. The first window is set to be the current. Then analysis continues with processing BAM records belongning to current window.  
+
+When all reads belonging to current window (region of genome) are processed, the window is finalized. This task is also performed in a separate thread. 
+
+Analysis is finished when all windows are processed.
 
 
 **Q**: *I have a powerful computer with a lot of memory. Can I make Qualimap run faster?*
