@@ -25,7 +25,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
-import sun.management.*;
 
 
 /**
@@ -47,6 +46,11 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	private static final int FRAME_HEIGHT = 600;
 	private int screenHeight;
 	private int screenWidth;
+
+    public static final String BAMQC_COMMAND = "bamqc";
+    public static final String COUNTSQC_COMMAND = "counts";
+    public static final String CLUSTERING_COMMAND = "clustering";
+    public static final String CALC_COUNTS_COMMAND = "calc-counts";
 
     // Menu items with configurable state
     JMenuItem saveReportItem, exportToPdfItem, exportToHtmlItem, openReportItem, exportGeneListItem, closeAllTabsItem;
@@ -339,18 +343,18 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.addSeparator();
         fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
 
-        analysisMenu.add(addMenuItem("Genomic", "genomic", "chart_curve_add.png", "ctrl pressed G"));
-        JMenuItem rnaSeqItem =   addMenuItem("RNA-seq", "counts", "chart_curve_add.png", "ctrl pressed C");
+        analysisMenu.add(addMenuItem("BAM QC", BAMQC_COMMAND, "chart_curve_add.png", "ctrl pressed G"));
+        JMenuItem rnaSeqItem =   addMenuItem("Counts QC", COUNTSQC_COMMAND, "chart_curve_add.png", "ctrl pressed C");
         rnaSeqItem.setEnabled(rIsAvailable);
         analysisMenu.add(rnaSeqItem);
-        JMenuItem epiMenuItem =  addMenuItem("Epigenomics", "epigenomics", "chart_curve_add.png", "ctrl pressed E");
+        JMenuItem epiMenuItem =  addMenuItem("Clustering", CLUSTERING_COMMAND, "chart_curve_add.png", "ctrl pressed E");
         epiMenuItem.setEnabled(rIsAvailable);
         analysisMenu.add(epiMenuItem);
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");
         windowsMenu.add(closeAllTabsItem);
 
-        toolsMenu.add(addMenuItem("Compute counts", "calc-counts", "calculator_edit.png", "ctrl pressed T"));
+        toolsMenu.add(addMenuItem("Compute counts", CALC_COUNTS_COMMAND, "calculator_edit.png", "ctrl pressed T"));
 
 		if (checkForUserManual()) {
             helpMenu.add(addMenuItem("User Manual", "manual", "help.png", "F1"));
@@ -406,14 +410,12 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		String fileName = StringUtilsSwing.formatFileName(inputFileName);
 		ImageIcon ic = new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve.png"));
 		String prefix = "";
-		if(Constants.TYPE_BAM_ANALYSIS_DNA == typeAnalysis){
-			prefix = "Genomic: ";
-		}else if (Constants.TYPE_BAM_ANALYSIS_EXOME == typeAnalysis){
-			prefix = "Region: ";
-		}else if (Constants.TYPE_BAM_ANALYSIS_RNA == typeAnalysis){
+		if(Constants.TYPE_BAM_ANALYSIS_DNA == typeAnalysis || Constants.TYPE_BAM_ANALYSIS_EXOME == typeAnalysis){
+			prefix = "BAM QC: ";
+		} else if (Constants.TYPE_BAM_ANALYSIS_RNA == typeAnalysis){
 			prefix = "Counts: ";
         }else if (Constants.TYPE_BAM_ANALYSIS_EPI == typeAnalysis) {
-            prefix = "Epigenomics: ";
+            prefix = "Clustering: ";
         }
 
         OpenLoadedStatistics op = new OpenLoadedStatistics(this,tabProperties);
@@ -599,13 +601,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			popUpDialog.setLocationRelativeTo(HomeFrame.this);
 			popUpDialog.setVisible(true);
-	    }else if(e.getActionCommand().equalsIgnoreCase("genomic")){
-	    	runGenomicAnalysis();
-        }else if(e.getActionCommand().equalsIgnoreCase("counts")){
+	    }else if(e.getActionCommand().equalsIgnoreCase(BAMQC_COMMAND)){
+	    	runBamQC();
+        }else if(e.getActionCommand().equalsIgnoreCase(COUNTSQC_COMMAND)){
 	        runCountsAnalysis();
-	    }else if(e.getActionCommand().equals("epigenomics")) {
-            runEpigenomicsAnalysis();
-        } else if (e.getActionCommand().equals("calc-counts")) {
+	    }else if(e.getActionCommand().equals(CLUSTERING_COMMAND)) {
+            runClusteringAnalysis();
+        } else if (e.getActionCommand().equals(CALC_COUNTS_COMMAND)) {
             showCountReadsDialog(this);
         } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
             showExportGenesDialog(this, getSelectedTabPropertiesVO());
@@ -649,7 +651,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     }
 
-    private void runGenomicAnalysis(){
+    private void runBamQC(){
 
         popUpDialog = new BamAnalysisDialog(this);
         popUpDialog.setModal(true);
@@ -678,7 +680,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     }
 
 
-    private void runEpigenomicsAnalysis(){
+    private void runClusteringAnalysis(){
         popUpDialog = new EpigeneticAnalysisDialog(this);
         popUpDialog.setModal(true);
         popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

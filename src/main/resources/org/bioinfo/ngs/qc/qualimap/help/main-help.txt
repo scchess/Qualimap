@@ -5,10 +5,10 @@ To launch GUI leave <tool> empty.
 
 Available tools:
 
-    genomic     Evaluates NGS mapping to a reference genome
-    rna-seq     RNA-seq analysis
-    epigenomic  Epigenomic analysis
-    counts      Compute feature counts
+    bamqc            Evaluates NGS mapping to a reference genome
+    countsqc         Counts data analysis (RNA-seq data evaluation)
+    clustering       Clustering epigenomic signals
+    comp-counts      Compute feature counts
 
 2012, QualiMap
 

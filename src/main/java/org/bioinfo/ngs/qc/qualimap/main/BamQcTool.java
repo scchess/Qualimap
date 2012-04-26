@@ -27,7 +27,7 @@ public class BamQcTool extends NgsSmartTool{
 
 
     public BamQcTool(){
-        super(Constants.TOOL_NAME_GENOMIC);
+        super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
         paintChromosomeLimits = true;
     }

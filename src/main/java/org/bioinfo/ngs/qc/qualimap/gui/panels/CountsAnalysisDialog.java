@@ -54,7 +54,7 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
 
 
     public CountsAnalysisDialog(HomeFrame homeFrame) {
-        super(homeFrame, "Analyze count data");
+        super(homeFrame, "Analyze counts data");
 
         getContentPane().setLayout(new MigLayout("insets 20"));
 

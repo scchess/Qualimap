@@ -4,9 +4,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
-import org.jfree.chart.JFreeChart;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -19,14 +17,14 @@ import java.util.*;
 public class HtmlReportGenerator {
 
     BamQCRegionReporter reporter;
-    boolean genomicAnalysis;
+    boolean bamQCAnalysis;
     String dirPath;
     StringBuffer htmlReport;
     List<String> plotNames, plotLinks;
 
     public HtmlReportGenerator(BamQCRegionReporter reporter, String dirPath, boolean genomicAnalysis) {
         this.reporter = reporter;
-        this.genomicAnalysis = genomicAnalysis;
+        this.bamQCAnalysis = genomicAnalysis;
         this.dirPath = dirPath;
     }
 
@@ -55,7 +53,7 @@ public class HtmlReportGenerator {
         append("\t\t<link rel=\"stylesheet\" href=\"_static/agogo.css\" type=\"text/css\" />");
         append("\t\t<link rel=\"stylesheet\" href=\"_static/report.css\" " +
                 "type=\"text/css\" />");
-        append("\t<title>Qualimap report: Genomic analysis</title>\n");
+        append("\t<title>Qualimap report: BAM QC analysis</title>\n");
         append("\t</head>");
 
     }
@@ -96,7 +94,7 @@ public class HtmlReportGenerator {
         append("<div class=\"bodywrapper\">");
         append("<div class=\"body\">");
 
-        if (genomicAnalysis) {
+        if (bamQCAnalysis) {
             appendSummary();
         }
 
@@ -125,7 +123,7 @@ public class HtmlReportGenerator {
         appendTableFromStats(summarySections);
 
 
-		if (genomicAnalysis) {
+		if (bamQCAnalysis) {
 			appendChromosomeStats();
         }
 
@@ -235,7 +233,7 @@ public class HtmlReportGenerator {
         append("\n<div class=\"sidebar\">");
         append("<h3>Contents</h3>");
 
-        if (genomicAnalysis) {
+        if (bamQCAnalysis) {
             append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#summary\">Summary</a></li>");
         }
 
