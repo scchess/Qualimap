@@ -26,7 +26,7 @@ public abstract class NgsSmartTool {
 	protected String outdir;
     protected String toolName;
     protected String outputType;
-    protected boolean outDirIsRequired,outFormatIsRequired;
+    protected boolean outDirIsRequired,outFormatIsRequired, homeDirIsRequired;
 
     static String OPTION_NAME_OUTDIR = "outdir";
     static String OPTION_NAME_HOMEDIR = "home";
@@ -77,8 +77,11 @@ public abstract class NgsSmartTool {
     }
 	
 	private void initCommonOptions(){
-		options.addOption(OPTION_NAME_HOMEDIR, true, "home folder of Qualimap");
-		if (outDirIsRequired) {
+		if (homeDirIsRequired) {
+            options.addOption(OPTION_NAME_HOMEDIR, true, "home folder of Qualimap");
+        }
+
+        if (outDirIsRequired) {
             options.addOption( OPTION_NAME_OUTDIR, true, "output folder" );
         }
         if (outFormatIsRequired) {
@@ -130,7 +133,7 @@ public abstract class NgsSmartTool {
 	
 	protected void printHelp(){
 		HelpFormatter h = new HelpFormatter();
-		h.setWidth(150);		
+		h.setWidth(80);
 		h.printHelp("qualimap " + toolName, options, true);
 		logger.println("");
 		logger.println("");

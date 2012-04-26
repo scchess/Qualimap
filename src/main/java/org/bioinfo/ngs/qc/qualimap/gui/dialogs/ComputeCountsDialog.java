@@ -173,11 +173,30 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
 
+        fnPanel = new JPanel();
+        fnPanel.setLayout(new MigLayout("insets 5"));
+        fnPanel.add(new JLabel("Feature ID:"));
+        featureNameField = new JTextField(10);
+        featureNameField.setText(ComputeCountsTask.GENE_ID_ATTR);
+        featureNameField.setToolTipText("<html>Attribute of the GTF to be used as feature ID. Regions with the same ID" +
+                "<br/>will be aggregated as part of the same feature. Default: gene_id</html>");
+        fnPanel.add(featureNameField, "");
+        fnPanel.add(new JLabel("Available feature IDs:"));
+        availableFeatureNamesCombo = new JComboBox();
+        availableFeatureNamesCombo.setToolTipText("These feature IDS were found in first 1000 of the GFF file");
+        availableFeatureNamesCombo.addActionListener(
+                new FeatureComboBoxListener(availableFeatureNamesCombo, featureNameField));
+        fnPanel.add(availableFeatureNamesCombo, "wrap");
+
+        add(fnPanel, "span, wrap");
+
+
         ftPanel = new JPanel();
         ftPanel.setLayout(new MigLayout("insets 5"));
         ftPanel.add(new JLabel("Feature type:"));
         featureTypeField = new JTextField(10);
-        featureTypeField.setToolTipText("Third column of the GTF. All the features of other types will be ignored.");
+        featureTypeField.setToolTipText("<html>Value of the third column of the GTF considered for counting. " +
+                "<br>Other types will be ignored. Default: exon</html>");
         featureTypeField.setText(ComputeCountsTask.EXON_TYPE_ATTR);
         ftPanel.add(featureTypeField, "");
         ftPanel.add(new JLabel("Available feature types:"));
@@ -189,22 +208,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         ftPanel.add(availableFeatureTypesCombo, "wrap");
 
         add(ftPanel, "span, wrap");
-
-        fnPanel = new JPanel();
-        fnPanel.setLayout(new MigLayout("insets 5"));
-        fnPanel.add(new JLabel("Feature name:"));
-        featureNameField = new JTextField(10);
-        featureNameField.setText(ComputeCountsTask.GENE_ID_ATTR);
-        featureNameField.setToolTipText("The name of the feature (attribute) to be count.");
-        fnPanel.add(featureNameField, "");
-        fnPanel.add(new JLabel("Available feature names:"));
-        availableFeatureNamesCombo = new JComboBox();
-        availableFeatureNamesCombo.setToolTipText("These types of features were found in first 1000 of the GFF file");
-        availableFeatureNamesCombo.addActionListener(
-                new FeatureComboBoxListener(availableFeatureNamesCombo, featureNameField));
-        fnPanel.add(availableFeatureNamesCombo, "wrap");
-
-        add(fnPanel, "span, wrap");
 
         advancedOptions = new JCheckBox("Advanced options:");
         advancedOptions.addActionListener(this);
@@ -239,7 +242,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         add(browseOutputPathButton, "wrap");
 
         saveStatsBox = new JCheckBox("Save computation summary");
-        saveStatsBox.setToolTipText("<htmlThis option controls whether to save overall computation statistics.</html>");
+        saveStatsBox.setToolTipText("<html>This option controls whether to save overall computation statistics.</html>");
         add(saveStatsBox, "span 2, wrap");
 
         add(new JLabel("Log:"), "wrap");
@@ -342,6 +345,8 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
                     JOptionPane.showMessageDialog(frame, message.toString(),
                             getTitle(), JOptionPane.INFORMATION_MESSAGE);
+                    logArea.append(message.toString());
+                    logArea.setCaretPosition(logArea.getText().length());
 
                     frame.setUiEnabled(true);
 

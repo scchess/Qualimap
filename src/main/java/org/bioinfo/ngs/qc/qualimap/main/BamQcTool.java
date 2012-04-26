@@ -45,7 +45,7 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption("nr", true, "number of reads in the bunch (advanced)");
 
 		options.addOption("c", "paint-chromosome-limits", false, "paint chromosome limits inside charts");
-		options.addOption("o", "outside-stats", false, "compute region outside stats (only with -gff option)");
+		options.addOption("os", "outside-stats", false, "compute region outside stats (only with -gff option)");
 
 	}
 

@@ -313,9 +313,14 @@ public class ComputeCountsTask  {
 
     public StringBuilder getOutputStatsMessage() {
         StringBuilder message = new StringBuilder();
-        message.append("Feature (\"").append(attrName).append("\") counts: ").append(getTotalReadCounts()).append("\n");
+        message.append("Feature \"").append(attrName).append("\" counts: ").append(getTotalReadCounts()).append("\n");
         message.append("No feature: ").append(noFeature).append("\n");
-        message.append("Not unique alignment: ").append(alignmentNotUnique).append("\n");
+        message.append("Not unique alignment: ");
+        if (countingAlgorithm.equals(COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)){
+            message.append(alignmentNotUnique).append("\n");
+        } else {
+            message.append("NA\n");
+        }
         message.append("Ambiguous: ").append(ambiguous).append("\n");
 
         return message;

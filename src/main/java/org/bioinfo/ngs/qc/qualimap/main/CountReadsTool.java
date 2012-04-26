@@ -17,6 +17,14 @@ import java.util.Map;
  */
 public class CountReadsTool extends NgsSmartTool {
 
+    public static String OPTION_GTF = "gtf";
+    public static String OPTION_BAM = "bam";
+    public static String OPTION_FEATURE_ID = "id";
+    public static String OPTION_FEATURE_TYPE = "type";
+    public static String OPTION_PROTOCOL = "protocol";
+    public static String OPTION_OUT_FILE = "out";
+    public static String OPTION_ALGORITHM = "algorithm";
+
     String bamFile, gffFile, outFile, protocol, featureType, attrName, alg;
 
     static String getProtocolTypes() {
@@ -37,13 +45,15 @@ public class CountReadsTool extends NgsSmartTool {
     @Override
     protected void initOptions() {
 
-        options.addOption( requiredOption("bam", true, "mapping file in BAM format)") );
-		options.addOption(requiredOption("gff", true, "region file in GFF format") );
-        options.addOption(new Option("o", "output", true, "path to output file") );
-        options.addOption(new Option("p", "protocol", true, getProtocolTypes()) );
-        options.addOption(new Option("feature", true, "feature type, default is \"exon\" "));
-        options.addOption(new Option("attr", true, "attribute to count, default is \"gene\" "));
-        options.addOption(new Option("alg", true, getAlgorithmTypes()));
+        options.addOption( requiredOption(OPTION_BAM, true, "mapping file in BAM format)") );
+		options.addOption(requiredOption(OPTION_GTF, true, "region file in GTF format") );
+        options.addOption(new Option(OPTION_OUT_FILE, true, "path to output file") );
+        options.addOption(new Option(OPTION_PROTOCOL, true, getProtocolTypes()) );
+        options.addOption(new Option(OPTION_FEATURE_TYPE, true, "Value of the third column of the GTF considered" +
+                " for counting. Other types will be ignored. Default: exon"));
+        options.addOption(new Option(OPTION_FEATURE_ID, true, "attribute of the GTF to be used as feature ID. " +
+                "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
+        options.addOption(new Option(OPTION_ALGORITHM, true, getAlgorithmTypes()));
 
 
     }
@@ -51,16 +61,16 @@ public class CountReadsTool extends NgsSmartTool {
     @Override
     protected void checkOptions() throws ParseException {
 
-        bamFile = commandLine.getOptionValue("bam");
+        bamFile = commandLine.getOptionValue(OPTION_BAM);
 		if (!exists(bamFile))
             throw new ParseException("input mapping file not found");
 
-        gffFile = commandLine.getOptionValue("gff");
+        gffFile = commandLine.getOptionValue(OPTION_GTF);
 	    if(!exists(gffFile))
-            throw new ParseException("input region gff file not found");
+            throw new ParseException("input region gtf file not found");
 
-        if(commandLine.hasOption("protocol")) {
-		    protocol = commandLine.getOptionValue("protocol");
+        if(commandLine.hasOption(OPTION_PROTOCOL)) {
+		    protocol = commandLine.getOptionValue(OPTION_PROTOCOL);
             if ( !(protocol.equals( ComputeCountsTask.PROTOCOL_FORWARD_STRAND ) ||
                     protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC ) ||
                     protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
@@ -70,26 +80,26 @@ public class CountReadsTool extends NgsSmartTool {
             protocol = ComputeCountsTask.PROTOCOL_FORWARD_STRAND;
         }
 
-        if (commandLine.hasOption("o")) {
-            outFile = commandLine.getOptionValue("o");
+        if (commandLine.hasOption(OPTION_OUT_FILE)) {
+            outFile = commandLine.getOptionValue(OPTION_OUT_FILE);
         } else {
             outFile = "";
         }
 
-        if (commandLine.hasOption("feature")) {
-            featureType = commandLine.getOptionValue("feature");
+        if (commandLine.hasOption(OPTION_FEATURE_TYPE)) {
+            featureType = commandLine.getOptionValue(OPTION_FEATURE_TYPE);
         } else {
             featureType = ComputeCountsTask.EXON_TYPE_ATTR;
         }
 
-        if (commandLine.hasOption("attr")) {
-            attrName = commandLine.getOptionValue("attr");
+        if (commandLine.hasOption(OPTION_FEATURE_ID)) {
+            attrName = commandLine.getOptionValue(OPTION_FEATURE_ID);
         } else {
             attrName = ComputeCountsTask.GENE_ID_ATTR;
         }
 
-        if (commandLine.hasOption("alg")) {
-            alg = commandLine.getOptionValue("alg");
+        if (commandLine.hasOption(OPTION_ALGORITHM)) {
+            alg = commandLine.getOptionValue(OPTION_ALGORITHM);
             if (! ( alg.equalsIgnoreCase(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)  ||
                      alg.equalsIgnoreCase(ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL)) ) {
                 throw new ParseException("Unknown algorithm! Possible values are: " + getAlgorithmTypes());
@@ -138,17 +148,10 @@ public class CountReadsTool extends NgsSmartTool {
             return;
         }
 
-        long totalCounted = computeCountsTask.getTotalReadCounts();
-        long noFeature = computeCountsTask.getNoFeatureNumber();
-        long notUnique = computeCountsTask.getAlignmentNotUniqueNumber();
-        long ambiguous = computeCountsTask.getAmbiguousNumber();
-
         StringBuilder message = new StringBuilder();
         message.append("Calculation successful!\n");
-        message.append("Feature read counts: ").append(totalCounted).append("\n");
-        message.append("No feature: ").append(noFeature).append("\n");
-        message.append("Not unique alignment: ").append(notUnique).append("\n");
-        message.append("Ambiguous: ").append(ambiguous).append("\n");
+        message.append( computeCountsTask.getOutputStatsMessage() );
+
         if (!outFile.isEmpty()) {
             message.append("Result is saved to file ").append(outFile);
         }
