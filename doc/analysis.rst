@@ -209,11 +209,12 @@ Individual Group Plots
 Clustering
 ----------
 
-This analysis type allows to cluster the regions of interest in the input alignment based on the coverage. Typical usecase for such clustering can be evaluation of epigenomics experiment. For example due to epigenetics changes when analyzing promoter regions one should expect some genes to be activated and some silenced. 
+Qualimap provides the possibility of clustering genomic features according to their surrounding coverage profiles. This is particulary interesting in epigenomic studies (e.g. methylation). The user can import a set of features (e.g. TSSs or CpG Islands) together with the BAM file. Then the application preprocess the data and clusters the profiles using the Repitools package (`Statham et al <http://bioinformatics.oxfordjournals.org/content/26/13/1662.abstract>`_). The obtained groups of features are displayed as a heatmap or as line graphs and can be exported for further
+analysis (e.g. for measuring the correlation between promoter methylation and gene expression). 
 
-To perform this evaluation you need to provide alignment data ( both methylated and control) and list of transcript ids as BED annotation file.
+To perform this analysis the user needs to provide at least two BAM files -- one for the sample (enriched) and other for the control (input) -- and a list of features as BED file.
 
-Clustering analysis can be accesed using menu item :menuselection:`File --> New Analysis --> Clustering`.
+Clustering analysis can be accesed using the menu item :menuselection:`File --> New Analysis --> Clustering`.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
@@ -253,11 +254,11 @@ Input Parameters
 :guilabel:`Bin size` 
   Can be thought as the resolution of the plot. Bins of the desired size will be computed and the information falling on each bin will be aggregated
 :guilabel:`Number of clusters` 
-  Number of groups that you the user wants to divide the data. Several values can be used by separting them with commas
+  Number of groups to divide the data. Several values can be used by separating them with commas.
 :guilabel:`Fragment length` 
   Length of the fragments that were initially sequenced. All reads will be enlarged to this length.
 :guilabel:`Visualization type` 
-  You can visualize cluster using heatmaps or line-based graphs
+  You can visualize cluster using heatmaps or line-based graphs.
 
 Output
 ^^^^^^
