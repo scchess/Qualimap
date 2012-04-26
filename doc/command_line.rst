@@ -10,7 +10,7 @@ Each analysis type presented in QualiMap GUI is also available as command line t
 
     qualimap <tool_name> <tool_options>
 
-:guilabel:`<tool_name>` is the name of the desired analysis. This could be: :ref:`genomic<cmdline-genomic>`, :ref:`rna-seq<cmdline-rnaseq>`, :ref:`epigenomic<cmdline-epigenomic>` or :ref:`counts<cmdline-counts>`. 
+:guilabel:`<tool_name>` is the name of the desired analysis. This could be: :ref:`bamqc<cmdline-bamqc>`, :ref:`countsqc<cmdline-countsqc>`, :ref:`clustering<cmdline-clustering>` or :ref:`counts<cmdline-counts>`. 
 
 :guilabel:`<tool_options>` are specific to each type analysis. If not option is provided for the specific tool a full list of available options will be shown
 
@@ -19,14 +19,14 @@ To show available tools use command::
     qualimap --help
 
 
-.. _cmdline-genomic:
+.. _cmdline-bamqc:
 
-Genomic
--------
+BAM QC
+------
 
-The following command allows to perform genomic analysis::
+The following command allows to perform BAM QC analysis::
 
-    qualimap genomic -bam <arg> [-c] [-gff <arg>] [-home <arg>] [-nr <arg>] [-nt <arg>] [-nw <arg>] [-o] [-outdir <arg>] [-outformat <arg>]
+    qualimap bamqc -bam <arg> [-c] [-gff <arg>] [-home <arg>] [-nr <arg>] [-nt <arg>] [-nw <arg>] [-o] [-outdir <arg>] [-outformat <arg>]
     -bam <arg>                     input mapping file
     -c,--paint-chromosome-limits   paint chromosome limits inside charts
     -gff <arg>                     region file (gff format)
@@ -44,21 +44,21 @@ The following command allows to perform genomic analysis::
 | The only required parameter is :guilabel:`bam` -- the input mapping file.
 | If :guilabel:`outdir` is not provided, it will be created automatically in the same folder where BAM file is located.
 |
-| Detailed explanation of available options can be found :ref:`here<genomic>`.
+| Detailed explanation of available options can be found :ref:`here<bamqc>`.
 
 Example::
 
-    ./qualimap genomic -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.gff --outside-stats
+    ./qualimap bamqc -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.gff --outside-stats
 
 
-.. _cmdline-rnaseq:
+.. _cmdline-countsqc:
 
-RNA-seq
--------
+Counts QC
+---------
 
-To perform RNA-seq analysis use the following command::
+To perform counts QC analysis (evaluation of RNA-seq data) use the following command::
 
-    qualimap rna-seq -d1 <arg> [-d2 <arg>] [-home <arg>] [-i <arg>] [-k <arg>] [-n1 <arg>] [-n2 <arg>]
+    qualimap countsqc -d1 <arg> [-d2 <arg>] [-home <arg>] [-i <arg>] [-k <arg>] [-n1 <arg>] [-n2 <arg>]
     [-outdir <arg>] [-outformat <arg>] [-s <arg>]
     -d1,--data1 <arg>      first file with counts
     -d2,--data2 <arg>      second file with counts
@@ -72,21 +72,21 @@ To perform RNA-seq analysis use the following command::
     -s,--species <arg>     use default file for the given species [human | mouse]
 
 |
-| Detailed explanation of available options can be found :ref:`here<rna-seq>`.
+| Detailed explanation of available options can be found :ref:`here<countsqc>`.
 
 Example::
 
-    ./qualimap rna-seq -d1 ~/sample_data/counts-kidney.txt -d2 ~/sample_data/counts-liver.txt -s human -outdir ~/sample_data/result
+    ./qualimap countsqc -d1 ~/sample_data/counts-kidney.txt -d2 ~/sample_data/counts-liver.txt -s human -outdir ~/sample_data/result
 
 
-.. _cmdline-epigenomic:
+.. _cmdline-clustering:
 
-Epigenomic
+Clustering
 ----------
 
-To perform epigenomic analysis use the following command::
+To perform clustering of epigenomic signals use the following command::
 
-    qualimap epigenomic [-b <arg>] [-c <arg>] -control <arg> [-expr <arg>] [-f <arg>] [-home <arg>]
+    qualimap clustering [-b <arg>] [-c <arg>] -control <arg> [-expr <arg>] [-f <arg>] [-home <arg>]
     [-l <arg>] [-name <arg>] [-outdir <arg>] [-outformat <arg>] [-r <arg>] -regions <arg> -sample <arg> [-viz <arg>]
     -b,--bin-size <arg>          size of the bin (default is 100)
     -c,--clusters <arg>          comma-separated list of cluster sizes
@@ -104,11 +104,11 @@ To perform epigenomic analysis use the following command::
     -viz <arg>                   visualization type: heatmap or line
 
 |
-| Detailed explanation of available options can be found :ref:`here<epigenomic>`.
+| Detailed explanation of available options can be found :ref:`here<clustering>`.
 
 Example::
 
-    ./qualimap epigenomic -sample ~/sample_data/24h-i-medip.bam -control ~/sample_data/24h-i-control.bam -regions ~/sample_data/CpGislands.bed -outdir ~/sample_data/result
+    ./qualimap clustering -sample ~/sample_data/24h-i-medip.bam -control ~/sample_data/24h-i-control.bam -regions ~/sample_data/CpGislands.bed -outdir ~/sample_data/result
 
 .. _cmdline-counts:
 
@@ -117,7 +117,7 @@ Compute counts
 
 To compute counts from mapping data use the following command::
 
-    qualimap counts -bam <arg> [-f <arg>] -gff <arg> [-home <arg>] [-p <arg>]
+    qualimap comp-counts -bam <arg> [-f <arg>] -gff <arg> [-home <arg>] [-p <arg>]
     -bam <arg>            mapping file in BAM format)
     -f,--output <arg>     path to output file
     -gff <arg>            region file in GFF format
@@ -129,7 +129,7 @@ To compute counts from mapping data use the following command::
 
 Example::
 
-    ./qualimap counts -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.bam 
+    ./qualimap comp-counts -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.bam 
 
 
 

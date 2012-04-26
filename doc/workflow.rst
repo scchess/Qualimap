@@ -29,6 +29,10 @@ Viewing the results of the analysis
 
 After the selected analysis is finished the results are shown as an interactive report in the Qualimap main window. Several reports can be opened at the same time in different tabs. 
 
+.. image:: images/output.png
+   :width: 500pt    
+   :align: center
+
 In the left part of the report window one can find a list containing available result items. Clicking on an item will automatically show the corresponding information report or graph. Some report items are common for different types of analysis. 
 
 For example, the :guilabel:`Summary` section provides a short summary of performed quality control checks, while the :guilabel:`Input` section lists all the input parameters. Further information about each specific result is provided :ref:`here <analysis-types>`.
