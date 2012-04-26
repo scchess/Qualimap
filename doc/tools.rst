@@ -53,10 +53,10 @@ Input
     For paired-end reads, the first read of pair must be mapped to the opposite strand of the feature, while the second read of the pair  must be on the same strand as the feature.
 
 :guilabel:`Feature ID`
-  The user can select the **attribute** of the GTF file to be used as the **feature ID**. Regions with the same ID will be aggregated as part of the same feature. The application preload the first 1000 lines of the file so a list with possible feature IDs is conveniently provided.
+  The user can select the attribute of the GTF file to be used as the feature ID. Regions with the same ID will be aggregated as part of the same feature. The application preload the first 1000 lines of the file so a list with possible feature IDs is conveniently provided.
 
 :guilabel:`Feature type`
-  The user can select the **feature type** (value of the third column of the GTF) considered for counting. Other types will be ignored. The application preload the first 1000 lines of the file so a list with possible feature IDs is conveniently provided.
+  The user can select the feature type (value of the third column of the GTF) considered for counting. Other types will be ignored. The application preload the first 1000 lines of the file so a list with possible feature IDs is conveniently provided.
 
 :guilabel:`Output`
   Path to the file which will contain output.
