@@ -80,6 +80,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	public boolean isWebStart;
     private SplashWindow splashWindow;
     private boolean rIsAvailable;
+    private boolean countsQCPackagesAvailable;
+    private boolean clusteringPacakgesAvailble;
 
     private static class TabbedPaneListener implements ContainerListener, ChangeListener {
 
@@ -204,50 +206,52 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         return new LODFileChooser();
     }
 
-    private String checkForRDependencies() {
+    private ArrayList<String> getMissingPackages() throws Exception {
 
         String path = getQualimapFolder() + File.separator;
+        final ArrayList<String> missingPackages = new ArrayList<String>();
 
-        try {
-            final Process p = Runtime.getRuntime().exec("Rscript " + path + "scripts/init.r");
-            final StringBuilder missingPackages = new StringBuilder();
-            Thread outputReadingThread = new Thread(new Runnable() { public void run() {
-                BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
-                String line;
-                try {
-                    while ((line = outputReader.readLine()) != null) {
-                        if (line.contains("ERROR!")) {
-                            String packageName = line.split(":")[1].trim();
-                            System.out.println(packageName);
-                            missingPackages.append(" - ").append(packageName).append("\n");
-                        }
+        final Process p = Runtime.getRuntime().exec("Rscript " + path + "scripts/init.r");
+        Thread outputReadingThread = new Thread(new Runnable() { public void run() {
+            BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
+            String line;
+            try {
+                while ((line = outputReader.readLine()) != null) {
+                    if (line.contains("ERROR!")) {
+                        String packageName = line.split(":")[1].trim();
+                        System.out.println(packageName);
+                        missingPackages.add(packageName);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            } } );
-            outputReadingThread.start();
-            int res = p.waitFor();
-            outputReadingThread.join();
-
-            if (res != 0) {
-                return "Failed to check for R dependencies! RScript process finished with errors.";
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        } } );
+        outputReadingThread.start();
+        int res = p.waitFor();
+        outputReadingThread.join();
 
-            if (missingPackages.length() > 0) {
-                return  "The following R packages are missing:\n" + missingPackages.toString() +
-                       "\nSome features dependent on these packages are disabled.\n" +
-                        "See README file for details.\n";
-                }
+        if (res != 0) {
+            throw new RuntimeException("R process finished with non-zero exit code");
+        }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Failed to check for R dependencies! RScript process finished with errors.";
-         }
-
-        return "";
+        return missingPackages;
 
     }
+
+    private static String reportMissingPackages(ArrayList<String> missingPacages) {
+        StringBuilder message = new StringBuilder();
+
+        message.append("The following R packages are missing:\n");
+        for (String packageName : missingPacages) {
+            message.append("-").append(packageName).append("\n");
+        }
+        message.append("Features dependent on these packages are disabled.\n");
+        message.append("See user manual for details.\n");
+
+        return message.toString();
+    }
+
 
     private static boolean isRunningJavaWebStart() {
     	String jwsVersion = System.getProperty("javawebstart.version", null);
@@ -280,12 +284,27 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }
 
         if (rIsAvailable) {
-            String missingPackagesMsg = checkForRDependencies();
-            if (!missingPackagesMsg.isEmpty() ) {
-                JOptionPane.showMessageDialog(this, missingPackagesMsg, "Checking for required R packages",
+
+            try {
+                ArrayList<String> missingPackages = getMissingPackages();
+                countsQCPackagesAvailable = !missingPackages.contains("optparse");
+                clusteringPacakgesAvailble = missingPackages.isEmpty();
+                if (!missingPackages.isEmpty()) {
+                    String message = reportMissingPackages(missingPackages);
+                    JOptionPane.showMessageDialog(this, message,
+                            "Checking for required R packages",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
+
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Failed to check for R dependencies! RScript process finished with errors.",
+                        "Checking for required R packages",
                         JOptionPane.INFORMATION_MESSAGE);
-                rIsAvailable = false;
             }
+
+
         }
 
         if (this.getClass().getResource(Constants.pathImages + "qualimap_logo_medium.png") != null ) {
@@ -345,10 +364,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
         analysisMenu.add(addMenuItem("BAM QC", BAMQC_COMMAND, "chart_curve_add.png", "ctrl pressed G"));
         JMenuItem rnaSeqItem =   addMenuItem("Counts QC", COUNTSQC_COMMAND, "chart_curve_add.png", "ctrl pressed C");
-        rnaSeqItem.setEnabled(rIsAvailable);
+        rnaSeqItem.setEnabled(countsQCPackagesAvailable);
         analysisMenu.add(rnaSeqItem);
         JMenuItem epiMenuItem =  addMenuItem("Clustering", CLUSTERING_COMMAND, "chart_curve_add.png", "ctrl pressed E");
-        epiMenuItem.setEnabled(rIsAvailable);
+        epiMenuItem.setEnabled(clusteringPacakgesAvailble);
         analysisMenu.add(epiMenuItem);
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");

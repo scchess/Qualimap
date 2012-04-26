@@ -113,7 +113,6 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
         add(thresholdEdit, "grow, wrap");
 
         provideInfoFileCheckBox = new JCheckBox("Include feature classification");
-        provideInfoFileCheckBox.setSelected(true);
         provideInfoFileCheckBox.addActionListener(this);
         add(provideInfoFileCheckBox, "wrap");
 
