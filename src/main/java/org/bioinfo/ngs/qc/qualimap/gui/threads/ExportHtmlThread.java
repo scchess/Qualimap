@@ -121,11 +121,11 @@ public class ExportHtmlThread extends Thread{
 	    	numSavedFiles = 0;
 
 	    	int numItemsToSave = tabProperties.getReporter().getCharts().size();
-	    	boolean genomicAnalysis = false;
+	    	boolean bamQCAnalysis = false;
 
             if  (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME ||
                     tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_DNA ) {
-                genomicAnalysis = true;
+                bamQCAnalysis = true;
             }
 
 	    	if(tabProperties.getOutsideReporter() != null &&
@@ -138,13 +138,13 @@ public class ExportHtmlThread extends Thread{
 
 			// Add the first file of the reporter
 			BamQCRegionReporter reporter = tabProperties.getReporter();
-            boolean  success = generateAndSaveReport(reporter, htmlReportFilePath, genomicAnalysis);
+            boolean  success = generateAndSaveReport(reporter, htmlReportFilePath, bamQCAnalysis);
 
 			// Add the files of the third reporter
 			if(success && loadOutsideReporter){
 				BamQCRegionReporter outsideReporter = tabProperties.getOutsideReporter();
                 String outsideReportFilePath = dirPath + "/qualimapReportOutsideOfRegions.html";
-                success = generateAndSaveReport(outsideReporter, outsideReportFilePath, genomicAnalysis);
+                success = generateAndSaveReport(outsideReporter, outsideReportFilePath, bamQCAnalysis);
             }
 
             prepareCss();

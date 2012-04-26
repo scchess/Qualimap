@@ -9,7 +9,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.jfree.chart.JFreeChart;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,9 +21,7 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by kokonech
@@ -37,7 +34,7 @@ public class ExportPdfThread extends Thread {
     TabPropertiesVO tabProperties;
     String path;
     boolean guiAvailable;
-    boolean  genomicAnalysis;
+    boolean bamQCAnalysis;
     double percentLoad;
     int curChapterNum;
     int numSavedItems;
@@ -108,7 +105,7 @@ public class ExportPdfThread extends Thread {
         	// Number of items to save into the PDF file (graphics + 3 files of properties + Header + Footer)
 	    	int numItemsToSave =  tabProperties.getReporter().getCharts().size();
 
-            genomicAnalysis = tabProperties.getTypeAnalysis().equals(Constants.TYPE_BAM_ANALYSIS_EXOME) ||
+            bamQCAnalysis = tabProperties.getTypeAnalysis().equals(Constants.TYPE_BAM_ANALYSIS_EXOME) ||
                     tabProperties.getTypeAnalysis().equals(Constants.TYPE_BAM_ANALYSIS_DNA);
 
 	    	if(tabProperties.getOutsideReporter() != null &&
@@ -149,7 +146,7 @@ public class ExportPdfThread extends Thread {
 
 
     private void addReporterData(Document document, BamQCRegionReporter reporter) throws Exception{
-        if (genomicAnalysis) {
+        if (bamQCAnalysis) {
                 addSummary( document, reporter );
             }
             addInputDesc( document, reporter );
