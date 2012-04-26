@@ -30,12 +30,20 @@ public class RNAseqTool extends NgsSmartTool{
 	
 	public RNAseqTool(){
 		super(Constants.TOOL_NAME_RNA_SEQ);
-        RNAseqTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.61.genes.biotypes.txt";
-		RNAseqTool.GROUPS_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"human.biotypes.groups.txt";
-		RNAseqTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.61.genes.biotypes.txt";
-		RNAseqTool.GROUPS_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER + File.separator +"mouse.biotypes.groups.txt";
-		RNAseqTool.SCRIPT_R = homePath + File.separator + RFUNCTIONS_FOLDER + File.separator + "qualimapRscript.r";
-	    secondSampleIsProvided = false;
+
+        RNAseqTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
+                File.separator + Constants.FILE_SPECIES_INFO_HUMAN;
+		RNAseqTool.GROUPS_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
+                File.separator + Constants.FILE_SPECIES_GROUPS_HUMAN;
+		RNAseqTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER +
+                File.separator +Constants.FILE_SPECIES_INFO_MOUSE;
+		RNAseqTool.GROUPS_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER +
+                File.separator  + Constants.FILE_SPECIES_GROUPS_MOUSE;
+
+        RNAseqTool.SCRIPT_R = homePath + File.separator + RFUNCTIONS_FOLDER +
+                File.separator + "qualimapRscript.r";
+
+        secondSampleIsProvided = false;
         infoFile = "";
         k = DEFAULT_NUMBER_OF_COUNTS;
 	}

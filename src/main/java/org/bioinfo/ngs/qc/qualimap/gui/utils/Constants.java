@@ -225,9 +225,9 @@ public final class Constants {
 	//******************************************************************************************
 	//*********************************** FILES OF SPECIES *************************************
 	//******************************************************************************************
-	public static final String FILE_SPECIES_INFO_HUMAN = "human.61.genes.biotypes.txt";
+	public static final String FILE_SPECIES_INFO_HUMAN = "human.64.genes.biotypes.txt";
 	public static final String FILE_SPECIES_GROUPS_HUMAN = "human.biotypes.groups.txt";
-	public static final String FILE_SPECIES_INFO_MOUSE = "mouse.61.genes.biotypes.txt";
+	public static final String FILE_SPECIES_INFO_MOUSE = "mouse.64.genes.biotypes.txt";
 	public static final String FILE_SPECIES_GROUPS_MOUSE = "mouse.biotypes.groups.txt";
 
     public static final String OK_COMMAND = "ok";
