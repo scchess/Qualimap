@@ -21,10 +21,25 @@ To access the tool use menu item :menuselection:`Tools --> Compute counts`.
 
 .. _example-compute-counts:
 
-Example
-^^^^^^^
+**Example**: Counts per gene of an Human RNA-seq study.
+^^^^^^^^^^^^
 
-PONER!!!
+- Input data:
+
+  - BAM file: `<link!>`. RNA-seq of liver tissue from [Marioni]
+
+  - GTF file: `<link!>`. Human annotation from Ensembl (v. 64)
+
+  - Parameters:
+
+    - Feature ID: gene_id (to count at the level of genes)
+    - Feature type: exon (to ignore other features like ...!!)
+    - Multimapped reads: uniquely-mapped-reads (to ignore not unique alignments)
+
+- Output:
+
+  - `<link>`. Text file 
+
 
 Input
 ^^^^^
