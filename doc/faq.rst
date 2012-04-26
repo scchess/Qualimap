@@ -34,6 +34,45 @@ Also you can override this parameter by setting environment variable $JAVA_OPTS.
 
 |
 
+Installation
+------------
+
+**Q**: How to install the latest possible R environment on Ubuntu?
+
+**A**: The latest R can be installed from official repos.
+
+The repos must be added to the sources file. Open sources.list:
+
+:samp:`sudo gedit /etc/apt/sources.list`
+
+Add the following line:
+
+:samp:`deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu <name.of.your.distribution>/`
+
+List of cran mirrors can be found `here <http://cran.r-project.org/mirrors.html>`_
+
+Here is an example for Ubuntu 10.04 (Lucid):
+
+:samp:`deb http://cran.stat.ucla.edu/bin/linux/ubuntu lucid/`
+
+Then Install R:
+
+:samp:`sudo apt-get update`  
+
+:samp:`sudo apt-get install r-base-core`
+
+If you don't have the public key for the mirror add it:
+
+:samp:`gpg --keyserver subkeys.pgp.net --recv-key <required.key>`
+
+:samp:`gpg -a --export <required.key> | sudo apt-key add -`
+
+More details available here:
+ 
+    http://cran.r-project.org/bin/linux/ubuntu/README
+
+|
+
 
 Performance
 -----------
