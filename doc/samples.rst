@@ -3,6 +3,7 @@
 Sample data
 ===========
 
+.. _bam-samples:
 
 Alignments
 ----------
@@ -48,6 +49,7 @@ Human RNA-seq data from the paper of `Marioni JC et al <http://genome.cshlp.org/
   :file:`human.64.genes.biotypes.txt`
   
 
+.. _clustering-samples:
 
 Clustering
 ----------

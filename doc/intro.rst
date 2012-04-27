@@ -6,7 +6,7 @@ Introduction
 What is Qualimap?
 -----------------
 
-**Qualimap** is a platform-independent application written in Java and R that provides both a Graphical User Interface (GUI) and a command-line interface to facilitate the quality control of alignment sequecing data. Shortly, Qualimap: i) examines sequencing **alignment data** according to the features of the mapped reads and their **genomic properties**; and ii) 
+**Qualimap** is a platform-independent application written in Java and R that provides both a Graphical User Interface (GUI) and a command-line interface to facilitate the quality control of alignment sequencing data. Shortly, Qualimap: i) examines sequencing **alignment data** according to the features of the mapped reads and their **genomic properties**; and ii)
 provides an **overall view** of the data that helps to  to the **detect biases** in the sequencing and/or mapping of the data and eases **decision-making** for further analysis.
 
 The main features offered by Qualimap are: fast analysis across the reference genome of mapping coverage and nucleotide distribution; easy-to-interpret summary of the main properties of the alignment data; analysis of the reads mapped inside/outside of the regions defined in an annotation reference; analysis of the adequacy of the sequencing depth in RNA-seq experiments and clustering of epigenomic profiles.
@@ -39,7 +39,7 @@ There are prebuilt binaries available for many platforms.
 
 R enviroment can be downloaded from `R project web-site <http://www.r-project.org>`_. 
 
-.. note:: In general the installation of R enivironment is platform-specific and may require additional efforts.
+.. note:: In general the installation of R environment is platform-specific and may require additional efforts.
 
 Several Qualimap features are implemented in R, using a number of external packages.
 
@@ -50,7 +50,7 @@ Currently Qualimap requires the following R-packages:
 * optparse (available from `CRAN <http://cran.r-project.org>`_)
 * Repitools, Rsamtools, GenomicFeatures, rtracklayer (available from `Bioconductor <http://bioconductor.org>`_) 
 
-One can install these packages `manually <www.howtoinstallpackages.com>`_ or by executing the script found in the installation folder:
+One can install these packages `manually <http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages>`_ or by executing the script found in the installation folder:
 
 :samp:`Rscript scripts/installDependencies.r`
 
@@ -69,13 +69,39 @@ It is possible to use openjdk:
 Install R
 ^^^^^^^^^
 
-The R latest version can be installed from public repos:
+The R latest version can be installed from public repos.
+
+The repos must be added to the sources file. Open sources.list:
+
+:samp:`sudo gedit /etc/apt/sources.list`
+
+Add the following line:
+
+:samp:`deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu <name.of.your.distribution>/`
+
+List of cran mirrors can be found `here <http://cran.r-project.org/mirrors.html>`_
+
+Here is an example for Ubuntu 10.04 (Lucid):
+
+:samp:`deb http://cran.stat.ucla.edu/bin/linux/ubuntu lucid/`
+
+Then install R:
 
 :samp:`sudo apt-get update`  
 
 :samp:`sudo apt-get install r-base-core`
 
-You need R version 2.14 or above. This can be checked with the following command:
+If you don't have the public key for the mirror add it:
+
+:samp:`gpg --keyserver subkeys.pgp.net --recv-key <required.key>`
+
+:samp:`gpg -a --export <required.key> | sudo apt-key add -`
+
+More details available here:
+ 
+    http://cran.r-project.org/bin/linux/ubuntu/README
+
+Qualimap needs R version 2.14 or above. This can be checked with the following command:
 
 :samp:`Rscript --version`
 
@@ -105,7 +131,7 @@ Citing Qualimap
 
 If you use Qualimap for your research, please cite the following:
 
-*Garcia-Alcalde et al. (2012) "Qualimap: evaluating next generation sequencing aligmnent data", submitted*
+*Garcia-Alcalde et al. (2012) "Qualimap: evaluating next generation sequencing alignmnent data", submitted*
 
 
 

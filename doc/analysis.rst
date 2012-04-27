@@ -79,7 +79,7 @@ Output
 
 :guilabel:`Coverage Histogram` 
 
-  Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x*-axis are conviniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
+  Histogram of the number of **genomic locations** having a given **coverage rate**. The bins of the *x*-axis are conveniently scaled by aggregating some coverage values in order to produce a representative histogram also in presence of the usual NGS peaks of coverage.
 
 :guilabel:`Coverage Histogram (0-50X)` 
 
@@ -157,7 +157,7 @@ Input Parameters
 
 :guilabel:`Count threshold`
 
-  In order to **remove** the influence of **spurious reads**, a feature is considered as detected if its corresponding number of counts is **greater than this threshold**. By default, the theshold value is set to 5 counts, meaning that features habing less than 5 counts will not be taken into account.
+  In order to **remove** the influence of **spurious reads**, a feature is considered as detected if its corresponding number of counts is **greater than this threshold**. By default, the theshold value is set to 5 counts, meaning that features having less than 5 counts will not be taken into account.
 
 :guilabel:`Group File`
 
@@ -209,7 +209,7 @@ Individual Group Plots
 Clustering
 ----------
 
-This analysis type allows to cluster the regions of interest in the input alignment based on the coverage. Typical usecase for such clustering can be evaluation of epigenomics experiment. For example due to epigenetics changes when analyzing promoter regions one should expect some genes to be activated and some silenced. 
+This analysis type allows to cluster the regions of interest in the input alignment based on the coverage. Typical use case for such clustering can be evaluation of epigenomics experiment. For example due to epigenetics changes when analyzing promoter regions one should expect some genes to be activated and some silenced.
 
 To perform this evaluation you need to provide alignment data ( both methylated and control) and list of transcript ids as BED annotation file.
 
@@ -222,7 +222,7 @@ Input Parameters
   The experiment name
 
 :guilabel:`Alignment data`
-  Here you can provide your replicates to analyze. Each replicate includes sample file and a control file. For example, in an epigenomics experiment, the sample file could be the MeDIP-seq data and the control the non-encriched data (the so-called INPUT data). Thus, for each replicate the following information has to be provided:
+  Here you can provide your replicates to analyze. Each replicate includes sample file and a control file. For example, in an epigenomics experiment, the sample file could be the MeDIP-seq data and the control the non-enriched data (the so-called INPUT data). Thus, for each replicate the following information has to be provided:
 
   :guilabel:`Replicate name` 
     Name of the replicate
@@ -234,9 +234,7 @@ Input Parameters
   To add a replicate click :guilabel:`Add` button. To remove a replicate select it and click :guilabel:`Remove` button. You can modify replicate by using :guilabel:`Edit` button.
 
 :guilabel:`Regions of interest` 
-  !Make this consistent with the new change!
-  Path to an annotation file in BED format which contains regions of interest.
-  The BED file should be a tab delimited text file with exactly 6 fields per line !refer to bed file format!
+  Path to an annotation file in `BED <http://genome.ucsc.edu/FAQ/FAQformat.html#format1>`_ or `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ format, which contains regions of interest.
   
 
 :guilabel:`Location` 
@@ -248,7 +246,7 @@ Input Parameters
 :guilabel:`Bin size` 
   Can be thought as the resolution of the plot. Bins of the desired size will be computed and the information falling on each bin will be aggregated
 :guilabel:`Number of clusters` 
-  Number of groups that you the user wants to divide the data. Several values can be used by separting them with commas
+  Number of groups that you the user wants to divide the data. Several values can be used by separating them with commas
 :guilabel:`Fragment length` 
   Length of the fragments that were initially sequenced. All reads will be enlarged to this length.
 :guilabel:`Visualization type` 
