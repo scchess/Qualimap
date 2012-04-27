@@ -8,7 +8,7 @@ Analysis types
 BAM QC
 ------
 
-BAM quality control reports information for the evaluation of the quality of the provided alignment data (a BAM file). In short, the basic statistics of the alignment (number of reads, coverage, GC-content, etc.) are summarized and a number of useful graphs are produced. This analysis can be performed with any kind of sequencing data, e.g. whole-genome sequencing, exome sequencing, RNA-seq, ChIP-seq, etc.
+BAM QC reports information for the evaluation of the quality of the provided alignment data (a BAM file). In short, the basic statistics of the alignment (number of reads, coverage, GC-content, etc.) are summarized and a number of useful graphs are produced. This analysis can be performed with any kind of sequencing data, e.g. whole-genome sequencing, exome sequencing, RNA-seq, ChIP-seq, etc.
 
 In addition, it is possible to provide an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions, which can be especially useful for evaluating RNA-seq studies.
 
@@ -134,14 +134,14 @@ Example
 ^^^^^^^
 
 - `RNA-seq count data <count-data/qualimapReport.html>`_. This report was produced using the counts from the RNA-seq of *Homo sapiens* kidney and liver samples [Marioni]_.
-- These counts can be downloaded from `here <webpage>`_ or generated using the :ref:`compute-counts` tool with the BAM files as it shown in this :ref:`example-compute-counts`.
+- These counts can be downloaded from `here <webpage>`_ or generated using the :ref:`compute-counts` tool.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
 
 :guilabel:`First sample (counts)` 
 
-  File containing the count data from the sample. This must be a **two-column** **tab-delimited** text file, with the feature IDs in the first column and the counts in the second column (see http://example for an example!!). This file must not contain header nor column names.
+  File containing the count data from the sample. This must be a **two-column** **tab-delimited** text file, with the feature IDs in the first column and the number of counts in the second column. This file must not contain header nor column names. See :ref:`counts-samples` for examples
 
 :guilabel:`First sample name`
  
@@ -161,7 +161,7 @@ Input Parameters
 
 :guilabel:`Group File`
 
-  **Optional**. File containing a classification of the features of the count files. It must be a **two columns** **tab-delimited** text file, with the features names or IDs in the first column and the group (e.g. the biotype from Ensembl database) in the second column (see http://example!). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
+  **Optional**. File containing a classification of the features of the count files. It must be a **two columns** **tab-delimited** text file, with the features names or IDs in the first column and the group (e.g. the biotype from Ensembl database) in the second column (see :file:human.64.genes.biotypes for an example). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
 
 :guilabel:`Species`
 
@@ -235,15 +235,10 @@ Input Parameters
   To add a replicate click :guilabel:`Add` button. To remove a replicate select it and click :guilabel:`Remove` button. You can modify replicate by using :guilabel:`Edit` button.
 
 :guilabel:`Regions of interest` 
+  !Make this consistent with the new change!
   Path to an annotation file in BED format which contains regions of interest.
-  The BED file should be a tab delimited text file with exactly 6 fields per line:
+  The BED file should be a tab delimited text file with exactly 6 fields per line !refer to bed file format!
   
-  * chromosome
-  * start
-  * end
-  * name
-  * score
-  * strand (+ or -)
 
 :guilabel:`Location` 
   Relative location to analyze 

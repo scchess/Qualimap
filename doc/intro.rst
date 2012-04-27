@@ -29,42 +29,35 @@ Qualimap was tested on GNU Linux and MacOS.
 Requirements
 ------------
 
-Qualimap requires
+Qualimap requires:
 
 * `JAVA <http://www.java.com>`_ runtime version 6 or above.
 * `R <http://www.r-project.org>`_ enviroment version 2.14 or above.
-
-R packages:
-
-* optparse (available from `CRAN <http://cran.r-project.org>`_)
-* Repitools, Rsamtools, GenomicFeatures, rtracklayer (available from `Bioconductor <http://bioconductor.org>`_) 
 
 The JAVA runtime can be downloaded from the `official web-site <http://www.java.com>`_.
 There are prebuilt binaries available for many platforms.
 
 R enviroment can be downloaded from `R project web-site <http://www.r-project.org>`_. 
 
+.. note:: In general the installation of R enivironment is platform-specific and may require additional efforts.
+
 Several Qualimap features are implemented in R, using a number of external packages.
 
-.. note:: If R enviroment is not availble, "Epigenetics" and "RNA-seq" features will be disabled.
+.. note:: If R environment is not available or required R-packages are missing, "Counts QC" and "Clustering" features will be disabled.
 
 Currently Qualimap requires the following R-packages:
  
 * optparse (available from `CRAN <http://cran.r-project.org>`_)
 * Repitools, Rsamtools, GenomicFeatures, rtracklayer (available from `Bioconductor <http://bioconductor.org>`_) 
 
-One can install these packages `manually <www.howtoinstallpackages.com>`_ or use the script from Qualimap distribution.
-
-Provided R is properly installed, the R packages can be installed by executing the script found in the installation folder:
+One can install these packages `manually <www.howtoinstallpackages.com>`_ or by executing the script found in the installation folder:
 
 :samp:`Rscript scripts/installDependencies.r`
-
-.. note:: In general the installation of R packages is platform-specific and may require additional efforts.
 
 Installing Qualimap on Ubuntu
 -----------------------------
 
-This manual is specific for Ubuntu(Debian) Linux distribution, however with slight differences this can be applied for other Linux systems. 
+This manual is specific for Ubuntu(Debian) Linux distribution, however with slight differences this can be applied for other GNU Linux systems. 
 
 Install JAVA
 ^^^^^^^^^^^^
@@ -76,38 +69,15 @@ It is possible to use openjdk:
 Install R
 ^^^^^^^^^
 
-The R latest version can be installed from public repos.
-
-However, the repos must be added to the sources file. Open sources.list:
-
-:samp:`sudo gedit /etc/apt/sources.list`
-
-Add the following line:
-
-:samp:`deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu <name.of.your.distribution>/`
-
-List of cran mirrors can be found `here <http://cran.r-project.org/mirrors.html>`_
-
-Here is an example for Ubuntu 10.04 (Lucid):
-
-:samp:`deb http://cran.stat.ucla.edu/bin/linux/ubuntu lucid/`
-
-Then Install R:
+The R latest version can be installed from public repos:
 
 :samp:`sudo apt-get update`  
 
 :samp:`sudo apt-get install r-base-core`
 
-If you don't have the public key for the mirror add it:
+You need R version 2.14 or above. This can be checked with the following command:
 
-:samp:`gpg --keyserver subkeys.pgp.net --recv-key <required.key>`
-
-:samp:`gpg -a --export <required.key> | sudo apt-key add -`
-
-More details available here:
- 
-    http://cran.r-project.org/bin/linux/ubuntu/README
-
+:samp:`Rscript --version`
 
 .. note:: Alternatively it is possible to build R enviroment directly from sources downloaded from r-project.org.
 
@@ -121,7 +91,7 @@ Some packages depend on external libraries, so you might need to install them ei
 :samp:`sudo apt-get install libcurl4-openssl-dev`
 
 
-You can install required packages manually or use special script from Qualimap package:
+You can install required packages manually or use special script from Qualimap installation folder:
 
 :samp:`sudo Rscript $QUALIMAP_HOME/scripts/installDependencies.r`
 
@@ -133,5 +103,9 @@ where :samp:`$QUALIMAP_HOME` is the full path to the Qualimap installation folde
 Citing Qualimap
 ---------------
 
-If you use Qualimap for your research, please cite PAPER
+If you use Qualimap for your research, please cite the following:
+
+*Garcia-Alcalde et al. (2012) "Qualimap: evaluating next generation sequencing aligmnent data", submitted*
+
+
 
