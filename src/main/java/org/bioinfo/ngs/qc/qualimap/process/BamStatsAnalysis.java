@@ -376,6 +376,7 @@ public class BamStatsAnalysis {
 
         long endTime = System.currentTimeMillis();
 
+        logger.println("Total processed windows:" + bamStats.getNumberOfProcessedWindows());
         logger.println("Number of reads: " + numberOfReads);
         logger.println("Number of mapped reads: " + numberOfMappedReads);
         logger.println("Number of valid reads: " + numberOfValidReads);
@@ -449,7 +450,8 @@ public class BamStatsAnalysis {
             double percentageOfInsideMappedReads = (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0;
             outsideBamStats.setPercentageOfInsideMappedReads(percentageOfInsideMappedReads);
             outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
-            outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);logger.println("Computing descriptors for outside regions...");
+            outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);
+            logger.println("Computing descriptors for outside regions...");
             outsideBamStats.setNumberOfPairedReads(numberOfPairedReads);
             outsideBamStats.setPercentageOfPairedReads( (numberOfPairedReads / (double)numberOfReads)*100.0 );
             outsideBamStats.setNumberOfSingletons(numberOfSingletons);
@@ -688,6 +690,7 @@ public class BamStatsAnalysis {
             progress = ((bamStats.getNumberOfProcessedWindows() +
                     outsideBamStats.getNumberOfProcessedWindows()) * 50) / (effectiveNumberOfWindows);
         }
+
     }
     private void finalizeWindow(BamGenomeWindow window, BamStats bamStats,
                                            Map<Long,BamGenomeWindow> openWindows) throws ExecutionException, InterruptedException {
@@ -696,9 +699,18 @@ public class BamStatsAnalysis {
             finalizeWindowResult.get();
 
         }
+
+
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
+
+        // report progress
+        int numProcessedWindows = bamStats.getNumberOfProcessedWindows();
+        if (numProcessedWindows % 50 == 0 && bamStats == this.bamStats) {
+            logger.println("Processed " + numProcessedWindows + " out of " + effectiveNumberOfWindows + " windows...");
+        }
+
         //System.out.println("Time taken to count overlappers: " + timeToCalcOverlappers);
         timeToCalcOverlappers = 0;
         finalizeWindowResult = workerThreadPool.submit( new FinalizeWindowTask(bamStats,window));

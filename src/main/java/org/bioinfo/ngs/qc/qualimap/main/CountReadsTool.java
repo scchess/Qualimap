@@ -156,7 +156,7 @@ public class CountReadsTool extends NgsSmartTool {
             message.append("Result is saved to file ").append(outFile);
         }
 
-        System.err.print(message);
+        System.err.println(message);
 
     }
 

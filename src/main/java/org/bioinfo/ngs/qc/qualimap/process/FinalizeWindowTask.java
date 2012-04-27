@@ -52,7 +52,7 @@ public class FinalizeWindowTask implements Callable {
         }
 
         //long endTime = System.currentTimeMillis();
-        System.out.println("Finalized window " + window.getName() + " of " + bamStats.getNumberOfWindows());
+        //System.out.println("Finalized window " + window.getName() + " of " + bamStats.getNumberOfWindows());
 
         //System.out.println("Finalize window, time taken: " +  (endTime - startTime) );
 
