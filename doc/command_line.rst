@@ -48,7 +48,7 @@ The following command allows to perform BAM QC analysis::
 
 Example::
 
-    ./qualimap bamqc -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.gff --outside-stats
+    ./qualimap bamqc -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_annotations.gff --outside-stats
 
 
 .. _cmdline-countsqc:
@@ -108,7 +108,7 @@ To perform clustering of epigenomic signals use the following command::
 
 Example::
 
-    ./qualimap clustering -sample ~/sample_data/24h-i-medip.bam -control ~/sample_data/24h-i-control.bam -regions ~/sample_data/CpGislands.bed -outdir ~/sample_data/result
+    ./qualimap clustering -sample ~/sample_data/medip.bam -control ~/sample_data/input.bam -regions ~/sample_data/transcripts.bed -outdir ~/sample_data/result
 
 .. _cmdline-counts:
 
@@ -129,7 +129,7 @@ To compute counts from mapping data use the following command::
 
 Example::
 
-    ./qualimap comp-counts -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_anns.bam 
+    ./qualimap comp-counts -bam ~/sample_data/pl.bam -gff ~/sample_data/pl_annotations.gtf
 
 
 

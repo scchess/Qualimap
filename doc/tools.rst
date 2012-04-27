@@ -30,19 +30,19 @@ Compute counts
 
 - Input data:
 
-  - BAM file: `<link!>`. RNA-seq of liver tissue from [Marioni]
+  - BAM file: :file:`liver.bam`. RNA-seq of liver tissue from [Marioni]
 
-  - GTF file: `<link!>`. Human annotation from Ensembl (v. 64)
+  - GTF file: :file:`human.64.gtf`. Human annotation from Ensembl (v. 64)
 
   - Parameters:
 
     - Feature ID: gene_id (to count at the level of genes)
-    - Feature type: exon (to ignore other features like ...!!)
+    - Feature type: exon (to ignore other features like start/end codons)
     - Multimapped reads: uniquely-mapped-reads (to ignore not unique alignments)
 
 - Output:
 
-  - `<link>`. Text file 
+  - :file:`liver.counts`. Two-column tab-delimited text file, with the feature IDs in the first column and the number of counts in the second column.
 
 
 Input
@@ -74,10 +74,10 @@ Input
   The user can select the feature type (value of the third column of the GTF) considered for counting. Other types will be ignored. The application preload the first 1000 lines of the file so a list with possible feature IDs is conveniently provided.
 
 :guilabel:`Output`
-  Path to the file which will contain output.
+  Path to the ouput file.
 
 :guilabel:`Save computation summary`
-  This option controls whether to save overall computation statistics.
+  This option controls whether to save overall computation statistics. !Say where!
 
 
 :guilabel:`Multi-mapped reads`
@@ -94,4 +94,5 @@ Input
 Output
 ^^^^^^
 
+A two-column tab-delimited text file, with the feature IDs in the first column and the number of counts in the second column.
 
