@@ -686,6 +686,7 @@ public class BamStats implements Serializable {
             // insert size
             long insertSize = window.getInsertSizeAcrossReference()[i];
             if (insertSize > 0) {
+                //System.out.println("IS = " + insertSize);
                 updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, insertSize);
             }
         }
@@ -701,6 +702,23 @@ public class BamStats implements Serializable {
 			map.put(key,last);
 		}
 	} */
+
+
+    public void dumpInsertData() {
+
+        try {
+        PrintWriter writer = new PrintWriter( new FileWriter("/home/kokonech/insert_size_dump.txt"));
+
+        for ( double val : insertSizeAcrossReference) {
+            writer.println(val);
+        }
+
+        writer.close();
+        } catch (IOException ex) {
+            System.out.println("Failed to dump insert size data");
+        }
+
+    }
 
     public void updateHistogramValue(long[] cache, HashMap<Long,Long> map, long key){
 		if (key < CACHE_SIZE) {
@@ -725,6 +743,9 @@ public class BamStats implements Serializable {
 
     public void computeHistograms() {
         addCacheDataToMap(insertSizeHistogramCache,insertSizeHistogramMap);
+
+        dumpInsertData();
+
         insertSizeHistogram = computeVectorHistogram(insertSizeHistogramMap);
         medianInsertSize = calcMedianInsertSize(insertSizeHistogram);
         addCacheDataToMap(mappingQualityHistogramCache,mappingQualityHistogramMap);

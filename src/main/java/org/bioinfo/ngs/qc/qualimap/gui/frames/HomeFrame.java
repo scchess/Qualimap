@@ -432,7 +432,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		if(Constants.TYPE_BAM_ANALYSIS_DNA == typeAnalysis || Constants.TYPE_BAM_ANALYSIS_EXOME == typeAnalysis){
 			prefix = "BAM QC: ";
 		} else if (Constants.TYPE_BAM_ANALYSIS_RNA == typeAnalysis){
-			prefix = "Counts: ";
+			prefix = "Counts QC: ";
         }else if (Constants.TYPE_BAM_ANALYSIS_EPI == typeAnalysis) {
             prefix = "Clustering: ";
         }

@@ -17,7 +17,6 @@ public class BamGenomeWindow {
 	protected long start;
 	protected long end;
 	protected long windowSize;
-	protected long numberOfCigarElements;
 
 	// input reads
 	protected long numberOfProcessedReads;
@@ -141,7 +140,6 @@ public class BamGenomeWindow {
 		}
 		
 		// init counters
-		numberOfCigarElements = 0;	
 		numberOfMappedBases = 0;
 		numberOfSequencedBases = 0;
 		numberOfAlignedBases = 0;
@@ -420,8 +418,10 @@ public class BamGenomeWindow {
         meanCoverage = (double) numberOfMappedBases / effectiveWindowLength;
 
 		meanMappingQuality = acumMappingQuality/(double)numberOfMappedBases;
-		meanInsertSize = acumInsertSize/(double)numberOfMappedBases;
-					
+
+        meanInsertSize = acumInsertSize/(double)numberOfProperlyPairedMappedBases;
+
+
 		// ACTG absolute content
 		if(meanCoverage > 0){
 
@@ -504,20 +504,6 @@ public class BamGenomeWindow {
 		this.windowSize = windowSize;
 	}
 	
-	/**
-	 * @return the numberOfCigarElements
-	 */
-	public long getNumberOfCigarElements() {
-		return numberOfCigarElements;
-	}
-	
-	/**
-	 * @param numberOfCigarElements the numberOfCigarElements to set
-	 */
-	public void setNumberOfCigarElements(long numberOfCigarElements) {
-		this.numberOfCigarElements = numberOfCigarElements;
-}
-
 	/**
 	 * @return the numberOfProcessedReads
 	 */
@@ -1116,7 +1102,6 @@ public class BamGenomeWindow {
         numberOfGs += readData.numberOfGs;
         numberOfTs += readData.numberOfTs;
 
-        acumInsertSize += readData.acumInsertSize;
         //correctInsertSizes += readData.correctInsertSizes;
 
 

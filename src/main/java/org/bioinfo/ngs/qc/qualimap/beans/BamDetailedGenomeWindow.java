@@ -11,8 +11,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	private byte[] reference;
 		
 	// coverageData
-	private long[] coverageAcrossReference;
-	private long[] properlyPairedCoverageAcrossReference;
+	private int[] coverageAcrossReference;
+	private int[] properlyPairedCoverageAcrossReference;
 		
 	// quality
 	private long[] mappingQualityAcrossReference;
@@ -57,13 +57,9 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		}
 
         // init arrays
-		coverageAcrossReference = new long[(int)this.windowSize];
-//		properlyPairedCoverageAcrossReference = new long[(int)this.windowSize];
-		for(int i=0; i<this.windowSize; i++){
-			coverageAcrossReference[i] = 0;
-		}
-
-		mappingQualityAcrossReference = new long[(int)this.windowSize];
+		coverageAcrossReference = new int[(int)this.windowSize];
+		properlyPairedCoverageAcrossReference = new int[(int)this.windowSize];
+        mappingQualityAcrossReference = new long[(int)this.windowSize];
 //		sequencingQualityAcrossReference = new int[this.windowSize];
 //		aContentAcrossReference = new long[(int)this.windowSize];
 //		cContentAcrossReference = new long[(int)this.windowSize];
@@ -138,17 +134,30 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 
 				// quality
 				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i] / coverageAtPosition;
-//				System.err.println(properlyPairedCoverageAcrossReference[i]);
+                // insert size
+                //insertSizeAcrossReference[i] = insertSizeAcrossReference[i] / coverageAtPosition;
+//
+                //  System.err.println(properlyPairedCoverageAcrossReference[i]);
 //				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
-				insertSizeAcrossReference[i] = insertSizeAcrossReference[i] / coverageAtPosition;
 
                 sumCoverageSquared += coverageAtPosition*coverageAtPosition;
+
+                //numberOfProperlyPairedMappedBases++;
 				
 			} else {
                 // make it invalid for histogram
-                mappingQualityAcrossReference[i] = -1;
+                //mappingQualityAcrossReference[i] = -1;
                 insertSizeAcrossReference[i] = -1;
             }
+
+            long properlyPairedCoverage = properlyPairedCoverageAcrossReference[i];
+            if (properlyPairedCoverage > 0) {
+                numberOfProperlyPairedMappedBases += properlyPairedCoverage;
+                insertSizeAcrossReference[i] = insertSizeAcrossReference[i] / properlyPairedCoverage;
+            } else {
+                insertSizeAcrossReference[i] = -1;
+            }
+
 		}
 				
 		// compute std coverageData
@@ -176,6 +185,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
             int pos = cell.getPosition();
             int val = cell.getValue();
             insertSizeAcrossReference[pos] += val;
+            properlyPairedCoverageAcrossReference[pos]++;
+            super.acumInsertSize += val;
         }
 
     }
@@ -190,7 +201,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	/**
 	 * @return the coverageAcrossReference
 	 */
-	public long[] getCoverageAcrossReference() {
+	public int[] getCoverageAcrossReference() {
 		return coverageAcrossReference;
 	}
 

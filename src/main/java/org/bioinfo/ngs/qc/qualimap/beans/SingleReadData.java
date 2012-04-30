@@ -12,8 +12,6 @@ public class SingleReadData {
 
     public long numberOfSequencedBases;
     public long numberOfMappedBases;
-    public long numberOfMappedBasesSquared;
-    public long acumInsertSize;
     public long numberOfAs;
     public long numberOfTs;
     public long numberOfCs;
@@ -56,7 +54,6 @@ public class SingleReadData {
     public void acumBase(long relative){
 		numberOfSequencedBases++;
 		numberOfMappedBases++;
-        numberOfMappedBasesSquared++;
         coverageData.add((int)relative);
     }
 
@@ -64,7 +61,6 @@ public class SingleReadData {
     public void acumBase(long relative, char base, long insertSize){
 		numberOfSequencedBases++;
 		numberOfMappedBases++;
-        numberOfMappedBasesSquared++;
 
         // ATCG content
         if(base=='A'){
@@ -118,9 +114,9 @@ public class SingleReadData {
 
 	public void acumInsertSize(long relative, long insertSize){
 		if(insertSize > 0 & insertSize < 5000){
-			acumInsertSize += Math.abs(insertSize);
-		}
-        insertSizeData.add( new Cell((int) relative, (int) Math.abs( insertSize)) );
+			insertSizeData.add( new Cell((int) relative, (int) insertSize) );
+        }
+
     }
 
 }
