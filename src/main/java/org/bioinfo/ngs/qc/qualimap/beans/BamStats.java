@@ -4,15 +4,11 @@ import java.io.*;
 import java.util.*;
 
 import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
-import org.apache.commons.math.stat.descriptive.rank.Median;
-import org.apache.commons.math.stat.descriptive.rank.Percentile;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
-
 
 public class BamStats implements Serializable {
 	private String name;

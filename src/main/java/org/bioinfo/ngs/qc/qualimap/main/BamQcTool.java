@@ -4,6 +4,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
+import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -21,15 +23,18 @@ public class BamQcTool extends NgsSmartTool{
     private int bunchSize;
     private boolean paintChromosomeLimits;
 	private boolean computeOutsideStats;
+    private String genomeToCompare;
 
     static String OPTION_NAME_BAM_FILE = "bam";
     static String OPTION_NAME_GFF_FILE = "gff";
+    static String OPTION_COMPARE_WITH_GENOME_DISTRIBUTION = "gd";
 
 
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
         paintChromosomeLimits = true;
+        genomeToCompare = "";
     }
 
 	@Override
@@ -46,6 +51,8 @@ public class BamQcTool extends NgsSmartTool{
 
 		options.addOption("c", "paint-chromosome-limits", false, "paint chromosome limits inside charts");
 		options.addOption("os", "outside-stats", false, "compute region outside stats (only with -gff option)");
+        options.addOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
+                "(possible values: HUMAN or MOUSE)");
 
 	}
 
@@ -78,6 +85,18 @@ public class BamQcTool extends NgsSmartTool{
 
         bunchSize = commandLine.hasOption("bs") ?
                 Integer.parseInt(commandLine.getOptionValue("bs")) : 1000;
+
+        if (commandLine.hasOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
+            String val = commandLine.getOptionValue(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION);
+            if (val.equalsIgnoreCase("human")) {
+                genomeToCompare = BamStatsAnalysis.HUMAN_GENOME_ID;
+            } else if (val.equalsIgnoreCase("mouse")) {
+                genomeToCompare = BamStatsAnalysis.MOUSE_GENOME_ID;
+            } else {
+                throw new ParseException("Unknown genome \"" + val+ "\", please use HUMAN or MOUSE");
+
+            }
+        }
 
 
 		// reporting
@@ -138,6 +157,11 @@ public class BamQcTool extends NgsSmartTool{
 		BamQCRegionReporter reporter = new BamQCRegionReporter();
 		reporter.setPaintChromosomeLimits(paintChromosomeLimits);
         reporter.setChromosomeFilePath(outdir + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES);
+        if (!genomeToCompare.isEmpty()) {
+            reporter.setGenomeGCContentName(genomeToCompare);
+        }
+
+
         BamAnalysisThread.prepareInputDescription(reporter, bamQC, paintChromosomeLimits);
 
 		// save stats
@@ -155,13 +179,15 @@ public class BamQcTool extends NgsSmartTool{
         reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
         tabProperties.setReporter(reporter);
 
-
         if(selectedRegionsAvailable && computeOutsideStats){
 
             BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
             outsideReporter.setNamePostfix(" (outside of regions)");
             outsideReporter.setChromosomeFilePath(outdir  + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
             outsideReporter.setPaintChromosomeLimits(paintChromosomeLimits);
+            if (!genomeToCompare.isEmpty()) {
+                outsideReporter.setGenomeGCContentName(genomeToCompare);
+            }
             BamAnalysisThread.prepareInputDescription(outsideReporter, bamQC, paintChromosomeLimits);
 
 

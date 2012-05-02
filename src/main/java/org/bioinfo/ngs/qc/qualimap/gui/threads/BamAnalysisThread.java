@@ -1,6 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimerTask;
@@ -118,9 +117,7 @@ public class BamAnalysisThread extends Thread {
 			reporter.setPaintChromosomeLimits( bamDialog.getDrawChromosomeLimits() );
             if (bamDialog.compareGcContentToPrecalculated()) {
                 String genomeName = bamDialog.getGenomeName();
-                String path = bamDialog.getQualimapHome()  + File.separator +
-                        BamStatsAnalysis.getGcContentFileMap().get(genomeName);
-                reporter.setPathToGenomeGCContent(genomeName, path);
+                reporter.setGenomeGCContentName(genomeName);
             }
 
 			bamDialog.getProgressStream().setText("   text report...");
@@ -147,9 +144,7 @@ public class BamAnalysisThread extends Thread {
 
                 if (bamDialog.compareGcContentToPrecalculated()) {
                     String genomeName = bamDialog.getGenomeName();
-                    String path = bamDialog.getQualimapHome()  + File.separator +
-                        BamStatsAnalysis.getGcContentFileMap().get(genomeName);
-                    outsideReporter.setPathToGenomeGCContent(genomeName, path);
+                    outsideReporter.setGenomeGCContentName(genomeName);
                 }
 
 				// save stats

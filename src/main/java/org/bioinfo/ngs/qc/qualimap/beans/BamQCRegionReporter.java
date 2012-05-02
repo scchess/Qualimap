@@ -10,6 +10,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYBoxAnnotation;
 import org.jfree.chart.axis.*;
@@ -44,8 +45,7 @@ public class BamQCRegionReporter implements Serializable {
         return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
     }
 
-    public void setPathToGenomeGCContent(String genomeName, String pathToGenomeGCContent) {
-        this.pathToGenomeGCContent = pathToGenomeGCContent;
+    public void setGenomeGCContentName(String genomeName) {
         this.genomeGCContentName = genomeName;
     }
 
@@ -63,7 +63,7 @@ public class BamQCRegionReporter implements Serializable {
 	tReferenceNumber, nReferenceNumber, numBasesInsideRegions;
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
-	gcPercent, atPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
+	gcPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
     medianInsertSize,
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
@@ -85,7 +85,6 @@ public class BamQCRegionReporter implements Serializable {
 
     private Map<String,String> warnings;
     String namePostfix;
-    String pathToGenomeGCContent;
     String genomeGCContentName;
     String chromosomeFilePath;
     int numSelectedRegions;
@@ -95,8 +94,8 @@ public class BamQCRegionReporter implements Serializable {
         inputDataKeeper = new StatsKeeper();
         summaryStatsKeeper = null;
         chromosomeStatsKeeper = null;
-        pathToGenomeGCContent = "";
         chromosomeFilePath = "";
+        genomeGCContentName = "";
     }
 
 
@@ -237,7 +236,6 @@ public class BamQCRegionReporter implements Serializable {
 			this.nReferenceNumber = bamStats.getNumberOfNsInReference();
 			this.nReferencePercent = bamStats.getMeanNRelativeContentPerWindowInReference();
     		this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();
-			this.atPercent = bamStats.getMeanAtRelativeContentPerWindowInReference();
 		}
 
 		// globals
@@ -419,12 +417,6 @@ public class BamQCRegionReporter implements Serializable {
 		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
 		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
 		coverageHistogram.render();
-		// TODO: move this code to render() method? Update: remove commented code after May 1, 2012
-        /*if (bamStats.getCoverageHistogram().getSize() > 0) {
-            double lower = bamStats.getCoverageHistogram().get(0).getX();
-            double upper = bamStats.getCoverageHistogram().get(bamStats.getCoverageHistogram().getSize()-1).getX();
-            coverageHistogram.getChart().getXYPlot().getDomainAxis().setRange(lower,upper);
-        }*/
 
         charts.add( new QChart(bamStats.getName() + "_coverage_histogram.png",
 				coverageHistogram.getChart()));
@@ -488,7 +480,7 @@ public class BamQCRegionReporter implements Serializable {
         BamQCChart gcContentHistChart = new BamQCChart(Constants.PLOT_TITLE_READS_GC_CONTENT, subTitle,
                 "GC Content (%)", "Fraction of reads");
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
-        if (!pathToGenomeGCContent.isEmpty()) {
+        if (!genomeGCContentName.isEmpty()) {
             XYVector gcContentHist = getGenomeGcContentHistogram();
             if (gcContentHist.getSize() != 0) {
                 gcContentHistChart.addSeries(genomeGCContentName, gcContentHist, new Color(255, 10, 20, 255));
@@ -984,8 +976,12 @@ public class BamQCRegionReporter implements Serializable {
     public XYVector getGenomeGcContentHistogram() {
         XYVector res = new XYVector();
         try {
-            // TODO: add precalculated genome data
-            BufferedReader reader = new BufferedReader( new FileReader(pathToGenomeGCContent));
+
+            String pathToGC = Constants.pathResources + File.separator +
+                    BamStatsAnalysis.getGcContentFileMap().get(genomeGCContentName);
+
+            BufferedReader reader =  new BufferedReader(
+                    new InputStreamReader( getClass().getResourceAsStream( pathToGC ) ) );
 
             String line;
 
@@ -1011,21 +1007,6 @@ public class BamQCRegionReporter implements Serializable {
                     index += 1;
                 }
             }
-//            while ( (line = reader.readLine()) != null ) {
-//                if (line.isEmpty() || line.startsWith("#")) {
-//                    continue;
-//                }
-//                String[] vals = line.split(" : ");
-//                double index = Double.parseDouble(vals[0].trim()) / 10.0;
-//                double value = Double.parseDouble(vals[1].trim());
-//                // skip the zero value
-//                if (index == 0.0) {
-//                    continue;
-//                }
-//                res.addItem(new XYItem(index, value));
-//
-//            }
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1033,10 +1014,6 @@ public class BamQCRegionReporter implements Serializable {
         }
 
         return res;
-    }
-
-    public String getChromosomeFilePath() {
-        return chromosomeFilePath;
     }
 
     public void setChromosomeFilePath(String chromosomeFilePath) {
@@ -1108,8 +1085,6 @@ public static void generateBamQcProperties(Properties prop, BamQCRegionReporter 
 			prop.setProperty("nNumber", reporter.getnNumber().toString());
 			prop.setProperty("nPercent", reporter.getnPercent().toString());
 			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
-			//TODO: add relative content?
-			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
 
 			// coverageData
 			prop.setProperty("meanCoverage", reporter.getMeanCoverage().toString());

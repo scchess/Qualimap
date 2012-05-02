@@ -3,8 +3,6 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.math.util.MathUtils;
 
-import javax.swing.*;
-
 
 public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	// reference sequence	
@@ -16,9 +14,10 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	// quality
 	private long[] mappingQualityAcrossReference;
 			
+
 	// A content
 	private long[] aContentAcrossReference;
-	
+
 	// C content
 	private long[] cContentAcrossReference;
 
@@ -35,7 +34,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	private double[] gcContentAcrossReference;
 		
 	// AT content
-//	private double[] atContentAcrossReference;
+    //	private double[] atContentAcrossReference;
 
     // required for calculation of global coverageData
     private long sumCoverageSquared;
@@ -75,7 +74,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	@Override
 	protected void acumProperlyPairedBase(long relative){
 		super.acumProperlyPairedBase(relative);
-		//TODO: why collect it?
 		//properlyPairedCoverageAcrossReference[(int)relative] = properlyPairedCoverageAcrossReference[(int)relative] + 1;
 	}
 
@@ -166,13 +164,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
     }
 
     /**
-	 * @return the reference
-	 */
-	public byte[] getReference() {
-		return reference;
-	}
-
-	/**
 	 * @return the coverageAcrossReference
 	 */
 	public int[] getCoverageAcrossReference() {
@@ -189,52 +180,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	public long[] getMappingQualityAcrossReference() {
 		return mappingQualityAcrossReference;
 	}
-
-	//TODO: optimize it.
-	// Some data is not even used. Why calculate it?
-
-    /**
-	 * @return the aContentAcrossReference
-	 */
-	public long[] getaContentAcrossReference() {
-		return aContentAcrossReference;
-	}
-
-	/**
-	 * @return the cContentAcrossReference
-	 */
-	public long[] getcContentAcrossReference() {
-		return cContentAcrossReference;
-	}
-
-	/**
-	 * @return the gContentAcrossReference
-	 */
-	public long[] getgContentAcrossReference() {
-		return gContentAcrossReference;
-	}
-
-	/**
-	 * @return the tContentAcrossReference
-	 */
-	public long[] gettContentAcrossReference() {
-		return tContentAcrossReference;
-	}
-
-	/**
-	 * @return the nContentAcrossReference
-	 */
-	public long[] getnContentAcrossReference() {
-		return nContentAcrossReference;
-	}
-
-	/**
-	 * @return the gcContentAcrossReference
-	 */
-	public double[] getGcContentAcrossReference() {
-		return gcContentAcrossReference;
-	}
-
 
 
 
