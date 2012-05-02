@@ -1096,12 +1096,14 @@ public class BamGenomeWindow {
         numberOfAlignedBases += readData.numberOfAlignedBases;
         numberOfMappedBases += readData.numberOfMappedBases;
         numberOfSequencedBases += readData.numberOfSequencedBases;
+        numberOfProperlyPairedMappedBases += readData.numberOfProperlyPairedBases;
 
         numberOfAs += readData.numberOfAs;
         numberOfCs += readData.numberOfCs;
         numberOfGs += readData.numberOfGs;
         numberOfTs += readData.numberOfTs;
 
+        acumInsertSize += readData.acumInsertSize;
         //correctInsertSizes += readData.correctInsertSizes;
 
 

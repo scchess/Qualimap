@@ -414,7 +414,7 @@ public class BamQCRegionReporter implements Serializable {
 
 		// coverageData histogram
 		BamQCHistogramChart coverageHistogram = new BamQCHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
-                subTitle, "Coverage (X)", "Number of reads",
+                subTitle, "Coverage (X)", "Number of genomic locations",
                 bamStats.getBalancedCoverageHistogram(), bamStats.getBalancedCoverageBarNames());
 		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
 		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
@@ -432,7 +432,7 @@ public class BamQCRegionReporter implements Serializable {
 		// coverageData ranged histogram
 		BamQCXYHistogramChart coverageRangedHistogram =
                 new BamQCXYHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
-                subTitle, "Coverage (X)", "Number of reads");
+                subTitle, "Coverage (X)", "Number of genomic locations");
 		coverageRangedHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
 		coverageRangedHistogram.setNumberOfBins(50);
 		coverageRangedHistogram.zoom(maxValue);
@@ -521,7 +521,7 @@ public class BamQCRegionReporter implements Serializable {
 		// mapping quality histogram
 		BamQCXYHistogramChart mappingQualityHistogram =
                 new BamQCXYHistogramChart(Constants.PLOT_TITLE_MAPPING_QUALITY_HISTOGRAM,
-                        subTitle, "Mapping quality", "Number of reads");
+                        subTitle, "Mapping quality", "Number of genomic locations");
 		mappingQualityHistogram.addHistogram("mapping quality", bamStats.getMappingQualityHistogram(), Color.blue);
 		mappingQualityHistogram.setNumberOfBins(50);
         mappingQualityHistogram.render();
@@ -841,7 +841,7 @@ public class BamQCRegionReporter implements Serializable {
                 sdf.formatLong(getNumSingletons()) + "/"
                         + sdf.formatPercentage(getPercentSingletons()));
 
-        globals.addRow("Read min/max/mean size",
+        globals.addRow("Read min/max/mean length",
                 sdf.formatLong(getReadMinSize()) + "/"
                         + sdf.formatLong(getReadMaxSize()) + "/"
                         + sdf.formatDecimal(getReadMeanSize()));
@@ -878,7 +878,7 @@ public class BamQCRegionReporter implements Serializable {
         {
             StatsKeeper.Section insertSizeSection = new StatsKeeper.Section("Insert size" + postfix);
             insertSizeSection.addRow("Mean", sdf.formatDecimal(meanInsertSize));
-            insertSizeSection.addRow("Median Estimation", sdf.formatDecimal(medianInsertSize));
+            insertSizeSection.addRow("Median", sdf.formatDecimal(medianInsertSize));
             summaryStatsKeeper.addSection(insertSizeSection);
         }
     }

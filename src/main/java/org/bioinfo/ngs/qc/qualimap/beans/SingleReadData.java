@@ -17,6 +17,8 @@ public class SingleReadData {
     public long numberOfCs;
     public long numberOfGs;
     public long numberOfAlignedBases;
+    public long acumInsertSize;
+    public long numberOfProperlyPairedBases;
 
     public static class Cell {
         int position;
@@ -36,7 +38,6 @@ public class SingleReadData {
 
     public List<Integer> coverageData;
     public List<Cell> mappingQualityData;
-    public List<Cell> insertSizeData;
 
     long windowStart;
 
@@ -44,19 +45,11 @@ public class SingleReadData {
         this.windowStart = windowStart;
         coverageData = new ArrayList<Integer>();
         mappingQualityData = new ArrayList<Cell>();
-        insertSizeData = new ArrayList<Cell>();
     }
 
     public long getWindowStart() {
         return windowStart;
     }
-
-    public void acumBase(long relative){
-		numberOfSequencedBases++;
-		numberOfMappedBases++;
-        coverageData.add((int)relative);
-    }
-
 
     public void acumBase(long relative, char base, long insertSize){
 		numberOfSequencedBases++;
@@ -73,17 +66,17 @@ public class SingleReadData {
             acumG(relative);
         }
 
-        if ( insertSize != -1 ){
+        /*if ( insertSize != -1 ){
             acumProperlyPairedBase(relative);
-        }
+        }*/
 
         coverageData.add((int)relative);
     }
 
 
-	public void acumProperlyPairedBase(long relative){
+	/*public void acumProperlyPairedBase(long relative){
         //properlyPairedCoverageAcrossReference[(int)relative] = properlyPairedCoverageAcrossReference[(int)relative] + 1;
-	}
+	}*/
 
 	public void acumA(long relative){
 		numberOfAs++;
@@ -114,7 +107,9 @@ public class SingleReadData {
 
 	public void acumInsertSize(long relative, long insertSize){
 		if(insertSize > 0 & insertSize < 5000){
-			insertSizeData.add( new Cell((int) relative, (int) insertSize) );
+            acumInsertSize += insertSize;
+            numberOfProperlyPairedBases++;
+			//insertSizeData.add( new Cell((int) relative, (int) insertSize) );
         }
 
     }

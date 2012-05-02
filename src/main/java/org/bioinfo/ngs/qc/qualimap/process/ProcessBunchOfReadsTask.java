@@ -411,7 +411,6 @@ public class ProcessBunchOfReadsTask implements Callable {
 
             long relative = alignmentPos - windowStart;
             boolean validAlignment = relative >= 0 && relative < windowSize;
-            // TODO: check on every iteration? -> we can do it better! :)
             if (analyzeRegions && validAlignment) {
                 boolean insideOfRegion = window.getSelectedRegions().get((int)relative);
                 if (insideOfRegion) {

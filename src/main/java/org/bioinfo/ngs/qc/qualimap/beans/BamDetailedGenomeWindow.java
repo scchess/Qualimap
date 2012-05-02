@@ -12,8 +12,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		
 	// coverageData
 	private int[] coverageAcrossReference;
-	private int[] properlyPairedCoverageAcrossReference;
-		
+
 	// quality
 	private long[] mappingQualityAcrossReference;
 			
@@ -37,9 +36,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		
 	// AT content
 //	private double[] atContentAcrossReference;
-		
-	// insert size
-	private long[] insertSizeAcrossReference;
 
     // required for calculation of global coverageData
     private long sumCoverageSquared;
@@ -58,8 +54,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 
         // init arrays
 		coverageAcrossReference = new int[(int)this.windowSize];
-		properlyPairedCoverageAcrossReference = new int[(int)this.windowSize];
-        mappingQualityAcrossReference = new long[(int)this.windowSize];
+		mappingQualityAcrossReference = new long[(int)this.windowSize];
 //		sequencingQualityAcrossReference = new int[this.windowSize];
 //		aContentAcrossReference = new long[(int)this.windowSize];
 //		cContentAcrossReference = new long[(int)this.windowSize];
@@ -68,8 +63,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 //		nContentAcrossReference = new long[(int)this.windowSize];
 //		gcContentAcrossReference = new double[(int)this.windowSize];
 //		atContentAcrossReference = new double[(int)this.windowSize];
-		insertSizeAcrossReference = new long[(int)this.windowSize];
-		
+
 	}
 	
 	@Override
@@ -119,7 +113,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	@Override
 	protected void acumInsertSize(long relative, long insertSize){
 		super.acumInsertSize(relative,insertSize);
-		insertSizeAcrossReference[(int)relative] = insertSizeAcrossReference[(int)relative] + Math.abs(insertSize);
 	}
 	
 	@Override
@@ -135,10 +128,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 				// quality
 				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i] / coverageAtPosition;
                 // insert size
-                //insertSizeAcrossReference[i] = insertSizeAcrossReference[i] / coverageAtPosition;
-//
                 //  System.err.println(properlyPairedCoverageAcrossReference[i]);
-//				insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
+                //  insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
 
                 sumCoverageSquared += coverageAtPosition*coverageAtPosition;
 
@@ -146,16 +137,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 				
 			} else {
                 // make it invalid for histogram
-                //mappingQualityAcrossReference[i] = -1;
-                insertSizeAcrossReference[i] = -1;
-            }
-
-            long properlyPairedCoverage = properlyPairedCoverageAcrossReference[i];
-            if (properlyPairedCoverage > 0) {
-                numberOfProperlyPairedMappedBases += properlyPairedCoverage;
-                insertSizeAcrossReference[i] = insertSizeAcrossReference[i] / properlyPairedCoverage;
-            } else {
-                insertSizeAcrossReference[i] = -1;
+                 mappingQualityAcrossReference[i] = -1;
             }
 
 		}
@@ -179,14 +161,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
             int val = cell.getValue();
             mappingQualityAcrossReference[pos] += val;
             super.acumMappingQuality += val;
-        }
-
-        for (SingleReadData.Cell cell : readData.insertSizeData) {
-            int pos = cell.getPosition();
-            int val = cell.getValue();
-            insertSizeAcrossReference[pos] += val;
-            properlyPairedCoverageAcrossReference[pos]++;
-            super.acumInsertSize += val;
         }
 
     }
@@ -261,12 +235,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		return gcContentAcrossReference;
 	}
 
-	/**
-	 * @return the insertSizeAcrossReference
-	 */
-	public long[] getInsertSizeAcrossReference() {
-		return insertSizeAcrossReference;
-	}
 
 
 

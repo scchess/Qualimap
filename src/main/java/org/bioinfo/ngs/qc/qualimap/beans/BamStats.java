@@ -4,6 +4,9 @@ import java.io.*;
 import java.util.*;
 
 import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
+import org.apache.commons.math.stat.descriptive.rank.Median;
+import org.apache.commons.math.stat.descriptive.rank.Percentile;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
@@ -193,11 +196,14 @@ public class BamStats implements Serializable {
 	private double meanInsertSize;
 	private double meanInsertSizePerWindow;
     private double medianInsertSize;
+    private double stdInsertSize;
     private double modeEstimation;
 	private List<Double> insertSizeAcrossReference;
 	private XYVector insertSizeHistogram;
+    private ArrayList<Integer> insertSizeArray;
 	private HashMap<Long,Long> insertSizeHistogramMap;
     private long[] insertSizeHistogramCache;
+    private static double DEVIATIONS;
 
     // unique read starts
     long[] uniqueReadStartsArray;
@@ -317,6 +323,7 @@ public class BamStats implements Serializable {
 		insertSizeAcrossReference = new ArrayList<Double>(numberOfWindows);
 		insertSizeHistogramMap = new HashMap<Long,Long>(numberOfWindows);
         insertSizeHistogramCache = new long[CACHE_SIZE];
+        insertSizeArray = new ArrayList<Integer>();
 
         // reads
         readsAsData = new ArrayList<Long>();
@@ -684,11 +691,11 @@ public class BamStats implements Serializable {
 			    updateHistogramValue(mappingQualityHistogramCache, mappingQualityHistogramMap, quality);
             }
             // insert size
-            long insertSize = window.getInsertSizeAcrossReference()[i];
+            /*long insertSize = window.getInsertSizeAcrossReference()[i];
             if (insertSize > 0) {
                 //System.out.println("IS = " + insertSize);
                 updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, insertSize);
-            }
+            }*/
         }
 	}
 
@@ -704,7 +711,7 @@ public class BamStats implements Serializable {
 	} */
 
 
-    public void dumpInsertData() {
+    /*public void dumpInsertData() {
 
         try {
         PrintWriter writer = new PrintWriter( new FileWriter("/home/kokonech/insert_size_dump.txt"));
@@ -718,7 +725,7 @@ public class BamStats implements Serializable {
             System.out.println("Failed to dump insert size data");
         }
 
-    }
+    }*/
 
     public void updateHistogramValue(long[] cache, HashMap<Long,Long> map, long key){
 		if (key < CACHE_SIZE) {
@@ -742,16 +749,12 @@ public class BamStats implements Serializable {
 
 
     public void computeHistograms() {
-        addCacheDataToMap(insertSizeHistogramCache,insertSizeHistogramMap);
 
-        dumpInsertData();
-
-        insertSizeHistogram = computeVectorHistogram(insertSizeHistogramMap);
-        medianInsertSize = calcMedianInsertSize(insertSizeHistogram);
         addCacheDataToMap(mappingQualityHistogramCache,mappingQualityHistogramMap);
         mappingQualityHistogram = computeVectorHistogram(mappingQualityHistogramMap);
-
         addCacheDataToMap(coverageHistogramCache, coverageHistogramMap);
+
+        computeInsertSizeHistogram();
         computeCoverageHistogram();
         computeUniqueReadStartsHistogram();
         computeGCContentHistogram();
@@ -907,6 +910,36 @@ public class BamStats implements Serializable {
         }
 
     }
+
+    private void computeInsertSizeHistogram() {
+
+
+        Collections.sort(insertSizeArray);
+
+        int size = insertSizeArray.size();
+        int medianIndex =  size / 2;
+        int percentile75Index = size * 3/ 4;
+
+        medianInsertSize = insertSizeArray.get(medianIndex);
+
+        double border = insertSizeArray.get(percentile75Index)*2;
+
+        for (int val : insertSizeArray) {
+            if (val < border) {
+                updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, (long) val);
+            }
+        }
+
+        addCacheDataToMap(insertSizeHistogramCache,insertSizeHistogramMap);
+        insertSizeHistogram = computeVectorHistogram(insertSizeHistogramMap);
+
+        /*medianInsertSize = calcMedianInsertSize(insertSizeHistogram);*/
+
+
+
+
+    }
+
 
 	private void computeCoverageHistogram(){
 
@@ -3105,5 +3138,11 @@ public class BamStats implements Serializable {
 
     public double getMedianInsertSize() {
         return medianInsertSize;
+    }
+
+    public void updateInsertSizeHistogram(int insertSize) {
+        if (insertSize > 0 ) {
+            insertSizeArray.add(insertSize);
+        }
     }
 }

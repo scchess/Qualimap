@@ -120,14 +120,17 @@ public class BamStatsAnalysis {
 
     static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Sequence is missing";
 
+    public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
+    public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
+
     private static Map<String,String> genomeGcContentMap;
 
     public static synchronized Map<String, String> getGcContentFileMap() {
 
         if (genomeGcContentMap == null) {
             genomeGcContentMap = new HashMap<String,String>();
-            genomeGcContentMap.put("HUMAN (hg19)", "species/human.hg19.gc_histogram.txt");
-            genomeGcContentMap.put("MOUSE (mm9)", "species/mouse.mm9.gc_histogram.txt");
+            genomeGcContentMap.put(HUMAN_GENOME_ID, "species/human.hg19.gc_histogram.txt");
+            genomeGcContentMap.put(MOUSE_GENOME_ID, "species/mouse.mm9.gc_histogram.txt");
         }
 
         return genomeGcContentMap;
@@ -282,8 +285,11 @@ public class BamStatsAnalysis {
 				if(read.getReadUnmappedFlag()) {
                     continue;
                 }
+
+                int insertSize = 0;
                 if (read.getReadPairedFlag()) {
                     numberOfPairedReads++;
+                    insertSize = read.getInferredInsertSize();
                     if (read.getMateUnmappedFlag()) {
                         numberOfSingletons++;
                     }
@@ -305,15 +311,20 @@ public class BamStatsAnalysis {
                         numberOfMappedReads++;
                         read.setAttribute(Constants.READ_IN_REGION, 1);
                         readStartsHistogram.update(position);
+                        bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
                         numberOfOutsideMappedReads++;
                         read.setAttribute(Constants.READ_IN_REGION, 0);
                         readStartsHistogramOutside.update(position);
+                        if (computeOutsideStats) {
+                            outsideBamStats.updateInsertSizeHistogram(insertSize);
+                        }
                     }
                 } else {
                     numberOfMappedReads++;
                     read.setAttribute(Constants.READ_IN_REGION, 1);
                     readStartsHistogram.update(position);
+                    bamStats.updateInsertSizeHistogram(insertSize);
                 }
 
                 timeToCalcOverlappers += System.currentTimeMillis() - findOverlappersStart;
