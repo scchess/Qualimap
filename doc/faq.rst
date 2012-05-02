@@ -65,12 +65,3 @@ Analysis is finished when all windows are processed.
 |
 
 
-Working with annotation files
------------------------------
-
-**Q**: *I use an annotation file and the output I obtain does not make sense*
-
-**A**: There maybe several reasons:
-
-  1. sadfdsa
-  2. sdfgds

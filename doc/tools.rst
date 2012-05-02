@@ -25,14 +25,14 @@ Compute counts
 
 .. _example-compute-counts:
 
-**Example**: Counts per gene of an Human RNA-seq study.
-^^^^^^^^^^^^
+Example
+^^^^^^^
 
 - Input data:
 
-  - BAM file: :file:`liver.bam`. RNA-seq of liver tissue from [Marioni]
+  - BAM file: `liver.bam <http://qualimap.bioinfo.cipf.es/samples/counts/liver.bam>`_. RNA-seq of liver tissue from `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_
 
-  - GTF file: :file:`human.64.gtf`. Human annotation from Ensembl (v. 64)
+  - GTF file: `human.64.gtf <http://qualimap.bioinfo.cipf.es/samples/annotations/human.64.gtf>`_ . Human annotation from Ensembl (v. 64)
 
   - Parameters:
 
@@ -42,7 +42,7 @@ Compute counts
 
 - Output:
 
-  - :file:`liver.counts`. Two-column tab-delimited text file, with the feature IDs in the first column and the number of counts in the second column.
+  - `liver.counts <http://qualimap.bioinfo.cipf.es/samples/counts/liver.counts>`_. Two-column tab-delimited text file, with the feature IDs in the first column and the number of counts in the second column.
 
 
 Input

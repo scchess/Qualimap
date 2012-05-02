@@ -48,7 +48,11 @@ The following command allows to perform BAM QC analysis::
 
 Example (data available :ref:`here<bam-samples>`)::
 
-    qualimap bamqc -bam alignments/Plasmodium-falciparum-3D7_RNASeq.bam -gff annotations/Plasmodium-falciparum-3D7.gff --outside-stats
+    qualimap bamqc -bam alignments/align.bam -gff annotations/annot.gff --outside-stats
+
+
+.. !!FIX!!qualimap bamqc -bam alignments/Plasmodium-falciparum-3D7_RNASeq.bam -gff annotations/Plasmodium-falciparum-3D7.gff --outside-stats
+
 
 .. _cmdline-countsqc:
 

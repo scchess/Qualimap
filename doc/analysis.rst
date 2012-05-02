@@ -15,13 +15,13 @@ In addition, it is possible to provide an annotation file so the results are com
 To start a new BAM QC analysis activate main menu item :menuselection:`File --> New Analysis --> BAM QC`.
 
 
-Examples
-^^^^^^^^
+Example
+^^^^^^^
 
+- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
 
-- `Whole-genome sequencing <plasmodium/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
-
-- `RNA-seq <plasmodium_RNA-seq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
+.. !!FIX!!- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/plasm/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
+.. - `RNA-seq <http://qualimap.bioinfo.cipf.es/samples/plasm_RNASeq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
 
 - See the :ref:`Sample data <samples>` section for more details about the data used in the examples.
 
@@ -56,7 +56,7 @@ Advanced parameters
   Number of **windows** used to **split** the reference **genome**. This value is used for computing the graphs that plot information across the reference. Basically, reads falling in the same window are aggregated in the same bin. The higher the number, the bigger the resolution of the plots but also longer time will be used to process the data. By default 400 windows are used.
 
 :guilabel:`Number of Threads`
-  In order to speed up the computation, the BAM QC analysis **computation** can be performed **in parallel** on a multicore system using the given number of threads. More information on the paralization of qualimap can be found `here <poner>`_. The default number of threads equals number of available processors.
+  In order to speed up the computation, the BAM QC analysis **computation** can be performed **in parallel** on a multicore system using the given number of threads. More information on the parallelization of qualimap can be found in :ref:`FAQ <faq>`. The default number of threads equals number of available processors.
 
 :guilabel:`Reads per Chunk`
   In order to **reduce the load of I/O**, reads are analyzed in chunks. Each chunk contains the selected number of reads which will be loaded into memore and analyzed by a single thread. Smaller numbers may result in lower performance, but also the memory consumption will be reduced. The default value is 1000 reads.
@@ -89,7 +89,7 @@ Output
 
   Provides a visual way of knowing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as in this example:
 
-  If I aim a coverage rate of **at least 10X** (*x*-axis), how much of my reference (*y*-axis) will be considered? The answer to this question in the case of the whole-genome sequencing `provided example <plasmodium/qualimapReport.html#genome_coverage_quotes.png>`_ is **~86%**.
+If one aims a coverage rate of **at least 25X** (*x*-axis), how much of reference (*y*-axis) will be considered? The answer to this question in the case of the whole-genome sequencing `provided example <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html#genome_coverage_quotes.png>`_ is **~83%**.
 
 :guilabel:`Mapped Reads Nucleotide Content` 
 
@@ -133,8 +133,8 @@ For assesing this analysis just activate from the main menu :menuselection:`File
 Example
 ^^^^^^^
 
-- `RNA-seq count data <count-data/qualimapReport.html>`_. This report was produced using the counts from the RNA-seq of *Homo sapiens* kidney and liver samples [Marioni]_.
-- These counts can be downloaded from `here <webpage>`_ or generated using the :ref:`compute-counts` tool.
+- `RNA-seq count data <http://qualimap.bioinfo.cipf.es/samples/counts_result/qualimapReport.html>`_. This report was produced using the counts from the RNA-seq of *Homo sapiens* kidney and liver samples [Marioni]_.
+- These counts can be downloaded from :ref:`here <counts-samples>` or generated using the :ref:`compute-counts` tool.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
@@ -161,7 +161,7 @@ Input Parameters
 
 :guilabel:`Group File`
 
-  **Optional**. File containing a classification of the features of the count files. It must be a **two columns** **tab-delimited** text file, with the features names or IDs in the first column and the group (e.g. the biotype from Ensembl database) in the second column (see :file:human.64.genes.biotypes for an example). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
+  **Optional**. File containing a classification of the features of the count files. It must be a **two columns** **tab-delimited** text file, with the features names or IDs in the first column and the group (e.g. the biotype from Ensembl database) in the second column (see `human.64.genes.biotypes <http://qualimap.bioinfo.cipf.es/samples/counts/human.64.genes.biotypes>`_ for an example). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
 
 :guilabel:`Species`
 
@@ -181,7 +181,7 @@ Global Plots
   *  The curves are associated to the left *y*-axis. They represent the number of detected features at each of the sequencing depths in the *x*-axis. By "detected features" we refer to features with more than k counts, where k is the *Count threshold* selected by the user.
   * The bars are associated to the right *y*-axis. They represent the number of newly detected features when increasing the sequencing depth in one million reads at each sequencing depth value.
   
-  An example for this plot can be seen in `<rna-seq-example/qualimapReport.html#GlobalSaturation.png>`_. 
+  An example for this plot can be seen `here <http://qualimap.bioinfo.cipf.es/samples/counts_result/qualimapReport.html#GlobalSaturation.png>`_. 
 
   When a **Group File** is **provided** by the user or chosen from those supplied by Qualimap, a series of **plots** are **additionally generated**:
 
