@@ -24,22 +24,25 @@ To show available tools use command::
 BAM QC
 ------
 
+
+
 The following command allows to perform BAM QC analysis::
 
-    usage: qualimap bamqc -bam <arg> [-c] [-gff <arg>] [-nr <arg>] [-nt <arg>] [-nw
-           <arg>] [-os] [-outdir <arg>] [-outformat <arg>]
+    usage: qualimap bamqc -bam <arg> [-c] [-gd <arg>] [-gff <arg>] [-nr <arg>] [-nt
+           <arg>] [-nw <arg>] [-os] [-outdir <arg>] [-outformat <arg>]
      -bam <arg>                     input mapping file
      -c,--paint-chromosome-limits   paint chromosome limits inside charts
+     -gd <arg>                      compare with genome distribution (possible
+                                    values: HUMAN or MOUSE)
      -gff <arg>                     region file (gff format)
-     -nr <arg>                      number of reads in the bunch (advanced)
-     -nt <arg>                      number of threads (advanced)
-     -nw <arg>                      number of windows (advanced)
+     -nr <arg>                      number of reads in the chunk (default is 500)
+     -nt <arg>                      number of threads (default equals the number of cores)
+     -nw <arg>                      number of windows (default is 400)
      -os,--outside-stats            compute region outside stats (only with -gff
                                     option)
      -outdir <arg>                  output folder
      -outformat <arg>               output report format (PDF or HTML, default is
                                     HTML)
-
 
 | The only required parameter is :guilabel:`bam` -- the input mapping file.
 | If :guilabel:`outdir` is not provided, it will be created automatically in the same folder where BAM file is located.
@@ -48,10 +51,8 @@ The following command allows to perform BAM QC analysis::
 
 Example (data available :ref:`here<bam-samples>`)::
 
-    qualimap bamqc -bam alignments/align.bam -gff annotations/annot.gff --outside-stats
+    qualimap bamqc -bam ERR089819.bam -c
 
-
-.. !!FIX!!qualimap bamqc -bam alignments/Plasmodium-falciparum-3D7_RNASeq.bam -gff annotations/Plasmodium-falciparum-3D7.gff --outside-stats
 
 
 .. _cmdline-countsqc:

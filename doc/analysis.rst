@@ -42,7 +42,7 @@ Input Parameters
   The path to the annotation file that defines the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ or `GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_ format.
 
 :guilabel:`Analyze Outside Regions` 
-  If checked, the information about the **reads** that are **mapped outside** of the regions of interest will be also computed and shown in a separated section.
+  If checked, the information about the **reads** that are **mapped outside** of the regions of interest will be also computed and shown in a separate section.
 
 .. _input-gc-content:
 
@@ -59,7 +59,7 @@ Advanced parameters
   In order to speed up the computation, the BAM QC analysis **computation** can be performed **in parallel** on a multicore system using the given number of threads. More information on the parallelization of qualimap can be found in :ref:`FAQ <faq>`. The default number of threads equals number of available processors.
 
 :guilabel:`Reads per Chunk`
-  In order to **reduce the load of I/O**, reads are analyzed in chunks. Each chunk contains the selected number of reads which will be loaded into memore and analyzed by a single thread. Smaller numbers may result in lower performance, but also the memory consumption will be reduced. The default value is 1000 reads.
+  In order to **reduce the load of I/O**, reads are analyzed in chunks. Each chunk contains the selected number of reads which will be loaded into memory and analyzed by a single thread. Smaller numbers may result in lower performance, but also the memory consumption will be reduced. The default value is 1000 reads.
 
 
 Output

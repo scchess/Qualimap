@@ -140,8 +140,8 @@ public class BamStatsAnalysis {
 
     public BamStatsAnalysis(String bamFile) {
 		this.bamFile = bamFile;
-		this.numberOfWindows = 400;
-        this.numReadsInBunch = 500;
+		this.numberOfWindows = Constants.DEFAULT_NUMBER_OF_WINDOWS;
+        this.numReadsInBunch = Constants.DEFAULT_CHUNK_SIZE;
         this.maxSizeOfTaskQueue = 10;
         this.minReadSize = Integer.MAX_VALUE;
         this.threadNumber = 4;

@@ -23,15 +23,18 @@ public class BamQcTool extends NgsSmartTool{
 	private boolean computeOutsideStats;
     private String genomeToCompare;
 
-    static String OPTION_NAME_BAM_FILE = "bam";
-    static String OPTION_NAME_GFF_FILE = "gff";
-    static String OPTION_COMPARE_WITH_GENOME_DISTRIBUTION = "gd";
-
+    static final String OPTION_NAME_BAM_FILE = "bam";
+    static final String OPTION_NAME_GFF_FILE = "gff";
+    static final String OPTION_COMPARE_WITH_GENOME_DISTRIBUTION = "gd";
+    static final String OPTION_PAINT_CHROMOSOMES = "c";
+    static final String OPTION_NUM_WINDOWS = "nw";
+    static final String OPTION_CHUNK_SIZE = "nr";
+    static final String OPTION_NUM_THREADS = "nt";
+    static final String OPTION_OUTSIDE_STATS = "os";
 
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
-        paintChromosomeLimits = true;
         genomeToCompare = "";
     }
 
@@ -43,12 +46,15 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption( opt );
 
         options.addOption( OPTION_NAME_GFF_FILE,  true, "region file (gff format)");
-        options.addOption("nw", true, "number of windows (advanced)");
-        options.addOption("nt", true, "number of threads (advanced)");
-        options.addOption("nr", true, "number of reads in the bunch (advanced)");
+        options.addOption(OPTION_NUM_WINDOWS, true,
+                "number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
+        options.addOption(OPTION_NUM_THREADS, true,
+                "number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
+        options.addOption(OPTION_CHUNK_SIZE, true,
+                "number of reads in the chunk (default equals the number of cores" );
 
-		options.addOption("c", "paint-chromosome-limits", false, "paint chromosome limits inside charts");
-		options.addOption("os", "outside-stats", false, "compute region outside stats (only with -gff option)");
+		options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false, "paint chromosome limits inside charts");
+		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false, "compute region outside stats (only with -gff option)");
         options.addOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
                 "(possible values: HUMAN or MOUSE)");
 
@@ -69,20 +75,21 @@ public class BamQcTool extends NgsSmartTool{
                 throw new ParseException("input region gff file not found");
             }
 			selectedRegionsAvailable = true;
-			if(commandLine.hasOption("outside-stats")) {
+			if(commandLine.hasOption(OPTION_OUTSIDE_STATS)) {
 				computeOutsideStats = true;					
 			}
 		}
 
 
-		numberOfWindows =  commandLine.hasOption("nw") ?
-			Integer.parseInt(commandLine.getOptionValue("nw")) : Constants.DEFAULT_NUMBER_OF_WINDOWS;
+		numberOfWindows =  commandLine.hasOption(OPTION_NUM_WINDOWS) ?
+			Integer.parseInt(commandLine.getOptionValue(OPTION_NUM_WINDOWS))
+                : Constants.DEFAULT_NUMBER_OF_WINDOWS;
 
-        numThreads = commandLine.hasOption("nt") ?
-                Integer.parseInt(commandLine.getOptionValue("nt")) : Runtime.getRuntime().availableProcessors();
+        numThreads = commandLine.hasOption(OPTION_NUM_THREADS) ?
+                Integer.parseInt(commandLine.getOptionValue(OPTION_NUM_THREADS)) : Runtime.getRuntime().availableProcessors();
 
-        bunchSize = commandLine.hasOption("bs") ?
-                Integer.parseInt(commandLine.getOptionValue("bs")) : 1000;
+        bunchSize = commandLine.hasOption(OPTION_CHUNK_SIZE) ?
+                Integer.parseInt(commandLine.getOptionValue(OPTION_CHUNK_SIZE)) : Constants.DEFAULT_CHUNK_SIZE;
 
         if (commandLine.hasOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
             String val = commandLine.getOptionValue(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION);
@@ -97,10 +104,7 @@ public class BamQcTool extends NgsSmartTool{
         }
 
 
-		// reporting
-		if(commandLine.hasOption("paint_chromosome_limits")) {
-			paintChromosomeLimits = true;
-		}
+		paintChromosomeLimits =  commandLine.hasOption(OPTION_PAINT_CHROMOSOMES);
 
 	}
 
@@ -181,7 +185,7 @@ public class BamQcTool extends NgsSmartTool{
 
             BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
             outsideReporter.setNamePostfix(" (outside of regions)");
-            outsideReporter.setChromosomeFilePath(outdir  + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
+            outsideReporter.setChromosomeFilePath(outdir + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
             outsideReporter.setPaintChromosomeLimits(paintChromosomeLimits);
             if (!genomeToCompare.isEmpty()) {
                 outsideReporter.setGenomeGCContentName(genomeToCompare);

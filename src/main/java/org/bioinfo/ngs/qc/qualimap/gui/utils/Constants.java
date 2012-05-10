@@ -5,7 +5,8 @@ import java.util.Map;
 
 public final class Constants {
 	public static final int DEFAULT_NUMBER_OF_WINDOWS = 400;
-	public static final int REPORT_INPUT_BAM_FILE = 0;
+	public static final int DEFAULT_CHUNK_SIZE = 1000;
+    public static final int REPORT_INPUT_BAM_FILE = 0;
 	public static final int REPORT_OUTSIDE_BAM_FILE = 2;
 	
 	public static final int GRAPHIC_TO_SAVE_WIDTH = 1024;

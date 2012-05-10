@@ -125,7 +125,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
         labelNumReadsPerBunch = new JLabel("Size of the chunk:");
         add(labelNumReadsPerBunch, "gapleft 20");
-        numReadsPerBunchSpinner = new JSpinner(new SpinnerNumberModel(500, 100, 5000, 1));
+        numReadsPerBunchSpinner = new JSpinner(new SpinnerNumberModel(Constants.DEFAULT_CHUNK_SIZE, 100, 5000, 1));
         numReadsPerBunchSpinner.setToolTipText("<html>To speed up the computation reads are analyzed in chunks. " +
                 "Each bunch is analyzed by single thread. <br>This option controls the number of reads in the chunk." +
                 "<br>Smaller number may result in lower performance, " +

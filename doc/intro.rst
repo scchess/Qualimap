@@ -6,10 +6,18 @@ Introduction
 What is Qualimap?
 -----------------
 
-**Qualimap** is a platform-independent application written in Java and R that provides both a Graphical User Interface (GUI) and a command-line interface to facilitate the quality control of alignment sequencing data. Shortly, Qualimap: i) examines sequencing **alignment data** according to the features of the mapped reads and their **genomic properties**; and ii)
-provides an **overall view** of the data that helps to  to the **detect biases** in the sequencing and/or mapping of the data and eases **decision-making** for further analysis.
+**Qualimap** is a platform-independent application written in Java and R that provides both a Graphical User Interface (GUI) and a command-line interface to facilitate the quality control of alignment sequencing data. Shortly, Qualimap: 
 
-The main features offered by Qualimap are: fast analysis across the reference genome of mapping coverage and nucleotide distribution; easy-to-interpret summary of the main properties of the alignment data; analysis of the reads mapped inside/outside of the regions defined in an annotation reference; analysis of the adequacy of the sequencing depth in RNA-seq experiments and clustering of epigenomic profiles.
+1. Examines sequencing **alignment data** according to the features of the mapped reads and their **genomic properties**  
+2. Povides an **overall view** of the data that helps to  to the **detect biases** in the sequencing and/or mapping of the data and eases **decision-making** for further analysis.
+
+The main features offered by Qualimap are: 
+
+* fast analysis across the reference genome of mapping coverage and nucleotide distribution; 
+* easy-to-interpret summary of the main properties of the alignment data; 
+* analysis of the reads mapped inside/outside of the regions defined in an annotation reference; 
+* analysis of the adequacy of the sequencing depth in RNA-seq experiments;
+* clustering of epigenomic profiles.
 
 Installation
 ------------

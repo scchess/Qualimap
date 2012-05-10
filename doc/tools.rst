@@ -9,10 +9,10 @@ Tools
 Compute counts
 --------------
 
-- Given a BAM file and an annotation (`GTF file <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_), this tool calculates how many reads are mapped to each region of interest.
+Given a BAM file and an annotation (`GTF file <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_), this tool calculates how many reads are mapped to each region of interest.
 
   
-- The user can decide:
+The user can decide:
 
   - At which level wants to perform the counting (genes, transcripts...).
 
@@ -21,7 +21,7 @@ Compute counts
   - The strand-specifity.
 
 
-- To access the tool use :menuselection:`Tools --> Compute counts`. 
+To access the tool use :menuselection:`Tools --> Compute counts`. 
 
 .. _example-compute-counts:
 

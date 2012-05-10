@@ -57,6 +57,7 @@ When all reads belonging to current window (region of genome) are processed, the
 
 Analysis is finished when all windows are processed.
 
+|
 
 **Q**: *I have a powerful computer with a lot of memory. Can I make Qualimap run faster?*
 
