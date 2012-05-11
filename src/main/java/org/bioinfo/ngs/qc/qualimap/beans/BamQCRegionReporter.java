@@ -384,7 +384,10 @@ public class BamQCRegionReporter implements Serializable {
                 new Color(250,50,50,150), new Color(50,50,250), 0.2f);
 
         coverageChart.render();
-		coverageChart.getChart().getXYPlot().getRangeAxis().setLowerBound(0);
+
+        double upperCoverageBound = 2*meanCoverage + stdCoverage;
+		coverageChart.getChart().getXYPlot().getRangeAxis().setRange(0, upperCoverageBound);
+
         // gc content
 		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle,
                 "absolute position (bp)", "GC (%)");

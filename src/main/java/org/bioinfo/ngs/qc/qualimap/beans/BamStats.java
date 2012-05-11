@@ -909,6 +909,9 @@ public class BamStats implements Serializable {
 
     private void computeInsertSizeHistogram() {
 
+        if (insertSizeArray.isEmpty()) {
+            return;
+        }
 
         Collections.sort(insertSizeArray);
 
