@@ -56,7 +56,7 @@ Clustering
 ----------
 
 - `hmeDIP.bam <http://qualimap.bioinfo.cipf.es/samples/clustering/hmeDIP.bam>`_ (988M)
-    MeDIP-seq of human embryonic stem cells from the study of `Furuno M et al <http://genomebiology.com/content/12/6/R54>`_.
+    MeDIP-seq of human embryonic stem cells from the study of `Stroud H et al <http://genomebiology.com/content/12/6/R54>`_.
 
 - `input.bam <http://qualimap.bioinfo.cipf.es/samples/clustering/input.bam>`_ (1.8G)
     Input data of the same study
