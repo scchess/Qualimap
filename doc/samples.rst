@@ -1,23 +1,22 @@
 .. _samples:
 
-Sample data
-===========
+Examples
+========
+
+Sample Data
+-----------
 
 .. _bam-samples:
 
 Alignments
-----------
+**********
 
 - `ERR089819.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/ERR089819.bam>`_ (2.6 GB)
    Whole genome sequencing data of C. elegans from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
 
-.. !!FIX!!- `Plasmodium-falciparum-3D7.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/Plasmodium-falciparum-3D7.bam>`_ (563MB)
-  Genomic Sequencing of Plasmodium falciparum 3D7 clone from `Wellcome Trust Sanger Institute <http://www.sanger.ac.uk/resources/downloads/protozoa/plasmodium-falciparum.html>`_ (`Original file <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/5428_3%234.bam>`_).
-.. - `Plasmodium-falciparum-3D7_RNASeq.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/Plasmodium-falciparum-3D7_RNASeq.bam>`_ (372MB)
-  RNA-seq of Plasmodium falciparum 3D7 clone from `Wellcome Trust Sanger Institute <http://www.sanger.ac.uk/resources/downloads/protozoa/plasmodium-falciparum.html>`_ (`Original file <ftp://ftp.sanger.ac.uk/pub/pathogens/Plasmodium/falciparum/3D7/3D7.archive/misc/BAM/Plasmodium3D7_RNASeq.bam>`_).
 
 Annotations
------------
+***********
 
 
 - `human.64.gtf <http://qualimap.bioinfo.cipf.es/samples/annotations/human.64.gtf>`_ 
@@ -33,7 +32,7 @@ Annotations
 .. _counts-samples:
 
 Counts
-------
+******
 
 Human RNA-seq data from the paper of `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_.
 
@@ -53,12 +52,32 @@ Human RNA-seq data from the paper of `Marioni JC et al <http://genome.cshlp.org/
 .. _clustering-samples:
 
 Clustering
-----------
+**********
 
 - `hmeDIP.bam <http://qualimap.bioinfo.cipf.es/samples/clustering/hmeDIP.bam>`_ (988M)
     MeDIP-seq of human embryonic stem cells from the study of `Furuno M et al <http://genomebiology.com/content/12/6/R54>`_.
 
 - `input.bam <http://qualimap.bioinfo.cipf.es/samples/clustering/input.bam>`_ (1.8G)
     Input data of the same study
+
+Sample Output
+-------------
+
+BAM QC
+******
+
+Analysis of the WG-seq data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_.
+
+Counts QC
+*********
+
+Analysis of RNA-seq data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/counts_result/qualimapReport.html>`_. 
+
+Clustering
+**********
+
+Analysis of MeDIP-seq data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/clustering_result/qualimapReport.html>`_.
+
+
 
 
