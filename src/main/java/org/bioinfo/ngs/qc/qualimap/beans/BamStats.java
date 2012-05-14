@@ -15,7 +15,7 @@ public class BamStats implements Serializable {
 	private String sourceFile;
 	private String referenceFile;
 	
-	// global
+	// globals
 	private long numberOfMappedBases;
 	private long numberOfSequencedBases;
 	private long numberOfAlignedBases;
@@ -23,17 +23,17 @@ public class BamStats implements Serializable {
 	private long numberOfValidReads;
 	private double percentageOfValidReads;
 	private int numberOfMappedReads;
-	private double percentageOfMappedReads;
-    private int numberOfPairedReads;
-    private double percentageOfPairedReads;
+	private int numberOfPairedReads;
     private int numberOfSingletons;
-    private double percentageOfSingletons;
+    private int numberOfMappedFirstOfPair;
+    private int numberOfMappedSecondOfPair;
 
     // regions related
-    private long numberOfInsideMappedReads;
-    private double percentageOfInsideMappedReads;
-    private long numberOfOutsideMappedReads;
-    private double percentageOfOutsideMappedReads;
+    private  int numberOfMappedReadsInRegions;
+    private int numberOfPairedReadsInRegions;
+    private int numberOfSingletonsInRegions;
+    private int numberOfMappedFirstOfPairInRegions;
+    private int numberOfMappedSecondOfPairInRegions;
 
     private ArrayList<Long>  numMappedBasesPerWindow;
     private ArrayList<Long> coverageSquaredPerWindow;
@@ -123,7 +123,7 @@ public class BamStats implements Serializable {
 	private int maxCoverageQuota;
 	private XYVector coverageQuotes;
     private Map<Double, String> balancedCoverageBarNames;
-
+    double duplicationRate;
 	
 	// quality
 	private double meanMappingQualityPerWindow;
@@ -199,7 +199,6 @@ public class BamStats implements Serializable {
     private ArrayList<Integer> insertSizeArray;
 	private HashMap<Long,Long> insertSizeHistogramMap;
     private long[] insertSizeHistogramCache;
-    private static double DEVIATIONS;
 
     // unique read starts
     long[] uniqueReadStartsArray;
@@ -900,10 +899,15 @@ public class BamStats implements Serializable {
 
         uniqueReadStartsHistogram = new XYVector();
 
+        long numPositions = 0;
+
         for (int i = 1; i <= ReadStartsHistogram.MAX_READ_STARTS_PER_POSITION; ++i ) {
             long val = uniqueReadStartsArray[i];
+            numPositions += val;
             uniqueReadStartsHistogram.addItem( new XYItem(i, val));
         }
+
+        duplicationRate =  ( (double) (uniqueReadStartsArray[1]) / numPositions ) * 100.0d;
 
     }
 
@@ -1271,14 +1275,7 @@ public class BamStats implements Serializable {
 	 * @return the percentageOfMappedReads
 	 */
 	public double getPercentageOfMappedReads() {
-		return percentageOfMappedReads;
-	}
-
-	/**
-	 * @param percentageOfMappedReads the percentageOfMappedReads to set
-	 */
-	public void setPercentageOfMappedReads(double percentageOfMappedReads) {
-		this.percentageOfMappedReads = percentageOfMappedReads;
+		return ( numberOfMappedReads / (double) numberOfReads) * 100.0;
 	}
 
     public XYVector getUniqueReadStartsHistogram() {
@@ -1586,42 +1583,6 @@ public class BamStats implements Serializable {
 		return meanGRelativeContentPerWindowInReference;
 	}
 
-	/**
-	 * @param meanGRelativeContentPerWindowInReference the meanGRelativeContentPerWindowInReference to set
-	 */
-	public void setMeanGRelativeContentPerWindowInReference(
-			double meanGRelativeContentPerWindowInReference) {
-		this.meanGRelativeContentPerWindowInReference = meanGRelativeContentPerWindowInReference;
-	}
-
-	/**
-	 * @return the gContentInReference
-	 */
-	public List<Double> getgContentInReference() {
-		return gContentInReference;
-	}
-
-	/**
-	 * @param gContentInReference the gContentInReference to set
-	 */
-	public void setgContentInReference(List<Double> gContentInReference) {
-		this.gContentInReference = gContentInReference;
-	}
-
-	/**
-	 * @return the gRelativeContentInReference
-	 */
-	public List<Double> getgRelativeContentInReference() {
-		return gRelativeContentInReference;
-	}
-
-	/**
-	 * @param gRelativeContentInReference the gRelativeContentInReference to set
-	 */
-	public void setgRelativeContentInReference(
-			List<Double> gRelativeContentInReference) {
-		this.gRelativeContentInReference = gRelativeContentInReference;
-	}
 
 	/**
 	 * @return the numberOfNsInReference
@@ -2899,35 +2860,15 @@ public class BamStats implements Serializable {
         this.numSelectedRegions = numSelectedRegions;
     }
 
-    public long getNumberOfInsideMappedReads() {
-        return numberOfInsideMappedReads;
+    public long getNumberOfMappedReadsInRegions() {
+        return numberOfMappedReadsInRegions;
     }
 
-    public void setNumberOfInsideMappedReads(long numberOfInsideMappedReads) {
-        this.numberOfInsideMappedReads = numberOfInsideMappedReads;
+    public void setNumberOfMappedReadsInRegions(int numberOfMappedReadsInRegions) {
+        this.numberOfMappedReadsInRegions = numberOfMappedReadsInRegions;
     }
     public double getPercentageOfInsideMappedReads() {
-        return percentageOfInsideMappedReads;
-    }
-
-    public void setPercentageOfInsideMappedReads(double percentageOfInsideMappedReads) {
-        this.percentageOfInsideMappedReads = percentageOfInsideMappedReads;
-    }
-
-    public long getNumberOfOutsideMappedReads() {
-        return numberOfOutsideMappedReads;
-    }
-
-    public void setNumberOfOutsideMappedReads(long numberOfOutsideMappedReads) {
-        this.numberOfOutsideMappedReads = numberOfOutsideMappedReads;
-    }
-
-    public double getPercentageOfOutsideMappedReads() {
-        return percentageOfOutsideMappedReads;
-    }
-
-    public void setPercentageOfOutsideMappedReads(double percentageOfOutsideMappedReads) {
-        this.percentageOfOutsideMappedReads = percentageOfOutsideMappedReads;
+        return (numberOfMappedReadsInRegions / (double) numberOfReads) * 100.0;
     }
 
 
@@ -2975,12 +2916,9 @@ public class BamStats implements Serializable {
     }
 
     public double getPercentageOfPairedReads() {
-        return percentageOfPairedReads;
+        return (numberOfPairedReads / (double) numberOfReads) * 100.0;
     }
 
-    public void setPercentageOfPairedReads(double percentageOfPairedReads) {
-        this.percentageOfPairedReads = percentageOfPairedReads;
-    }
 
     public int getNumberOfSingletons() {
         return numberOfSingletons;
@@ -2991,11 +2929,7 @@ public class BamStats implements Serializable {
     }
 
     public double getPercentageOfSingletons() {
-        return percentageOfSingletons;
-    }
-
-    public void setPercentageOfSingletons(double percentageOfSingletons) {
-        this.percentageOfSingletons = percentageOfSingletons;
+        return (numberOfSingletons / (double) numberOfReads) * 100.0;
     }
 
     public void addReadsAsData(int[] readsAContent) {
@@ -3139,9 +3073,63 @@ public class BamStats implements Serializable {
         return medianInsertSize;
     }
 
+    public int getNumberOfMappedFirstOfPair() {
+        return numberOfMappedFirstOfPair;
+    }
+
+    public void setNumberOfMappedFirstOfPair(int numberOfMappedFirstOfPair) {
+        this.numberOfMappedFirstOfPair = numberOfMappedFirstOfPair;
+    }
+
+    public int getNumberOfMappedSecondOfPair() {
+        return numberOfMappedSecondOfPair;
+    }
+
+    public void setNumberOfMappedSecondOfPair(int numberOfMappedSecondOfPair) {
+        this.numberOfMappedSecondOfPair = numberOfMappedSecondOfPair;
+    }
+
+    public int getNumberOfSingletonsInRegions() {
+        return numberOfSingletonsInRegions;
+    }
+
+    public void setNumberOfSingletonsInRegions(int numberOfSingletonsInRegions) {
+        this.numberOfSingletonsInRegions = numberOfSingletonsInRegions;
+    }
+
+    public int getNumberOfMappedFirstOfPairInRegions() {
+        return numberOfMappedFirstOfPairInRegions;
+    }
+
+    public void setNumberOfMappedFirstOfPairInRegions(int numberOfMappedFirstOfPairInRegions) {
+        this.numberOfMappedFirstOfPairInRegions = numberOfMappedFirstOfPairInRegions;
+    }
+
+    public int getNumberOfMappedSecondOfPairInRegions() {
+        return numberOfMappedSecondOfPairInRegions;
+    }
+
+    public void setNumberOfMappedSecondOfPairInRegions(int numberOfMappedSecondOfPairInRegions) {
+        this.numberOfMappedSecondOfPairInRegions = numberOfMappedSecondOfPairInRegions;
+    }
+
+
     public void updateInsertSizeHistogram(int insertSize) {
         if (insertSize > 0 ) {
             insertSizeArray.add(insertSize);
         }
+    }
+
+
+    public void setNumberOfPairedReadsInRegions(int numPairedReads) {
+        numberOfPairedReadsInRegions = numPairedReads;
+    }
+
+    public int getNumberOfPairedReadsInRegions() {
+        return numberOfPairedReadsInRegions;
+    }
+
+    public double getDuplicationRate() {
+        return duplicationRate;
     }
 }

@@ -5,6 +5,9 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.math.stat.StatUtils;
+import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -45,6 +48,10 @@ public class BamQCRegionReporter implements Serializable {
         return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
     }
 
+    public double getPercentageBothMatesPairedInRegions() {
+       return ((numPairedReadsInRegions - numSingletonsInRegions) * 100.0) / (double) numReads ;
+    }
+
     public void setGenomeGCContentName(String genomeName) {
         this.genomeGCContentName = genomeName;
     }
@@ -68,16 +75,23 @@ public class BamQCRegionReporter implements Serializable {
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
-    private long numInsideMappedReads, numOutsideMappedReads;
-    private double percentageInsideMappedReads, percentageOutsideMappedReads;
+    int readMinSize, readMaxSize;
+    double readMeanSize;
 
-    private int numPairedReads;
-    private double percantagePairedReads;
+    private int numPairedReads, numberOfMappedFirstOfPair, numberOfMappedSecondOfPair;
+    private double percantagePairedReads, percentageOfMappedFirstOfPair, percentageOfMappedSecondOfPair;
     private int numSingletons;
     private double percentageSingletons;
 
-    int readMinSize, readMaxSize;
-    double readMeanSize;
+    private long numMappedReadsInRegions, numPairedReadsInRegions;
+    private double percentageMappedReadsInRegions;
+
+    private int numMappedFirstOfPairInRegions, numMappedSecondOfPairInRegions;
+    private double percentageOfMappedFirstOfPairInRegions, percentageOfMappedSecondOfPairInRegions;
+    private int numSingletonsInRegions;
+    private double percentageSingletonsInRegions;
+
+    private double duplicationRate;
 
     StatsKeeper inputDataKeeper;
     StatsKeeper summaryStatsKeeper;
@@ -246,20 +260,33 @@ public class BamQCRegionReporter implements Serializable {
 		this.numMappedBases = bamStats.getNumberOfMappedBases();
 		this.numSequencedBases = bamStats.getNumberOfSequencedBases();
 		this.numAlignedBases = bamStats.getNumberOfAlignedBases();
-
-        // regions related
-        this.numSelectedRegions = bamStats.getNumSelectedRegions();
-        this.numBasesInsideRegions = bamStats.getInRegionReferenceSize();
-        this.numInsideMappedReads = bamStats.getNumberOfInsideMappedReads();
-        this.percentageInsideMappedReads = bamStats.getPercentageOfInsideMappedReads();
-        this.numOutsideMappedReads = bamStats.getNumberOfOutsideMappedReads();
-        this.percentageOutsideMappedReads = bamStats.getPercentageOfOutsideMappedReads();
+        this.duplicationRate = bamStats.getDuplicationRate();
 
         // paired reads
         this.numPairedReads = bamStats.getNumberOfPairedReads();
         this.percantagePairedReads = bamStats.getPercentageOfPairedReads();
         this.numSingletons = bamStats.getNumberOfSingletons();
         this.percentageSingletons = bamStats.getPercentageOfSingletons();
+        this.numberOfMappedFirstOfPair = bamStats.getNumberOfMappedFirstOfPair();
+        this.percentageOfMappedFirstOfPair = ( (double) numberOfMappedFirstOfPair / numReads) * 100.0;
+        this.numberOfMappedSecondOfPair = bamStats.getNumberOfMappedSecondOfPair();
+        this.percentageOfMappedSecondOfPair = ( (double) numberOfMappedSecondOfPair / numReads ) * 100.0;
+
+        // regions related
+        this.numSelectedRegions = bamStats.getNumSelectedRegions();
+        this.numBasesInsideRegions = bamStats.getInRegionReferenceSize();
+        this.numMappedReadsInRegions = bamStats.getNumberOfMappedReadsInRegions();
+        this.numPairedReadsInRegions = bamStats.getNumberOfPairedReadsInRegions();
+        this.percentageMappedReadsInRegions = bamStats.getPercentageOfInsideMappedReads();
+        this.numMappedFirstOfPairInRegions = bamStats.getNumberOfMappedFirstOfPairInRegions();
+        this.percentageOfMappedFirstOfPairInRegions =
+                ( (double) numMappedFirstOfPairInRegions / numReads) * 100.0;
+        this.numMappedSecondOfPairInRegions = bamStats.getNumberOfMappedSecondOfPairInRegions();
+        this.percentageOfMappedSecondOfPairInRegions =
+                ( (double) numMappedSecondOfPairInRegions / numReads) * 100.0;
+        this.numSingletonsInRegions = bamStats.getNumberOfSingletonsInRegions();
+        this.percentageSingletonsInRegions = ( (double) numSingletonsInRegions / numReads ) * 100.0;
+
 
 		// mapping quality		
 		this.meanMappingQuality = bamStats.getMeanMappingQualityPerWindow();
@@ -385,7 +412,8 @@ public class BamQCRegionReporter implements Serializable {
 
         coverageChart.render();
 
-        double upperCoverageBound = 2*meanCoverage + stdCoverage;
+        Double[] coverageData = ListUtils.toArray(bamStats.getCoverageAcrossReference());
+        double upperCoverageBound = 2*StatUtils.percentile(ArrayUtils.toPrimitive(coverageData), 90);//2*meanCoverage + stdCoverage;
 		coverageChart.getChart().getXYPlot().getRangeAxis().setRange(0, upperCoverageBound);
 
         // gc content
@@ -798,50 +826,77 @@ public class BamQCRegionReporter implements Serializable {
 
         globals.addRow("Reference size", sdf.formatLong(getBasesNumber()));
 
-        if (getNumSelectedRegions() > 0) {
-            globals.addRow("Number of selected regions", sdf.formatLong(getNumSelectedRegions()));
-            globals.addRow("Size/percentage of selected regions",
-                    sdf.formatLong(getInRegionsReferenceSize()) + "/"
-                            + sdf.formatPercentage(getSelectedRegionsPercentage()) );
-            globals.addRow("Size/percentage of non-selected regions",
-                    sdf.formatLong(getBasesNumber() - getInRegionsReferenceSize()) + "/" +
-            sdf.formatPercentage(100.0 - getSelectedRegionsPercentage()) );
-        }
         globals.addRow("Number of reads", sdf.formatLong(getNumReads()));
 
-        globals.addRow("Number/percentage of mapped reads", sdf.formatInteger(getNumMappedReads())
+        globals.addRow("Mapped reads", sdf.formatInteger(getNumMappedReads())
                 + " / " + sdf.formatPercentage(getPercentMappedReads()));
 
-        if (getNumSelectedRegions() > 0) {
-            globals.addRow("Number/percentage of mapped reads inside of regions",
-                    sdf.formatLong(getNumInsideMappedReads())
-                            + " / " + sdf.formatPercentage(getPercentageInsideMappedReads()));
-            globals.addRow("Number/percentage of mapped reads outside of regions",
-                    sdf.formatLong(getNumOutsideMappedReads())
-                            + " / " + sdf.formatPercentage(getPercentageOutsideMappedReads()));
-        }
-
-        globals.addRow("Number/percentage of unmapped reads",
-                sdf.formatLong(getNumReads() - getNumMappedReads()) + "/"
+        globals.addRow("Unmapped reads",
+                sdf.formatLong(getNumReads() - getNumMappedReads()) + " / "
                         + sdf.formatPercentage(100.0 - getPercentMappedReads()));
 
-        globals.addRow("Number/percentage of paired reads",
-                sdf.formatLong(getNumPairedReads()) + "/"
-                        + sdf.formatPercentage(getPercentPairedReads()));
+        globals.addRow("Paired reads",
+                sdf.formatLong(numPairedReads) + " / "
+                        + sdf.formatPercentage(percantagePairedReads) );
+        if (numPairedReads > 0) {
 
-        globals.addRow("Number/percentage of reads both mates paired",
-                sdf.formatLong(getNumPairedReads() - getNumSingletons()) + "/"
-                        + sdf.formatPercentage((getPercentageBothMatesPaired())));
-        globals.addRow("Number/percentage of singletons",
-                sdf.formatLong(getNumSingletons()) + "/"
-                        + sdf.formatPercentage(getPercentSingletons()));
+            globals.addRow("Mapped reads, only first in pair",
+                    sdf.formatInteger(numberOfMappedFirstOfPair) + " / " +
+                    sdf.formatPercentage(percentageOfMappedFirstOfPair));
+
+            globals.addRow("Mapped reads, only second in pair",
+                    sdf.formatInteger(numberOfMappedSecondOfPair) + " / " +
+                    sdf.formatPercentage(percentageOfMappedSecondOfPair));
+
+            globals.addRow("Mapped reads, both in pair",
+                                       sdf.formatLong(numPairedReads - numSingletons) + " / "
+                                               + sdf.formatPercentage((getPercentageBothMatesPaired())));
+
+              globals.addRow("Mapped reads, singletons",
+                    sdf.formatLong(numSingletons) + " / "
+                            + sdf.formatPercentage(getPercentSingletons()));
+             }
 
         globals.addRow("Read min/max/mean length",
-                sdf.formatLong(getReadMinSize()) + "/"
-                        + sdf.formatLong(getReadMaxSize()) + "/"
+                sdf.formatLong(getReadMinSize()) + " / "
+                        + sdf.formatLong(getReadMaxSize()) + " / "
                         + sdf.formatDecimal(getReadMeanSize()));
 
+        globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
+
+
         summaryStatsKeeper.addSection(globals);
+
+        if (numSelectedRegions > 0) {
+            StatsKeeper.Section globalsInRegions = new StatsKeeper.Section("Globals" + postfix);
+            globalsInRegions.addRow("Regions size/percentage of reference",
+                    sdf.formatLong((numBasesInsideRegions))
+                            + " / " + sdf.formatPercentage(getSelectedRegionsPercentage()));
+
+
+            globalsInRegions.addRow("Mapped reads",
+                    sdf.formatLong(numMappedReadsInRegions)
+                            + "  /  " + sdf.formatPercentage(percentageMappedReadsInRegions));
+            if (numPairedReads > 0) {
+                globalsInRegions.addRow("Mapped reads, only first in pair",
+                        sdf.formatInteger(numMappedFirstOfPairInRegions) + " / " +
+                                sdf.formatPercentage(percentageOfMappedFirstOfPairInRegions));
+
+                globalsInRegions.addRow("Mapped reads, only second in pair",
+                        sdf.formatInteger(numMappedSecondOfPairInRegions) + " / " +
+                                sdf.formatPercentage(percentageOfMappedSecondOfPairInRegions));
+                globalsInRegions.addRow("Mapped reads, both in pair",
+                                   sdf.formatLong(numPairedReadsInRegions - numSingletonsInRegions) + " / "
+                                        + sdf.formatPercentage((getPercentageBothMatesPairedInRegions())));
+                globalsInRegions.addRow("Mapped reads, singletons",
+                        sdf.formatLong(numSingletonsInRegions) + " / "
+                                + sdf.formatPercentage(percentageSingletonsInRegions));
+
+            }
+
+            summaryStatsKeeper.addSection(globalsInRegions);
+
+        }
 
         StatsKeeper.Section acgtContent = new StatsKeeper.Section("ACGT Content" + postfix);
 
@@ -946,20 +1001,12 @@ public class BamQCRegionReporter implements Serializable {
         return numBasesInsideRegions;
     }
 
-    public long getNumInsideMappedReads() {
-        return numInsideMappedReads;
+    public long getNumMappedReadsInRegions() {
+        return numMappedReadsInRegions;
     }
 
-    public double getPercentageInsideMappedReads() {
-        return percentageInsideMappedReads;
-    }
-
-    public long getNumOutsideMappedReads() {
-        return numOutsideMappedReads;
-    }
-
-    public double getPercentageOutsideMappedReads() {
-        return percentageOutsideMappedReads;
+    public double getPercentageMappedReadsInRegions() {
+        return percentageMappedReadsInRegions;
     }
 
     public int getReadMinSize() {
@@ -1042,7 +1089,7 @@ public static void generateBamQcProperties(Properties prop, BamQCRegionReporter 
 			prop.setProperty("basesNumber", reporter.getBasesNumber().toString());
 			prop.setProperty("contigsNumber", reporter.getContigsNumber().toString());
             prop.setProperty("numRegions", Integer.toString(reporter.getNumSelectedRegions()));
-            prop.setProperty("numInRegionMappedReads", Long.toString(reporter.getNumInsideMappedReads()));
+            prop.setProperty("numInRegionMappedReads", Long.toString(reporter.getNumMappedReadsInRegions()));
             prop.setProperty("numInRegionBases", Long.toString(reporter.getInRegionsReferenceSize()));
 
             //TODO: in region related info (num regions, regions size etc)

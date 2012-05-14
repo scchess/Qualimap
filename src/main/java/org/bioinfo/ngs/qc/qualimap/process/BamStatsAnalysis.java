@@ -17,6 +17,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
+import org.bioinfo.ngs.qc.qualimap.utils.ReadStats;
 import org.bioinfo.ngs.qc.qualimap.utils.RegionLookupTable;
 
 import java.io.File;
@@ -52,11 +53,7 @@ public class BamStatsAnalysis {
 	// globals
 	private int numberOfReads;
 	private int numberOfValidReads;
-	private double percentageOfValidReads;
-	private int numberOfMappedReads;
 	private int numberOfDuplicatedReads;
-    private int numberOfPairedReads;
-    private int numberOfSingletons;
 
 	// statistics
 	private BamStats bamStats;
@@ -86,7 +83,6 @@ public class BamStatsAnalysis {
 	private BamGenomeWindow currentOutsideWindow;
 	private HashMap<Long,BamGenomeWindow> openOutsideWindows;
     private BamStats outsideBamStats;
-	private int numberOfOutsideMappedReads;
 
     // counting unique reads
     private ReadStartsHistogram readStartsHistogram;
@@ -102,6 +98,9 @@ public class BamStatsAnalysis {
 	private long[] selectedRegionEnds;
     RegionLookupTable regionLookupTable;
     IntervalTree<Integer> regionsTree;
+
+    ReadStats readStats;
+    ReadStats outsideReadStats;
 
 	// chromosome
 	private boolean computeChromosomeStats;
@@ -206,6 +205,7 @@ public class BamStatsAnalysis {
         bamStats.setSourceFile(bamFile);
         //bamStats.setWindowReferences("w",windowSize);
         bamStats.setWindowReferences("w", windowPositions);
+        readStats = new ReadStats();
         openWindows = new ConcurrentHashMap<Long,BamGenomeWindow>();
 
         //regions
@@ -213,12 +213,13 @@ public class BamStatsAnalysis {
 
 			// load selected regions
             loadSelectedRegions();
+            outsideReadStats = new ReadStats();
 
             // outside of regions stats
             if (computeOutsideStats) {
                 outsideBamStats = new BamStats("outside",referenceSize, effectiveNumberOfWindows);
                 outsideBamStats.setSourceFile(bamFile);
-                outsideBamStats.setWindowReferences("out_w",windowPositions);
+                outsideBamStats.setWindowReferences("out_w", windowPositions);
                 openOutsideWindows = new HashMap<Long,BamGenomeWindow>();
                 currentOutsideWindow = nextWindow(outsideBamStats,openOutsideWindows,reference,true);
 
@@ -288,11 +289,7 @@ public class BamStatsAnalysis {
 
                 int insertSize = 0;
                 if (read.getReadPairedFlag()) {
-                    numberOfPairedReads++;
                     insertSize = read.getInferredInsertSize();
-                    if (read.getMateUnmappedFlag()) {
-                        numberOfSingletons++;
-                    }
                 }
 
                 if (position < currentWindow.getStart()) {
@@ -308,22 +305,22 @@ public class BamStatsAnalysis {
                             read.getAlignmentEnd(), read.getReferenceName());
 
                     if (readOverlapsRegions) {
-                        numberOfMappedReads++;
+                        readStats.collectReadStats(read);
                         read.setAttribute(Constants.READ_IN_REGION, 1);
                         readStartsHistogram.update(position);
                         bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
-                        numberOfOutsideMappedReads++;
                         read.setAttribute(Constants.READ_IN_REGION, 0);
                         readStartsHistogramOutside.update(position);
+                        outsideReadStats.collectReadStats(read);
                         if (computeOutsideStats) {
                             outsideBamStats.updateInsertSizeHistogram(insertSize);
                         }
                     }
                 } else {
-                    numberOfMappedReads++;
                     read.setAttribute(Constants.READ_IN_REGION, 1);
                     readStartsHistogram.update(position);
+                    readStats.collectReadStats(read);
                     bamStats.updateInsertSizeHistogram(insertSize);
                 }
 
@@ -389,48 +386,66 @@ public class BamStatsAnalysis {
 
         logger.println("Total processed windows:" + bamStats.getNumberOfProcessedWindows());
         logger.println("Number of reads: " + numberOfReads);
-        logger.println("Number of mapped reads: " + numberOfMappedReads);
         logger.println("Number of valid reads: " + numberOfValidReads);
         logger.println("Number of duplicated reads: " + numberOfDuplicatedReads);
-        logger.println("Time taken to analyze reads: " + (endTime - startTime) / 1000);
+        logger.println("\nInside of regions...");
+        logger.print(readStats.report());
 
-        // summarize
+        if (computeOutsideStats) {
+            logger.println("\nOuside of regions...");
+            logger.print(outsideReadStats.report());
+        }
+
+        logger.println("Time taken to analyze reads: " + (endTime - startTime) / 1000);
+        logger.println();
 
         if (numberOfReads == 0) {
             throw new RuntimeException("The BAM file is empty or corrupt");
         }
 
-
-        percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
+        //percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
         bamStats.setNumberOfReads(numberOfReads);
+
+        int totalNumberOfMappedReads = readStats.getNumMappedReads();
+        int totalNumberOfPairedReads = readStats.getNumPairedReads();
+        int totalNumberOfMappedFirstOfPair = readStats.getNumMappedFirstInPair();
+        int totalNumberOfMappedSecondOfPair = readStats.getNumMappedSecondInPair();
+        int totalNumberOfSingletons = readStats.getNumSingletons();
+
         if (selectedRegionsAvailable) {
+
             bamStats.setNumSelectedRegions(numberOfSelectedRegions);
             bamStats.setInRegionReferenceSize(insideReferenceSize);
-            int totalNumberOfMappedReads = numberOfMappedReads + numberOfOutsideMappedReads;
-            bamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
-            bamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
-            bamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
-            bamStats.setPercentageOfInsideMappedReads( (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0);
-            bamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
-            bamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);
-        } else {
-            bamStats.setNumberOfMappedReads(numberOfMappedReads);
-            bamStats.setPercentageOfMappedReads((numberOfMappedReads/(double)numberOfReads)*100.0);
+
+            // update totals
+            totalNumberOfMappedReads  += outsideReadStats.getNumMappedReads();
+            totalNumberOfPairedReads += outsideReadStats.getNumPairedReads();
+            totalNumberOfMappedFirstOfPair += outsideReadStats.getNumMappedFirstInPair();
+            totalNumberOfMappedSecondOfPair += outsideReadStats.getNumMappedSecondInPair();
+            totalNumberOfSingletons += outsideReadStats.getNumSingletons();
+
+            // inside of regions
+            bamStats.setNumberOfMappedReadsInRegions(readStats.getNumMappedReads());
+            bamStats.setNumberOfPairedReadsInRegions(readStats.getNumPairedReads());
+            bamStats.setNumberOfMappedFirstOfPairInRegions(readStats.getNumMappedFirstInPair());
+            bamStats.setNumberOfMappedSecondOfPairInRegions(readStats.getNumMappedSecondInPair());
+            bamStats.setNumberOfSingletonsInRegions(readStats.getNumSingletons());
+
         }
-        bamStats.setNumberOfPairedReads(numberOfPairedReads);
-        bamStats.setPercentageOfPairedReads( (numberOfPairedReads / (double)numberOfReads)*100.0 );
-        bamStats.setNumberOfSingletons(numberOfSingletons);
-        bamStats.setPercentageOfSingletons( (numberOfSingletons / (double) numberOfReads)*100.0 );
-        bamStats.setPercentageOfValidReads(percentageOfValidReads);
+
+        bamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
+        bamStats.setNumberOfPairedReads(totalNumberOfPairedReads);
+        bamStats.setNumberOfMappedFirstOfPair(totalNumberOfMappedFirstOfPair);
+        bamStats.setNumberOfMappedSecondOfPair(totalNumberOfMappedSecondOfPair);
+        bamStats.setNumberOfSingletons( totalNumberOfSingletons );
+
         bamStats.setReferenceSize(referenceSize);
         bamStats.setUniqueReadStarts(readStartsHistogram.getHistorgram());
         bamStats.setReadMaxSize(maxReadSize);
         bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
 
-        // init working variables
         isPairedData = bamStats.getNumberOfPairedReads() > 0;
-
 
         // compute descriptors
         logger.println("Computing descriptors...");
@@ -454,26 +469,26 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumSelectedRegions(numberOfSelectedRegions);
             outsideBamStats.setInRegionReferenceSize(insideReferenceSize);
             outsideBamStats.setNumberOfReads(numberOfReads);
-            int totalNumberOfMappedReads = numberOfMappedReads + numberOfOutsideMappedReads;
-            outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
-            outsideBamStats.setPercentageOfMappedReads( (totalNumberOfMappedReads / (double) numberOfReads) * 100.0);
-            outsideBamStats.setNumberOfInsideMappedReads(numberOfMappedReads);
-            double percentageOfInsideMappedReads = (numberOfMappedReads / (double) totalNumberOfMappedReads) * 100.0;
-            outsideBamStats.setPercentageOfInsideMappedReads(percentageOfInsideMappedReads);
-            outsideBamStats.setNumberOfOutsideMappedReads(numberOfOutsideMappedReads);
-            outsideBamStats.setPercentageOfOutsideMappedReads((numberOfOutsideMappedReads / (double) totalNumberOfMappedReads) * 100.0);
-            logger.println("Computing descriptors for outside regions...");
-            outsideBamStats.setNumberOfPairedReads(numberOfPairedReads);
-            outsideBamStats.setPercentageOfPairedReads( (numberOfPairedReads / (double)numberOfReads)*100.0 );
-            outsideBamStats.setNumberOfSingletons(numberOfSingletons);
-            outsideBamStats.setPercentageOfSingletons( (numberOfSingletons / (double) numberOfReads)*100.0 );
-      	    outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
 
-            //TODO: big refactoring of outside/inside model
+            outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
+            outsideBamStats.setNumberOfPairedReads(totalNumberOfPairedReads);
+            outsideBamStats.setNumberOfMappedFirstOfPair(totalNumberOfMappedFirstOfPair);
+            outsideBamStats.setNumberOfMappedSecondOfPair(totalNumberOfMappedSecondOfPair);
+            outsideBamStats.setNumberOfSingletons(totalNumberOfSingletons);
+
+            outsideBamStats.setNumberOfMappedReadsInRegions(outsideReadStats.getNumMappedReads());
+            outsideBamStats.setNumberOfPairedReads(outsideReadStats.getNumPairedReads());
+            outsideBamStats.setNumberOfMappedFirstOfPairInRegions(outsideReadStats.getNumMappedFirstInPair());
+            outsideBamStats.setNumberOfMappedSecondOfPairInRegions(outsideReadStats.getNumMappedSecondInPair());
+            outsideBamStats.setNumberOfSingletonsInRegions(outsideReadStats.getNumSingletons());
+
+            outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
+
             outsideBamStats.setReadMaxSize(maxReadSize);
             outsideBamStats.setReadMinSize(minReadSize);
             outsideBamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
 
+            logger.println("Computing descriptors for outside regions...");
             outsideBamStats.computeDescriptors();
             logger.println("Computing histograms for outside regions...");
 		    outsideBamStats.computeHistograms();
@@ -808,11 +823,9 @@ public class BamStatsAnalysis {
 
 		System.out.println("filling region references... ");
 		gffReader = new GffReader(gffFile);
-		long relative = 0;
 		int index = 0;
 		long pos;
-		long lastEnd = 0;
-        insideReferenceSize = 0;
+		insideReferenceSize = 0;
 		while((region = gffReader.read())!=null){
             /*if (!region.getFeature().equalsIgnoreCase("exon")) {
                 continue;
