@@ -84,10 +84,6 @@ public class BamStatsAnalysis {
 	private HashMap<Long,BamGenomeWindow> openOutsideWindows;
     private BamStats outsideBamStats;
 
-    // counting unique reads
-    private ReadStartsHistogram readStartsHistogram;
-    private ReadStartsHistogram readStartsHistogramOutside;
-
     // read size
     long acumReadSize;
     int maxReadSize;
@@ -152,9 +148,6 @@ public class BamStatsAnalysis {
         pgCommandString = "";
 		logger = new Logger();
         chromosomeWindowIndexes = new ArrayList<Integer>();
-        readStartsHistogram = new ReadStartsHistogram();
-        readStartsHistogramOutside = new ReadStartsHistogram();
-
     }
 
     public void run() throws Exception{
@@ -307,20 +300,20 @@ public class BamStatsAnalysis {
                     if (readOverlapsRegions) {
                         readStats.collectReadStats(read);
                         read.setAttribute(Constants.READ_IN_REGION, 1);
-                        readStartsHistogram.update(position);
+                        bamStats.updateReadStartsHistogram(position);
                         bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
                         read.setAttribute(Constants.READ_IN_REGION, 0);
-                        readStartsHistogramOutside.update(position);
                         outsideReadStats.collectReadStats(read);
                         if (computeOutsideStats) {
+                            outsideBamStats.updateReadStartsHistogram(position);
                             outsideBamStats.updateInsertSizeHistogram(insertSize);
                         }
                     }
                 } else {
                     read.setAttribute(Constants.READ_IN_REGION, 1);
-                    readStartsHistogram.update(position);
                     readStats.collectReadStats(read);
+                    bamStats.updateReadStartsHistogram(position);
                     bamStats.updateInsertSizeHistogram(insertSize);
                 }
 
@@ -440,7 +433,6 @@ public class BamStatsAnalysis {
         bamStats.setNumberOfSingletons( totalNumberOfSingletons );
 
         bamStats.setReferenceSize(referenceSize);
-        bamStats.setUniqueReadStarts(readStartsHistogram.getHistorgram());
         bamStats.setReadMaxSize(maxReadSize);
         bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
@@ -477,12 +469,10 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumberOfSingletons(totalNumberOfSingletons);
 
             outsideBamStats.setNumberOfMappedReadsInRegions(outsideReadStats.getNumMappedReads());
-            outsideBamStats.setNumberOfPairedReads(outsideReadStats.getNumPairedReads());
+            outsideBamStats.setNumberOfPairedReadsInRegions(outsideReadStats.getNumPairedReads());
             outsideBamStats.setNumberOfMappedFirstOfPairInRegions(outsideReadStats.getNumMappedFirstInPair());
             outsideBamStats.setNumberOfMappedSecondOfPairInRegions(outsideReadStats.getNumMappedSecondInPair());
             outsideBamStats.setNumberOfSingletonsInRegions(outsideReadStats.getNumSingletons());
-
-            outsideBamStats.setUniqueReadStarts(readStartsHistogramOutside.getHistorgram());
 
             outsideBamStats.setReadMaxSize(maxReadSize);
             outsideBamStats.setReadMinSize(minReadSize);

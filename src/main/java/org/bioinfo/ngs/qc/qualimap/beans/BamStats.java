@@ -118,6 +118,7 @@ public class BamStats implements Serializable {
 	private long[] coverageHistogramCache;
     private XYVector coverageHistogram;
 	private XYVector acumCoverageHistogram;
+    private ReadStartsHistogram readStartsHistogram;
     private XYVector uniqueReadStartsHistogram;
     private XYVector balancedCoverageHistogram;
 	private int maxCoverageQuota;
@@ -192,16 +193,11 @@ public class BamStats implements Serializable {
 	private double meanInsertSize;
 	private double meanInsertSizePerWindow;
     private double medianInsertSize;
-    private double stdInsertSize;
-    private double modeEstimation;
-	private List<Double> insertSizeAcrossReference;
+    private List<Double> insertSizeAcrossReference;
 	private XYVector insertSizeHistogram;
     private ArrayList<Integer> insertSizeArray;
 	private HashMap<Long,Long> insertSizeHistogramMap;
     private long[] insertSizeHistogramCache;
-
-    // unique read starts
-    long[] uniqueReadStartsArray;
 
     // reads stats
     double readMeanSize;
@@ -331,6 +327,8 @@ public class BamStats implements Serializable {
 		maxCoverageQuota = 50;
 		numberOfProcessedWindows = 0;
         numberOfInitializedWindows = 0;
+
+        readStartsHistogram =  new ReadStartsHistogram();
 
         warnings = new HashMap<String, String>() ;
 		
@@ -897,6 +895,8 @@ public class BamStats implements Serializable {
 
     private void computeUniqueReadStartsHistogram() {
 
+        long[] uniqueReadStartsArray = readStartsHistogram.getHistorgram();
+
         uniqueReadStartsHistogram = new XYVector();
 
         long numPositions = 0;
@@ -907,7 +907,7 @@ public class BamStats implements Serializable {
             uniqueReadStartsHistogram.addItem( new XYItem(i, val));
         }
 
-        duplicationRate =  ( (double) (uniqueReadStartsArray[1]) / numPositions ) * 100.0d;
+        duplicationRate =  ( 1.0 - (double) (uniqueReadStartsArray[1]) / numPositions ) * 100.0d;
 
     }
 
@@ -1282,11 +1282,7 @@ public class BamStats implements Serializable {
         return uniqueReadStartsHistogram;
     }
 
-    public void setUniqueReadStarts(long[] uniqueReadStarts) {
-        this.uniqueReadStartsArray = uniqueReadStarts;
-    }
-
-	/**
+    /**
 	 * @return the referenceSize
 	 */
 	public long getReferenceSize() {
@@ -3131,5 +3127,9 @@ public class BamStats implements Serializable {
 
     public double getDuplicationRate() {
         return duplicationRate;
+    }
+
+    public void updateReadStartsHistogram(long position) {
+        readStartsHistogram.update(position);
     }
 }
