@@ -23,7 +23,7 @@ The user can decide:
 
 To access the tool use :menuselection:`Tools --> Compute counts`. 
 
-.. note:: Currently "Compute Counts" tool analyzes paired-end reads as if they are independent; only the strand-specificity of the protocol is taken into account. This may lead to discrepancy, when computing the feature counts from paired-end data. We will add full support for paired-end reads in future versions of Qualimap.  
+.. note:: For paired-end reads currently each mate of a pair is considered independently (taking into account the strand-specificity of the protocol). We will add full support for paired-end reads in future versions of Qualimap.
 
 
 .. _example-compute-counts:
