@@ -24,6 +24,7 @@ public class DocumentUtils {
 
                 if (line.startsWith("#") || line.isEmpty()) {
                     // skip comments and empty lines
+                    continue;
                 }
 
                 String[] items = line.split("\t");
