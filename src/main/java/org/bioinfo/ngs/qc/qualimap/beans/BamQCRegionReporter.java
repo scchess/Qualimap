@@ -355,11 +355,17 @@ public class BamQCRegionReporter implements Serializable {
             }
 		}
 
+        double maxInsertSize = 0;
+        if (isPairedData) {
+            int length = bamStats.getInsertSizeAcrossReference().size();
+            maxInsertSize = bamStats.getInsertSizeHistogram().get(length - 1).getX();
+        }
         // compute chromosome limits
 		Color chromosomeColor = new Color(40,40,40,150);
 		XYVector chromosomeCoverageLimits = null;
 		XYVector chromosomePercentageLimits = null;
 		XYVector chromosomeBytedLimits = null;
+        XYVector chromosomeInsertSizeLimits = null;
         List<XYBoxAnnotation>  chromosomeAnnotations = null;
 
         if(paintChromosomeLimits && locator!=null){
@@ -367,6 +373,7 @@ public class BamQCRegionReporter implements Serializable {
 			chromosomeCoverageLimits = new XYVector();
 			chromosomePercentageLimits = new XYVector();
 			chromosomeBytedLimits = new XYVector();
+            chromosomeInsertSizeLimits = new XYVector();
             chromosomeAnnotations = new ArrayList<XYBoxAnnotation>();
             for(int i=0; i<numberOfChromosomes; i++){
                 long chrStart = locator.getContigs().get(i).getPosition();
@@ -389,6 +396,12 @@ public class BamQCRegionReporter implements Serializable {
 				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
 				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),255));
 				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+                // insert size
+                chromosomeInsertSizeLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+                chromosomeInsertSizeLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),maxInsertSize));
+                chromosomeInsertSizeLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+
+
 			}
         }
 
@@ -561,7 +574,7 @@ public class BamQCRegionReporter implements Serializable {
                     subTitle, "Position (bp)", "Insert size (bp)");
 			insertSize.addSeries("insert size",new XYVector(windowReferences, bamStats.getInsertSizeAcrossReference()), new Color(15,170,90,150));
             if(paintChromosomeLimits && locator!=null) {
-                insertSize.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,
+                insertSize.addSeries("chromosomes",chromosomeInsertSizeLimits,chromosomeColor,stroke,
                         false,chromosomeAnnotations);
             }
             insertSize.render();

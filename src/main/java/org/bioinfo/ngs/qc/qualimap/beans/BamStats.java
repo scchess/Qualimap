@@ -724,20 +724,10 @@ public class BamStats implements Serializable {
 		if (key < CACHE_SIZE) {
             cache[(int)key]++;
         } else if(!map.containsKey(key)){
-			map.put(key, Long.valueOf(1));
+			map.put(key, 1L);
 		} else {
             map.put(key, map.get(key) + 1);
     	}
-	}
-
-	public void incCoverageFrequency(long coverage){
-		if(!coverageHistogramMap.containsKey(coverage)){
-			coverageHistogramMap.put(coverage, Long.valueOf(1));
-		} else {
-			long last = coverageHistogramMap.get(coverage);
-			last++;		
-			coverageHistogramMap.put(coverage,last);
-		}
 	}
 
 
@@ -985,15 +975,12 @@ public class BamStats implements Serializable {
         ArrayList<Integer> balancedCoverages = new ArrayList<Integer>();
         balancedCoverages.add(border);
 
-        ArrayList<Integer> indexList = new ArrayList<Integer>();
-        indexList.add(0);
         int k = sortedCoverages.length > 1 ? 1 : 0;
 
         for (int i = 0; i <= binCount; ++i) {
             int newBorder = (int) (Math.round( Math.pow(n, i) ) + minCoverage);
             if (newBorder > border && newBorder >= sortedCoverages[k]) {
                 balancedCoverages.add(newBorder);
-                indexList.add(k);
                 border = newBorder;
                 while ( k < sortedCoverages.length && newBorder >= sortedCoverages[k]) {
                     ++k;
