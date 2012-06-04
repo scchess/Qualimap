@@ -1,0 +1,20 @@
+Version Release History
+=======================
+
+Version 0.4 - June 4, 2012 
+--------------------------
+
+    * Fixed problem with chromsome limits in Insert Size chart
+    * Fixed issue with "compute counts" when regions are having several 
+    intersecting reads
+    * Fixed crash with Coverage Histogram 0-50X for high coverage samples
+    * Fixed Coverage Histogram when minimal coverage is more than zero
+    * Fixed issue with GFF files, containing empty lines  
+
+
+Version 0.3 - May 18,2012
+-------------------------
+
+    First public release.
+
+
