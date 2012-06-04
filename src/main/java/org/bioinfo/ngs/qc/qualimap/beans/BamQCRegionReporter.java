@@ -395,7 +395,7 @@ public class BamQCRegionReporter implements Serializable {
 
         ///////////////// coverageData charts ///////////////
 
-		// coverageData (and gc) across reference
+		// Coverage and GC-content across reference
 		// coverageData
 		BamQCChart coverageChart = new BamQCChart(Constants.PLOT_TITLE_COVERAGE_ACROSS_REFERENCE,
                 subTitle, "Position (bp)", "Coverage (X)");
@@ -452,22 +452,26 @@ public class BamQCRegionReporter implements Serializable {
         charts.add( new QChart(bamStats.getName() + "_coverage_histogram.png",
 				coverageHistogram.getChart()));
 
-		// coverageData ranged histogram
-		BamQCXYHistogramChart coverageRangedHistogram =
-                new BamQCXYHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
-                subTitle, "Coverage (X)", "Number of genomic locations");
-		coverageRangedHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
-		coverageRangedHistogram.setNumberOfBins(50);
-		coverageRangedHistogram.zoom(maxValue);
-		coverageRangedHistogram.setDomainAxisIntegerTicks(true);
-		coverageRangedHistogram.setDomainAxisTickUnitSize(1.0);
-        coverageRangedHistogram.render();
 
-        charts.add( new QChart(bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
-                coverageRangedHistogram.getChart() ) );
+		// Coverage Histogram 0-50x
+        double minCoverage = bamStats.getCoverageHistogram().get(0).getX();
+        if (minCoverage < 40) {
+            // This histogram only makes sense for low coverage samples
+            BamQCXYHistogramChart coverageRangedHistogram =
+                    new BamQCXYHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
+                            subTitle, "Coverage (X)", "Number of genomic locations");
+            coverageRangedHistogram.addHistogram("coverageData", bamStats.getCoverageHistogram(), Color.blue);
+            coverageRangedHistogram.setNumberOfBins(50);
+            coverageRangedHistogram.zoom(maxValue);
+            coverageRangedHistogram.setDomainAxisIntegerTicks(true);
+            coverageRangedHistogram.setDomainAxisTickUnitSize(1.0);
+            coverageRangedHistogram.render();
 
+            charts.add( new QChart(bamStats.getName() + "_coverage_0to" + (int)maxValue + "_histogram.png",
+                    coverageRangedHistogram.getChart() ) );
+        }
 
-        // coverageData ranged histogram
+        // Duplication Rate Histogram
 		BamQCXYHistogramChart uniqueReadStartsHistogram =
                 new BamQCXYHistogramChart(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
                 subTitle, "Duplication rate", "Number of loci");

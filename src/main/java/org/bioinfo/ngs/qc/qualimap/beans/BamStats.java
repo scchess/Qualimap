@@ -970,23 +970,34 @@ public class BamStats implements Serializable {
 		} 
 
 
+        //TODO: what if coverage is constant, for example 1 everywhere? This has code has to be checked
+
         // compute balanced coverage histogram
         balancedCoverageHistogram = new XYVector();
         balancedCoverageBarNames = new HashMap<Double, String>();
         double maxCoverage = sortedCoverages[coverages.length - 1];
+        double minCoverage = sortedCoverages[0];
         int binCount = 30;
-        double n = Math.pow(maxCoverage, 1.0 / binCount );
+        double n = Math.pow(maxCoverage - minCoverage, 1.0 / binCount );
 
-        int border = 0;
+        int border = (int) (minCoverage);
 
         ArrayList<Integer> balancedCoverages = new ArrayList<Integer>();
-        balancedCoverages.add(0);
+        balancedCoverages.add(border);
+
+        ArrayList<Integer> indexList = new ArrayList<Integer>();
+        indexList.add(0);
+        int k = sortedCoverages.length > 1 ? 1 : 0;
 
         for (int i = 0; i <= binCount; ++i) {
-            int newBorder = (int) Math.round( Math.pow(n, i) );
-            if (newBorder > border) {
+            int newBorder = (int) (Math.round( Math.pow(n, i) ) + minCoverage);
+            if (newBorder > border && newBorder >= sortedCoverages[k]) {
                 balancedCoverages.add(newBorder);
+                indexList.add(k);
                 border = newBorder;
+                while ( k < sortedCoverages.length && newBorder >= sortedCoverages[k]) {
+                    ++k;
+                }
             }
         }
 
@@ -1000,8 +1011,8 @@ public class BamStats implements Serializable {
                 ++borderIndex;
             }
             //System.out.println("i = " + i + " ,borderIndex = " + borderIndex + " ,sum= " + sum) ;
-            String barName = borderIndex == prevIndex + 1 ? prevIndex + "" :
-                    prevIndex +" - " + (borderIndex - 1);
+            String barName = borderIndex == prevIndex + 1 ? (int)sortedCoverages[prevIndex] + "" :
+                    (int)sortedCoverages[prevIndex] +" - " + (int)sortedCoverages[(borderIndex - 1)];
             //System.out.println("Bar name is " + barName);
             balancedCoverageBarNames.put((double)i, barName);
             balancedCoverageHistogram.addItem(new XYItem(i, sum));

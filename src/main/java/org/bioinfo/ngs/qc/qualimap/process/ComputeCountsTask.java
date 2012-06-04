@@ -134,9 +134,9 @@ public class ComputeCountsTask  {
             //Debugging  purposes
             //System.out.print("ReadName: "+read.getReadName() );
             //System.out.println("ReadStart: "+read.getAlignmentStart() + ", ReadEnd: " + read.getAlignmentEnd());
-            //if (read.getReadName().contains("SRR002320.11354625") ) {
-            //    System.out.println("BINGO!");
-            //}
+            /*if (read.getReadName().contains("SRR002320.11647971") ) {
+                System.out.println("BINGO!");
+            }*/
 
             // Create intervals for read
             Cigar cigar = read.getCigar();
@@ -198,6 +198,10 @@ public class ComputeCountsTask  {
 
 
             Set<String> features = new HashSet<String>();
+
+            /*if (featureIntervalMap.keySet().contains("ENSG00000214827")) {
+                System.out.println("AKALAI MAKALAI!" + featureIntervalMap.keySet() + read.getReadName());
+            }*/
 
             for (Map.Entry<String,BitSet> entry : featureIntervalMap.entrySet() ) {
                 if (entry.getValue().cardinality() == intervals.size() ) {
