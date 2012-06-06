@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ListUtils;
@@ -413,8 +414,13 @@ public class BamQCRegionReporter implements Serializable {
 
         coverageChart.render();
 
+        //Setting "smart" zoom for coverage across region
         Double[] coverageData = ListUtils.toArray(bamStats.getCoverageAcrossReference());
-        double upperCoverageBound = 2*StatUtils.percentile(ArrayUtils.toPrimitive(coverageData), 90);//2*meanCoverage + stdCoverage;
+        double upperCoverageBound = 2*StatUtils.percentile(ArrayUtils.toPrimitive(coverageData), 90);
+        if (upperCoverageBound == 0) {
+            // possible in rare cases when the coverage is very low coverage
+            upperCoverageBound = maxCoverage*0.9;
+        }
 		coverageChart.getChart().getXYPlot().getRangeAxis().setRange(0, upperCoverageBound);
 
         // gc content
