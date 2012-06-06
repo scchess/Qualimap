@@ -16,7 +16,6 @@ import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
-import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStats;
 import org.bioinfo.ngs.qc.qualimap.utils.RegionLookupTable;
 

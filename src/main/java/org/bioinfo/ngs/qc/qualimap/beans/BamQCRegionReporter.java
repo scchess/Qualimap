@@ -345,7 +345,7 @@ public class BamQCRegionReporter implements Serializable {
 
         double maxInsertSize = 0;
         if (isPairedData) {
-            int length = bamStats.getInsertSizeAcrossReference().size();
+            int length = bamStats.getInsertSizeHistogram().getSize();
             maxInsertSize = bamStats.getInsertSizeHistogram().get(length - 1).getX();
         }
         // compute chromosome limits
