@@ -158,7 +158,7 @@ public class BamStatsAnalysis {
         SAMFileReader reader = new SAMFileReader(new File(bamFile));
 
         // org.bioinfo.ntools.process header
-		String lastActionDone = "loading sam header header";
+		String lastActionDone = "Loading sam header...";
 		logger.println(lastActionDone);
 		SAMFileHeader header = reader.getFileHeader();
 
@@ -176,13 +176,13 @@ public class BamStatsAnalysis {
         }
 
         // load locator
-        lastActionDone = "loading locator";
+        lastActionDone = "Loading locator...";
         logger.println(lastActionDone);
         loadLocator(header);
         loadProgramRecords(header.getProgramRecords());
 
         // load reference
-        lastActionDone = "loading reference";
+        lastActionDone = "Loading reference...";
         logger.println(lastActionDone);
         loadReference();
 
@@ -223,7 +223,7 @@ public class BamStatsAnalysis {
                     outsideBamStats.activateCoverageReporting(outdir + "/outside_coverage.txt");
                 }
 
-                // We have twice more data from the bunch.
+                // we have twice more data from the bunch, so the queue is limited now
                 maxSizeOfTaskQueue /= 2;
             }
 
@@ -431,6 +431,7 @@ public class BamStatsAnalysis {
         bamStats.setNumberOfSingletons( totalNumberOfSingletons );
 
         bamStats.setReferenceSize(referenceSize);
+        bamStats.setNumberOfReferenceContigs(locator.getContigs().size());
         bamStats.setReadMaxSize(maxReadSize);
         bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
@@ -456,6 +457,7 @@ public class BamStatsAnalysis {
 
         if(selectedRegionsAvailable && computeOutsideStats){
             outsideBamStats.setReferenceSize(referenceSize);
+            outsideBamStats.setNumberOfReferenceContigs(locator.getContigs().size());
             outsideBamStats.setNumSelectedRegions(numberOfSelectedRegions);
             outsideBamStats.setInRegionReferenceSize(insideReferenceSize);
             outsideBamStats.setNumberOfReads(numberOfReads);

@@ -21,13 +21,16 @@ public class BamQCTest {
 
         tests = new ArrayList<TestConfig>();
 
-        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
+        tests.add( new TestConfig("bamqc/test001.txt", testEnv) );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
-        tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
-        tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
-        tests.add( new TestConfig("bamqc/test006.txt", testEnv) );
-        tests.add( new TestConfig("bamqc/test007.txt", testEnv) );
+        //tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
+
+        // BIG TESTS JUST TO SEE IF QUALIMAP WILL FINISH
+
+        //tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
+        //tests.add( new TestConfig("bamqc/test006.txt", testEnv) );
+        //tests.add( new TestConfig("bamqc/test007.txt", testEnv) );
     }
 
     @Test
@@ -38,7 +41,6 @@ public class BamQCTest {
             BamQCRegionReporter bamQcReporter = new BamQCRegionReporter();
 
             BamStatsAnalysis bamQc = new BamStatsAnalysis(test.getPathToBamFile()) ;
-            bamQc.setNumberOfWindows(400);
 
             String pathToRegionFile = test.getPathToRegionFile();
             if (pathToRegionFile != null && !pathToRegionFile.isEmpty()) {
@@ -56,9 +58,9 @@ public class BamQCTest {
                 return;
             }
 
-            Properties calculatedProps = new Properties();
-            BamQCRegionReporter.generateBamQcProperties(calculatedProps, bamQcReporter);
+            Properties calculatedProps = bamQcReporter.generateBamQcProperties();
 
+            // For generating correct tests
             /*try {
                 calculatedProps.store(new FileOutputStream(test.getResultsPath()), null);
             } catch (IOException e) {
@@ -68,10 +70,11 @@ public class BamQCTest {
             compareProperties(calculatedProps, test.getResultsPath());
 
             if (test.getComputeOutsideStats() && test.getOutsideResultsPath() != null) {
-                Properties outsideProps = new Properties();
                 BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
                 outsideReporter.loadReportData(bamQc.getOutsideBamStats());
-                BamQCRegionReporter.generateBamQcProperties(outsideProps, outsideReporter);
+                /*outsideReporter.computeChartsBuffers(bamQc.getOutsideBamStats(),
+                        bamQc.getLocator(), bamQc.isPairedData());*/
+                Properties outsideProps = outsideReporter.generateBamQcProperties();
 
                 /*try {
                     outsideProps.store(new FileOutputStream(test.getOutsideResultsPath()), null);
@@ -103,13 +106,14 @@ public class BamQCTest {
                     continue;
                 }
                 if (validProps.containsKey(key)) {
-                    System.out.println("Property: " + key);
+                    //System.out.println("Property: " + key);
                     String expectedValue = validProps.getProperty(key);
                     String calculatedValue = calculatedProps.getProperty(key);
                     String errorMessage = "Stats are not equal. Key: " + key +
                             "\nExpected: " + expectedValue + "\nCalculated: " + calculatedValue;
                     assertTrue(errorMessage, expectedValue.equals(calculatedValue));
-
+                } else {
+                    assertTrue("Item \"" + key + "\" is not found in result properties.", false);
                 }
             }
     }

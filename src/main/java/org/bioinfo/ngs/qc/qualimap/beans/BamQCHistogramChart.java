@@ -10,6 +10,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 import java.awt.*;
 import java.io.IOException;
@@ -113,7 +114,7 @@ public class BamQCHistogramChart {
 		chart.setSubtitles(Arrays.asList(sub));
 
 		// other params
-		//chart.setPadding(new RectangleInsets(30,20,30,20));
+		chart.setPadding(new RectangleInsets(30,20,30,20));
 
         XYPlot plot = chart.getXYPlot();
 		// axis style

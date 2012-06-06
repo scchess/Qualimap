@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -448,12 +449,13 @@ public class BamQCRegionReporter implements Serializable {
 		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
         charts.add(new QChart(bamStats.getName() + "_coverage_across_reference.png", combinedChart) );
 
-		// coverageData histogram
+		// coverageData histogram                            Щ
 		BamQCHistogramChart coverageHistogram = new BamQCHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
                 subTitle, "Coverage (X)", "Number of genomic locations",
                 bamStats.getBalancedCoverageHistogram(), bamStats.getBalancedCoverageBarNames());
 		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
 		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
+
 		coverageHistogram.render();
 
         charts.add( new QChart(bamStats.getName() + "_coverage_histogram.png",
@@ -1091,61 +1093,64 @@ public class BamQCRegionReporter implements Serializable {
     }
 
 
-public static void generateBamQcProperties(Properties prop, BamQCRegionReporter reporter) {
-            prop.setProperty("bamFileName", reporter.getBamFileName());
-			prop.setProperty("basesNumber", reporter.getBasesNumber().toString());
-			prop.setProperty("contigsNumber", reporter.getContigsNumber().toString());
-            prop.setProperty("numRegions", Integer.toString(reporter.getNumSelectedRegions()));
-            prop.setProperty("numInRegionMappedReads", Long.toString(reporter.getNumMappedReadsInRegions()));
-            prop.setProperty("numInRegionBases", Long.toString(reporter.getInRegionsReferenceSize()));
+    public Properties generateBamQcProperties() {
 
-            //TODO: in region related info (num regions, regions size etc)
+        Properties prop = new Properties();
 
-			if (reporter.getReferenceFileName() != null && !reporter.getReferenceFileName().isEmpty()) {
-				prop.setProperty("referenceFileName", reporter.getReferenceFileName());
-				prop.setProperty("aReferenceNumber", reporter.getaReferenceNumber().toString());
-				prop.setProperty("aReferencePercent", reporter.getaReferencePercent().toString());
-				prop.setProperty("cReferenceNumber", reporter.getcReferenceNumber().toString());
-				prop.setProperty("cReferencePercent", reporter.getcReferencePercent().toString());
-				prop.setProperty("tReferenceNumber", reporter.gettReferenceNumber().toString());
-				prop.setProperty("tReferencePercent", reporter.gettReferencePercent().toString());
-				prop.setProperty("gReferenceNumber", reporter.getgReferenceNumber().toString());
-				prop.setProperty("gReferencePercent", reporter.getgReferencePercent().toString());
-				prop.setProperty("nReferenceNumber", reporter.getnReferenceNumber().toString());
-				prop.setProperty("nReferencePercent", reporter.getnReferencePercent().toString());
-			}
+        prop.setProperty("refSize", referenceSize.toString());
+        prop.setProperty("numContigs", contigsNumber.toString());
+        prop.setProperty("numRegions", Integer.toString(numSelectedRegions));
 
-			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
-			//prop.setProperty("atPercent", reporter.getAtPercent().toString());
+        /*if (reporter.getReferenceFileName() != null && !reporter.getReferenceFileName().isEmpty()) {
+            prop.setProperty("referenceFileName", reporter.getReferenceFileName());
+            prop.setProperty("aReferenceNumber", reporter.getaReferenceNumber().toString());
+            prop.setProperty("aReferencePercent", reporter.getaReferencePercent().toString());
+            prop.setProperty("cReferenceNumber", reporter.getcReferenceNumber().toString());
+            prop.setProperty("cReferencePercent", reporter.getcReferencePercent().toString());
+            prop.setProperty("tReferenceNumber", reporter.gettReferenceNumber().toString());
+            prop.setProperty("tReferencePercent", reporter.gettReferencePercent().toString());
+            prop.setProperty("gReferenceNumber", reporter.getgReferenceNumber().toString());
+            prop.setProperty("gReferencePercent", reporter.getgReferencePercent().toString());
+            prop.setProperty("nReferenceNumber", reporter.getnReferenceNumber().toString());
+            prop.setProperty("nReferencePercent", reporter.getnReferencePercent().toString());
+         }*/
 
-			// globals
-			prop.setProperty("numWindows", reporter.getNumWindows().toString());
-			prop.setProperty("numReads", reporter.getNumReads().toString());
-			prop.setProperty("numMappedReads", reporter.getNumMappedReads().toString());
-			prop.setProperty("percentMappedReads", reporter.getPercentMappedReads().toString());
-			prop.setProperty("numMappedBases", reporter.getNumMappedBases().toString());
-			prop.setProperty("numSequencedBases", reporter.getNumSequencedBases().toString());
-			prop.setProperty("numAlignedBases", reporter.getNumAlignedBases().toString());
+        // globals
+        prop.setProperty("numWindows", numWindows.toString());
+        prop.setProperty("numReads", numReads.toString());
+        prop.setProperty("numMappedReads", numMappedReads.toString());
+        prop.setProperty("percentMappedReads", percentMappedReads.toString());
+        prop.setProperty("numMappedBases", numMappedBases.toString());
+        prop.setProperty("numSequencedBases", numSequencedBases.toString());
+        prop.setProperty("numAlignedBases", numAlignedBases.toString());
 
-			// mapping quality
-			prop.setProperty("meanMappingQuality", reporter.getMeanMappingQuality().toString());
+        // region related
 
-			// actg content
-			prop.setProperty("aNumber", reporter.getaNumber().toString());
-			prop.setProperty("aPercent", reporter.getaPercent().toString());
-			prop.setProperty("cNumber", reporter.getcNumber().toString());
-			prop.setProperty("cPercent", reporter.getcPercent().toString());
-			prop.setProperty("tNumber", reporter.gettNumber().toString());
-			prop.setProperty("tPercent", reporter.gettPercent().toString());
-			prop.setProperty("gNumber", reporter.getgNumber().toString());
-			prop.setProperty("gPercent", reporter.getgPercent().toString());
-			prop.setProperty("nNumber", reporter.getnNumber().toString());
-			prop.setProperty("nPercent", reporter.getnPercent().toString());
-			prop.setProperty("gcPercent", reporter.getGcPercent().toString());
 
-			// coverageData
-			prop.setProperty("meanCoverage", reporter.getMeanCoverage().toString());
-			prop.setProperty("stdCoverage", reporter.getStdCoverage().toString());
+        // coverageData
+        prop.setProperty("meanCoverage", meanCoverage.toString());
+        prop.setProperty("stdCoverage", stdCoverage.toString());
+
+        // mapping quality
+        prop.setProperty("meanMappingQuality", meanMappingQuality.toString());
+
+        // insert size
+        prop.setProperty("meanInsertSize", meanInsertSize.toString());
+
+        // actg content
+        prop.setProperty("aNumber", aNumber.toString());
+        prop.setProperty("aPercent", aPercent.toString());
+        prop.setProperty("cNumber", cNumber.toString());
+        prop.setProperty("cPercent", cPercent.toString());
+        prop.setProperty("tNumber", tNumber.toString());
+        prop.setProperty("tPercent", tPercent.toString());
+        prop.setProperty("gNumber", gNumber.toString());
+        prop.setProperty("gPercent", gPercent.toString());
+        prop.setProperty("nNumber", nNumber.toString());
+        prop.setProperty("nPercent",  nPercent.toString());
+        prop.setProperty("gcPercent", gcPercent.toString());
+
+        return prop;
     }
 
 

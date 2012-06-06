@@ -11,14 +11,16 @@ import java.io.File;
 /**
  * This class provides common environment for running Qualimap tests.
  * It can be used to access Qualimap test directory and also
- * replace special variables (such as $TEST_DIR for example) in test
+ * process special variables (such as $COMMON_DATA_DIR for example) in test
  * configuration files.
  */
 public class Environment {
 
     String qualimapTestDir;
+    String qualimapDataDir;
 
-    final static String TEST_DIR = "$TEST_DIR";
+    final static String TEST_ROOT_DIR = "$TEST_ROOT_DIR";
+    final static String COMMON_DATA_DIR = "$COMMON_DATA_DIR";
 
     void initQualimapTestDir() {
 
@@ -40,6 +42,8 @@ public class Environment {
         if (! (testDir.exists() && testDir.isDirectory()) ) {
             throw new RuntimeException("Failed to init test QualiMap test directory: " + qualimapTestDir );
         }
+
+        qualimapDataDir = qualimapTestDir + File.separator + "common_data";
     }
 
 
@@ -49,6 +53,7 @@ public class Environment {
 
 
     public String processAttrValue(String attrVal) {
-        return attrVal.replace(TEST_DIR, qualimapTestDir);
+        return attrVal.replace(TEST_ROOT_DIR, qualimapTestDir)
+                .replace(COMMON_DATA_DIR, qualimapDataDir);
 }
 }
