@@ -1,0 +1,3 @@
+bamfile=/home/kokonech/sample_data/example-alignment.sorted.bam
+result=/home/kokonech/sample_data/example-alignment.properties
+

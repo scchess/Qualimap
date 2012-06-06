@@ -1,0 +1,8 @@
+# the region contains all reads of the file
+
+bamfile=/home/kokonech/sample_data/pl_1_and_2.bam
+result=/home/kokonech/sample_data/pl_1_and_2_inside.properties
+compute_outside_stats=true
+outside_result=/home/kokonech/sample_data/pl_1_and_2_outside.properties
+regions=/home/kokonech/sample_data/pl_big.gff
+

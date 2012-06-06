@@ -24,12 +24,14 @@ public class ReadCountsTest {
 
     public ReadCountsTest() throws IOException {
 
-        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test001.txt"));
-        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test002.txt"));
-        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test003.txt"));
-        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test004.txt"));
-        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test005.txt"));
-        tests.add(new TestConfig("/home/kokonech/qualimap-tests/count-reads/test006.txt"));
+        Environment testEnv = new Environment();
+
+        tests.add(new TestConfig("count-reads/test001.txt", testEnv) );
+        tests.add(new TestConfig("count-reads/test002.txt", testEnv) );
+        tests.add(new TestConfig("count-reads/test003.txt", testEnv) );
+        tests.add(new TestConfig("count-reads/test004.txt", testEnv) );
+        tests.add(new TestConfig("count-reads/test005.txt", testEnv) );
+        tests.add(new TestConfig("count-reads/test006.txt", testEnv) );
 
     }
 
@@ -77,9 +79,10 @@ public class ReadCountsTest {
             try {
                 computeCountsTask.run();
                 Map<String,Double> readCounts = computeCountsTask.getReadCounts();
-                List<String> geneNames = asSortedList(readCounts.keySet());
 
-                /*for (String key : geneNames) {
+                /*List<String> geneNames = asSortedList(readCounts.keySet());
+
+                for (String key : geneNames) {
                     System.out.println(key + ":" + readCounts.get(key));
                 }*/
 

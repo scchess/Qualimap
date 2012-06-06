@@ -1,0 +1,5 @@
+# Test global bam stats
+
+bamfile=/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.bam
+result=/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.properties
+

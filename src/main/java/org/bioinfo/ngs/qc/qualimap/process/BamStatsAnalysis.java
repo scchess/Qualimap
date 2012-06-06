@@ -225,7 +225,6 @@ public class BamStatsAnalysis {
                 }
 
                 // We have twice more data from the bunch.
-                // TODO: Is this really required? look at bug-126
                 maxSizeOfTaskQueue /= 2;
             }
 
@@ -733,15 +732,15 @@ public class BamStatsAnalysis {
 
     }
 
-
-    private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
+    // For debug purposes
+    /*private static Integer finalizeWindowInSameThread(BamGenomeWindow window,BamStats bamStats,
                                                Map<Long,BamGenomeWindow> openWindows) {
         long windowStart = bamStats.getCurrentWindowStart();
         openWindows.remove(windowStart);
         bamStats.incProcessedWindows();
         FinalizeWindowTask task = new FinalizeWindowTask(bamStats,window);
         return task.call();
-    }
+    }*/
 
 
     private void loadLocator(SAMFileHeader header){
@@ -792,11 +791,8 @@ public class BamStatsAnalysis {
 		Gff region;
 		GffReader gffReader = new GffReader(gffFile);
 		System.out.println("initializing regions from " + gffFile + ".....");
-		while((region = gffReader.read())!=null){
-			/*if (!region.getFeature().equalsIgnoreCase("exon")) {
-                continue;
-            }*/
-            numberOfSelectedRegions++;
+		while(gffReader.read() != null){
+			numberOfSelectedRegions++;
 		}
 		gffReader.close();
 		if (numberOfSelectedRegions == 0) {

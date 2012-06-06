@@ -53,7 +53,8 @@ public class NgsSmartMain {
             if (toolName.equalsIgnoreCase("run-tests")) {
                 System.out.println("Supposed to run tests...");
                 //runTests();
-            } else if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help") || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
+            } else if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help")
+                    || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
 				logger.println("");
 				logger.println(getHelp());
 			} else {

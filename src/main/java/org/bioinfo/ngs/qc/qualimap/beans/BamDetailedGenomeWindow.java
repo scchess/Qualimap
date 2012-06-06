@@ -126,8 +126,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 				// quality
 				mappingQualityAcrossReference[i] = mappingQualityAcrossReference[i] / coverageAtPosition;
                 // insert size
-                //  System.err.println(properlyPairedCoverageAcrossReference[i]);
-                //  insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
+                // System.err.println(properlyPairedCoverageAcrossReference[i]);
+                // insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
 
                 sumCoverageSquared += coverageAtPosition*coverageAtPosition;
 

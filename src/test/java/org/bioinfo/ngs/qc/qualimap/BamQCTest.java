@@ -16,20 +16,22 @@ public class BamQCTest {
 
 
     public BamQCTest() throws IOException {
+
+        Environment testEnv = new Environment();
+
         tests = new ArrayList<TestConfig>();
 
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test001.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
         //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test004.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test005.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test006.txt") );
-        tests.add( new TestConfig("/home/kokonech/qualimap-tests/test007.txt") );
+        tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
+        tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
+        tests.add( new TestConfig("bamqc/test006.txt", testEnv) );
+        tests.add( new TestConfig("bamqc/test007.txt", testEnv) );
     }
 
     @Test
     public void testStats() {
-
 
         for (TestConfig test : tests) {
 

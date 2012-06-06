@@ -1,0 +1,5 @@
+#testing read begining is out of region
+
+bamfile=/home/kokonech/sample_data/pl_big.bam
+result=/home/kokonech/sample_data/test_region_01.properties
+regions=/home/kokonech/sample_data/test_region_01.gff

@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.HashMap;
  */
 public class TestConfig {
 
+
     HashMap<String,String> attributes;
 
     private final String BAM_FILE_ATTR = "bamfile";
@@ -20,7 +22,7 @@ public class TestConfig {
     private final String REGIONS_FILE_ATTR = "regions";
     private final String OUTSIDE_STATS_ATTR = "compute_outside_stats";
 
-    private HashMap<String,String> parseConfigFile(BufferedReader fileReader) throws IOException {
+    private HashMap<String,String> parseConfigFile(BufferedReader fileReader, Environment testEnv) throws IOException {
         HashMap<String,String> attrMap = new HashMap<String, String>();
         String s;
         while ((s = fileReader.readLine()) != null) {
@@ -28,7 +30,9 @@ public class TestConfig {
                 continue;
             }
             String[] attrs = s.split("=");
-            attrMap.put(attrs[0].trim(),attrs[1].trim());
+            String attrName = attrs[0].trim();
+            String attrValue = testEnv.processAttrValue(attrs[1].trim());
+            attrMap.put( attrName , attrValue);
         }
 
         attrMap.put(null,"");
@@ -36,9 +40,11 @@ public class TestConfig {
         return attrMap;
     }
 
-    public TestConfig(String pathToConfig) throws IOException {
-        BufferedReader fileReader = new BufferedReader( new FileReader(pathToConfig));
-        attributes = parseConfigFile(fileReader);
+    public TestConfig(String pathToConfig, Environment testEnv ) throws IOException {
+        String qualimapTestDir = testEnv.getQualimapTestDir();
+        String path = qualimapTestDir + File.separator + pathToConfig;
+        BufferedReader fileReader = new BufferedReader( new FileReader(path));
+        attributes = parseConfigFile(fileReader,testEnv);
     }
 
     public String getSpecificAttribute(String attrName) { return attributes.get(attrName); }

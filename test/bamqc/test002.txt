@@ -1,0 +1,3 @@
+bamfile=/home/kokonech/sample_data/PlasmodiumD37_RNASeq.bam
+result=/home/kokonech/sample_data/PlasmodiumD37_RNASeq.properties
+

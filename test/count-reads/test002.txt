@@ -1,0 +1,6 @@
+#testing read counts in region. should be only one read 
+
+bamfile=/home/kokonech/playgrnd/rna-seq/accepted_hits.20.bam
+regions=/home/kokonech/playgrnd/rna-seq/bad_gene.gtf
+result=/home/kokonech/playgrnd/rna-seq/bad_gene.result
+
