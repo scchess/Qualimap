@@ -8,7 +8,7 @@ import java.io.File;
  * Created by kokonech
  * Date: 2/3/12
  * Time: 4:07 PM
- * Based on
+ * Last open dir file helper
  */
 
 public class LODFileChooser extends JFileChooser {

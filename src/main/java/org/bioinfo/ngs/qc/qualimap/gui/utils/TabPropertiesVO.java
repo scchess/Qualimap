@@ -16,6 +16,7 @@ import org.bioinfo.ngs.qc.qualimap.utils.UniqueID;
 /**
  * Value Object to manage the properties of each tab
  * @author Luis Miguel Cruz
+ * @author Konstantin Okonechnikov
  */
 public class TabPropertiesVO {
 	/** Logger to print information */

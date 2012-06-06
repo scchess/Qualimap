@@ -23,9 +23,6 @@ public final class Constants {
 	//******************************************************************************************
 	//****************************** LENGTH AND MARGIN CONSTANTS *******************************
 	//******************************************************************************************
-	// Max Length of the input file name showed
-	public static final int fileInputNameLength = 500;
-	
 	// Margin top for each element
 	public static final int marginTopForFirstElement = 15;
 	
@@ -35,31 +32,12 @@ public final class Constants {
 	// Margin left for sub element of a GroupBox
 	public static final int marginLeftForSubElement = 15;
 	
-	// Margin left for an element of type JCheckbox
-	public static final int marginLeftForElementCheck = 2;
-	
-	// Common height for each element 
+	// Common height for each element
 	public static final int elementHeight = 20;
-	
-	// Margin top for an element that is not the first. To calculate the Y coordinate we use
-	// the topMargin and the height of the element before this. 
-	public static final int marginTopForElementI = marginTopForFirstElement + elementHeight;
-	
-	// Width for the labels in the input frame screen
-	public static final int labelInputElementWidth = 161;
-	
-	// Width for the labels in the input frame screen
-	public static final int labelInputElementWidthLong = 215;
 	
 	// Margin top for an element of a submenu
 	public static final int marginTopForElementSubMenu = 3;
-	
-	// Margin left for an element of a submenu
-	public static final int marginLeftForElementSubMenu = 6;
-	
-	// Width for the input box to set or read numbers 
-	public static final int widthInputNumber = 125;
-	
+
 	
 	//******************************************************************************************
 	//******************************* FILE EXTENSION CONSTANTS *********************************
@@ -73,9 +51,6 @@ public final class Constants {
 		FILE_EXTENSION_REGION.put("GFF", "GFF");
 		FILE_EXTENSION_REGION.put("GTF", "GTF");
 	}
-	
-	// Extension for the Reference Genome File
-	public static final String FILE_EXTENSION_REFERENCE_GENOME = "FASTA";
 	
 	// Extension for the Compress File
 	public static final String FILE_EXTENSION_COMPRESS_FILE = "ZIP";
@@ -98,6 +73,7 @@ public final class Constants {
 	//******************************************************************************************
 	//******************************* GRAPHICS NAMES CONSTANTS *********************************
 	//******************************************************************************************
+
 	// Name of the graphic for the Coverage Across Reference
 	public static final String GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE = "genome_coverage_across_reference.png";
 	
@@ -182,24 +158,8 @@ public final class Constants {
 	
 	// Name of the graphic for the Global Saturation
 	public static final String GRAPHIC_NAME_RNA_COUNTS_PER_CLASS = "counts_boxplot.png";
-	
-	// unkown class
-	//public static final String GRAPHIC_NAME_RNA_COUNTS_PER_UNKNOWN = "unknown_boxplot.png";
-	
-	
-	//******************************************************************************************
-	//****************************** PROPERTIES IN ZIP NAME FILE *******************************
-	//******************************************************************************************
-	// Name of property file that contains the data in the Zip file for the reference input
-	public static final String NAME_OF_PROPERTIES_IN_ZIP_FILE  = "reference.properties";
 
-	// Name of property file that contains the data in the Zip file for the outside reference input
-	public static final String NAME_OF_OUTSIDE_PROPERTIES_IN_ZIP_FILE  = "outside_reference.properties";
 	
-	public static final String NAME_OF_GENOME_LOCATOR_IN_ZIP_FILE = "genome_locator";
-
-    public static final String NAME_OF_BAM_STATS_IN_ZIP_FILE = "bam_stats";
-
 	//******************************************************************************************
 	//********************************* NAMES OF DATA RAW FILES ********************************
 	//******************************************************************************************

@@ -91,10 +91,5 @@ public class XYVector implements Serializable {
 		return maxValue;
 	}
 
-	/**
-	 * @param maxValue the maxValue to set
-	 */
-	public void setMaxValue(double maxValue) {
-		this.maxValue = maxValue;
-	}	
+
 }

@@ -28,18 +28,6 @@ public class BamQCRegionReporter implements Serializable {
         return namePostfix;
     }
 
-    public int getNumPairedReads() {
-        return numPairedReads;
-    }
-
-    public double getPercentPairedReads() {
-        return percantagePairedReads;
-    }
-
-    public int getNumSingletons() {
-        return numSingletons;
-    }
-
     public double getPercentSingletons() {
         return percentageSingletons;
     }
@@ -1020,10 +1008,6 @@ public class BamQCRegionReporter implements Serializable {
 
     public long getNumMappedReadsInRegions() {
         return numMappedReadsInRegions;
-    }
-
-    public double getPercentageMappedReadsInRegions() {
-        return percentageMappedReadsInRegions;
     }
 
     public int getReadMinSize() {

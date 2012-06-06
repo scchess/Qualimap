@@ -31,6 +31,7 @@ import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
  * Class that manages the principal frames of the application.
  * 
  * @author Luis Miguel Cruz
+ * @author kokonech
  */
 
 public class HomeFrame extends JFrame implements WindowListener, ActionListener, MouseListener {
@@ -347,11 +348,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         analysisMenu.setIcon(new ImageIcon(this.getClass().getResource(Constants.pathImages + "report.png")));
         fileMenu.add(analysisMenu);
 
-        //TODO: improve the reports significantly
-        //openReportItem = addMenuItem("Open Report (.zip)", "openproject", "open_folder.png", "ctrl pressed O");
-        //fileMenu.add(openReportItem);
-        //saveReportItem = addMenuItem("Save Report", "saveproject", "save_zip.png", "ctrl pressed S");
-        //fileMenu.add(saveReportItem);
         fileMenu.addSeparator();
         exportToHtmlItem = addMenuItem("Export as HTML", "exporthtml", "save_zip.png", "ctrl pressed H");
         fileMenu.add(exportToHtmlItem);
@@ -379,8 +375,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             helpMenu.add(addMenuItem("User Manual", "manual", "help.png", "F1"));
             
         }
-        helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "world_go.png",null));
-		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "world_go.png",null));
+        helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "world_go.png", null));
+		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "world_go.png", null));
         helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","F12"));
 
 
