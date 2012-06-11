@@ -1,5 +1,6 @@
-# Test global bam stats
+#testing read begining is out of region
 
-bamfile=/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.bam
-result=/home/kokonech/playgrnd/chipseq/IgG.best.strata.unique.sorted.properties
+bamfile=$COMMON_DATA_DIR/pl_1_and_2.bam
+result=$TEST_ROOT_DIR/bamqc/results/pl.inside.properties
+regions=$COMMON_DATA_DIR/test_region_01.gff
 

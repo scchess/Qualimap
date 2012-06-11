@@ -1,8 +1,6 @@
-#testing read end is out of region
+#testing read begining is out of region
 
-bamfile=/home/kokonech/sample_data/pl_big.bam
-result=/home/kokonech/sample_data/test_region_02.properties
-compute_outside_stats=true
-regions=/home/kokonech/sample_data/test_region_02.gff
-outside_result=/home/kokonech/sample_data/test_region_02_outside.properties
+bamfile=/home/kokonech/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_RNASeq.bam
+result=$TEST_ROOT_DIR/bamqc/results/plasmodium.properties
+regions=/home/kokonech/qualimap_release_data/annotations/Plasmodium-falciparum-3D7.gff
 

@@ -1,3 +1,4 @@
+# Testing bam file with small reference size
 bamfile=$COMMON_DATA_DIR/gambusino_reads.sorted.bam
 result=$TEST_ROOT_DIR/bamqc/results/test001.bam.props
 

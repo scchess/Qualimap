@@ -1,12 +1,10 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.io.*;
 import java.util.*;
 import java.util.List;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ListUtils;
@@ -73,7 +71,7 @@ public class BamQCRegionReporter implements Serializable {
     private int numSingletons;
     private double percentageSingletons;
 
-    private long numMappedReadsInRegions, numPairedReadsInRegions;
+    private int numMappedReadsInRegions, numPairedReadsInRegions;
     private double percentageMappedReadsInRegions;
 
     private int numMappedFirstOfPairInRegions, numMappedSecondOfPairInRegions;
@@ -674,22 +672,6 @@ public class BamQCRegionReporter implements Serializable {
 		return bamFileName;
 	}
 
-	public String getReferenceFileName() {
-		return referenceFileName;
-	}
-
-	public Integer getNumWindows() {
-		return numWindows;
-	}
-
-	public Long getBasesNumber() {
-		return referenceSize;
-	}
-
-	public Long getContigsNumber() {
-		return contigsNumber;
-	}
-
 	public Long getaNumber() {
 		return aNumber;
 	}
@@ -708,18 +690,6 @@ public class BamQCRegionReporter implements Serializable {
 
 	public Long getnNumber() {
 		return nNumber;
-	}
-
-	public Long getNumReads() {
-		return numReads;
-	}
-
-	public Integer getNumMappedReads() {
-		return numMappedReads;
-	}
-
-	public Long getNumMappedBases() {
-		return numMappedBases;
 	}
 
 	public Double getaPercent() {
@@ -750,66 +720,6 @@ public class BamQCRegionReporter implements Serializable {
 		return percentMappedReads;
 	}
 
-	public Long getNumSequencedBases() {
-		return numSequencedBases;
-	}
-
-	public Long getNumAlignedBases() {
-		return numAlignedBases;
-	}
-
-	public Long getaReferenceNumber() {
-		return aReferenceNumber;
-	}
-
-	public Long getcReferenceNumber() {
-		return cReferenceNumber;
-	}
-
-	public Long getgReferenceNumber() {
-		return gReferenceNumber;
-	}
-
-	public Long gettReferenceNumber() {
-		return tReferenceNumber;
-	}
-
-	public Long getnReferenceNumber() {
-		return nReferenceNumber;
-	}
-
-	public Double getMeanMappingQuality() {
-		return meanMappingQuality;
-	}
-
-	public Double getaReferencePercent() {
-		return aReferencePercent;
-	}
-
-	public Double getcReferencePercent() {
-		return cReferencePercent;
-	}
-
-	public Double getgReferencePercent() {
-		return gReferencePercent;
-	}
-
-	public Double gettReferencePercent() {
-		return tReferencePercent;
-	}
-
-	public Double getnReferencePercent() {
-		return nReferencePercent;
-	}
-
-	public Double getMeanCoverage() {
-		return meanCoverage;
-	}
-
-	public Double getStdCoverage() {
-		return stdCoverage;
-	}
-
 	public List<StatsKeeper.Section> getInputDataSections() {
         return inputDataKeeper.getSections();
     }
@@ -837,15 +747,15 @@ public class BamQCRegionReporter implements Serializable {
 
         StatsKeeper.Section globals = new StatsKeeper.Section("Globals");
 
-        globals.addRow("Reference size", sdf.formatLong(getBasesNumber()));
+        globals.addRow("Reference size", sdf.formatLong(referenceSize));
 
-        globals.addRow("Number of reads", sdf.formatLong(getNumReads()));
+        globals.addRow("Number of reads", sdf.formatLong(numReads));
 
-        globals.addRow("Mapped reads", sdf.formatInteger(getNumMappedReads())
+        globals.addRow("Mapped reads", sdf.formatInteger(numMappedReads)
                 + " / " + sdf.formatPercentage(getPercentMappedReads()));
 
         globals.addRow("Unmapped reads",
-                sdf.formatLong(getNumReads() - getNumMappedReads()) + " / "
+                sdf.formatLong(numReads - numMappedReads) + " / "
                         + sdf.formatPercentage(100.0 - getPercentMappedReads()));
 
         globals.addRow("Paired reads",
@@ -871,9 +781,9 @@ public class BamQCRegionReporter implements Serializable {
              }
 
         globals.addRow("Read min/max/mean length",
-                sdf.formatLong(getReadMinSize()) + " / "
-                        + sdf.formatLong(getReadMaxSize()) + " / "
-                        + sdf.formatDecimal(getReadMeanSize()));
+                sdf.formatLong(readMinSize) + " / "
+                        + sdf.formatLong(readMaxSize) + " / "
+                        + sdf.formatDecimal(readMeanSize));
 
         globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
 
@@ -899,10 +809,10 @@ public class BamQCRegionReporter implements Serializable {
                         sdf.formatInteger(numMappedSecondOfPairInRegions) + " / " +
                                 sdf.formatPercentage(percentageOfMappedSecondOfPairInRegions));
                 globalsInRegions.addRow("Mapped reads, both in pair",
-                                   sdf.formatLong(numPairedReadsInRegions - numSingletonsInRegions) + " / "
+                                   sdf.formatInteger(numPairedReadsInRegions - numSingletonsInRegions) + " / "
                                         + sdf.formatPercentage((getPercentageBothMatesPairedInRegions())));
                 globalsInRegions.addRow("Mapped reads, singletons",
-                        sdf.formatLong(numSingletonsInRegions) + " / "
+                        sdf.formatInteger(numSingletonsInRegions) + " / "
                                 + sdf.formatPercentage(percentageSingletonsInRegions));
 
             }
@@ -929,12 +839,12 @@ public class BamQCRegionReporter implements Serializable {
 
 
 		StatsKeeper.Section coverageSection = new StatsKeeper.Section("Coverage" + postfix);
-		coverageSection.addRow("Mean", sdf.formatDecimal(getMeanCoverage()));
-		coverageSection.addRow("Standard Deviation",sdf.formatDecimal(getStdCoverage()) );
+		coverageSection.addRow("Mean", sdf.formatDecimal(meanCoverage));
+		coverageSection.addRow("Standard Deviation",sdf.formatDecimal(stdCoverage) );
 		summaryStatsKeeper.addSection(coverageSection);
 
 		StatsKeeper.Section mappingQualitySection = new StatsKeeper.Section("Mapping Quality" + postfix);
-		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(getMeanMappingQuality()));
+		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(meanMappingQuality));
 		summaryStatsKeeper.addSection(mappingQualitySection);
 
         if (meanInsertSize != 0)
@@ -1006,32 +916,6 @@ public class BamQCRegionReporter implements Serializable {
         this.namePostfix = namePostfix;
     }
 
-    public int getNumSelectedRegions() {
-        return numSelectedRegions;
-    }
-
-    public long getInRegionsReferenceSize() {
-        return numBasesInsideRegions;
-    }
-
-    public long getNumMappedReadsInRegions() {
-        return numMappedReadsInRegions;
-    }
-
-    public int getReadMinSize() {
-        return readMinSize;
-    }
-
-    public int getReadMaxSize() {
-        return  readMaxSize;
-    }
-
-    public  double getReadMeanSize() {
-        return readMeanSize;
-    }
-
-
-
     public XYVector getGenomeGcContentHistogram() {
         XYVector res = new XYVector();
         try {
@@ -1101,6 +985,7 @@ public class BamQCRegionReporter implements Serializable {
         prop.setProperty("numContigs", contigsNumber.toString());
         prop.setProperty("numRegions", Integer.toString(numSelectedRegions));
 
+        // reference
         /*if (reporter.getReferenceFileName() != null && !reporter.getReferenceFileName().isEmpty()) {
             prop.setProperty("referenceFileName", reporter.getReferenceFileName());
             prop.setProperty("aReferenceNumber", reporter.getaReferenceNumber().toString());
@@ -1123,9 +1008,16 @@ public class BamQCRegionReporter implements Serializable {
         prop.setProperty("numMappedBases", numMappedBases.toString());
         prop.setProperty("numSequencedBases", numSequencedBases.toString());
         prop.setProperty("numAlignedBases", numAlignedBases.toString());
+        prop.setProperty("numPairedReads", Integer.toString(numPairedReads));
+        prop.setProperty("numSingletons", Integer.toString(numSingletons));
+        prop.setProperty("duplicationRate", Double.toString(duplicationRate));
 
-        // region related
-
+        // regions related
+        prop.setProperty("refSizeInRegions", Long.toString(numBasesInsideRegions));
+        prop.setProperty("numMappedReadsInRegions", Integer.toString(numMappedReadsInRegions));
+        prop.setProperty("percentMappedReadsInRegions", Double.toString(percentageMappedReadsInRegions));
+        prop.setProperty("numPairedReadsInRegions", Integer.toString(numPairedReadsInRegions));
+        prop.setProperty("numSingletonsInRegions", Integer.toString(numSingletonsInRegions));
 
         // coverageData
         prop.setProperty("meanCoverage", meanCoverage.toString());

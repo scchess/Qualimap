@@ -22,13 +22,14 @@ public class BamQCTest {
         tests = new ArrayList<TestConfig>();
 
         tests.add( new TestConfig("bamqc/test001.txt", testEnv) );
-        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test002.txt") );
-        //tests.add( new TestConfig("/home/kokonech/qualimap-tests/test003.txt") );
+        tests.add( new TestConfig("bamqc/test002.txt", testEnv) );
+        tests.add( new TestConfig("bamqc/test003.txt", testEnv) );
         //tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
+        tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
+
 
         // BIG TESTS JUST TO SEE IF QUALIMAP WILL FINISH
 
-        //tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
         //tests.add( new TestConfig("bamqc/test006.txt", testEnv) );
         //tests.add( new TestConfig("bamqc/test007.txt", testEnv) );
     }
@@ -64,7 +65,7 @@ public class BamQCTest {
             /*try {
                 calculatedProps.store(new FileOutputStream(test.getResultsPath()), null);
             } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                e.printStackTrace();
             }*/
 
             compareProperties(calculatedProps, test.getResultsPath());
@@ -99,7 +100,7 @@ public class BamQCTest {
                 return;
             }
 
-            final List<String> keysToSkip = Arrays.asList("meanMappingQuality", "numWindows", "aPercent");
+            final List<String> keysToSkip = Arrays.asList("meanMappingQualityX", "numWindowsX", "aPercentX");
 
             for (String key : calculatedProps.stringPropertyNames()) {
                 if (keysToSkip.contains(key)) {

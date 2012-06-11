@@ -1,3 +1,4 @@
-bamfile=/home/kokonech/sample_data/PlasmodiumD37_RNASeq.bam
-result=/home/kokonech/sample_data/PlasmodiumD37_RNASeq.properties
+#Basic region test with gff file
+bamfile=$COMMON_DATA_DIR/pl_1_and_2.bam
+result=$TEST_ROOT_DIR/bamqc/results/pl.bam.properties
 

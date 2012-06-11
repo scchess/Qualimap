@@ -2854,7 +2854,7 @@ public class BamStats implements Serializable {
         this.numSelectedRegions = numSelectedRegions;
     }
 
-    public long getNumberOfMappedReadsInRegions() {
+    public int getNumberOfMappedReadsInRegions() {
         return numberOfMappedReadsInRegions;
     }
 
