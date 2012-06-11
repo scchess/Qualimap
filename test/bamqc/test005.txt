@@ -1,4 +1,4 @@
-#testing read begining is out of region
+# some big test
 
 bamfile=/home/kokonech/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_RNASeq.bam
 result=$TEST_ROOT_DIR/bamqc/results/plasmodium.properties

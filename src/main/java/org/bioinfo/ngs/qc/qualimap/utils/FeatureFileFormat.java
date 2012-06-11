@@ -6,7 +6,8 @@ package org.bioinfo.ngs.qc.qualimap.utils;
  * Time: 6:36 PM
  */
 public enum FeatureFileFormat {
+    UNKNOWN,
     GFF,
     GTF,
-    BED;
+    BED
 }

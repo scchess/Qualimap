@@ -50,6 +50,7 @@ public final class Constants {
 	static{
 		FILE_EXTENSION_REGION.put("GFF", "GFF");
 		FILE_EXTENSION_REGION.put("GTF", "GTF");
+        FILE_EXTENSION_REGION.put("BED", "BED");
 	}
 	
 	// Extension for the Compress File

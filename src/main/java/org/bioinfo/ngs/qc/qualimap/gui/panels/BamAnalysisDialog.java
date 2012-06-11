@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
@@ -63,14 +64,14 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
         analyzeRegionsCheckBox = new JCheckBox("Analyze regions");
         analyzeRegionsCheckBox.addActionListener(this);
-        analyzeRegionsCheckBox.setToolTipText("Check to only analyze the regions defined in the GFF file");
+        analyzeRegionsCheckBox.setToolTipText("Check to only analyze the regions defined in the features file");
         add(analyzeRegionsCheckBox, "wrap");
 
-        labelPathAditionalDataFile = new JLabel("GFF file:");
+        labelPathAditionalDataFile = new JLabel("Regions file (GFF/BED):");
         add(labelPathAditionalDataFile, "");
 
         pathGffFile = new JTextField(40);
-        pathGffFile.setToolTipText("Path to GFF file containing regions of interest");
+        pathGffFile.setToolTipText("Path to GFF/GTF or BED file containing regions of interest");
         add(pathGffFile, "grow");
 
         pathGffFileButton = new JButton();
@@ -81,7 +82,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         computeOutsideStats = new JCheckBox("Analyze outside regions");
         computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         computeOutsideStats.setToolTipText("<html>Check to perform a separate analysis for the genome " +
-                "<br>regions complement to those in the GFF file</html>");
+                "<br>regions complement to those in the features file</html>");
         add(computeOutsideStats, "wrap");
 
         drawChromosomeLimits = new JCheckBox("Chromosome limits");
@@ -210,7 +211,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 					}
 
 					public String getDescription() {
-						return ("Bam Files (*.bam)");
+						return ("BAM Files (*.bam)");
 					}
 				};
 				fileChooser.setFileFilter(filter);
@@ -268,7 +269,9 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 					public boolean accept(File fileShown) {
 						boolean result = true;
 
-						if (!fileShown.isDirectory() && !Constants.FILE_EXTENSION_REGION.containsKey(fileShown.getName().substring(fileShown.getName().lastIndexOf(".") + 1).toUpperCase())) {
+                        String ext = FilenameUtils.getExtension(fileShown.getName());
+
+						if (!fileShown.isDirectory() && !Constants.FILE_EXTENSION_REGION.containsKey(ext.toUpperCase())) {
 							result = false;
 						}
 
@@ -276,7 +279,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 					}
 
 					public String getDescription() {
-						return ("Region Files (*.gff)");
+						return ("Region Files (*.gff *.gtf *.bed)");
 					}
 				};
 				fileChooser.setFileFilter(filter);
@@ -301,16 +304,18 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 		stringValidation = new StringBuilder();
 
 		// Validation for the input data file
-		if (pathDataFile.getText().isEmpty() || (inputFile = new File(pathDataFile.getText())) == null) {
-			stringValidation.append(" • The path of the Input Data File is required \n");
-		} else if (inputFile != null) {
-
+		if ( !pathDataFile.getText().isEmpty() ) {
+			inputFile = new File(pathDataFile.getText());
 			String mimeType = new MimetypesFileTypeMap().getContentType(inputFile);
-			String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
-			if (mimeType == null || !extension.equalsIgnoreCase(Constants.FILE_EXTENSION_DATA_INPUT)) {
-				stringValidation.append(" • Incorrect MimeType for the Input Data File (*.bam) \n");
+			String extension = FilenameUtils.getExtension(inputFile.getName());
+			if (mimeType == null || !extension.equalsIgnoreCase("bam")) {
+				stringValidation.append(" • Incorrect MimeType for the input BAM file (*.bam) \n");
 			}
-		} else {
+		}
+
+        if (inputFile == null) {
+            stringValidation.append(" • The path to the BAM file is required \n");
+        }else {
 			try {
 				FileUtils.checkFile(inputFile);
 			} catch (IOException e) {
@@ -318,18 +323,17 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 			}
 		}
 
-		// Validation for the region file
+		// Validation for the regions file
 		if (analyzeRegionsCheckBox.isSelected()) {
-			if (!pathGffFile.getText().isEmpty() && (regionFile = new File(pathGffFile.getText())) != null) {
+			if ( !pathGffFile.getText().isEmpty() ) {
+                regionFile = new File(pathGffFile.getText());
 				String mimeType = new MimetypesFileTypeMap().getContentType(regionFile);
-				String extension = regionFile.getName().substring(regionFile.getName().lastIndexOf(".") + 1);
-
-				if (mimeType == null || !Constants.FILE_EXTENSION_REGION.containsKey(extension.toUpperCase())) {
-					stringValidation.append(" • Incorrect MimeType for the Region Data File (*.gff) \n");
+				if ( mimeType == null ) {
+					stringValidation.append(" • Incorrect MimeType for the regions data file \n");
 				}
 			}
 			if (regionFile == null) {
-				stringValidation.append(" • Region Data File Is Required \n");
+				stringValidation.append(" • The path to the regions file is required \n");
 			} else {
 				try {
 					FileUtils.checkFile(regionFile);
@@ -427,10 +431,6 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public String getGenomeName() {
         return genomeGcContentCombo.getSelectedItem().toString();
-    }
-
-    public String getQualimapHome() {
-        return homeFrame.getQualimapFolder();
     }
 
     public int getBunchSize() {

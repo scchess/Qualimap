@@ -26,7 +26,8 @@ public class GenomicFeatureStreamReader {
                     String[] items = line.split("\t");
 
                     if (items.length < 8) {
-                        throw new RuntimeException("GFF format error, not enough fields.\nProblematic line is " + line);
+                        throw new RuntimeException("GFF format error, not enough fields.\n" +
+                                "Problematic line is " + line);
                     }
 
                     String seqName = items[0];
@@ -46,7 +47,8 @@ public class GenomicFeatureStreamReader {
                     String[] items = line.split("\t");
 
                     if (items.length < 6) {
-                        throw new RuntimeException("BED format error, there should be at least 6 fields.\nProblematic line is " + line);
+                        throw new RuntimeException("BED format error, there should be at least 6 fields.\n" +
+                                "Problematic line is " + line);
                     }
 
                     String seqName = items[0];

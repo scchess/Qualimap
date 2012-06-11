@@ -24,7 +24,7 @@ public class BamQCTest {
         tests.add( new TestConfig("bamqc/test001.txt", testEnv) );
         tests.add( new TestConfig("bamqc/test002.txt", testEnv) );
         tests.add( new TestConfig("bamqc/test003.txt", testEnv) );
-        //tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
+        tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
         tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
 
 

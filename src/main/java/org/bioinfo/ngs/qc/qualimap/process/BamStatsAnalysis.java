@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.process;
 
 import net.sf.samtools.*;
 import net.sf.picard.util.IntervalTree;
+import net.sf.samtools.util.RuntimeIOException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.formats.core.sequence.Fasta;
 import org.bioinfo.formats.core.sequence.io.FastaReader;
@@ -68,7 +69,7 @@ public class BamStatsAnalysis {
 	// gff support
 	private boolean selectedRegionsAvailable;
 	private String featureFile;
-	private int numberOfSelectedRegions;
+    private int numberOfSelectedRegions;
 
 	// inside
 	private long insideReferenceSize;
@@ -777,15 +778,16 @@ public class BamStatsAnalysis {
 
     private void loadSelectedRegions() throws SecurityException, IOException, NoSuchMethodException, FileFormatException {
 
-		String errMsg = DocumentUtils.validateTabDelimitedFile(featureFile,9);
-        if (!errMsg.isEmpty()) {
-            throw new RuntimeException(errMsg);
-        }
 
+        FeatureFileFormat featureFileFormat = DocumentUtils.guessFeaturesFileFormat(featureFile);
+
+        if (featureFileFormat == FeatureFileFormat.UNKNOWN) {
+            throw new RuntimeIOException("Unknown feature file format. Please provide file in GFF/GTF or BED format.");
+        }
 
 		// init gff reader
 		numberOfSelectedRegions = 0;
-		GenomicFeatureStreamReader featureFileReader = new GenomicFeatureStreamReader(featureFile, FeatureFileFormat.GFF);
+		GenomicFeatureStreamReader featureFileReader = new GenomicFeatureStreamReader(featureFile, featureFileFormat);
 		System.out.println("Initializing regions from " + featureFile + ".....");
 		while(featureFileReader.skipNextRecord()){
 			numberOfSelectedRegions++;
@@ -948,8 +950,8 @@ public class BamStatsAnalysis {
         this.computeChromosomeStats = computeChromosomeStats;
     }
 
-    public void setSelectedRegions(String gffFile){
-		this.featureFile = gffFile;
+    public void setSelectedRegions(String featureFile){
+		this.featureFile = featureFile;
 		selectedRegionsAvailable = true;
 	}
 

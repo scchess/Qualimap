@@ -1,5 +1,6 @@
-#testing read begining is out of region
+#testing guessRegionFormat and bed region parsing
 
-bamfile=/home/kokonech/sample_data/pl_big.bam
-result=/home/kokonech/sample_data/test_region_01.properties
-regions=/home/kokonech/sample_data/test_region_01.gff
+bamfile=$COMMON_DATA_DIR/pl_1_and_2.bam
+result=$TEST_ROOT_DIR/bamqc/results/pl.inside.properties
+regions=$COMMON_DATA_DIR/test_region_01_bed
+
