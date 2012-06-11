@@ -3,8 +3,6 @@ package org.bioinfo.ngs.qc.qualimap.process;
 import net.sf.samtools.*;
 import net.sf.picard.util.IntervalTree;
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.formats.core.feature.Gff;
-import org.bioinfo.formats.core.feature.io.GffReader;
 import org.bioinfo.formats.core.sequence.Fasta;
 import org.bioinfo.formats.core.sequence.io.FastaReader;
 import org.bioinfo.formats.exception.FileFormatException;
@@ -15,9 +13,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
-import org.bioinfo.ngs.qc.qualimap.utils.ReadStats;
-import org.bioinfo.ngs.qc.qualimap.utils.RegionLookupTable;
+import org.bioinfo.ngs.qc.qualimap.utils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +67,7 @@ public class BamStatsAnalysis {
 
 	// gff support
 	private boolean selectedRegionsAvailable;
-	private String gffFile;
+	private String featureFile;
 	private int numberOfSelectedRegions;
 
 	// inside
@@ -781,7 +777,7 @@ public class BamStatsAnalysis {
 
     private void loadSelectedRegions() throws SecurityException, IOException, NoSuchMethodException, FileFormatException {
 
-		String errMsg = DocumentUtils.validateTabDelimitedFile(gffFile,9);
+		String errMsg = DocumentUtils.validateTabDelimitedFile(featureFile,9);
         if (!errMsg.isEmpty()) {
             throw new RuntimeException(errMsg);
         }
@@ -789,31 +785,30 @@ public class BamStatsAnalysis {
 
 		// init gff reader
 		numberOfSelectedRegions = 0;
-		Gff region;
-		GffReader gffReader = new GffReader(gffFile);
-		System.out.println("initializing regions from " + gffFile + ".....");
-		while(gffReader.read() != null){
+		GenomicFeatureStreamReader featureFileReader = new GenomicFeatureStreamReader(featureFile, FeatureFileFormat.GFF);
+		System.out.println("Initializing regions from " + featureFile + ".....");
+		while(featureFileReader.skipNextRecord()){
 			numberOfSelectedRegions++;
 		}
-		gffReader.close();
 		if (numberOfSelectedRegions == 0) {
             throw new RuntimeException("Failed to load selected regions.");
         }
-        System.out.println("found " + numberOfSelectedRegions + " regions");
-		System.out.println("initializing memory... ");
+        System.out.println("Found " + numberOfSelectedRegions + " regions");
 
-		selectedRegionStarts = new long[numberOfSelectedRegions];
+        selectedRegionStarts = new long[numberOfSelectedRegions];
 		selectedRegionEnds = new long[numberOfSelectedRegions];
         regionLookupTable = new RegionLookupTable();
 		//selectedRegionRelativePositions = new long[numberOfSelectedRegions];
         regionsTree = new IntervalTree<Integer>();
 
-		System.out.println("filling region references... ");
-		gffReader = new GffReader(gffFile);
+        featureFileReader.reset();
+        System.out.println("Filling region references... ");
 		int index = 0;
 		long pos;
 		insideReferenceSize = 0;
-		while((region = gffReader.read())!=null){
+        GenomicFeature region;
+
+        while((region = featureFileReader.readNextRecord()) != null){
             /*if (!region.getFeature().equalsIgnoreCase("exon")) {
                 continue;
             }*/
@@ -823,6 +818,7 @@ public class BamStatsAnalysis {
             selectedRegionStarts[index] = pos;
             selectedRegionEnds[index] = pos + regionLength - 1;
             regionLookupTable.putRegion(region.getStart(), region.getEnd(), region.getSequenceName());
+
 
 			//selectedRegionStarts[index] = Math.max(lastEnd,pos);
 			//selectedRegionEnds[index] = Math.max(lastEnd,pos + region.getEnd()-region.getStart());
@@ -834,6 +830,7 @@ public class BamStatsAnalysis {
 			index++;
 		}
 
+        featureFileReader.close();
         validateSequenceNames();
 
     }
@@ -952,7 +949,7 @@ public class BamStatsAnalysis {
     }
 
     public void setSelectedRegions(String gffFile){
-		this.gffFile = gffFile;
+		this.featureFile = gffFile;
 		selectedRegionsAvailable = true;
 	}
 
@@ -993,9 +990,10 @@ public class BamStatsAnalysis {
         return numberOfWindows;
     }
 
-    public String getGffFile() {
-        return gffFile;
+    public String getFeatureFile() {
+        return featureFile;
     }
+
 
 
 }

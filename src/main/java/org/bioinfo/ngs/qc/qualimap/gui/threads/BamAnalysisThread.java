@@ -217,7 +217,7 @@ public class BamAnalysisThread extends Thread {
 
         if ( bamQC.selectedRegionsAvailable() ) {
             HashMap<String,String> regionParams = new HashMap<String, String>();
-            regionParams.put("GFF file: ", bamQC.getGffFile());
+            regionParams.put("GFF file: ", bamQC.getFeatureFile());
             regionParams.put("Outside statistics: ", boolToStr(bamQC.getComputeOutsideStats()));
             reporter.addInputDataSection("GFF region", regionParams);
         }
