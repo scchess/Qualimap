@@ -12,6 +12,8 @@ import java.io.FileReader;
  */
 public class DocumentUtils {
 
+    static final int MAX_SCORE = 100;
+
     public static String validateTabDelimitedFile(String fileName, int expectedNumFields) {
 
         int countRecords = 0;
@@ -88,6 +90,7 @@ public class DocumentUtils {
 
         String fileExt = FilenameUtils.getExtension(fileName);
 
+
         if (fileExt.equalsIgnoreCase("bed")) {
             return FeatureFileFormat.BED;
         } else if (fileExt.equalsIgnoreCase("gff") ) {
@@ -97,7 +100,7 @@ public class DocumentUtils {
             int scoreBed = 0, scoreGff = 0, countRecords = 0;
             try {
                 BufferedReader br = new BufferedReader(new FileReader(fileName));
-                while (countRecords < 100) {
+                while (countRecords < MAX_SCORE) {
                     String line = br.readLine();
                     if (line == null) {
                         break;
@@ -136,10 +139,12 @@ public class DocumentUtils {
                 return FeatureFileFormat.UNKNOWN;
             }
 
-            if (scoreBed == 0 && scoreGff == 0) {
-                return FeatureFileFormat.UNKNOWN;
+            if (scoreBed == countRecords)  {
+                return FeatureFileFormat.BED;
+            } if (scoreGff == countRecords) {
+                return FeatureFileFormat.GFF;
             } else {
-                return ( scoreGff > scoreBed ? FeatureFileFormat.GFF : FeatureFileFormat.BED );
+                return FeatureFileFormat.UNKNOWN;
             }
 
 
