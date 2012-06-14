@@ -394,23 +394,21 @@ public class BamQCRegionReporter implements Serializable {
         }
 
 
-        ///////////////// coverageData charts ///////////////
+		///////////////// Coverage and GC-content across reference ////////////////////////////////
 
-		// Coverage and GC-content across reference
 		// coverageData
 		BamQCChart coverageChart = new BamQCChart(Constants.PLOT_TITLE_COVERAGE_ACROSS_REFERENCE,
                 subTitle, "Position (bp)", "Coverage (X)");
         XYToolTipGenerator toolTipGenerator = createTooltipGenerator(windowReferences, locator);
-        if(paintChromosomeLimits && locator!=null) {
-
-                    coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
-                            false, chromosomeAnnotations);
-        }
         coverageChart.setToolTipGenerator(toolTipGenerator);
+        coverageChart.setSeriesToExportIndex(0);
         coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences,
                 bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()),
                 new Color(250,50,50,150), new Color(50,50,250), 0.2f);
-
+        if( paintChromosomeLimits && locator!=null ) {
+            coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
+                    false, chromosomeAnnotations);
+        }
         coverageChart.render();
 
         //Setting "smart" zoom for coverage across region
@@ -434,6 +432,8 @@ public class BamQCRegionReporter implements Serializable {
                     false, chromosomeAnnotations);
         }
 	    gcContentChart.render();
+
+
         // combined plot
 		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new NumberAxis("Position (bp)"));
         plot.getDomainAxis().setTickLabelsVisible(false);
@@ -445,22 +445,25 @@ public class BamQCRegionReporter implements Serializable {
         JFreeChart combinedChart = new JFreeChart("Coverage across reference",plot);
 		combinedChart.setPadding(new RectangleInsets(30,20,30,20));
 		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
-        charts.add(new QChart(bamStats.getName() + "_coverage_across_reference.png", combinedChart) );
+        charts.add(new QChart(bamStats.getName() + "_coverage_across_reference.png", combinedChart, coverageChart) );
 
-		// coverageData histogram                            Щ
-		BamQCHistogramChart coverageHistogram = new BamQCHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
+
+		////////////////////////////// Balanced coverage histogram ////////////////////////////////
+
+        BamQCHistogramChart coverageHistogram = new BamQCHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM,
                 subTitle, "Coverage (X)", "Number of genomic locations",
                 bamStats.getBalancedCoverageHistogram(), bamStats.getBalancedCoverageBarNames());
-		//coverageHistogram.addHistogram("coverageData", bamStats.getBalancedCoverageHistogram(), Color.blue);
-		//coverageHistogram.setNumberOfBins(Math.min(50, (int) bamStats.getCoverageHistogram().getMaxValue()));
 
 		coverageHistogram.render();
 
+        XYVectorDataWriter coverageHistDataWriter = new XYVectorDataWriter(bamStats.getCoverageHistogram(),
+                "Coverage", "Number of genomic locations");
         charts.add( new QChart(bamStats.getName() + "_coverage_histogram.png",
-				coverageHistogram.getChart()));
+				coverageHistogram.getChart(), coverageHistDataWriter) );
 
 
-		// Coverage Histogram 0-50x
+		/////////////////////////////// Coverage Histogram 0-50x //////////////////////////////////
+
         double minCoverage = bamStats.getCoverageHistogram().get(0).getX();
         if (minCoverage < 40) {
             // This histogram only makes sense for low coverage samples
@@ -478,30 +481,32 @@ public class BamQCRegionReporter implements Serializable {
                     coverageRangedHistogram.getChart() ) );
         }
 
-        // Duplication Rate Histogram
+        /////////////////////////////// Duplication Rate Histogram ///////////////////////////////
 		BamQCXYHistogramChart uniqueReadStartsHistogram =
                 new BamQCXYHistogramChart(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
                 subTitle, "Duplication rate", "Number of loci");
-		uniqueReadStartsHistogram.addHistogram("coverageData", bamStats.getUniqueReadStartsHistogram(), Color.GREEN);
+		uniqueReadStartsHistogram.addHistogram("Coverage", bamStats.getUniqueReadStartsHistogram(), Color.GREEN);
 		uniqueReadStartsHistogram.setDomainAxisIntegerTicks(true);
 		uniqueReadStartsHistogram.setDomainAxisTickUnitSize(1.0);
         uniqueReadStartsHistogram.render();
 
         charts.add(new QChart( bamStats.getName() + "_uniq_read_starts_histogram.png",
-                uniqueReadStartsHistogram.getChart() ) );
+                uniqueReadStartsHistogram.getChart(), uniqueReadStartsHistogram )  );
 
 
-		// coverageData quota
-		BamQCChart coverageQuota = new BamQCChart(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE, subTitle,
+		//////////////////////////////// Genome Fraction Coverage /////////////////////////////////
+        BamQCChart coverageQuota = new BamQCChart(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE, subTitle,
                 "Coverage (X)", "Fraction of reference (%)");
 		coverageQuota.setPercentageChart(true);
 		coverageQuota.addBarRenderedSeries("Coverage", bamStats.getCoverageQuotes(), new Color(255,20,20,150));
 		coverageQuota.setDomainAxisIntegerTicks(true);
         coverageQuota.setDomainAxisTickUnitSize(1.0);
         coverageQuota.render();
-		charts.add( new QChart(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart() ) );
+		charts.add( new QChart(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart(),
+                coverageQuota) );
 
 
+        ////////////////////////////// Reads nucleotide content ////////////////////////////////////
         if (bamStats.getReadMaxSize() > 0) {
             BamQCChart readsContentChart = new BamQCChart(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
                     subTitle, " Position (bp)", " Nucleotide Content (%) ");
@@ -515,10 +520,10 @@ public class BamQCRegionReporter implements Serializable {
             readsContentChart.setPercentageChart(true);
             readsContentChart.render();
             charts.add(new QChart(bamStats.getName() + "_reads_content_per_read_position.png",
-                    readsContentChart.getChart() ));
-
+                    readsContentChart.getChart(), readsContentChart));
         }
 
+        /////////////////////////////// Reads GC Content histogram ///////////////////////////////////
         BamQCChart gcContentHistChart = new BamQCChart(Constants.PLOT_TITLE_READS_GC_CONTENT, subTitle,
                 "GC Content (%)", "Fraction of reads");
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
@@ -532,7 +537,8 @@ public class BamQCRegionReporter implements Serializable {
         gcContentHistChart.setAdjustDomainAxisLimits(false);
         gcContentHistChart.setPercentageChart(false);
         gcContentHistChart.render();
-		charts.add(new QChart(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart()));
+		charts.add(new QChart(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart(),
+                gcContentHistChart ));
 
 
 
@@ -542,14 +548,15 @@ public class BamQCRegionReporter implements Serializable {
 		BamQCChart mappingQuality = new BamQCChart(Constants.PLOT_TITLE_MAPPING_QUALITY_ACROSS_REFERENCE,
                 subTitle, "Position (bp)", "Mapping quality");
 		mappingQuality.addSeries("mapping quality",new XYVector(windowReferences, bamStats.getMappingQualityAcrossReference()), new Color(250,50,50,150));
-        if(paintChromosomeLimits && locator!=null) {
-                    mappingQuality.addSeries("chromosomes",chromosomeBytedLimits,chromosomeColor,stroke,
-                            false,chromosomeAnnotations);
+        mappingQuality.setSeriesToExportIndex(0);
+        if( paintChromosomeLimits && locator!=null ) {
+            mappingQuality.addSeries("chromosomes", chromosomeBytedLimits, chromosomeColor, stroke,
+                    false, chromosomeAnnotations);
         }
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
 		charts.add(new QChart(bamStats.getName() + "_mapping_quality_across_reference.png",
-                mappingQuality.getChart()) );
+                mappingQuality.getChart(), mappingQuality ) );
 
 
 		// mapping quality histogram
@@ -560,7 +567,10 @@ public class BamQCRegionReporter implements Serializable {
 		mappingQualityHistogram.setNumberOfBins(50);
         mappingQualityHistogram.render();
 		charts.add(new QChart( bamStats.getName() + "_mapping_quality_histogram.png",
-                mappingQualityHistogram.getChart() ) );
+                mappingQualityHistogram.getChart(), mappingQualityHistogram ) );
+
+
+        // Insert size
 
 		if(isPairedData){
 			// insert size across reference
@@ -573,7 +583,7 @@ public class BamQCRegionReporter implements Serializable {
             }
             insertSize.render();
 			charts.add(new QChart( bamStats.getName() + "_insert_size_across_reference.png",
-                    insertSize.getChart() ));
+                    insertSize.getChart(), insertSize ));
 	
 			// mapping quality histogram
 			BamQCXYHistogramChart insertSizeHistogram =
@@ -583,7 +593,8 @@ public class BamQCRegionReporter implements Serializable {
 			insertSizeHistogram.setNumberOfBins(50);
             insertSizeHistogram.setRangeAxisIntegerTicks(true);
 			insertSizeHistogram.render();
-			charts.add(new QChart(bamStats.getName() + "_insert_size_histogram.png", insertSizeHistogram.getChart()));
+			charts.add(new QChart(bamStats.getName() + "_insert_size_histogram.png",
+                    insertSizeHistogram.getChart(), insertSizeHistogram));
 		}
 	}
 

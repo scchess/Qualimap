@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -11,8 +12,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
+import com.sun.xml.internal.txw2.output.DataWriter;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
@@ -558,8 +561,16 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         } else {
 
             JFreeChart jFreeChart = chart.getJFreeChart();
-            ChartPanel panelImage = new ChartPanel( jFreeChart);
-			panelImage.setSize(rightScrollPane.getSize());
+            ChartPanel panelImage = new ChartPanel( jFreeChart );
+
+            if (chart.canExportRawData()) {
+                ChartRawDataWriter dataWriter = chart.getDataWriter();
+                JMenuItem exportDataItem = new JMenuItem("Export plot data");
+                exportDataItem.addActionListener( new ExportChartDataActionListener(this, dataWriter, chart.getTitle()));
+                panelImage.getPopupMenu().addSeparator();
+                panelImage.getPopupMenu().add( exportDataItem );
+            }
+            panelImage.setSize(rightScrollPane.getSize());
         	rightScrollPane.setViewportView(panelImage);
 
         }

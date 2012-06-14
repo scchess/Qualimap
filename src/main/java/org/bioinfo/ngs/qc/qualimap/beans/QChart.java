@@ -14,7 +14,7 @@ public class QChart {
     JFreeChart chart;
     BufferedImage bufferedImage;
     String title, toolTip, name;
-
+    ChartRawDataWriter dataWriter;
 
     public QChart(String name, JFreeChart chart) {
 
@@ -25,6 +25,18 @@ public class QChart {
         this.bufferedImage = null;
 
     }
+
+     public QChart(String name, JFreeChart chart, ChartRawDataWriter writer) {
+
+        this.name = name;
+        this.title = chart.getTitle().getText();
+        this.chart = chart;
+        this.toolTip = chart.getTitle().getText();
+        this.bufferedImage = null;
+        this.dataWriter = writer;
+
+    }
+
 
     public QChart(String imageName, String title, BufferedImage image) {
         this.name = imageName;
@@ -59,5 +71,14 @@ public class QChart {
 
     public BufferedImage getBufferedImage() {
         return bufferedImage;
+    }
+
+    public boolean canExportRawData() {
+        return dataWriter != null;
+    }
+
+
+    public ChartRawDataWriter getDataWriter() {
+        return dataWriter;
     }
 }

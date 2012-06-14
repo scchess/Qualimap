@@ -10,6 +10,7 @@ import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -18,6 +19,7 @@ import javax.swing.JOptionPane;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
@@ -44,7 +46,7 @@ public class ExportHtmlThread extends Thread{
 	/** Variables that contains the tab properties loaded in the thread*/
 	TabPropertiesVO tabProperties;
 
-    boolean guiAvailable;
+    boolean guiAvailable, saveRawData;
 
 
 	public ExportHtmlThread(String str, Component component, TabPropertiesVO tabProperties, String dirPath) {
@@ -55,12 +57,14 @@ public class ExportHtmlThread extends Thread{
         this.tabProperties = tabProperties;
         this.dirPath = dirPath;
         this.guiAvailable = true;
+        this.saveRawData = true;
     }
 
     public ExportHtmlThread(TabPropertiesVO tabProperties, String dirPath) {
         this.tabProperties = tabProperties;
         this.dirPath = dirPath;
         this.guiAvailable = false;
+        this.saveRawData = true;
     }
 
     void setGuiVisible(boolean enable) {
@@ -149,6 +153,12 @@ public class ExportHtmlThread extends Thread{
 
             prepareCss();
 
+            if (saveRawData) {
+               saveRawData(reporter, "raw_data");
+               if (loadOutsideReporter) {
+                   saveRawData(tabProperties.getOutsideReporter(), "raw_data_outside_of_regions");
+               }
+            }
 
             if(success){
 				reportSuccess("Html report created successfully\n");
@@ -280,6 +290,27 @@ public class ExportHtmlThread extends Thread{
 		if(fileName != null){
 		    savePanel.getProgressStream().setText("Saving graphics: "+ fileName);
 		}
+    }
+
+    void saveRawData(BamQCRegionReporter reporter, String subFolderName) throws IOException{
+        List<QChart> charts = reporter.getCharts();
+        String newPath = dirPath + File.separator + subFolderName;
+
+        File destinationParent = new File(newPath);
+        if (!destinationParent.exists()) {
+            if (!destinationParent.mkdirs()) {
+                throw new IOException("Failed to create sub directory " + destinationParent.getAbsolutePath());
+            }
+        }
+
+        for (QChart chart : charts) {
+            if (chart.canExportRawData()) {
+                ChartRawDataWriter dataWriter = chart.getDataWriter();
+                String fileName = chart.getTitle().replace(" ", "_").toLowerCase() + ".txt";
+                dataWriter.exportDataToFile(newPath + "/" + fileName);
+            }
+        }
+
     }
 
 

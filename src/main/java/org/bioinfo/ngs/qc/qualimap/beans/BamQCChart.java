@@ -1,6 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
 
-public class BamQCChart implements Serializable {
+public class BamQCChart extends ChartRawDataWriter implements Serializable {
 	// org.bioinfo.ntools.main params
 	private String title;
 	private String subTitle;
@@ -37,6 +39,7 @@ public class BamQCChart implements Serializable {
 	private List<AbstractXYItemRenderer> renderers;
     private XYToolTipGenerator toolTipGenerator;
 	private int numberOfSeries;
+    private int seriesToExportIndex;
 	
 	// other params
 	private PlotOrientation orientation;
@@ -69,6 +72,7 @@ public class BamQCChart implements Serializable {
 		orientation = PlotOrientation.VERTICAL;
 		adjustDomainAxisLimits = true;
         domainAxisTickUnitSize = 0;
+        seriesToExportIndex = -1;
 	}
 	
 	// line rendered series
@@ -298,19 +302,6 @@ public class BamQCChart implements Serializable {
 		return chart;
 	}
 
-	/**
-	 * @param chart the chart to set
-	 */
-	public void setChart(JFreeChart chart) {
-		this.chart = chart;
-	}
-
-	/**
-	 * @return the aPercentageChart
-	 */
-	public boolean isPercentageChart() {
-		return aPercentageChart;
-	}
 
 	/**
 	 * @param aPercentageChart the aPercentageChart to set
@@ -320,48 +311,58 @@ public class BamQCChart implements Serializable {
 	}
 
 	/**
-	 * @return the rangeAxisIntegerTicks
-	 */
-	public boolean isRangeAxisIntegerTicks() {
-		return rangeAxisIntegerTicks;
-	}
-
-	/**
-	 * @param rangeAxisIntegerTicks the rangeAxisIntegerTicks to set
-	 */
-	public void setRangeAxisIntegerTicks(boolean rangeAxisIntegerTicks) {
-		this.rangeAxisIntegerTicks = rangeAxisIntegerTicks;
-	}
-
-	/**
-	 * @return the domainAxisIntegerTicks
-	 */
-	public boolean isDomainAxisIntegerTicks() {
-		return domainAxisIntegerTicks;
-	}
-
-	/**
 	 * @param domainAxisIntegerTicks the domainAxisIntegerTicks to set
 	 */
 	public void setDomainAxisIntegerTicks(boolean domainAxisIntegerTicks) {
 		this.domainAxisIntegerTicks = domainAxisIntegerTicks;
 	}
 
-	/**
-	 * @return the orientation
-	 */
-	public PlotOrientation getOrientation() {
-		return orientation;
-	}
-
-	/**
-	 * @param orientation the orientation to set
-	 */
-	public void setOrientation(PlotOrientation orientation) {
-		this.orientation = orientation;
-	}
-
-    public void setDomainAxisTickUnitSize(double domainAxisTickUnitSize) {
+	public void setDomainAxisTickUnitSize(double domainAxisTickUnitSize) {
          this.domainAxisTickUnitSize = domainAxisTickUnitSize;
     }
+
+    public void setSeriesToExportIndex(int seriesToExportIndex) {
+        this.seriesToExportIndex = seriesToExportIndex;
+    }
+
+    @Override
+    void exportData(BufferedWriter dataWriter) throws IOException {
+
+        dataWriter.write("#" + xLabel);
+
+        if (seriesToExportIndex != -1 && names.size() > seriesToExportIndex && series.size() > seriesToExportIndex ) {
+            //export only single series
+            dataWriter.write("\t" + names.get(seriesToExportIndex) + "\n");
+            XYVector s = series.get(seriesToExportIndex);
+            int len = s.getSize();
+            for (int i = 0; i < len; ++i) {
+                dataWriter.write(s.get(i).getX() + "\t" + s.get(i).getY() + "\n");
+            }
+
+
+        } else {
+
+            //Export whole data set
+
+            for (String name : names) {
+                dataWriter.write("\t" + name);
+            }
+            dataWriter.write("\n");
+
+            int len = series.get(0).getSize();
+            double[] xData = series.get(0).getXVector();
+
+            for (int i = 0; i < len; ++i) {
+                dataWriter.write(Double.toString(xData[i]));
+                for (XYVector data : series) {
+                    dataWriter.write("\t" + data.get(i).getY());
+                }
+                dataWriter.write("\n");
+            }
+
+        }
+
+    }
+
+
 }

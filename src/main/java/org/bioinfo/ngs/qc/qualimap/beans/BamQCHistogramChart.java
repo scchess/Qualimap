@@ -13,6 +13,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import java.awt.*;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
@@ -22,7 +23,7 @@ import java.util.Map;
  * Date: 3/23/12
  * Time: 10:10 AM
  */
-public class BamQCHistogramChart {
+public class BamQCHistogramChart extends ChartRawDataWriter {
     // org.bioinfo.ntools.main params
 	private String title;
 	private String subTitle;
@@ -45,7 +46,8 @@ public class BamQCHistogramChart {
 	private boolean adjustDomainAxisLimits;
     private double domainAxisTickUnitSize;
 
-	public BamQCHistogramChart(String title,String subTitle, String xLabel, String yLabel,
+
+    public BamQCHistogramChart(String title,String subTitle, String xLabel, String yLabel,
                                XYVector data, Map<Double,String> barNames){
 
 		// main params
@@ -225,8 +227,6 @@ public class BamQCHistogramChart {
 		renderer.setBarPainter(barPainter);
 		plot.setRenderer(renderer);
 
-
-
 		// adjust axis limits
 		//if(adjustDomainAxisLimits && histograms.get(0).getSize() > 0){
         //    double minDomainAxis = histograms.get(0).get(0).getX() - inc/2.0;
@@ -234,6 +234,19 @@ public class BamQCHistogramChart {
 		//	chart.getXYPlot().getDomainAxis().setRange(minDomainAxis,maxDomainAxis);
 		//}
 	}
+
+
+    @Override
+    void exportData(BufferedWriter dataWriter) throws IOException{
+        dataWriter.write(xLabel + "\t" + yLabel + "\n");
+        int datalen =  data.getSize();
+        double[] covs = data.getXVector();
+        double[] freqs = data.getYVector();
+        for (int i = 0; i < datalen; ++i) {
+            dataWriter.write(freqs[i] + "\t" + covs[i] + "\n");
+        }
+
+    }
 
 
 

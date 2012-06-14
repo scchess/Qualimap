@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +20,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-public class BamQCXYHistogramChart {
+public class BamQCXYHistogramChart extends ChartRawDataWriter {
 	// org.bioinfo.ntools.main params
 	private String title;
 	private String subTitle;
@@ -159,7 +160,7 @@ public class BamQCXYHistogramChart {
 		
 		XYSeries series = new XYSeries("frequencies");
 		double acum = 0;
-		double next = 0;
+		double next;
 
 		for(int i=0; i<values.length; i++){
 			if(cumulative){
@@ -203,21 +204,6 @@ public class BamQCXYHistogramChart {
 
 
 	/**
-	 * @param chart the chart to set
-	 */
-	public void setChart(JFreeChart chart) {
-		this.chart = chart;
-	}
-
-	/**
-	 * @return the numberOfBins
-	 */
-	public int getNumberOfBins() {
-		return numberOfBins;
-	}
-
-
-	/**
 	 * @param numberOfBins the numberOfBins to set
 	 */
 	public void setNumberOfBins(int numberOfBins) {
@@ -226,74 +212,10 @@ public class BamQCXYHistogramChart {
 
 
 	/**
-	 * @return the zoomed
-	 */
-	public boolean isZoomed() {
-		return zoomed;
-	}
-
-
-	/**
-	 * @param zoomed the zoomed to set
-	 */
-	public void setZoomed(boolean zoomed) {
-		this.zoomed = zoomed;
-	}
-
-
-	/**
-	 * @return the maxValue
-	 */
-	public double getMaxValue() {
-		return maxValue;
-	}
-
-
-	/**
-	 * @param maxValue the maxValue to set
-	 */
-	public void setMaxValue(double maxValue) {
-		this.maxValue = maxValue;
-	}
-
-
-	/**
-	 * @return the cumulative
-	 */
-	public boolean isCumulative() {
-		return cumulative;
-	}
-
-
-	/**
-	 * @param cumulative the cumulative to set
-	 */
-	public void setCumulative(boolean cumulative) {
-		this.cumulative = cumulative;
-	}
-
-
-	/**
-	 * @return the rangeAxisIntegerTicks
-	 */
-	public boolean isRangeAxisIntegerTicks() {
-		return rangeAxisIntegerTicks;
-	}
-
-
-	/**
 	 * @param rangeAxisIntegerTicks the rangeAxisIntegerTicks to set
 	 */
 	public void setRangeAxisIntegerTicks(boolean rangeAxisIntegerTicks) {
 		this.rangeAxisIntegerTicks = rangeAxisIntegerTicks;
-	}
-
-
-	/**
-	 * @return the domainAxisIntegerTicks
-	 */
-	public boolean isDomainAxisIntegerTicks() {
-		return domainAxisIntegerTicks;
 	}
 
 
@@ -307,5 +229,30 @@ public class BamQCXYHistogramChart {
 
     public void setDomainAxisTickUnitSize(double domainAxisTickUnitSize) {
         this.domainAxisTickUnitSize = domainAxisTickUnitSize;
+    }
+
+    @Override
+    void exportData(BufferedWriter dataWriter) throws IOException {
+
+        dataWriter.write("#" + xLabel);
+
+        //Export whole data set
+
+        for (String name : names) {
+            dataWriter.write("\t" + name);
+        }
+        dataWriter.write("\n");
+
+        int len = histograms.get(0).getSize();
+        double[] xData = histograms.get(0).getXVector();
+
+        for (int i = 0; i < len; ++i) {
+            dataWriter.write(Double.toString(xData[i]));
+            for (XYVector data : histograms) {
+                dataWriter.write("\t" + data.get(i).getY());
+            }
+            dataWriter.write("\n");
+        }
+
     }
 }
