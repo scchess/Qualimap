@@ -528,31 +528,20 @@ public class BamStatsAnalysis {
         // wait till all tasks are finished
         for (Future<ProcessBunchOfReadsTask.Result> result : results) {
             ProcessBunchOfReadsTask.Result taskResult = result.get();
-            Collection<SingleReadData> dataset = taskResult.getGlobalReadsData();
+            Collection<SingleReadData> dataset = taskResult.getReadAlignmentData();
             for (SingleReadData rd : dataset) {
                 BamGenomeWindow w = openWindows.get(rd.getWindowStart());
-                w.addReadData(rd);
+                w.addReadAlignmentData(rd);
             }
-            bamStats.addGcContentData( taskResult.getReadsGcContent() );
-            bamStats.addReadsAsData ( taskResult.getReadsAContent() );
-            bamStats.addReadsCsData ( taskResult.getReadsCContent() );
-            bamStats.addReadsGsData ( taskResult.getReadsGContent() );
-            bamStats.addReadsTsData ( taskResult.getReadsTContent() );
-            bamStats.addReadsNsData ( taskResult.getReadsNContent() );
-
+            bamStats.addReadStatsData( taskResult.getReadStatsCollector() );
 
             if (selectedRegionsAvailable && computeOutsideStats) {
                 Collection<SingleReadData> outsideData = taskResult.getOutOfRegionReadsData();
                 for (SingleReadData rd : outsideData) {
                     BamGenomeWindow w = openOutsideWindows.get( rd.getWindowStart() );
-                    w.addReadData(rd);
+                    w.addReadAlignmentData(rd);
                 }
-                outsideBamStats.addGcContentData( taskResult.getOutRegionOfReadsGcContent());
-                outsideBamStats.addReadsAsData ( taskResult.getOutOfRegionsReadsAContent() );
-                outsideBamStats.addReadsCsData ( taskResult.getOutOfRegionsReadsCContent() );
-                outsideBamStats.addReadsGsData ( taskResult.getOutOfRegionsReadsGContent() );
-                outsideBamStats.addReadsTsData ( taskResult.getOutOfRegionsReadsTContent() );
-                outsideBamStats.addReadsNsData ( taskResult.getOutOfRegionsReadsNContent() );
+                outsideBamStats.addReadStatsData( taskResult.getOutRegionReadStatsCollector() );
 
             }
         }

@@ -8,6 +8,8 @@ import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
+import org.bioinfo.ngs.qc.qualimap.process.ProcessBunchOfReadsTask;
+import org.bioinfo.ngs.qc.qualimap.process.ReadStatsCollector;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 
 public class BamStats implements Serializable {
@@ -2891,6 +2893,22 @@ public class BamStats implements Serializable {
         return avaialableGenomeGcContentData;
     }
 
+    public void addReadStatsData(ReadStatsCollector readStatsCollector) {
+
+
+        addReadsAsData ( readStatsCollector.getReadsAContent() );
+        addReadsCsData ( readStatsCollector.getReadsCContent() );
+        addReadsGsData ( readStatsCollector.getReadsGContent() );
+        addReadsTsData ( readStatsCollector.getReadsTContent() );
+        addReadsNsData ( readStatsCollector.getReadsNContent() );
+
+        ArrayList<Float> readsGcContent = readStatsCollector.getReadsGcContent();
+        for (float val : readsGcContent) {
+            //System.out.println(val);
+            gcContentHistogram[ (int) (val * NUM_BINS) ]++;
+        }
+        sampleCount += readsGcContent.size();
+    }
 
 
     public void addGcContentData(Collection<Float> readsGcContent) {

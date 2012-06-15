@@ -148,8 +148,8 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	}
 
     @Override
-    public void addReadData(SingleReadData readData) {
-        super.addReadData(readData);
+    public void addReadAlignmentData(SingleReadData readData) {
+        super.addReadAlignmentData(readData);
         for (int pos : readData.coverageData) {
             coverageAcrossReference[pos]++;
         }

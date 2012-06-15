@@ -181,25 +181,13 @@ public class BamGenomeWindow {
 		referenceAvailable = true;
 	}
 	
-	public boolean acumRead(SAMRecord read, String alignment, GenomeLocator locator){		
-		return processRead(read,alignment,locator);
-	}
-	
-	public boolean acumRead(SAMRecord read, GenomeLocator locator){
-		String  alignment = new String(computeAlignment(read));
-		return processRead(read,alignment,locator);
-	}
-	
-	public boolean acumRead(String alignment, long readStart, long readEnd, int mappingQuality, long insertSize){
-		return processRead(alignment,readStart,readEnd,mappingQuality,insertSize);
-	}
-	
+
 	protected boolean processRead(SAMRecord read, String alignment, GenomeLocator locator){
 		long readStart = locator.getAbsoluteCoordinates(read.getReferenceName(),read.getAlignmentStart());
 		long readEnd = locator.getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentEnd());
 		return processRead(alignment, readStart, readEnd, read.getMappingQuality(),read.getInferredInsertSize());
 	}
-	
+
 	protected boolean processRead(String alignment, long readStart, long readEnd, int mappingQuality, long insertSize){
 		
 		// working variables
@@ -317,86 +305,7 @@ public class BamGenomeWindow {
 		}
 	}
 	
-	public static char[] computeAlignment(SAMRecord read){
-		// init read params
-		int alignmentLength = (read.getAlignmentEnd()-read.getAlignmentStart()+1);		
 
-        if (alignmentLength < 0) {
-            return null;
-        }
-
-
-		Cigar cigar = read.getCigar();
-		
-		// precompute total size of alignment
-		int totalSize = 0;
-        List<CigarElement> elementList = cigar.getCigarElements();
-        //int numCigarElements = cigar.numCigarElements();
-		for(CigarElement element : elementList){
-			totalSize += element.getLength();
-		}
-
-		// compute extended cigar
-		char[] extended = new char[totalSize];
-		int mpos = 0;
-		int npos;
-        for(CigarElement element : elementList){
-		    npos = mpos + element.getLength();
-			Arrays.fill(extended, mpos, npos, element.getOperator().name().charAt(0));
-			mpos = npos;
-		}
-
-		// init extended cigar portion
-		char[] extendedCigarVector = extended; // Arrays.copyOfRange(extended,0,mpos);
-
-		char[] alignmentVector = new char[alignmentLength];
-
-		int readPos = 0;
-		int alignmentPos = 0;
-		char base;
-		byte[] readBases = read.getReadBases();
-		
-		for(int i=0; i<extendedCigarVector.length; i++){
-			// M
-			if(extendedCigarVector[i]=='M'){				
-				// get base
-				base = (char)readBases[readPos];
-				readPos++;				
-				// set base
-				alignmentVector[alignmentPos] = base;
-				alignmentPos++;
-			}
-			// I
-			else if(extendedCigarVector[i]=='I'){
-			    readPos++;
-			}
-			// D
-			else if(extendedCigarVector[i]=='D'){
-				alignmentVector[alignmentPos] = '-'; 
-				alignmentPos++;
-			}
-			// N
-			else if(extendedCigarVector[i]=='N'){
-				alignmentVector[alignmentPos] = 'N';
-				alignmentPos++;
-			}
-			// S
-			else if(extendedCigarVector[i]=='S'){
-				readPos++;				
-			}
-			// H
-			else if(extendedCigarVector[i]=='H'){
-
-			}
-			// P
-			else if(extendedCigarVector[i]=='P'){
-				alignmentVector[alignmentPos] = '-';
-				alignmentPos++;
-			}
-		}
-	
-		return alignmentVector;
-	}
 
     public void computeDescriptors() throws CloneNotSupportedException{
 		
@@ -1087,7 +996,7 @@ public class BamGenomeWindow {
         selectedRegions.flip(0, selectedRegions.size());
     }
 
-    public void addReadData(SingleReadData readData) {
+    public void addReadAlignmentData(SingleReadData readData) {
 
         //TODO: bug-110
         //numberOfProcessedReads += readData.numberOfProcessedReads;
