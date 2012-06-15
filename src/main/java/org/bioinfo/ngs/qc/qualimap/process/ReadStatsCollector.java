@@ -31,6 +31,8 @@ public class ReadStatsCollector {
     int[] readsClippingContent;
     ArrayList<Float> readsGcContent;
 
+    int numClippedReads;
+
     int numBases;
     int numGC;
 
@@ -57,6 +59,10 @@ public class ReadStatsCollector {
 
     public ArrayList<Float> getReadsGcContent() {
         return readsGcContent;
+    }
+
+    public int[] getReadsClippingInfo() {
+        return readsClippingContent;
     }
 
     ReadStatsCollector() {
@@ -134,4 +140,12 @@ public class ReadStatsCollector {
         readsClippingContent[pos]++;
     }
 
+    public void incNumClippedReads() {
+        ++numClippedReads;
+    }
+
+
+    public int getNumClippedReads() {
+        return numClippedReads;
+    }
 }

@@ -124,8 +124,6 @@ public class ProcessBunchOfReadsTask implements Callable {
 
         for (SAMRecord read : reads) {
 
-            //analyzeReadsContent(read);
-
             long position = ctx.getLocator().getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentStart());
             //System.out.println("From ProcessReadTask: started analysis of read " + read.getReadName() + ", size: " + read.getReadLength());
 
@@ -136,6 +134,9 @@ public class ProcessBunchOfReadsTask implements Callable {
                 if (statsCollector != null) {
                     // collect some read stats
                     alignment = computeReadAlignment(read, statsCollector);
+                    if (read.getCigarString().contains("M") || read.getCigarString().contains("S")) {
+                        statsCollector.incNumClippedReads();
+                    }
                 } else {
                     // only compute alignment
                     alignment = computeReadAlignment(read);
@@ -190,11 +191,6 @@ public class ProcessBunchOfReadsTask implements Callable {
             }
 
         }
-
-        /*for (SingleReadData readData : analysisResults.values()) {
-            float gcContent = (float) (readData.numberOfCs + readData.numberOfGs) / readData.numberOfSequencedBases;
-            readsGcContent.add(gcContent);
-        }*/
 
         readStatsCollector.saveGC();
         taskResult.setGlobalReadsData(analysisResults.values());

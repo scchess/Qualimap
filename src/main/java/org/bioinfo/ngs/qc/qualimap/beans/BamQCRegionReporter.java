@@ -63,7 +63,7 @@ public class BamQCRegionReporter implements Serializable {
 	aReferencePercent, cReferencePercent, gReferencePercent,
 	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
 
-    int readMinSize, readMaxSize;
+    int readMinSize, readMaxSize, numClippedReads;
     double readMeanSize;
 
     private int numPairedReads, numberOfMappedFirstOfPair, numberOfMappedSecondOfPair;
@@ -259,6 +259,7 @@ public class BamQCRegionReporter implements Serializable {
         this.percentageOfMappedFirstOfPair = ( (double) numberOfMappedFirstOfPair / numReads) * 100.0;
         this.numberOfMappedSecondOfPair = bamStats.getNumberOfMappedSecondOfPair();
         this.percentageOfMappedSecondOfPair = ( (double) numberOfMappedSecondOfPair / numReads ) * 100.0;
+        this.numClippedReads = bamStats.getNumClippedReads();
 
         // regions related
         this.numSelectedRegions = bamStats.getNumSelectedRegions();
@@ -521,6 +522,19 @@ public class BamQCRegionReporter implements Serializable {
             readsContentChart.render();
             charts.add(new QChart(bamStats.getName() + "_reads_content_per_read_position.png",
                     readsContentChart.getChart(), readsContentChart));
+        }
+
+        if (bamStats.clippingIsPresent()) {
+            BamQCChart clippingProfile = new BamQCChart(Constants.PLOT_TITLE_READS_CLIPPING_PROFILE,
+                    subTitle, "Read position (bp)", " Bases clipped (%)");
+            clippingProfile.addSeries("Clipping profile", bamStats.getReadsClippingProfileHistogram(), new Color(255, 0, 0, 255));
+            clippingProfile.setAdjustDomainAxisLimits(false);
+            clippingProfile.setDomainAxisIntegerTicks(true);
+            clippingProfile.setPercentageChart(true);
+            clippingProfile.render();
+            charts.add(new QChart(bamStats.getName() + "_reads_clipping_profile.png",
+                    clippingProfile.getChart(), clippingProfile));
+
         }
 
         /////////////////////////////// Reads GC Content histogram ///////////////////////////////////
@@ -796,6 +810,7 @@ public class BamQCRegionReporter implements Serializable {
                         + sdf.formatLong(readMaxSize) + " / "
                         + sdf.formatDecimal(readMeanSize));
 
+        globals.addRow("Clipped reads", sdf.formatInteger(numClippedReads));
         globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
 
 

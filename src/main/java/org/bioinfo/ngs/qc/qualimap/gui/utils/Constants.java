@@ -67,6 +67,7 @@ public final class Constants {
     public static final String PLOT_TITLE_INSERT_SIZE_ACROSS_REFERENCE = "Insert Size Across Reference";
     public static final String PLOT_TITLE_INSERT_SIZE_HISTOGRAM = "Insert Size Histogram";
     public static final String PLOT_TITLE_READS_NUCLEOTIDE_CONTENT = "Mapped Reads Nucleotide Content";
+    public static final String PLOT_TITLE_READS_CLIPPING_PROFILE = "Mapped Reads Clipping Profile";
     public static final String PLOT_TITLE_GENOME_FRACTION_COVERAGE = "Genome Fraction Coverage";
     public static final String PLOT_TITLE_READS_GC_CONTENT = "Mapped Reads GC-content Distribution";
     public static final String PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM = "Duplication Rate Histogram";

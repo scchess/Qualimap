@@ -204,17 +204,19 @@ public class BamStats implements Serializable {
     // reads stats
     double readMeanSize;
     int readMaxSize, readMinSize;
+    int numClippedReads;
     List<Long> readsAsData;
     List<Long> readsCsData;
     List<Long> readsGsData;
     List<Long> readsTsData;
     List<Long> readsNsData;
+    List<Long> readsClippingData;
     XYVector readsAsHistogram;
     XYVector readsCsHistogram;
     XYVector readsGsHistogram;
     XYVector readsTsHistogram;
     XYVector readsNsHistogram;
-
+    XYVector readsClippingProfileHistogram;
 
 	// windows
 	private int numberOfWindows;
@@ -324,6 +326,7 @@ public class BamStats implements Serializable {
         readsGsData = new ArrayList<Long>();
         readsTsData = new ArrayList<Long>();
         readsNsData = new ArrayList<Long>();
+        readsClippingData = new ArrayList<Long>();
 
 		// others		
 		maxCoverageQuota = 50;
@@ -744,6 +747,7 @@ public class BamStats implements Serializable {
         computeUniqueReadStartsHistogram();
         computeGCContentHistogram();
         computeReadsContentHistogrmas();
+        computeReadsClippingProfileHistogram();
 
     }
 
@@ -789,9 +793,34 @@ public class BamStats implements Serializable {
         return readsNsHistogram;
     }
 
+    public XYVector getReadsClippingProfileHistogram() {
+        return  readsClippingProfileHistogram;
+    }
+
+
+    private void computeReadsClippingProfileHistogram() {
+        if (readMaxSize == 0 || !clippingIsPresent()) {
+            return;
+        }
+
+        ensureListSize(readsClippingData, readMaxSize);
+
+        double totalBasesClipped = 0;
+        for (long val : readsClippingData) {
+            totalBasesClipped += val;
+        }
+
+        readsClippingProfileHistogram = new XYVector();
+
+        for (int pos = 0; pos < readMaxSize; ++pos) {
+            double val = (readsClippingData.get(pos) / totalBasesClipped) * 100.0;
+            readsClippingProfileHistogram.addItem( new XYItem(pos, val));
+        }
+
+
+    }
+
     private void computeReadsContentHistogrmas() {
-
-
 
         readsAsHistogram = new XYVector();
         readsCsHistogram = new XYVector();
@@ -803,7 +832,6 @@ public class BamStats implements Serializable {
                 + readsTsData.size() + readsNsData.size();
 
         if (totalSize == 0 )  {
-            return;
         }
 
         // make sure that we have enough data
@@ -1733,12 +1761,6 @@ public class BamStats implements Serializable {
 		return meanAtContentInReference;
 	}
 
-	/**
-	 * @param meanAtContentInReference the meanAtContentInReference to set
-	 */
-	public void setMeanAtContentInReference(double meanAtContentInReference) {
-		this.meanAtContentInReference = meanAtContentInReference;
-	}
 
 	/**
 	 * @return the meanAtContentPerWindowInReference
@@ -1747,13 +1769,6 @@ public class BamStats implements Serializable {
 		return meanAtContentPerWindowInReference;
 	}
 
-	/**
-	 * @param meanAtContentPerWindowInReference the meanAtContentPerWindowInReference to set
-	 */
-	public void setMeanAtContentPerWindowInReference(
-			double meanAtContentPerWindowInReference) {
-		this.meanAtContentPerWindowInReference = meanAtContentPerWindowInReference;
-	}
 
 	/**
 	 * @return the meanAtRelativeContentPerWindowInReference
@@ -1935,25 +1950,10 @@ public class BamStats implements Serializable {
 	}
 
 	/**
-	 * @param meanMappingQualityPerWindow the meanMappingQualityPerWindow to set
-	 */
-	public void setMeanMappingQualityPerWindow(double meanMappingQualityPerWindow) {
-		this.meanMappingQualityPerWindow = meanMappingQualityPerWindow;
-	}
-
-	/**
 	 * @return the mappingQualityAcrossReference
 	 */
 	public List<Double> getMappingQualityAcrossReference() {
 		return mappingQualityAcrossReference;
-	}
-
-	/**
-	 * @param mappingQualityAcrossReference the mappingQualityAcrossReference to set
-	 */
-	public void setMappingQualityAcrossReference(
-			List<Double> mappingQualityAcrossReference) {
-		this.mappingQualityAcrossReference = mappingQualityAcrossReference;
 	}
 
 	/**
@@ -1964,24 +1964,10 @@ public class BamStats implements Serializable {
 	}
 
 	/**
-	 * @param mappingQualityHistogram the mappingQualityHistogram to set
-	 */
-	public void setMappingQualityHistogram(XYVector mappingQualityHistogram) {
-		this.mappingQualityHistogram = mappingQualityHistogram;
-	}
-
-	/**
 	 * @return the numberOfAs
 	 */
 	public long getNumberOfAs() {
 		return numberOfAs;
-	}
-
-	/**
-	 * @param numberOfAs the numberOfAs to set
-	 */
-	public void setNumberOfAs(long numberOfAs) {
-		this.numberOfAs = numberOfAs;
 	}
 
 	/**
@@ -2041,20 +2027,6 @@ public class BamStats implements Serializable {
 		this.aContentAcrossReference = aContentAcrossReference;
 	}
 
-	/**
-	 * @return the aRelativeContentAcrossReference
-	 */
-	public List<Double> getaRelativeContentAcrossReference() {
-		return aRelativeContentAcrossReference;
-	}
-
-	/**
-	 * @param aRelativeContentAcrossReference the aRelativeContentAcrossReference to set
-	 */
-	public void setaRelativeContentAcrossReference(
-			List<Double> aRelativeContentAcrossReference) {
-		this.aRelativeContentAcrossReference = aRelativeContentAcrossReference;
-	}
 
 	/**
 	 * @return the numberOfCs
@@ -2896,11 +2868,12 @@ public class BamStats implements Serializable {
     public void addReadStatsData(ReadStatsCollector readStatsCollector) {
 
 
-        addReadsAsData ( readStatsCollector.getReadsAContent() );
-        addReadsCsData ( readStatsCollector.getReadsCContent() );
-        addReadsGsData ( readStatsCollector.getReadsGContent() );
-        addReadsTsData ( readStatsCollector.getReadsTContent() );
-        addReadsNsData ( readStatsCollector.getReadsNContent() );
+        addReadsAsData(readStatsCollector.getReadsAContent());
+        addReadsCsData(readStatsCollector.getReadsCContent());
+        addReadsGsData(readStatsCollector.getReadsGContent());
+        addReadsTsData(readStatsCollector.getReadsTContent());
+        addReadsNsData(readStatsCollector.getReadsNContent());
+        addReadsClippingInfo(readStatsCollector.getReadsClippingInfo());
 
         ArrayList<Float> readsGcContent = readStatsCollector.getReadsGcContent();
         for (float val : readsGcContent) {
@@ -2908,15 +2881,9 @@ public class BamStats implements Serializable {
             gcContentHistogram[ (int) (val * NUM_BINS) ]++;
         }
         sampleCount += readsGcContent.size();
-    }
 
+        numClippedReads += readStatsCollector.getNumClippedReads();
 
-    public void addGcContentData(Collection<Float> readsGcContent) {
-        for (float val : readsGcContent) {
-            //System.out.println(val);
-            gcContentHistogram[ (int) (val * NUM_BINS) ]++;
-        }
-        sampleCount += readsGcContent.size();
     }
 
     public int getNumberOfPairedReads() {
@@ -2987,6 +2954,27 @@ public class BamStats implements Serializable {
             val += readsNContent[i];
             readsNsData.set(i, val);
         }
+    }
+
+    public void addReadsClippingInfo(int[] readsClippingInfo) {
+        ensureListSize(readsClippingData, readsClippingInfo.length);
+        for (int i = 0; i < readsClippingInfo.length; ++i) {
+            long val = readsClippingData.get(i);
+            val += readsClippingInfo[i];
+            readsClippingData.set(i, val);
+        }
+    }
+
+
+    public boolean clippingIsPresent() {
+
+        for (long val : readsClippingData) {
+            if (val > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public int getReadMaxSize() {
@@ -3147,5 +3135,9 @@ public class BamStats implements Serializable {
 
     public void updateReadStartsHistogram(long position) {
         readStartsHistogram.update(position);
+    }
+
+    public int getNumClippedReads() {
+        return numClippedReads;
     }
 }
