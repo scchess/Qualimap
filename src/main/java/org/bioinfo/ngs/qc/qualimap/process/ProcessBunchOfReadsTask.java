@@ -134,7 +134,8 @@ public class ProcessBunchOfReadsTask implements Callable {
                 if (statsCollector != null) {
                     // collect some read stats
                     alignment = computeReadAlignment(read, statsCollector);
-                    if (read.getCigarString().contains("M") || read.getCigarString().contains("S")) {
+                    String cigarString = read.getCigarString();
+                    if (cigarString.contains("H") || cigarString.contains("S")) {
                         statsCollector.incNumClippedReads();
                     }
                 } else {
