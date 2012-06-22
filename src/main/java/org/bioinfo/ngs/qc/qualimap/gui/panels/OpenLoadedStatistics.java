@@ -102,7 +102,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                         popup.add(savePictureItem);
 
                         // TODO: Each reporter should add own items to the popup menu.
-                        if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI) {
+                        if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING) {
                             JMenuItem exportGeneListItem = new JMenuItem("Export feature list...");
                             exportGeneListItem.addActionListener(new ActionListener() {
                                 @Override
@@ -159,9 +159,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         tabProperties.setLastLinkSelected(null);
         tabProperties.setLoadedGraphicName("");
 
-		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_RNA) == 0) {
+		if (tabProperties.getTypeAnalysis() == AnalysisType.COUNTS_QC ) {
 			fillLeftRnaSplit();
-		} else if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI) {
+		} else if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING) {
             fillEpiSplit();
         } else {
 			fillLeftSplit();
@@ -331,10 +331,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
     public void showInitialPage(TabPropertiesVO tabProperties)
     {
-        if(Constants.TYPE_BAM_ANALYSIS_DNA ==  tabProperties.getTypeAnalysis() ||
-           Constants.TYPE_BAM_ANALYSIS_EXOME ==  tabProperties.getTypeAnalysis()){
-			showLeftSideSummaryInformation(Constants.TYPE_BAM_ANALYSIS_DNA, initialLabel);
-		}else if (Constants.TYPE_BAM_ANALYSIS_RNA ==  tabProperties.getTypeAnalysis() ){
+        if(AnalysisType.BAM_QC ==  tabProperties.getTypeAnalysis()){
+			showLeftSideSummaryInformation(0, initialLabel);
+		}else if (AnalysisType.COUNTS_QC ==  tabProperties.getTypeAnalysis() ){
 			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel);
 		}
 
@@ -483,10 +482,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		// TODO: replace this method with getReporter(int index)
         BamQCRegionReporter reporter;
 
-		if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || 
-				tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
+		if (tabProperties.getTypeAnalysis() == AnalysisType.BAM_QC ) {
 
-			// Select the reporter that contains the graphics
+        	// Select the reporter that contains the graphics
 			if (graphicName.startsWith("outside")) {
 				reporter = tabProperties.getOutsideReporter();
 			} else {
@@ -548,7 +546,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
   			// Set the image with the file image get
 			panelImage.setImage(imageToDisplay);
             // Scale the image
-            if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI ) {
+            if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING ) {
                 int width = imageToDisplay.getWidth();
                 int height  =  imageToDisplay.getHeight();
                 panelImage.setPreferredSize(new Dimension(width, height));
@@ -743,7 +741,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         Component c = componentEvent.getComponent();
         //TabPropertiesVO tabProperties =  homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
         GraphicImagePanel imagePanel = tabProperties.getGraphicImage();
-        if (c == imagePanel && tabProperties.getTypeAnalysis() != Constants.TYPE_BAM_ANALYSIS_EPI) {
+        if (c == imagePanel && tabProperties.getTypeAnalysis() != AnalysisType.CLUSTERING) {
             imagePanel.resizeImage(c.getWidth(), c.getHeight());
             rightScrollPane.setViewportView(imagePanel);
         }

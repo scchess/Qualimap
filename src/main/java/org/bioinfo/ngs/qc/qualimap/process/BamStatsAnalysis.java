@@ -1035,5 +1035,7 @@ public class BamStatsAnalysis {
     }
 
 
-
+    public LibraryProtocol getProtocol() {
+        return protocol;
+    }
 }

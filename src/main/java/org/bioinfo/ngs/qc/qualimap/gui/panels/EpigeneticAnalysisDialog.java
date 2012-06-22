@@ -5,6 +5,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditEpigeneticsInputDataDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.EpigeneticsAnalysisThread;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
@@ -328,8 +329,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
             String errMsg = validateInput();
             if (errMsg.isEmpty()) {
-                TabPropertiesVO tabProperties = new TabPropertiesVO();
-                tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_EPI);
+                TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.CLUSTERING);
                 EpigeneticsAnalysisThread t = new EpigeneticsAnalysisThread(this, tabProperties );
                 t.start();
             } else {

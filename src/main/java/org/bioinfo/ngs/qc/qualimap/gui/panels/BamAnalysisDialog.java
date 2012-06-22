@@ -5,10 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.JTextFieldLimit;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 
@@ -249,7 +246,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
 			public void actionPerformed(ActionEvent evt) {
                 // We can load from file or from a BAM file
-                TabPropertiesVO tabProperties = new TabPropertiesVO();
+                TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.BAM_QC);
 				if (validateInput()) {
 					// If the input has the required values, load the
 					// results
@@ -368,8 +365,9 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 	 */
 	private synchronized void runAnalysis(TabPropertiesVO tabProperties) {
 		BamAnalysisThread t;
-		tabProperties.setTypeAnalysis(analyzeRegionsCheckBox.isSelected() ? Constants.TYPE_BAM_ANALYSIS_DNA
-         : Constants.TYPE_BAM_ANALYSIS_DNA);
+        //TODO: make sure that regions are no different !
+		/*tabProperties.setTypeAnalysis(analyzeRegionsCheckBox.isSelected() ? Constants.TYPE_BAM_ANALYSIS_DNA
+         : Constants.TYPE_BAM_ANALYSIS_DNA);*/
 		t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
 
 		t.start();

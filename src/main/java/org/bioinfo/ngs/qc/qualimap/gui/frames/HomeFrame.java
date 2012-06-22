@@ -19,10 +19,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ComputeCountsDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ExportGeneListDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.ButtonTabComponent;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
 
@@ -358,11 +355,11 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.addSeparator();
         fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
 
-        analysisMenu.add(addMenuItem("BAM QC", BAMQC_COMMAND, "chart_curve_add.png", "ctrl pressed G"));
-        JMenuItem rnaSeqItem =   addMenuItem("Counts QC", COUNTSQC_COMMAND, "chart_curve_add.png", "ctrl pressed C");
+        analysisMenu.add(addMenuItem(AnalysisType.BAM_QC.toString() , BAMQC_COMMAND, "chart_curve_add.png", "ctrl pressed G"));
+        JMenuItem rnaSeqItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), COUNTSQC_COMMAND, "chart_curve_add.png", "ctrl pressed C");
         rnaSeqItem.setEnabled(countsQCPackagesAvailable);
         analysisMenu.add(rnaSeqItem);
-        JMenuItem epiMenuItem =  addMenuItem("Clustering", CLUSTERING_COMMAND, "chart_curve_add.png", "ctrl pressed E");
+        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), CLUSTERING_COMMAND, "chart_curve_add.png", "ctrl pressed E");
         epiMenuItem.setEnabled(clusteringPacakgesAvailble);
         analysisMenu.add(epiMenuItem);
 
@@ -419,19 +416,12 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         this.getPopUpDialog().setVisible(false);
 		this.remove(this.getPopUpDialog());
 		
-	    int typeAnalysis = tabProperties.getTypeAnalysis();
+	    AnalysisType typeAnalysis = tabProperties.getTypeAnalysis();
 
 		// Cutting the file name if necessary
 		String fileName = StringUtilsSwing.formatFileName(inputFileName);
 		ImageIcon ic = new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve.png"));
-		String prefix = "";
-		if(Constants.TYPE_BAM_ANALYSIS_DNA == typeAnalysis || Constants.TYPE_BAM_ANALYSIS_EXOME == typeAnalysis){
-			prefix = "BAM QC: ";
-		} else if (Constants.TYPE_BAM_ANALYSIS_RNA == typeAnalysis){
-			prefix = "Counts QC: ";
-        }else if (Constants.TYPE_BAM_ANALYSIS_EPI == typeAnalysis) {
-            prefix = "Clustering: ";
-        }
+		String prefix = typeAnalysis.toString() +  ": ";
 
         OpenLoadedStatistics op = new OpenLoadedStatistics(this,tabProperties);
         JSplitPane statisticsPane = op.getLoadedStatistics();
@@ -598,7 +588,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
 				// We test if this tab has result values or is an input tab
 				if (tabProperties != null && tabProperties.getReporter() != null) {
-					if (tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_DNA) == 0 || tabProperties.getTypeAnalysis().compareTo(Constants.TYPE_BAM_ANALYSIS_EXOME) == 0) {
+					if (tabProperties.getTypeAnalysis() == AnalysisType.BAM_QC ) {
 						SavePanel pathSaveDialog = new SavePanel();
                     	popUpDialog = pathSaveDialog.getSaveFileDialog(HomeFrame.this, Constants.FILE_EXTENSION_COMPRESS_FILE);
 						popUpDialog.setModal(true);
@@ -723,9 +713,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
             if (tabProperties != null ) {
 
-                int typeAnalysis = tabProperties.getTypeAnalysis();
+                AnalysisType typeAnalysis = tabProperties.getTypeAnalysis();
 
-                canExportGeneList = typeAnalysis == Constants.TYPE_BAM_ANALYSIS_EPI &&
+                canExportGeneList = typeAnalysis == AnalysisType.CLUSTERING &&
                     !tabProperties.getLoadedGraphicName().isEmpty();
 
             }

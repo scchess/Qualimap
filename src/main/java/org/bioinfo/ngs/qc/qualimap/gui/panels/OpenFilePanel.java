@@ -26,6 +26,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -391,7 +392,7 @@ public class OpenFilePanel extends JPanel {
 
 			public void actionPerformed(ActionEvent evt) {
                 // Laod Qualimap from zip file
-                TabPropertiesVO tabProperties = new TabPropertiesVO();
+                TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.BAM_QC);
 				if (validateInputZipFile()) {
 				    loadZipFileStatistics(tabProperties);
 				} else {

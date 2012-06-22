@@ -22,6 +22,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.HtmlReportGenerator;
@@ -125,12 +126,7 @@ public class ExportHtmlThread extends Thread{
 	    	numSavedFiles = 0;
 
 	    	int numItemsToSave = tabProperties.getReporter().getCharts().size();
-	    	boolean bamQCAnalysis = false;
-
-            if  (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EXOME ||
-                    tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_DNA ) {
-                bamQCAnalysis = true;
-            }
+	    	AnalysisType analysisType = tabProperties.getTypeAnalysis();
 
 	    	if(tabProperties.getOutsideReporter() != null &&
 					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
@@ -142,13 +138,13 @@ public class ExportHtmlThread extends Thread{
 
 			// Add the first file of the reporter
 			BamQCRegionReporter reporter = tabProperties.getReporter();
-            boolean  success = generateAndSaveReport(reporter, htmlReportFilePath, bamQCAnalysis);
+            boolean  success = generateAndSaveReport(reporter, htmlReportFilePath, analysisType);
 
 			// Add the files of the third reporter
 			if(success && loadOutsideReporter){
 				BamQCRegionReporter outsideReporter = tabProperties.getOutsideReporter();
                 String outsideReportFilePath = dirPath + "/qualimapReportOutsideOfRegions.html";
-                success = generateAndSaveReport(outsideReporter, outsideReportFilePath, bamQCAnalysis);
+                success = generateAndSaveReport(outsideReporter, outsideReportFilePath, analysisType);
             }
 
             prepareCss();
@@ -172,7 +168,7 @@ public class ExportHtmlThread extends Thread{
     }
 
 
-    private boolean generateAndSaveReport(BamQCRegionReporter reporter, String path, boolean genomicAnalysis) throws IOException {
+    private boolean generateAndSaveReport(BamQCRegionReporter reporter, String path, AnalysisType genomicAnalysis) throws IOException {
 
         HtmlReportGenerator generator = new HtmlReportGenerator(reporter, dirPath, genomicAnalysis);
         StringBuffer htmlReport = generator.getReport();

@@ -14,6 +14,21 @@ public enum LibraryProtocol {
     public static final String PROTOCOL_NON_STRAND_SPECIFIC = "non-strand-specific";
     public static final String PROTOCOL_FORWARD_STRAND = "strand-specific-forward";
     public static final String PROTOCOL_REVERSE_STRAND = "strand-specific-reverse";
+    public static final String PROTOCOL_UNKNOWN = "unknown";
+
+
+    public String toString() {
+        if (this == STRAND_NON_SPECIFIC) {
+            return PROTOCOL_FORWARD_STRAND;
+        } else if (this == STRAND_SPECIFIC_FORWARD) {
+            return PROTOCOL_FORWARD_STRAND;
+        } else if (this == STRAND_SPECIFIC_REVERSE) {
+            return PROTOCOL_REVERSE_STRAND;
+        } else {
+            return PROTOCOL_UNKNOWN;
+        }
+
+    }
 
     public static LibraryProtocol getProtocolByName(String protocolName) {
         if (protocolName.equals(PROTOCOL_FORWARD_STRAND)) {

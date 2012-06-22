@@ -169,16 +169,6 @@ public final class Constants {
 
     public static final String NAME_OF_FILE_CHROMOSOMES_OUTSIDE = "outside_chromosomes.txt";
 
-	
-	//******************************************************************************************
-	//******************************** TYPES OF BAM ANALYSIS ***********************************
-	//******************************************************************************************
-
-    public static final int TYPE_BAM_ANALYSIS_DNA = 0;
-	public static final int TYPE_BAM_ANALYSIS_EXOME = 1;
-	public static final int TYPE_BAM_ANALYSIS_RNA = 2;
-    public static final int TYPE_BAM_ANALYSIS_EPI = 3;
-
 	//******************************************************************************************
 	//*********************************** TYPES OF SPECIES *************************************
 	//******************************************************************************************
@@ -201,6 +191,10 @@ public final class Constants {
 
     // This is a SAM record custom field, has to be 2 characters
     public static final String READ_IN_REGION = "XX";
+
+    public static final String ANALYSIS_NAME_BAMQC = "BAM QC";
+    public static final String ANALYSIS_NAME_COUNTS_QC = "Counts QC";
+    public static final String ANALYSIS_NAME_CLUSTERING = "Clustering";
 
     public static final String REPORT_TYPE_HTML = "HTML";
     public static final String REPORT_TYPE_PDF = "PDF";

@@ -5,6 +5,7 @@ import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsAnalysisThread;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
@@ -283,10 +284,9 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 				// We can load from file or from a BAM file
-				TabPropertiesVO tabProperties = new TabPropertiesVO();
+				TabPropertiesVO tabProperties = new TabPropertiesVO( AnalysisType.COUNTS_QC );
 
                 if (validateInput()) {
-                    tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
 
 		            CountsAnalysisThread t = new CountsAnalysisThread("StatisticsRnaAnalysisProcessThread", dlg, tabProperties);
 		            t.start();

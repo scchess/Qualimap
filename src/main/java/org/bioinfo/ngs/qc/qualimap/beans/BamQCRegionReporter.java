@@ -1083,4 +1083,5 @@ public class BamQCRegionReporter implements Serializable {
     public double getSelectedRegionsPercentage() {
         return (numBasesInsideRegions / (double) referenceSize) * 100.0;
     }
+
 }

@@ -10,6 +10,7 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
@@ -220,6 +221,7 @@ public class BamAnalysisThread extends Thread {
             HashMap<String,String> regionParams = new HashMap<String, String>();
             regionParams.put("GFF file: ", bamQC.getFeatureFile());
             regionParams.put("Outside statistics: ", boolToStr(bamQC.getComputeOutsideStats()));
+            regionParams.put("Library protocol: ", bamQC.getProtocol().toString() );
             reporter.addInputDataSection("GFF region", regionParams);
         }
 

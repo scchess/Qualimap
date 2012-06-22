@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
@@ -143,8 +144,7 @@ public class EpiTool extends NgsSmartTool {
 
         initOutputDir();
 
-        TabPropertiesVO tabProperties = new TabPropertiesVO();
-        tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_EPI);
+        TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.CLUSTERING);
 
         EpiAnalysis epiAnalysis = new EpiAnalysis(tabProperties,homePath,cfg);
 

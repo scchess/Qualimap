@@ -2,6 +2,7 @@ package org.bioinfo.ngs.qc.qualimap.utils;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 
@@ -17,14 +18,14 @@ import java.util.*;
 public class HtmlReportGenerator {
 
     BamQCRegionReporter reporter;
-    boolean bamQCAnalysis;
+    AnalysisType analysisType;
     String dirPath;
     StringBuffer htmlReport;
     List<String> plotNames, plotLinks;
 
-    public HtmlReportGenerator(BamQCRegionReporter reporter, String dirPath, boolean genomicAnalysis) {
+    public HtmlReportGenerator(BamQCRegionReporter reporter, String dirPath, AnalysisType analysisType) {
         this.reporter = reporter;
-        this.bamQCAnalysis = genomicAnalysis;
+        this.analysisType = analysisType;
         this.dirPath = dirPath;
     }
 
@@ -53,7 +54,7 @@ public class HtmlReportGenerator {
         append("\t\t<link rel=\"stylesheet\" href=\"_static/agogo.css\" type=\"text/css\" />");
         append("\t\t<link rel=\"stylesheet\" href=\"_static/report.css\" " +
                 "type=\"text/css\" />");
-        append("\t<title>Qualimap report: BAM QC analysis</title>\n");
+        append("\t<title>Qualimap report: " + analysisType.toString() + "</title>\n");
         append("\t</head>");
 
     }
@@ -67,7 +68,7 @@ public class HtmlReportGenerator {
                 "alt=\"Logo\"/>");
         append("\t\t</a></p>");
         append("<div class=\"headertitle\">" +
-                "<a href=\"\">Qualimap Report</a></div>");
+                "<a href=\"\">Qualimap Report: " + analysisType.toString() + "</a></div>");
         append("\t</div>");
         append("</div>\n");
     }
@@ -94,7 +95,7 @@ public class HtmlReportGenerator {
         append("<div class=\"bodywrapper\">");
         append("<div class=\"body\">");
 
-        if (bamQCAnalysis) {
+        if (analysisType.isBamQC()) {
             appendSummary();
         }
 
@@ -123,7 +124,7 @@ public class HtmlReportGenerator {
         appendTableFromStats(summarySections);
 
 
-		if (bamQCAnalysis) {
+		if (analysisType.isBamQC()) {
 			appendChromosomeStats();
         }
 
@@ -233,7 +234,7 @@ public class HtmlReportGenerator {
         append("\n<div class=\"sidebar\">");
         append("<h3>Contents</h3>");
 
-        if (bamQCAnalysis) {
+        if (analysisType.isBamQC()) {
             append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#summary\">Summary</a></li>");
         }
 

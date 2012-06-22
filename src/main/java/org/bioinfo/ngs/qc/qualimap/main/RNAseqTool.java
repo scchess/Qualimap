@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import java.io.File;
 
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.CountsAnalysis;
@@ -130,8 +131,7 @@ public class RNAseqTool extends NgsSmartTool{
 		// init output dir
 		initOutputDir();
 
-        TabPropertiesVO tabProperties = new TabPropertiesVO();
-        tabProperties.setTypeAnalysis(Constants.TYPE_BAM_ANALYSIS_RNA);
+        TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.COUNTS_QC);
 
         CountsAnalysis countsAnalysis = new CountsAnalysis(tabProperties, homePath + File.separator);
 
