@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
  * Time: 6:12 PM
  */
 
-public class FinalizeWindowTask implements Callable {
+public class FinalizeWindowTask implements Callable<Integer> {
 
 
     BamStats bamStats;

@@ -4,7 +4,6 @@ import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
-import psidev.psi.mi.xml.model.Feature;
 
 import java.util.*;
 

@@ -31,5 +31,9 @@ public class GenomicFeature {
         return interval.getSequence();
     }
 
+    public boolean isPositiveStrand() {
+        return interval.isPositiveStrand();
+    }
+
 
 }

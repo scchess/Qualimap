@@ -1,7 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import net.sf.samtools.*;
-import net.sf.picard.util.IntervalTree;
 import net.sf.samtools.util.RuntimeIOException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.formats.core.sequence.Fasta;
@@ -14,6 +13,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.utils.*;
 
 import java.io.File;
@@ -50,6 +50,8 @@ public class BamStatsAnalysis {
 	private int numberOfReads;
 	private int numberOfValidReads;
 	private int numberOfDuplicatedReads;
+    private int numberOfCorrectStrandReads;
+    private int numberOfProblematicReads;
 
 	// statistics
 	private BamStats bamStats;
@@ -88,8 +90,8 @@ public class BamStatsAnalysis {
     //regions
 	private long[] selectedRegionStarts;
 	private long[] selectedRegionEnds;
-    RegionLookupTable regionLookupTable;
-    IntervalTree<Integer> regionsTree;
+    RegionOverlapLookupTable regionOverlapLookupTable;
+    LibraryProtocol protocol;
 
     ReadStats readStats;
     ReadStats outsideReadStats;
@@ -140,6 +142,7 @@ public class BamStatsAnalysis {
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.outdir = ".";
+        protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
         pgProgram = "";
         pgCommandString = "";
 		logger = new Logger();
@@ -189,7 +192,7 @@ public class BamStatsAnalysis {
         List<Long> windowPositions = computeWindowPositions(windowSize);
         effectiveNumberOfWindows = windowPositions.size();
         bamStats = new BamStats("genome",referenceSize,effectiveNumberOfWindows);
-        logger.println("effectiveNumberOfWindows " + effectiveNumberOfWindows);
+        logger.println("Effective number of windows: " + effectiveNumberOfWindows);
         logger.println("Number of threads: " + threadNumber);
         bamStats.setSourceFile(bamFile);
         //bamStats.setWindowReferences("w",windowSize);
@@ -243,7 +246,7 @@ public class BamStatsAnalysis {
             try {
                 read = iter.next();
             } catch (RuntimeException e) {
-                logger.warn( e.getMessage() );
+                numberOfProblematicReads++;
             }
 
             if (read == null) {
@@ -289,8 +292,7 @@ public class BamStatsAnalysis {
 
                 if (selectedRegionsAvailable) {
                     //boolean readOverlapsRegions = readOverlapsRegions(position, position + read.getReadLength() - 1);
-                    boolean readOverlapsRegions = readOverlapsRegions(read.getAlignmentStart(),
-                            read.getAlignmentEnd(), read.getReferenceName());
+                    boolean readOverlapsRegions = readOverlapsRegions(read);
 
                     if (readOverlapsRegions) {
                         readStats.collectReadStats(read);
@@ -376,6 +378,10 @@ public class BamStatsAnalysis {
         logger.println("Number of reads: " + numberOfReads);
         logger.println("Number of valid reads: " + numberOfValidReads);
         logger.println("Number of duplicated reads: " + numberOfDuplicatedReads);
+        logger.println("Number of correct strand reads:" + numberOfCorrectStrandReads);
+        if (numberOfProblematicReads > 0) {
+            logger.warn("SAMRecordParser failed to process " + numberOfProblematicReads + " reads.");
+        }
         logger.println("\nInside of regions...");
         logger.print(readStats.report());
 
@@ -418,7 +424,7 @@ public class BamStatsAnalysis {
             bamStats.setNumberOfMappedFirstOfPairInRegions(readStats.getNumMappedFirstInPair());
             bamStats.setNumberOfMappedSecondOfPairInRegions(readStats.getNumMappedSecondInPair());
             bamStats.setNumberOfSingletonsInRegions(readStats.getNumSingletons());
-
+            bamStats.setNumberOfCorrectStrandReads(numberOfCorrectStrandReads);
         }
 
         bamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
@@ -582,7 +588,7 @@ public class BamStatsAnalysis {
         int relativeWindowEnd = relativeWindowStart + windowSize - 1;
         String contigName = windowContig.getName();
 
-        regionLookupTable.markIntersectingRegions(bitSet, relativeWindowStart,
+        regionOverlapLookupTable.markIntersectingRegions(bitSet, relativeWindowStart,
                 relativeWindowEnd, contigName);
 
         w.setSelectedRegions(bitSet);
@@ -788,9 +794,8 @@ public class BamStatsAnalysis {
 
         selectedRegionStarts = new long[numberOfSelectedRegions];
 		selectedRegionEnds = new long[numberOfSelectedRegions];
-        regionLookupTable = new RegionLookupTable();
+        regionOverlapLookupTable = new RegionOverlapLookupTable();
 		//selectedRegionRelativePositions = new long[numberOfSelectedRegions];
-        regionsTree = new IntervalTree<Integer>();
 
         featureFileReader.reset();
         System.out.println("Filling region references... ");
@@ -808,16 +813,9 @@ public class BamStatsAnalysis {
             insideReferenceSize += regionLength;
             selectedRegionStarts[index] = pos;
             selectedRegionEnds[index] = pos + regionLength - 1;
-            regionLookupTable.putRegion(region.getStart(), region.getEnd(), region.getSequenceName());
+            regionOverlapLookupTable.putRegion(region.getStart(), region.getEnd(),
+                    region.getSequenceName(), region.isPositiveStrand() );
 
-
-			//selectedRegionStarts[index] = Math.max(lastEnd,pos);
-			//selectedRegionEnds[index] = Math.max(lastEnd,pos + region.getEnd()-region.getStart());
-			//selectedRegionRelativePositions[index] = relative;
-            //regionsTree.put(region.getStart(), region.getEnd(), index);
-			//relative+=(selectedRegionEnds[index]-selectedRegionStarts[index]+1);
-			//lastEnd = selectedRegionEnds[index];
-			//System.err.println(region.getStart() + ":" + region.getEnd() + "       " + pos + ":" + (pos + region.getEnd()-region.getStart()) + "      "  + selectedRegionStarts[index] + ":" + selectedRegionEnds[index] +  "     " + relative);
 			index++;
 		}
 
@@ -827,7 +825,7 @@ public class BamStatsAnalysis {
     }
 
     private void validateSequenceNames() {
-        Set<String> seqNames = regionLookupTable.getSequenceNames();
+        Set<String> seqNames = regionOverlapLookupTable.getSequenceNames();
 
         for (String seqName : seqNames) {
             if (!locator.containsContig(seqName)) {
@@ -890,10 +888,58 @@ public class BamStatsAnalysis {
         return windowStarts;
     }
 
-    private boolean readOverlapsRegions(int readStart, int readEnd, String seqName) {
+    private boolean readOverlapsRegions(SAMRecord read) {
 
-        return regionLookupTable.overlaps(readStart, readEnd, seqName);
+
+
+        if (protocol == LibraryProtocol.STRAND_NON_SPECIFIC) {
+            return regionOverlapLookupTable.overlaps(read.getAlignmentStart(),
+                            read.getAlignmentEnd(), read.getReferenceName());
+        } else {
+
+            boolean readHasForwardStrand = !read.getReadNegativeStrandFlag();
+            boolean forwardTranscriptStrandIsExpected;
+            if (protocol == LibraryProtocol.STRAND_SPECIFIC_FORWARD) {
+               forwardTranscriptStrandIsExpected =
+                       ( ( read.getFirstOfPairFlag() || !read.getReadPairedFlag() ) && readHasForwardStrand) ||
+                       (read.getSecondOfPairFlag() && !readHasForwardStrand);
+            } else {
+                forwardTranscriptStrandIsExpected =(read.getFirstOfPairFlag() && !readHasForwardStrand) ||
+                 (read.getSecondOfPairFlag() && readHasForwardStrand) ;
+            }
+
+            RegionOverlapLookupTable.OverlapResult r = regionOverlapLookupTable.overlaps( read.getAlignmentStart(),
+                    read.getAlignmentEnd(), read.getReferenceName(), forwardTranscriptStrandIsExpected);
+
+            if (r.strandMatches()) {
+                ++numberOfCorrectStrandReads;
+            }
+
+            return r.intervalOverlaps();
+
+            /*
+            //int numOverlaps = 0;
+
+            for (AlignmentBlock block : read.getAlignmentBlocks()) {
+
+                RegionOverlapLookupTable.OverlapResult r = regionOverlapLookupTable.overlaps( block.getReferenceStart(),
+                        block.getReferenceStart() + block.getLength(), seqName, forwardTranscriptStrandIsExpected);
+
+                if (r.strandMatches()) {
+                    numberOfCorrectStrandReads++;
+                }
+
+                if ( r.intervalOverlaps() ) {
+                    numOverlaps++;
+                }
+            }*
+
+            return numOverlaps > 0;
+            */
+        }
+
     }
+
 
 
     public GenomeLocator getLocator() {
@@ -972,6 +1018,9 @@ public class BamStatsAnalysis {
         numReadsInBunch = bunchSize;
     }
 
+    public void setProtocol(LibraryProtocol protocol) {
+        this.protocol = protocol;
+    }
 
     public String getBamFile() {
         return bamFile;

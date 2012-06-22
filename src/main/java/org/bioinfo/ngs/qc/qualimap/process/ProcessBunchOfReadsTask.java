@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentMap;
  * Date: 11/15/11
  * Time: 5:04 PM
  */
-public class ProcessBunchOfReadsTask implements Callable {
+public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask.Result> {
     List<SAMRecord> reads;
     BamStatsAnalysis ctx;
     BamGenomeWindow currentWindow;
@@ -125,7 +125,6 @@ public class ProcessBunchOfReadsTask implements Callable {
         for (SAMRecord read : reads) {
 
             long position = ctx.getLocator().getAbsoluteCoordinates(read.getReferenceName(), read.getAlignmentStart());
-            //System.out.println("From ProcessReadTask: started analysis of read " + read.getReadName() + ", size: " + read.getReadLength());
 
             char[] alignment = null;
             // compute alignment
@@ -134,6 +133,7 @@ public class ProcessBunchOfReadsTask implements Callable {
                 if (statsCollector != null) {
                     // collect some read stats
                     alignment = computeReadAlignment(read, statsCollector);
+                    // TODO: According to docs this is too slow!
                     String cigarString = read.getCigarString();
                     if (cigarString.contains("H") || cigarString.contains("S")) {
                         statsCollector.incNumClippedReads();
@@ -182,7 +182,7 @@ public class ProcessBunchOfReadsTask implements Callable {
 
             // acum read
 
-            //regionLookupTable = createRegionLookupTable(position, readEnd, ctx.getRegionsTree());
+            //regionOverlapLookupTable = createRegionLookupTable(position, readEnd, ctx.getRegionsTree());
             boolean outOfBounds = processReadAlignment(currentWindow, alignment, position, readEnd,
                     mappingQuality, insertSize);
 

@@ -253,8 +253,7 @@ public class ComputeCountsTask  {
         while((record = gtfParser.readNextRecord())!=null){
 
             for (String featureType: allowedFeatureList) {
-                // TODO: consider different type of features here
-
+                // TODO: consider different type of features here?
                 recordCount++;
                 if (recordCount % 100000 == 0) {
                     logger.logLine("Initialized " + recordCount + " regions...");

@@ -24,6 +24,8 @@ import org.jfree.ui.RectangleInsets;
 
 public class BamQCRegionReporter implements Serializable {
 
+    private int numCorrectStrandReads;
+
     public String getNamePostfix() {
         return namePostfix;
     }
@@ -77,7 +79,7 @@ public class BamQCRegionReporter implements Serializable {
     private int numMappedFirstOfPairInRegions, numMappedSecondOfPairInRegions;
     private double percentageOfMappedFirstOfPairInRegions, percentageOfMappedSecondOfPairInRegions;
     private int numSingletonsInRegions;
-    private double percentageSingletonsInRegions;
+    private double percentageSingletonsInRegions, percentageCorrectStrandReads;
 
     private double duplicationRate;
 
@@ -275,7 +277,8 @@ public class BamQCRegionReporter implements Serializable {
                 ( (double) numMappedSecondOfPairInRegions / numReads) * 100.0;
         this.numSingletonsInRegions = bamStats.getNumberOfSingletonsInRegions();
         this.percentageSingletonsInRegions = ( (double) numSingletonsInRegions / numReads ) * 100.0;
-
+        this.numCorrectStrandReads = bamStats.getNumCorrectStrandReads();
+        this.percentageCorrectStrandReads = ((double) numCorrectStrandReads / numReads ) * 100.0;
 
 		// mapping quality		
 		this.meanMappingQuality = bamStats.getMeanMappingQualityPerWindow();
@@ -841,6 +844,10 @@ public class BamQCRegionReporter implements Serializable {
                         sdf.formatInteger(numSingletonsInRegions) + " / "
                                 + sdf.formatPercentage(percentageSingletonsInRegions));
 
+
+                globalsInRegions.addRow("Correct strand reads",
+                        sdf.formatInteger(numCorrectStrandReads) + " / " +
+                        sdf.formatPercentage(percentageCorrectStrandReads) );
             }
 
             summaryStatsKeeper.addSection(globalsInRegions);
@@ -946,8 +953,9 @@ public class BamQCRegionReporter implements Serializable {
         XYVector res = new XYVector();
         try {
 
-            String pathToGC = Constants.pathResources + File.separator +
-                    BamStatsAnalysis.getGcContentFileMap().get(genomeGCContentName);
+            String pathToGC = Constants.pathResources + BamStatsAnalysis.getGcContentFileMap().get(genomeGCContentName);
+
+            //System.out.println("Path to genome is " + pathToGC);
 
             BufferedReader reader =  new BufferedReader(
                     new InputStreamReader( getClass().getResourceAsStream( pathToGC ) ) );

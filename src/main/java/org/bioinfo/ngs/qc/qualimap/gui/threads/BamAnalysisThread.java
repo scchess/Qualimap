@@ -68,6 +68,7 @@ public class BamAnalysisThread extends Thread {
 		bamQC.setNumberOfWindows(bamDialog.getNumberOfWindows());
         bamQC.setNumberOfThreads(bamDialog.getNumThreads());
         bamQC.setNumberOfReadsInBunch(bamDialog.getBunchSize());
+        bamQC.setProtocol( bamDialog.getLibraryProtocol() );
 
 		// Set the region file
 		if (bamDialog.getRegionFile() != null) {

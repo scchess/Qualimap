@@ -6,6 +6,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
@@ -22,6 +23,7 @@ public class BamQcTool extends NgsSmartTool{
     private boolean paintChromosomeLimits;
 	private boolean computeOutsideStats;
     private String genomeToCompare;
+    private LibraryProtocol protocol;
 
     static final String OPTION_NAME_BAM_FILE = "bam";
     static final String OPTION_NAME_GFF_FILE = "gff";
@@ -31,10 +33,12 @@ public class BamQcTool extends NgsSmartTool{
     static final String OPTION_CHUNK_SIZE = "nr";
     static final String OPTION_NUM_THREADS = "nt";
     static final String OPTION_OUTSIDE_STATS = "os";
+    static final String OPTION_LIBRARY_PROTOCOL = "p";
 
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
+        protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
         genomeToCompare = "";
     }
 
@@ -54,9 +58,14 @@ public class BamQcTool extends NgsSmartTool{
                 "number of reads in the chunk (default equals the number of cores" );
 
 		options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false, "paint chromosome limits inside charts");
-		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false, "compute region outside stats (only with -gff option)");
+		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false, "compute region outside stats (works only with -gff option)");
         options.addOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
                 "(possible values: HUMAN or MOUSE)");
+
+        options.addOption(OPTION_LIBRARY_PROTOCOL, true,
+                "specify protocol to calculate correct strand reads (works only with -gff option, " +
+                        "possible values are STRAND-SPECIFIC-FORWARD or STRAND-SPECIFIC-REVERSE, " +
+                        "default is NON-STRAND-SPECIFIC) ");
 
 	}
 
@@ -78,6 +87,12 @@ public class BamQcTool extends NgsSmartTool{
 			if(commandLine.hasOption(OPTION_OUTSIDE_STATS)) {
 				computeOutsideStats = true;					
 			}
+
+             if (commandLine.hasOption(OPTION_LIBRARY_PROTOCOL)) {
+                protocol = LibraryProtocol.getProtocolByName(
+                        commandLine.getOptionValue(OPTION_LIBRARY_PROTOCOL).toLowerCase()
+                );
+             }
 		}
 
 
@@ -90,6 +105,8 @@ public class BamQcTool extends NgsSmartTool{
 
         bunchSize = commandLine.hasOption(OPTION_CHUNK_SIZE) ?
                 Integer.parseInt(commandLine.getOptionValue(OPTION_CHUNK_SIZE)) : Constants.DEFAULT_CHUNK_SIZE;
+
+
 
         if (commandLine.hasOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
             String val = commandLine.getOptionValue(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION);
@@ -148,6 +165,7 @@ public class BamQcTool extends NgsSmartTool{
 		bamQC.setNumberOfWindows(numberOfWindows);
         bamQC.setNumberOfThreads(numThreads);
         bamQC.setNumberOfReadsInBunch(bunchSize);
+        bamQC.setProtocol(protocol);
 
 		// run evaluation
 		bamQC.run();
@@ -159,6 +177,8 @@ public class BamQcTool extends NgsSmartTool{
 		BamQCRegionReporter reporter = new BamQCRegionReporter();
 		reporter.setPaintChromosomeLimits(paintChromosomeLimits);
         reporter.setChromosomeFilePath(outdir + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES);
+        reporter.setNamePostfix(" (inside of regions)"
+        );
         if (!genomeToCompare.isEmpty()) {
             reporter.setGenomeGCContentName(genomeToCompare);
         }

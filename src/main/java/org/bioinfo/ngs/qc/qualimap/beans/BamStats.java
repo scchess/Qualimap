@@ -8,7 +8,6 @@ import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
-import org.bioinfo.ngs.qc.qualimap.process.ProcessBunchOfReadsTask;
 import org.bioinfo.ngs.qc.qualimap.process.ReadStatsCollector;
 import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
 
@@ -36,6 +35,7 @@ public class BamStats implements Serializable {
     private int numberOfSingletonsInRegions;
     private int numberOfMappedFirstOfPairInRegions;
     private int numberOfMappedSecondOfPairInRegions;
+    private int numCorrectStrandReads;
 
     private ArrayList<Long>  numMappedBasesPerWindow;
     private ArrayList<Long> coverageSquaredPerWindow;
@@ -3139,5 +3139,13 @@ public class BamStats implements Serializable {
 
     public int getNumClippedReads() {
         return numClippedReads;
+    }
+
+    public void setNumberOfCorrectStrandReads(int numberOfCorrectStrandReads) {
+        this.numCorrectStrandReads = numberOfCorrectStrandReads;
+    }
+
+    public int getNumCorrectStrandReads() {
+        return numCorrectStrandReads;
     }
 }

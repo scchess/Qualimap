@@ -7,6 +7,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.JTextFieldLimit;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+
 /**
  * Created by kokonech
  * Date: 12/8/11
@@ -33,10 +35,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     JSpinner numThreadsSpinner,numReadsPerBunchSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
-    JComboBox genomeGcContentCombo;
+    JComboBox genomeGcContentCombo, protocolCombo;
     JProgressBar progressBar;
     JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile,
-            labelNw, labelNumThreads, labelNumReadsPerBunch;
+            labelNw, labelNumThreads, labelNumReadsPerBunch, protocolLabel;
     File inputFile, regionFile;
 
     StringBuilder stringValidation;
@@ -79,11 +81,18 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         pathGffFileButton.setText("...");
         add(pathGffFileButton, "align center, wrap");
 
+        protocolLabel = new JLabel("Library strand specificity:");
+        add(protocolLabel);
+        String[] names = LibraryProtocol.getProtocolNames();
+        protocolCombo = new JComboBox( names );
+        add(protocolCombo, "wrap");
+
         computeOutsideStats = new JCheckBox("Analyze outside regions");
         computeOutsideStats.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         computeOutsideStats.setToolTipText("<html>Check to perform a separate analysis for the genome " +
                 "<br>regions complement to those in the features file</html>");
         add(computeOutsideStats, "wrap");
+
 
         drawChromosomeLimits = new JCheckBox("Chromosome limits");
         drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -172,6 +181,8 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         pathGffFile.setEnabled(analyzeRegions);
         pathGffFileButton.setEnabled(analyzeRegions);
         computeOutsideStats.setEnabled(analyzeRegions);
+        protocolCombo.setEnabled(analyzeRegions);
+        protocolLabel.setEnabled(analyzeRegions);
 
         boolean advOptionsEnabled = advancedInfoCheckBox.isSelected();
         valueNw.setEnabled(advOptionsEnabled);
@@ -435,5 +446,9 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public int getBunchSize() {
         return ((SpinnerNumberModel)numReadsPerBunchSpinner.getModel()).getNumber().intValue();
+    }
+
+    public LibraryProtocol getLibraryProtocol() {
+        return LibraryProtocol.getProtocolByName( protocolCombo.getSelectedItem().toString() );
     }
 }

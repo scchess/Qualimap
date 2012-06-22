@@ -355,7 +355,9 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
             for (int i = 0; i < len; ++i) {
                 dataWriter.write(Double.toString(xData[i]));
                 for (XYVector data : series) {
-                    dataWriter.write("\t" + data.get(i).getY());
+                    if (data.getSize() > i) {
+                        dataWriter.write("\t" + data.get(i).getY());
+                    }
                 }
                 dataWriter.write("\n");
             }
