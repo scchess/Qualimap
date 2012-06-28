@@ -71,6 +71,8 @@ public final class Constants {
     public static final String PLOT_TITLE_GENOME_FRACTION_COVERAGE = "Genome Fraction Coverage";
     public static final String PLOT_TITLE_READS_GC_CONTENT = "Mapped Reads GC-content Distribution";
     public static final String PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM = "Duplication Rate Histogram";
+    public static final String PLOT_TITLE_HOMOPOLYMER_INDELS = "Homopolymer Indels";
+
 
 	//******************************************************************************************
 	//******************************* GRAPHICS NAMES CONSTANTS *********************************
@@ -206,5 +208,6 @@ public final class Constants {
     public static final String TOOL_NAME_CLUSTERING = "clustering";
     public static final String TOOL_NAME_COMPUTE_COUNTS = "comp-counts";
     public static final String TOOL_NAME_GC_CONTENT = "gc-content";
+    public static final String TOOL_NAME_INDEL_COUNT = "indel-count";
 
 }

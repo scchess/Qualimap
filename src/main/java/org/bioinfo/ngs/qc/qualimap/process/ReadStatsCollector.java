@@ -22,7 +22,6 @@ public class ReadStatsCollector {
 
     private static final int INITIAL_SIZE = 64;
 
-
     int[] readsAContent;
     int[] readsCContent;
     int[] readsGContent;
@@ -30,12 +29,21 @@ public class ReadStatsCollector {
     int[] readsNContent;
     int[] readsClippingContent;
     ArrayList<Float> readsGcContent;
+    int[] homopolymerIndels;
 
     int numClippedReads;
+    int numInsertions;
+    int numDeletions;
 
     int numBases;
     int numGC;
+    final static int DEFAULT_HOMOPOLYMER_SIZE = 5;
+    int minHomopolymerSize;
+    boolean prevBaseInsideIndelRegion, homopolymerStartsInsideIndelRegion;
 
+    // per read counters
+    byte prevBase;
+    int homopolymerSize;
 
     public int[] getReadsAContent() {
         return readsAContent;
@@ -73,6 +81,8 @@ public class ReadStatsCollector {
         readsTContent = new int[INITIAL_SIZE];
         readsNContent = new int[INITIAL_SIZE];
         readsClippingContent = new int[INITIAL_SIZE];
+        homopolymerIndels = new int[5];
+        minHomopolymerSize = DEFAULT_HOMOPOLYMER_SIZE;
     }
 
     void saveGC() {
@@ -86,7 +96,7 @@ public class ReadStatsCollector {
     }
 
 
-    public void collectBase(int pos, byte base) {
+    public void collectBase(int pos, byte base, boolean insideIndelRegion) {
         if (base == 'A') {
             incAsContent(pos);
             numBases++;
@@ -108,6 +118,62 @@ public class ReadStatsCollector {
         if (numBases >= 1000) {
             saveGC();
         }
+
+        updateHomopolymerStats(base, insideIndelRegion);
+    }
+
+
+    void updateHomopolymerStats(byte base, boolean  insideIndelRegion) {
+
+        if (base == prevBase) {
+            homopolymerSize ++;
+        } else {
+            if (  prevBaseInsideIndelRegion || homopolymerStartsInsideIndelRegion ) {
+                if (homopolymerSize >= minHomopolymerSize) {
+                    saveHomopolymerData();
+                }
+            }
+            homopolymerSize = 1;
+            homopolymerStartsInsideIndelRegion = insideIndelRegion;
+        }
+
+        prevBase = base;
+        prevBaseInsideIndelRegion = insideIndelRegion;
+    }
+
+
+    private void saveHomopolymerData() {
+        if (prevBase == 'A') {
+            homopolymerIndels[0]++;
+        } else if (prevBase == 'C') {
+            homopolymerIndels[1]++;
+        } else if (prevBase == 'G') {
+            homopolymerIndels[2]++;
+        } else if (prevBase == 'T') {
+            homopolymerIndels[3]++;
+        } else if (prevBase == 'N') {
+            homopolymerIndels[4]++;
+        }
+    }
+
+    public void collectDeletedBase( byte nextBase) {
+        if (nextBase != prevBase) {
+            if (homopolymerSize + 1 >= minHomopolymerSize )  {
+                saveHomopolymerData();
+            }
+            prevBase = nextBase;
+            homopolymerSize = 1;
+            homopolymerStartsInsideIndelRegion = true;
+        } else {
+            homopolymerSize += 1;
+        }
+    }
+
+    public void resetCounters() {
+        prevBase = 'X';
+        homopolymerSize = 1;
+        prevBaseInsideIndelRegion = false;
+        homopolymerStartsInsideIndelRegion = false;
     }
 
     private void incAsContent(int pos) {
@@ -144,8 +210,36 @@ public class ReadStatsCollector {
         ++numClippedReads;
     }
 
+    public void incNumInsertions() {
+        ++numInsertions;
+    }
+
+    public void incNumDeletions() {
+        ++numDeletions;
+    }
 
     public int getNumClippedReads() {
         return numClippedReads;
     }
+
+    public int[] getHomopolymerIndels() {
+        return homopolymerIndels;
+    }
+
+    public int getNumIndels() {
+        return numInsertions + numDeletions;
+    }
+
+    public int getNumInsertions() {
+        return numInsertions;
+    }
+
+    public int getNumDeletions() {
+        return numDeletions;
+    }
+
+    void setMinHomopolymerSize(int minHomopolymerSize)  {
+        this.minHomopolymerSize = minHomopolymerSize;
+    }
+
 }

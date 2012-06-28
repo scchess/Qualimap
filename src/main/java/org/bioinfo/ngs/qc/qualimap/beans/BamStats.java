@@ -217,6 +217,7 @@ public class BamStats implements Serializable {
     XYVector readsTsHistogram;
     XYVector readsNsHistogram;
     XYVector readsClippingProfileHistogram;
+    int[] homopolymerIndelsData;
 
 	// windows
 	private int numberOfWindows;
@@ -246,6 +247,9 @@ public class BamStats implements Serializable {
     private double[] gcContentHistogram;
     boolean avaialableGenomeGcContentData;
     long sampleCount;
+
+    private int numInsertions;
+    private int numDeletions;
 
     public BamStats(String name, long referenceSize, int numberOfWindows){
 
@@ -327,6 +331,7 @@ public class BamStats implements Serializable {
         readsTsData = new ArrayList<Long>();
         readsNsData = new ArrayList<Long>();
         readsClippingData = new ArrayList<Long>();
+        homopolymerIndelsData = new int[6];
 
 		// others		
 		maxCoverageQuota = 50;
@@ -2884,6 +2889,36 @@ public class BamStats implements Serializable {
 
         numClippedReads += readStatsCollector.getNumClippedReads();
 
+        int[] homopolymerInsertions = readStatsCollector.getHomopolymerIndels();
+        int numHomopolymerInsertions = 0;
+        for (int i = 0; i < 5; ++i) {
+            homopolymerIndelsData[i] += homopolymerInsertions[i];
+            numHomopolymerInsertions += homopolymerInsertions[i];
+        }
+
+        numInsertions += readStatsCollector.getNumInsertions();
+        numDeletions += readStatsCollector.getNumDeletions();
+
+        homopolymerIndelsData[5] += readStatsCollector.getNumIndels() - numHomopolymerInsertions;
+
+    }
+
+
+    public Collection<CategoryItem> getHomopolymerIndels() {
+        ArrayList<CategoryItem> res = new ArrayList<CategoryItem>();
+
+        res.add( new CategoryItem("polyA", homopolymerIndelsData[0] ) );
+        res.add( new CategoryItem("polyC", homopolymerIndelsData[1] ) );
+        res.add( new CategoryItem("polyG", homopolymerIndelsData[2] ) );
+        res.add( new CategoryItem("polyT", homopolymerIndelsData[3] ) );
+        res.add( new CategoryItem("polyN", homopolymerIndelsData[4] ) );
+        res.add( new CategoryItem("Non-poly", homopolymerIndelsData[5] ) );
+
+        return res;
+    }
+
+    public int[] getHomopolymerIndelsData() {
+        return homopolymerIndelsData;
     }
 
     public int getNumberOfPairedReads() {
@@ -3148,4 +3183,22 @@ public class BamStats implements Serializable {
     public int getNumCorrectStrandReads() {
         return numCorrectStrandReads;
     }
+
+    public int getNumIndels() {
+        return numInsertions + numDeletions;
+    }
+
+    public int getNumInsertions() {
+        return numInsertions;
+    }
+
+    public int getNumDeletions() {
+        return numDeletions;
+    }
+
+    public double getHomopolymerIndelFraction() {
+
+        return (1.0 - homopolymerIndelsData[5] / (double) (numInsertions + numDeletions));
+    }
+
 }

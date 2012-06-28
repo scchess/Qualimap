@@ -50,6 +50,10 @@ public class NgsSmartMain {
                 tool = new GCContentTool();
             }
 
+            if (toolName.equals(Constants.TOOL_NAME_INDEL_COUNT)) {
+                tool = new IndelCountTool();
+            }
+
             if (toolName.equalsIgnoreCase("run-tests")) {
                 System.out.println("Supposed to run tests...");
                 //runTests();

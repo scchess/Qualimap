@@ -83,6 +83,9 @@ public class BamQCRegionReporter implements Serializable {
 
     private double duplicationRate;
 
+    private int numInsertions, numDeletions;
+    private double homopolymerIndelFraction;
+
     StatsKeeper inputDataKeeper;
     StatsKeeper summaryStatsKeeper;
     StatsKeeper chromosomeStatsKeeper;
@@ -308,6 +311,11 @@ public class BamQCRegionReporter implements Serializable {
         readMaxSize = bamStats.getReadMaxSize();
         readMinSize = bamStats.getReadMinSize();
         readMeanSize = bamStats.getReadMeanSize();
+
+        // indels
+        numInsertions = bamStats.getNumInsertions();
+        numDeletions = bamStats.getNumDeletions();
+        homopolymerIndelFraction = bamStats.getHomopolymerIndelFraction();
 
 
 	}
@@ -538,6 +546,13 @@ public class BamQCRegionReporter implements Serializable {
             charts.add(new QChart(bamStats.getName() + "_reads_clipping_profile.png",
                     clippingProfile.getChart(), clippingProfile));
 
+        }
+
+        if (bamStats.getNumIndels() > 0 ) {
+            BamQCBarChart homopolymerIndels = new BamQCBarChart( Constants.PLOT_TITLE_HOMOPOLYMER_INDELS,
+                    subTitle, "Type of indel", "Number of indels", bamStats.getHomopolymerIndels() );
+            homopolymerIndels.render();
+            charts.add( new QChart(bamStats.getName() + "_homopolymer_indels", homopolymerIndels.getChart(), homopolymerIndels ));
         }
 
         /////////////////////////////// Reads GC Content histogram ///////////////////////////////////
@@ -871,6 +886,7 @@ public class BamQCRegionReporter implements Serializable {
         summaryStatsKeeper.addSection(acgtContent);
 
 
+
 		StatsKeeper.Section coverageSection = new StatsKeeper.Section("Coverage" + postfix);
 		coverageSection.addRow("Mean", sdf.formatDecimal(meanCoverage));
 		coverageSection.addRow("Standard Deviation",sdf.formatDecimal(stdCoverage) );
@@ -879,6 +895,19 @@ public class BamQCRegionReporter implements Serializable {
 		StatsKeeper.Section mappingQualitySection = new StatsKeeper.Section("Mapping Quality" + postfix);
 		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(meanMappingQuality));
 		summaryStatsKeeper.addSection(mappingQualitySection);
+
+        int numIndels = numInsertions + numDeletions;
+        if ( numIndels > 0) {
+            StatsKeeper.Section indelsSection = new StatsKeeper.Section("Indels" + postfix);
+            indelsSection.addRow("Total", sdf.formatInteger(numIndels));
+            indelsSection.addRow("Insertions",sdf.formatDecimal(numInsertions) );
+            indelsSection.addRow("Deletions",sdf.formatDecimal(numDeletions) );
+            indelsSection.addRow("Percentage homopolymer",sdf.formatPercentage(homopolymerIndelFraction * 100.0) );
+
+            summaryStatsKeeper.addSection(indelsSection);
+
+        }
+
 
         if (meanInsertSize != 0)
         {

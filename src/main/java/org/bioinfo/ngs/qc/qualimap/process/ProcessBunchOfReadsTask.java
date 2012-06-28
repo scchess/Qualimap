@@ -1,9 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
-import net.sf.samtools.Cigar;
-import net.sf.samtools.CigarElement;
-import net.sf.samtools.SAMFormatException;
-import net.sf.samtools.SAMRecord;
+import net.sf.samtools.*;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.SingleReadData;
@@ -131,13 +128,8 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
             try {
                 ReadStatsCollector statsCollector = getReadStatsCollector(read);
                 if (statsCollector != null) {
-                    // collect some read stats
+                    // compute alignment and collect read stats
                     alignment = computeReadAlignment(read, statsCollector);
-                    // TODO: According to docs this is too slow!
-                    String cigarString = read.getCigarString();
-                    if (cigarString.contains("H") || cigarString.contains("S")) {
-                        statsCollector.incNumClippedReads();
-                    }
                 } else {
                     // only compute alignment
                     alignment = computeReadAlignment(read);
@@ -232,8 +224,16 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 		int totalSize = 0;
         List<CigarElement> elementList = cigar.getCigarElements();
         //int numCigarElements = cigar.numCigarElements();
+        boolean readIsClipped = false;
 		for(CigarElement element : elementList){
 			totalSize += element.getLength();
+            if (element.getOperator() == CigarOperator.H || element.getOperator() == CigarOperator.S) {
+                readIsClipped = true;
+            } else if (element.getOperator() == CigarOperator.I) {
+                statsCollector.incNumInsertions();
+            } else if (element.getOperator() == CigarOperator.D) {
+                statsCollector.incNumDeletions();
+            }
 		}
 
 		// compute extended cigar
@@ -246,33 +246,38 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 			mpos = npos;
 		}
 
-		// init extended cigar portion
-		//char[] extendedCigarVector = extended; // Arrays.copyOfRange(extended,0,mpos);
-
 		char[] alignmentVector = new char[alignmentLength];
 
 		int readPos = 0;
 		int alignmentPos = 0;
 		byte[] readBases = read.getReadBases();
+        statsCollector.resetCounters();
 
-		for(char cigarChar : extendedCigarVector){
+		for( int pos = 0; pos < extendedCigarVector.length; ++pos){
+            char cigarChar = extendedCigarVector[pos];
 			// M
 			if(cigarChar == 'M'){
 				// get base
-				byte base = readBases[readPos];
-                statsCollector.collectBase(readPos, base);
+                byte base = readBases[readPos];
+                statsCollector.collectBase(readPos, base, false);
                 readPos++;
-				// set base
 				alignmentVector[alignmentPos] = (char) base;
 				alignmentPos++;
 			}
 			// I
 			else if(cigarChar == 'I'){
-			    readPos++;
-			}
+                byte base = readBases[readPos];
+                statsCollector.collectBase(readPos, base, true);
+                readPos++;
+            }
 			// D
 			else if(cigarChar == 'D'){
-				alignmentVector[alignmentPos] = '-';
+                int nextCigarPos = pos + 1;
+                if (nextCigarPos < extendedCigarVector.length && extendedCigarVector[nextCigarPos] != 'D' ) {
+                    byte nextBase = readPos + 1 < readBases.length ? readBases[readPos + 1] : -1;
+                    statsCollector.collectDeletedBase(nextBase);
+                }
+                alignmentVector[alignmentPos] = '-';
 				alignmentPos++;
 			}
 			// N
@@ -295,6 +300,10 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 				alignmentPos++;
 			}
 		}
+
+        if (readIsClipped) {
+            statsCollector.incNumClippedReads();
+        }
 
 		return alignmentVector;
 	}

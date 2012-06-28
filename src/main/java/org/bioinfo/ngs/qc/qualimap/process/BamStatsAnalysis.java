@@ -458,6 +458,16 @@ public class BamStatsAnalysis {
         }
 
 
+        int[] indelData = bamStats.getHomopolymerIndelsData();
+        /*System.out.println("polyA indels: " + indelData[0]);
+        System.out.println("polyC indels: " + indelData[1]);
+        System.out.println("polyG indels: " + indelData[2]);
+        System.out.println("polyT indels: " + indelData[3]);
+        System.out.println("polyN indels: " + indelData[4]);
+        System.out.println("All indels: " + bamStats.getNumIndels());
+        System.out.println("Fraction homopolymer: " +  bamStats.getHomopolymerIndelFraction() );*/
+
+
         if(selectedRegionsAvailable && computeOutsideStats){
             outsideBamStats.setReferenceSize(referenceSize);
             outsideBamStats.setNumberOfReferenceContigs(locator.getContigs().size());

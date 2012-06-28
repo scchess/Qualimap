@@ -21,12 +21,12 @@ public class GCContentTool extends NgsSmartTool  {
 
     @Override
     protected void initOptions() {
-        options.addOption("i", true, "mapping file (bam format)");
+        options.addOption( requiredOption("i", true, "mapping file (bam format)"));
     }
 
     @Override
     protected void checkOptions() throws ParseException {
-        if(!commandLine.hasOption("i")) throw new ParseException("input mapping file required");
+
     }
 
     @Override
