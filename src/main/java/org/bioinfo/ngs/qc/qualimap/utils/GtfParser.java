@@ -10,6 +10,9 @@ import java.util.*;
  * Date: 12/13/11
  * Time: 10:54 AM
  */
+
+/* Deprecated class*/
+
 public class GtfParser {
     public static class Record {
 

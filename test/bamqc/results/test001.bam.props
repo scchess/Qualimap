@@ -1,22 +1,30 @@
-#Wed Jun 06 17:10:24 CEST 2012
+#Mon Jun 11 12:24:00 CEST 2012
+percentMappedReadsInRegions=0.0
 aPercent=21.64
 nPercent=0.0
 cNumber=775
 meanMappingQuality=36.55421686746988
 numWindows=249
+duplicationRate=27.77777777777778
 refSize=250
+numSingletonsInRegions=0
 percentMappedReads=100.0
 numRegions=0
+numMappedReadsInRegions=0
 gNumber=761
 nNumber=0
 meanCoverage=10.0
+numSingletons=0
+numPairedReads=0
 tNumber=423
 gPercent=30.44
 meanInsertSize=0.0
 tPercent=16.919999999999998
 gcPercent=61.44
 cPercent=31.0
+refSizeInRegions=0
 numReads=125
+numPairedReadsInRegions=0
 numMappedBases=2500
 aNumber=541
 stdCoverage=5.509264923744365

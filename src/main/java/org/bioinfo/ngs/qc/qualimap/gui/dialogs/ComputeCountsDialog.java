@@ -4,9 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
-import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
-import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.utils.*;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -18,10 +16,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by kokonech
@@ -36,10 +31,13 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
     JComboBox availableFeatureTypesCombo, availableFeatureNamesCombo;
-    JCheckBox saveStatsBox,advancedOptions;
+    JCheckBox saveStatsBox,advancedOptions, calcCoverageBias;
     JLabel countingMethodLabel;
     JPanel ftPanel, fnPanel;
     Thread countReadsThread;
+
+    static final String covBiasTooltip = "<html>For calculating 5' and 3' bias feature ID must be \"gene_id\" " +
+            "and feature type must be <b>\"exon\"</b>. <br>Each GTF record must include \"transcript_id\" attribute.";
 
 
     static class BrowseGffButtonListener extends BrowseButtonActionListener {
@@ -94,13 +92,13 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         }
 
         void preloadGff(String filePath) throws Exception {
-            GtfParser parser = new GtfParser(filePath);
+            GenomicFeatureStreamReader parser = new GenomicFeatureStreamReader(filePath, FeatureFileFormat.GTF);
             for (int i = 0; i < NUM_LINES; ++i) {
-                GtfParser.Record rec = parser.readNextRecord();
+                GenomicFeature rec = parser.readNextRecord();
                 if (rec == null) {
                     break;
                 }
-                String featureType = rec.getFeature();
+                String featureType = rec.getFeatureName();
                 featuresTypes.add(featureType);
                 Collection<String> fNames = rec.getAttributeNames();
                 for (String name : fNames) {
@@ -179,7 +177,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         featureNameField = new JTextField(10);
         featureNameField.setText(ComputeCountsTask.GENE_ID_ATTR);
         featureNameField.setToolTipText("<html>Attribute of the GTF to be used as feature ID. Regions with the same ID" +
-                "<br/>will be aggregated as part of the same feature. Default: gene_id</html>");
+                    "will be aggregated as part of the same feature. Default: gene_id</html>");
         fnPanel.add(featureNameField, "");
         fnPanel.add(new JLabel("Available feature IDs:"));
         availableFeatureNamesCombo = new JComboBox();
@@ -209,9 +207,11 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         add(ftPanel, "span, wrap");
 
+
         advancedOptions = new JCheckBox("Advanced options:");
         advancedOptions.addActionListener(this);
         add(advancedOptions, "wrap");
+
         countingMethodLabel = new JLabel("Multi-mapped reads:");
         countingMethodLabel.setToolTipText("Select method to count reads that map to several genome locations");
         add(countingMethodLabel);
@@ -221,6 +221,9 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         countingAlgoCombo = new JComboBox(algoComboItems);
         countingAlgoCombo.addActionListener(this);
         add(countingAlgoCombo, "wrap");
+        calcCoverageBias = new JCheckBox("Calculate 5' and 3' coverage bias");
+        calcCoverageBias.setToolTipText(covBiasTooltip);
+        add(calcCoverageBias, "wrap");
 
 
         add(new JLabel("Output:"), "");
@@ -297,6 +300,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                     computeCountsTask.setCountingAlgorithm(countingAlgoCombo.getSelectedItem().toString());
                     computeCountsTask.addSupportedFeatureType(featureType);
                     computeCountsTask.setAttrName(featureNameField.getText());
+                    computeCountsTask.setCalcCoverageBias(calcCoverageBias.isSelected());
 
                     final JTextArea loggerDestArea = logArea;
 
@@ -367,6 +371,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     private void updateState() {
         countingAlgoCombo.setEnabled(advancedOptions.isSelected());
         countingMethodLabel.setEnabled(advancedOptions.isSelected());
+        calcCoverageBias.setEnabled(advancedOptions.isSelected());
 
         String countingMethod =  countingAlgoCombo.getSelectedItem().toString();
         String algorithmHint =  countingMethod.equals(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)  ?
@@ -436,6 +441,23 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         if (!outputFile.delete()) {
             return "Output path is not valid! Deleting probing directory failed.";
         }
+
+        if (calcCoverageBias.isSelected()) {
+
+            int itemCount = availableFeatureNamesCombo.getItemCount();
+            ArrayList<String> items = new ArrayList<String>();
+            for (int i = 0; i < itemCount; ++i) {
+                items.add( availableFeatureNamesCombo.getItemAt(i).toString() );
+            }
+
+
+            if ( !featureNameField.getText().equals(ComputeCountsTask.GENE_ID_ATTR)  ||
+            !featureTypeField.getText().equals(ComputeCountsTask.EXON_TYPE_ATTR) ||
+                    !items.contains(TranscriptDataHandler.ATTR_NAME_TRANSCRIPT_ID)) {
+                return covBiasTooltip;
+            }
+        }
+
 
         return "";
     }

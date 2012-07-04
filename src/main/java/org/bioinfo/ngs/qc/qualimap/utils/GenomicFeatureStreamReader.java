@@ -61,7 +61,50 @@ public class GenomicFeatureStreamReader {
                 }
             };
 
-        } else {
+        } else if (format.equals(FeatureFileFormat.GTF)) {
+            return new FeatureRecordParser() {
+                @Override
+                GenomicFeature parseFeatureRecord(String line) throws RuntimeException {
+
+                    String[] items = line.split("\t");
+
+                    if (items.length != 9) {
+                        throw new RuntimeException("GTF format error: there should " +
+                                "9 tab-separated fields in each record.\n" +
+                                "Problematic line is " + line);
+                    }
+
+                    String seqName = items[0];
+                    String featureName = items[2];
+                    int start = Integer.parseInt(items[3]); // 1-based
+                    int end = Integer.parseInt(items[4]); // 1-based, inclusive
+                    boolean isNegativeStrand =  items[6].equals("-");
+
+                    GenomicFeature feature = new GenomicFeature(seqName, start, end, isNegativeStrand, featureName);
+
+                    String[] attrs = items[8].trim().split(";");
+                    for (String attr: attrs) {
+                        String[] pair = attr.trim().split(" ");
+                        if (pair.length < 2) {
+                            throw new RuntimeException("GTF format error: attributes are missing.\n" +
+                                    "Problematic line is " + line);
+                        }
+                        String value = pair[1];
+                        //remove surrounding quotes
+                        if (value.startsWith("\"") && value.endsWith("\"")) {
+                            value = value.substring(1, value.length() - 1);
+                        }
+
+                        feature.addAttribute(pair[0], value);
+                    }
+
+                    return feature;
+
+                }
+            };
+
+        }
+        else {
             throw new RuntimeException("Unknown feature file format! ");
         }
 

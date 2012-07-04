@@ -1,15 +1,15 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+
 import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CoordMath;
+import net.sf.samtools.util.RuntimeEOFException;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.bioinfo.formats.exception.FileFormatException;
-import org.bioinfo.ngs.qc.qualimap.utils.GenomicRegionSet;
-import org.bioinfo.ngs.qc.qualimap.utils.GtfParser;
-import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.utils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,10 +27,12 @@ public class ComputeCountsTask  {
     Map<String, GenomicRegionSet> chromosomeRegionSetMap;
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
+    TranscriptDataHandler transcriptDataHandler;
     String protocol;
     String countingAlgorithm;
     String attrName;
     LoggerThread logger;
+    boolean calcCoverageBias;
 
     String pathToBamFile, pathToGffFile;
 
@@ -52,6 +54,7 @@ public class ComputeCountsTask  {
         countingAlgorithm = COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
+        calcCoverageBias = false;
 
         logger = new LoggerThread() {
             @Override
@@ -74,7 +77,11 @@ public class ComputeCountsTask  {
         this.logger = thread;
     }
 
-    public void run() throws FileFormatException, IOException, NoSuchMethodException {
+    public void setCalcCoverageBias(boolean calcCoverageBias) {
+        this.calcCoverageBias = calcCoverageBias;
+    }
+
+    public void run() throws Exception {
 
         if (allowedFeatureList.isEmpty()) {
             // default feature to consider
@@ -93,6 +100,7 @@ public class ComputeCountsTask  {
         boolean strandSpecificAnalysis = !protocol.equals(PROTOCOL_NON_STRAND_SPECIFIC);
 
         int readCount = 0;
+        int seqNotFoundCount = 0;
 
         while (iter.hasNext()) {
 
@@ -127,7 +135,8 @@ public class ComputeCountsTask  {
             GenomicRegionSet regionSet = chromosomeRegionSetMap.get(chrName);
 
             if (regionSet == null ) {
-                System.err.println("Unknown chromosome: " + chrName);
+                seqNotFoundCount++;
+                System.err.println("Chromosome " + chrName + " from read is not found in GTF.");
                 continue;
             }
 
@@ -143,18 +152,19 @@ public class ComputeCountsTask  {
             List<CigarElement> cigarElements = cigar.getCigarElements();
             List<Interval> intervals = new ArrayList<Interval>();
             int offset = read.getAlignmentStart();
+            boolean strand = read.getReadNegativeStrandFlag();
+            if (pairedRead) {
+                boolean firstOfPair = read.getFirstOfPairFlag();
+                if ( (protocol.equals(PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
+                        (protocol.equals(PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
+                    strand = !strand;
+                }
+            }
+
             for (CigarElement cigarElement : cigarElements) {
                 int length = cigarElement.getLength();
-                boolean strand = read.getReadNegativeStrandFlag();
-                if (pairedRead) {
-                    boolean firstOfPair = read.getFirstOfPairFlag();
-                    if ( (protocol.equals(PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
-                            (protocol.equals(PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
-                        strand = !strand;
-                    }
-                }
 
-                if (cigarElement.getOperator().equals(CigarOperator.M) ) {
+                if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
                     intervals.add(new Interval(chrName, offset, offset + length - 1, strand, "" ));
                 }
                 offset += length;
@@ -166,12 +176,14 @@ public class ComputeCountsTask  {
             HashMap<String,BitSet> featureIntervalMap = new HashMap<String, BitSet>();
             int intIndex = 0;
 
-            for (Interval interval : intervals) {
-                Iterator<IntervalTree.Node<Set<GenomicRegionSet.Feature>>> overlapIter = regionSet.overlappers(interval.getStart(), interval.getEnd() );
+            for (Interval alignmentInterval : intervals) {
+                Iterator<IntervalTree.Node<Set<GenomicRegionSet.Feature>>> overlapIter
+                        = regionSet.overlappers(alignmentInterval.getStart(), alignmentInterval.getEnd() );
                 while (overlapIter.hasNext()) {
                     IntervalTree.Node<Set<GenomicRegionSet.Feature>> node = overlapIter.next();
 
-                    if (CoordMath.encloses(node.getStart(), node.getEnd(), interval.getStart(), interval.getEnd()) ) {
+                    if (CoordMath.encloses(node.getStart(), node.getEnd(),
+                            alignmentInterval.getStart(), alignmentInterval.getEnd()) ) {
 
                         Set<GenomicRegionSet.Feature> features = node.getValue();
                         for (GenomicRegionSet.Feature feature : features) {
@@ -186,12 +198,24 @@ public class ComputeCountsTask  {
                             boolean includeInterval = true;
                             if (strandSpecificAnalysis) {
                                 boolean featureStrand = feature.isPositiveStrand();
-                                includeInterval = featureStrand == interval.isPositiveStrand();
+                                includeInterval = featureStrand == alignmentInterval.isPositiveStrand();
                             }
 
                             intervalBits.set(intIndex, includeInterval);
                         }
+                        if (calcCoverageBias) {
+                            for (GenomicRegionSet.Feature feature : features) {
+                                transcriptDataHandler.addCoverage(feature.getName(),
+                                alignmentInterval.getStart(), alignmentInterval.getEnd() );
+                            }
+                        }
+
                     }
+
+
+
+
+
                 }
                 intIndex++;
             }
@@ -226,11 +250,23 @@ public class ComputeCountsTask  {
                 logger.logLine("Analyzed " + readCount + " reads...");
             }
 
+
         }
 
         if (readCount == 0) {
             throw new RuntimeException("BAM file is empty.");
         }
+
+        if (seqNotFoundCount + alignmentNotUnique == readCount) {
+            throw new RuntimeException("The BAM file and GTF have no intersections. " +
+                    "Check sequence names for consistency.");
+        }
+
+
+        if (calcCoverageBias) {
+            transcriptDataHandler.calculateCoverageBias();
+        }
+
         logger.logLine("\nProcessed " + readCount + " reads in total");
         logger.logLine("\nBAM file analysis finished");
 
@@ -241,14 +277,18 @@ public class ComputeCountsTask  {
 
     void loadRegions() throws IOException, NoSuchMethodException, FileFormatException {
 
-        GtfParser gtfParser = new GtfParser(pathToGffFile);
+        GenomicFeatureStreamReader gtfParser = new GenomicFeatureStreamReader(pathToGffFile, FeatureFileFormat.GTF);
 		logger.logLine("Initializing regions from " + pathToGffFile + "...\n");
 
         chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
         readCounts = new HashMap<String, Double>();
 
+        if (calcCoverageBias) {
+            transcriptDataHandler = new TranscriptDataHandler();
+            transcriptDataHandler.validateAttributes(attrName, allowedFeatureList);
+        }
 
-        GtfParser.Record record;
+        GenomicFeature record;
         int recordCount = 0;
         while((record = gtfParser.readNextRecord())!=null){
 
@@ -258,15 +298,15 @@ public class ComputeCountsTask  {
                 if (recordCount % 100000 == 0) {
                     logger.logLine("Initialized " + recordCount + " regions...");
                 }
-                if (record.getFeature().equalsIgnoreCase(featureType)) {
+                if (record.getFeatureName().equalsIgnoreCase(featureType)) {
                     addRegionToIntervalMap(record);
                     // init results map
                     readCounts.put(record.getAttribute(attrName), 0.0);
+                    if (calcCoverageBias) {
+                        transcriptDataHandler.addExonFeature(record);
+                    }
                     break;
                 }
-
-
-
 
             }
         }
@@ -275,13 +315,18 @@ public class ComputeCountsTask  {
             throw new RuntimeException("Unable to load any regions from file.");
         }
 
+        if (calcCoverageBias) {
+            transcriptDataHandler.constructTranscriptsMap();
+        }
+
         logger.logLine("\nInitialized " + recordCount + " regions it total\n\n");
 
         gtfParser.close();
 
     }
 
-    void addRegionToIntervalMap(GtfParser.Record r) {
+    // TODO: remove deprecated
+    /*void addRegionToIntervalMap(GtfParser.Record r) {
 
         GenomicRegionSet regionSet = chromosomeRegionSetMap.get(r.getSeqName());
         if (regionSet == null) {
@@ -291,7 +336,20 @@ public class ComputeCountsTask  {
 
         regionSet.addRegion(r, attrName);
 
+    }*/
+
+    void addRegionToIntervalMap(GenomicFeature feature) {
+
+        GenomicRegionSet regionSet = chromosomeRegionSetMap.get(feature.getSequenceName());
+        if (regionSet == null) {
+            regionSet = new GenomicRegionSet();
+            chromosomeRegionSetMap.put(feature.getSequenceName(), regionSet);
+        }
+
+        regionSet.addRegion(feature, attrName);
+
     }
+
 
     public Map<String,Double> getReadCounts() {
         return readCounts;
@@ -325,6 +383,14 @@ public class ComputeCountsTask  {
             message.append("NA\n");
         }
         message.append("Ambiguous: ").append(ambiguous).append("\n");
+
+        if (calcCoverageBias) {
+            message.append("Median 5' bias: ").append( transcriptDataHandler.getMedianFivePrimeBias() ).append("\n");
+            message.append("Median 3' bias: ").append( transcriptDataHandler.getMedianThreePrimeBias() ).append("\n");
+            message.append("Median 5' to 3' bias: ").append(transcriptDataHandler.getMedianFiveToThreeBias());
+            message.append("\n");
+        }
+
 
         return message;
     }

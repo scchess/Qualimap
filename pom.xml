@@ -21,10 +21,10 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.samtools</groupId>
-                <artifactId>samtools</artifactId>
-                <version>1.44</version>
-                <scope>compile</scope>
-                </dependency>
+            <artifactId>samtools</artifactId>
+            <version>1.70</version>
+            <scope>compile</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.bioinfo</groupId>
 			<artifactId>bioinfo-formats</artifactId>
@@ -56,20 +56,15 @@
 			<scope>test</scope>
 		</dependency>
             <dependency>
-       		<groupId>net.sf.picard.sam</groupId>
+       		<groupId>net.sf.picard</groupId>
         	<artifactId>picard</artifactId>
-           	<version>1.44</version>
+           	<version>1.70</version>
        	</dependency>
        	<dependency>
            	<groupId>com.miglayout</groupId>
            	<artifactId>miglayout</artifactId>
            	<version>3.7.4</version>
        	</dependency>
-        <dependency>
-            <groupId>net.sf.picard.sam</groupId>
-            <artifactId>picard</artifactId>
-            <version>1.44</version>
-        </dependency>
 
         <!--
             <dependency> <groupId>es.blast2go</groupId>
@@ -80,7 +75,7 @@
 	</dependencies>
 	
 	<repositories>
-		<repository>
+	    <repository>
 			<id>biojava-maven-repo</id>
 			<name>BioJava repository</name>
 			<url>http://www.biojava.org/download/maven/</url>			

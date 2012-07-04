@@ -2,18 +2,13 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.labels.ItemLabelAnchor;
-import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.TextAnchor;
 
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -29,7 +24,7 @@ import java.util.Collection;
 public class BamQCBarChart extends ChartRawDataWriter {
 
 
-    String xLabel, yLabel, title, subTitle, categoryName;
+    String xLabel, yLabel, title, subTitle;
     Collection<CategoryItem> series;
     JFreeChart chart;
 
@@ -84,8 +79,8 @@ public class BamQCBarChart extends ChartRawDataWriter {
 
         chart = ChartFactory.createBarChart(
             title,         // chart title
-            xLabel,               // domain axis label
-            yLabel,                  // range axis label
+            xLabel,         // domain axis label
+            yLabel,             // range axis label
             dataset,                  // data
             PlotOrientation.VERTICAL,
             true,                     // include legend

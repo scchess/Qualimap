@@ -1,5 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.utils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import net.sf.picard.util.Interval;
@@ -36,4 +37,19 @@ public class GenomicFeature {
     }
 
 
+    public void addAttribute(String name, String value) {
+        attributes.put(name, value);
+    }
+
+    public String getFeatureName() {
+        return interval.getName();
+    }
+
+    public String getAttribute(String attrName) {
+        return attributes.get(attrName);
+    }
+
+    public Collection<String> getAttributeNames() {
+        return attributes.keySet();
+    }
 }

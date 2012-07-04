@@ -24,8 +24,10 @@ public class CountReadsTool extends NgsSmartTool {
     public static String OPTION_PROTOCOL = "protocol";
     public static String OPTION_OUT_FILE = "out";
     public static String OPTION_ALGORITHM = "algorithm";
+    public static String OPTION_5_TO_3_BIAS = "b";
 
     String bamFile, gffFile, outFile, protocol, featureType, attrName, alg;
+    boolean calcCovBias;
 
     static String getProtocolTypes() {
         return  ComputeCountsTask.PROTOCOL_FORWARD_STRAND + ","
@@ -54,6 +56,8 @@ public class CountReadsTool extends NgsSmartTool {
         options.addOption(new Option(OPTION_FEATURE_ID, true, "attribute of the GTF to be used as feature ID. " +
                 "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
         options.addOption(new Option(OPTION_ALGORITHM, true, getAlgorithmTypes()));
+        options.addOption(new Option(OPTION_OUT_FILE, true, "path to output file") );
+        options.addOption( new Option(OPTION_5_TO_3_BIAS, false, "calculate 5' and 3' coverage bias"));
 
 
     }
@@ -109,6 +113,7 @@ public class CountReadsTool extends NgsSmartTool {
         }
 
 
+        calcCovBias = commandLine.hasOption(OPTION_5_TO_3_BIAS);
 
 
 
@@ -124,6 +129,7 @@ public class CountReadsTool extends NgsSmartTool {
         computeCountsTask.setCountingAlgorithm(alg);
         computeCountsTask.setAttrName(attrName);
         computeCountsTask.addSupportedFeatureType(featureType);
+        computeCountsTask.setCalcCoverageBias(calcCovBias);
 
         PrintWriter outWriter = outFile.isEmpty() ?
                 new PrintWriter(new OutputStreamWriter(System.out)) :
