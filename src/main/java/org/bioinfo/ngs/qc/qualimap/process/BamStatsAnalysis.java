@@ -164,12 +164,16 @@ public class BamStatsAnalysis {
 
 
         String textHeader = header.getTextHeader();
-        if (!textHeader.isEmpty()) {
+        if (textHeader != null && !textHeader.isEmpty()) {
             if (textHeader.contains("@HD")){
-            SAMFileHeader.SortOrder sortOrder = header.getSortOrder();
-            if (sortOrder != SAMFileHeader.SortOrder.coordinate) {
-                logger.warn("According to header the BAM file is not sorted by coordinate!");
-            }
+                try {
+                    SAMFileHeader.SortOrder sortOrder = header.getSortOrder();
+                    if (sortOrder != SAMFileHeader.SortOrder.coordinate) {
+                        logger.warn("According to header the BAM file is not sorted by coordinate!");
+                    }
+                } catch (IllegalArgumentException ex) {
+                    logger.warn("Non-standard header SortOrder value!");
+                }
             }else {
                 logger.warn("@HD line is not presented in the BAM file header.");
             }
@@ -456,17 +460,6 @@ public class BamStatsAnalysis {
                 outsideBamStats.saveChromosomeStats(outsideFilename, locator, chromosomeWindowIndexes);
             }
         }
-
-
-        int[] indelData = bamStats.getHomopolymerIndelsData();
-        /*System.out.println("polyA indels: " + indelData[0]);
-        System.out.println("polyC indels: " + indelData[1]);
-        System.out.println("polyG indels: " + indelData[2]);
-        System.out.println("polyT indels: " + indelData[3]);
-        System.out.println("polyN indels: " + indelData[4]);
-        System.out.println("All indels: " + bamStats.getNumIndels());
-        System.out.println("Fraction homopolymer: " +  bamStats.getHomopolymerIndelFraction() );*/
-
 
         if(selectedRegionsAvailable && computeOutsideStats){
             outsideBamStats.setReferenceSize(referenceSize);
@@ -927,25 +920,6 @@ public class BamStatsAnalysis {
 
             return r.intervalOverlaps();
 
-            /*
-            //int numOverlaps = 0;
-
-            for (AlignmentBlock block : read.getAlignmentBlocks()) {
-
-                RegionOverlapLookupTable.OverlapResult r = regionOverlapLookupTable.overlaps( block.getReferenceStart(),
-                        block.getReferenceStart() + block.getLength(), seqName, forwardTranscriptStrandIsExpected);
-
-                if (r.strandMatches()) {
-                    numberOfCorrectStrandReads++;
-                }
-
-                if ( r.intervalOverlaps() ) {
-                    numOverlaps++;
-                }
-            }*
-
-            return numOverlaps > 0;
-            */
         }
 
     }
