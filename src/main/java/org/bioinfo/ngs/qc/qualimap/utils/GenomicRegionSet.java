@@ -51,72 +51,6 @@ public class GenomicRegionSet {
         ambiguousRegions = new HashSet<Interval>();
     }
 
-    public boolean intervalIsAmbiguous(int start, int end) {
-        for (Interval i : ambiguousRegions) {
-            if (i.getStart() == start && i.getEnd() == end) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public void addRegion(GtfParser.Record r, String attrName) {
-
-        String featureName = r.getAttribute(attrName);
-        boolean featureStrand = r.getStrand();
-
-        Interval newInterval = new Interval(r.getSeqName(), r.getStart(), r.getEnd(), r.getStrand(), featureName);
-        List<Interval> toRemove = new ArrayList<Interval>();
-
-        //DEBUG
-        /*if (featureName.equals("ENSG00000214827") && (r.getStart() == 154292309 || r.getStart() == 154292241)  ) {
-            System.out.println("It's something new here!");
-        }*/
-
-        if (featureIntervalMap.containsKey(featureName)) {
-            Collection<Interval> intervals = featureIntervalMap.get(featureName);
-            for (Interval interval: intervals ) {
-                // TODO: check strand also?
-                if (newInterval.intersects(interval) || newInterval.abuts(interval)) {
-                    if (newInterval.getStart() == interval.getStart() && newInterval.getEnd() == interval.getEnd()) {
-                        // equal interval is already present for this feature
-                        return;
-                    }
-                    newInterval = concatenateIntervals(newInterval, interval);
-                    toRemove.add(interval);
-                }
-            }
-
-            intervals.removeAll(toRemove);
-
-        }
-
-        // If we removed intervals from featureIntervalMap, then need to update the intervalTree accordingly
-        for (Interval iv : toRemove) {
-            IntervalTree.Node<Set<Feature>> redundantInterval = intervalTree.find(iv.getStart(), iv.getEnd());
-            Set<Feature> features = redundantInterval.getValue();
-            removeFeatureByName(featureName, features);
-            if (features.isEmpty()) {
-                intervalTree.remove(iv.getStart(), iv.getEnd());
-            }
-        }
-
-        IntervalTree.Node<Set<Feature>> dublicateInterval = intervalTree.find(newInterval.getStart(), newInterval.getEnd());
-        if (dublicateInterval != null ) {
-            Set<Feature> intervalFeatures = dublicateInterval.getValue();
-            intervalFeatures.add(new Feature(featureName, featureStrand) );
-        } else {
-            Set<Feature> intervalFeatures = new HashSet<Feature>();
-            intervalFeatures.add(new Feature(featureName, featureStrand));
-            intervalTree.put(newInterval.getStart(), newInterval.getEnd(), intervalFeatures);
-        }
-        featureIntervalMap.put(featureName, newInterval);
-
-
-
-    }
-
     public void addRegion(GenomicFeature r, String attrName) {
 
             String featureName = r.getAttribute(attrName);
@@ -133,7 +67,6 @@ public class GenomicRegionSet {
             if (featureIntervalMap.containsKey(featureName)) {
                 Collection<Interval> intervals = featureIntervalMap.get(featureName);
                 for (Interval interval: intervals ) {
-                    // TODO: check strand also?
                     if (newInterval.intersects(interval) || newInterval.abuts(interval)) {
                         if (newInterval.getStart() == interval.getStart() && newInterval.getEnd() == interval.getEnd()) {
                             // equal interval is already present for this feature

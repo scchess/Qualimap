@@ -5,7 +5,6 @@ import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CoordMath;
-import net.sf.samtools.util.RuntimeEOFException;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.bioinfo.formats.exception.FileFormatException;
@@ -324,19 +323,6 @@ public class ComputeCountsTask  {
         gtfParser.close();
 
     }
-
-    // TODO: remove deprecated
-    /*void addRegionToIntervalMap(GtfParser.Record r) {
-
-        GenomicRegionSet regionSet = chromosomeRegionSetMap.get(r.getSeqName());
-        if (regionSet == null) {
-            regionSet = new GenomicRegionSet();
-            chromosomeRegionSetMap.put(r.getSeqName(), regionSet);
-        }
-
-        regionSet.addRegion(r, attrName);
-
-    }*/
 
     void addRegionToIntervalMap(GenomicFeature feature) {
 
