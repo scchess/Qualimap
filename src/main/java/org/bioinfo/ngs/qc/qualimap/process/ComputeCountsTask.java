@@ -8,6 +8,7 @@ import net.sf.samtools.util.CoordMath;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.bioinfo.formats.exception.FileFormatException;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.utils.*;
 
 import java.io.File;
@@ -37,9 +38,6 @@ public class ComputeCountsTask  {
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
 
-    public static final String PROTOCOL_NON_STRAND_SPECIFIC = "non-strand-specific";
-    public static final String PROTOCOL_FORWARD_STRAND = "forward-stranded";
-    public static final String PROTOCOL_REVERSE_STRAND = "reverse-stranded";
     public static final String GENE_ID_ATTR = "gene_id";
     public static final String EXON_TYPE_ATTR = "exon";
     public static final String COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED = "uniquely-mapped-reads";
@@ -49,7 +47,7 @@ public class ComputeCountsTask  {
         this.pathToBamFile = pathToBamFile;
         this.pathToGffFile = pathToGffFile;
         this.attrName = GENE_ID_ATTR;
-        protocol = PROTOCOL_NON_STRAND_SPECIFIC;
+        protocol = LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
         countingAlgorithm = COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
@@ -96,7 +94,7 @@ public class ComputeCountsTask  {
 
         SAMRecordIterator iter = reader.iterator();
 
-        boolean strandSpecificAnalysis = !protocol.equals(PROTOCOL_NON_STRAND_SPECIFIC);
+        boolean strandSpecificAnalysis = !protocol.equals(LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC);
 
         int readCount = 0;
         int seqNotFoundCount = 0;
@@ -154,8 +152,8 @@ public class ComputeCountsTask  {
             boolean strand = read.getReadNegativeStrandFlag();
             if (pairedRead) {
                 boolean firstOfPair = read.getFirstOfPairFlag();
-                if ( (protocol.equals(PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
-                        (protocol.equals(PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
+                if ( (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
+                        (protocol.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
                     strand = !strand;
                 }
             }

@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 
 import java.io.FileWriter;
@@ -30,9 +31,9 @@ public class CountReadsTool extends NgsSmartTool {
     boolean calcCovBias;
 
     static String getProtocolTypes() {
-        return  ComputeCountsTask.PROTOCOL_FORWARD_STRAND + ","
-                + ComputeCountsTask.PROTOCOL_REVERSE_STRAND + " or "
-                + ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC;
+        return  LibraryProtocol.PROTOCOL_FORWARD_STRAND + ","
+                + LibraryProtocol.PROTOCOL_REVERSE_STRAND + " or "
+                + LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
     }
 
     static String getAlgorithmTypes() {
@@ -75,13 +76,13 @@ public class CountReadsTool extends NgsSmartTool {
 
         if(commandLine.hasOption(OPTION_PROTOCOL)) {
 		    protocol = commandLine.getOptionValue(OPTION_PROTOCOL);
-            if ( !(protocol.equals( ComputeCountsTask.PROTOCOL_FORWARD_STRAND ) ||
-                    protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC ) ||
-                    protocol.equals( ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
+            if ( !(protocol.equals( LibraryProtocol.PROTOCOL_FORWARD_STRAND ) ||
+                    protocol.equals( LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC ) ||
+                    protocol.equals( LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
                 throw  new ParseException("wrong protocol type! supported types: " + getProtocolTypes());
             }
         } else {
-            protocol = ComputeCountsTask.PROTOCOL_FORWARD_STRAND;
+            protocol = LibraryProtocol.PROTOCOL_FORWARD_STRAND;
         }
 
         if (commandLine.hasOption(OPTION_OUT_FILE)) {

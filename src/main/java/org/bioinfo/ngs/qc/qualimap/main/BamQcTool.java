@@ -50,7 +50,7 @@ public class BamQcTool extends NgsSmartTool{
         opt.setRequired(true);
         options.addOption( opt );
 
-        options.addOption( OPTION_NAME_GFF_FILE,  true, "region file (in GFF or BED format)");
+        options.addOption( OPTION_NAME_GFF_FILE,  true, "region file (in GFF/GTF or BED format)");
         options.addOption(OPTION_NUM_WINDOWS, true,
                 "number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
         options.addOption(OPTION_NUM_THREADS, true,

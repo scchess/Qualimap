@@ -1,8 +1,10 @@
 package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.ngs.qc.qualimap.utils.*;
 
@@ -163,9 +165,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
 
         add(new JLabel("Protocol:"));
-        String[] protocolComboItems = {ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC,
-                ComputeCountsTask.PROTOCOL_FORWARD_STRAND,
-                ComputeCountsTask.PROTOCOL_REVERSE_STRAND};
+        String[] protocolComboItems = LibraryProtocol.getProtocolNames();
         strandTypeCombo = new JComboBox(protocolComboItems);
         strandTypeCombo.setToolTipText("Select the corresponding sequencing protocol");
         strandTypeCombo.addActionListener(this);
@@ -384,9 +384,9 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
 
         String protocol =  strandTypeCombo.getSelectedItem().toString();
-        if (protocol.equals(ComputeCountsTask.PROTOCOL_NON_STRAND_SPECIFIC))  {
+        if (protocol.equals(LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC))  {
             strandTypeCombo.setToolTipText("Reads are counted if mapped to a feature independent of strand");
-        }   else if (protocol.equals(ComputeCountsTask.PROTOCOL_FORWARD_STRAND)) {
+        }   else if (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND)) {
             strandTypeCombo.setToolTipText("<html>The single-end reads must have the same strand as the feature." +
                     "<br>For paired-end reads first of a pair must have the same strand as the feature," +
                     "<br>while the second read must be on the opposite strand</html>");
