@@ -20,6 +20,7 @@ The user can decide:
 
   - The strand-specifity.
 
+Additionaly the tool allows to calculate 5' and 3' prime coverage bias.
 
 To access the tool use :menuselection:`Tools --> Compute counts`. 
 
@@ -94,8 +95,37 @@ Input
   :dfn:`proportional`
     Each read is weighted according to the number of mapped locations. For example, a read mapped to 4 different locations will add 0.25 to the counts of each location.
 
+:guilabel:`Calculate 5' and 3' coverage bias`
+   When this option is selected coverage of 1000 most expressed genes is analysed to determine coverage bias in 5' and 3' ends of the genes. Note, that this option currently works only for canonical gene model as it presented in GTF file i.e. if `Feature ID` equals **gene_id** and `Feature type` equals **exon**, and also attributes must include **transcript_id**.    
+
+
 Output
 ^^^^^^
 
-A two-column tab-delimited text file, with the feature IDs in the first column and the number of counts in the second column.
+A two-column tab-delimited text file, with the feature IDs in the first column and the number of counts in the second column, and overall calculation stats. 
 
+The calculation stats include:
+ 
+  :dfn:`Feature counts` 
+    Number of reads assigned to various features
+
+  :dfn:`No feature` 
+    Number of reads not aligned to any feature
+
+  :dfn:`Not unique alignment` 
+    Number of reads with non-unique alignment
+
+  :dfn:`Ambiguous` 
+    Number of reads that align to features ambigously
+  
+The following stats are calculate only if option `Calulate 5' and 3' bias` was set:
+
+  :dfn:`Median 5' bias` 
+    For 1000 most expressed genes the ratio between coverage of 100 leftmost bases and mean coverage is calcualted and median value is provided. 
+
+  :dfn:`Median 3' bias` 
+    For 1000 most expressed gene the ratio between coverage of 100 rightmost bases and mean coverage is calculated and median value is provided.
+
+  :dfn:`Median 5' to 3` 
+    For 1000 most expressed genes the ratio between coverag of 100 leftmost and 100 rightmost bases is calculated and median value is provided.
+ 

@@ -42,11 +42,14 @@ For example, the :guilabel:`Summary` section provides a short summary of perform
 Exporting results
 -----------------
 
-The resulting report can be saved to HTML page or PDF document.
+The resulting report along with raw statistics data can be saved to HTML page or PDF document.
 
-To export results to HTML use a main menu item :menuselection:`File --> Export to HTML`. In the dialog window one can select the output folder. After clicking :guilabel:`OK` button the web-page, containing analysis results will be saved to the specified directory.
+To export results to HTML use a main menu item :menuselection:`File --> Export to HTML`. In the dialog window one can select the output folder. After clicking :guilabel:`OK` button the web-page, containing analysis results along with raw statistics data will be saved to the specified directory.
 
 Similarly one can save the report to a PDF document by using a main menu item :menuselection:`File --> Export to PDF`.
+
+Note that for plots in :ref:`BAM QC <bamqc>` and :ref:`Counts QC <countsqc>` it is also possible to export the underlying raw data using context menu, which can be summoned with right mouse button.
+
 
 Using tools
 -----------

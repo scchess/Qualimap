@@ -548,12 +548,6 @@ public class BamQCRegionReporter implements Serializable {
 
         }
 
-        if (bamStats.getNumIndels() > 0 ) {
-            BamQCBarChart homopolymerIndels = new BamQCBarChart( Constants.PLOT_TITLE_HOMOPOLYMER_INDELS,
-                    subTitle, "Type of indel", "Number of indels", bamStats.getHomopolymerIndels() );
-            homopolymerIndels.render();
-            charts.add( new QChart(bamStats.getName() + "_homopolymer_indels", homopolymerIndels.getChart(), homopolymerIndels ));
-        }
 
         /////////////////////////////// Reads GC Content histogram ///////////////////////////////////
         BamQCChart gcContentHistChart = new BamQCChart(Constants.PLOT_TITLE_READS_GC_CONTENT, subTitle,
@@ -571,6 +565,14 @@ public class BamQCRegionReporter implements Serializable {
         gcContentHistChart.render();
 		charts.add(new QChart(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart(),
                 gcContentHistChart ));
+
+
+        if (bamStats.getNumIndels() > 0 ) {
+            BamQCBarChart homopolymerIndels = new BamQCBarChart( Constants.PLOT_TITLE_HOMOPOLYMER_INDELS,
+                    subTitle, "Type of indel", "Number of indels", bamStats.getHomopolymerIndels() );
+            homopolymerIndels.render();
+            charts.add( new QChart(bamStats.getName() + "_homopolymer_indels", homopolymerIndels.getChart(), homopolymerIndels ));
+        }
 
 
 

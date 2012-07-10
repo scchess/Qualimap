@@ -34,7 +34,7 @@ The following command allows to perform BAM QC analysis::
      -c,--paint-chromosome-limits   paint chromosome limits inside charts
      -gd <arg>                      compare with genome distribution (possible
                                     values: HUMAN or MOUSE)
-     -gff <arg>                     region file (gff format)
+     -gff <arg>                     region file (in GFF/GTF or BED format)
      -nr <arg>                      number of reads in the chunk (default is 500)
      -nt <arg>                      number of threads (default equals the number of cores)
      -nw <arg>                      number of windows (default is 400)
@@ -43,6 +43,12 @@ The following command allows to perform BAM QC analysis::
      -outdir <arg>                  output folder
      -outformat <arg>               output report format (PDF or HTML, default is
                                     HTML)
+     -p <arg>                       specify protocol to calculate correct strand
+                                    reads (works only with -gff option, possible
+                                    values are STRAND-SPECIFIC-FORWARD or
+                                    STRAND-SPECIFIC-REVERSE, default is
+                                    NON-STRAND-SPECIFIC)
+
 
 | The only required parameter is :guilabel:`bam` -- the input mapping file.
 | If :guilabel:`outdir` is not provided, it will be created automatically in the same folder where BAM file is located.
@@ -125,6 +131,7 @@ To compute counts from mapping data use the following command::
     usage: qualimap comp-counts [-algorithm <arg>] -bam <arg> -gtf <arg> [-id <arg>]
            [-out <arg>] [-protocol <arg>] [-type <arg>]
      -algorithm <arg>   uniquely-mapped-reads(default) or proportional
+     -b                 calculate 5' and 3' coverage bias
      -bam <arg>         mapping file in BAM format)
      -gtf <arg>         region file in GTF format
      -id <arg>          attribute of the GTF to be used as feature ID. Regions with

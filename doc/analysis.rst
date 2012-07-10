@@ -32,33 +32,37 @@ Input Parameters
 :guilabel:`BAM file` 
   Path to the sequence alignment file in **BAM format**. Note, that the BAM file has to be **sorted by chromosomal coordinates**. Sorting can be performed with `samtools sort <http://samtools.sourceforge.net/>`_.
 
-:guilabel:`Draw chromosome limits` 
-  If selected, vertical dotted lines will be placed at the beginning of each chromosome according to the information found in the header of the BAM file.
-
-:guilabel:`Analyze Regions` 
+:guilabel:`Analyze regions` 
   Activating this option allows the analysis of the alignment data for the **regions of interest**. 
 
-:guilabel:`GFF File` 
-  The path to the annotation file that defines the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ or `GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_ format.
+:guilabel:`Regions file(GFF/BED file)` 
+  The path to the annotation file that defines the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_/`GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_  or `BED <http://genome.ucsc.edu/FAQ/FAQformat.html# format1>`_ format.
 
-:guilabel:`Analyze Outside Regions` 
+:guilabel:`Library strand specificity`
+
+  The sequencing protocol strand specificity: *non-strand-specific*, *forward-stranded* or *reverse-stranded*. This information is required to calculate the number of **correct strand** reads.
+
+:guilabel:`Analyze outside regions` 
   If checked, the information about the **reads** that are **mapped outside** of the regions of interest will be also computed and shown in a separate section.
+
+:guilabel:`Chromosome limits` 
+  If selected, vertical dotted lines will be placed at the beginning of each chromosome according to the information found in the header of the BAM file.
 
 .. _input-gc-content:
 
-:guilabel:`Compare GC Content Distribution with...` 
+:guilabel:`Compare GC content distribution with...` 
   This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
 
 Advanced parameters
 """""""""""""""""""
 
-:guilabel:`Number of Windows`
+:guilabel:`Number of windows`
   Number of **windows** used to **split** the reference **genome**. This value is used for computing the graphs that plot information across the reference. Basically, reads falling in the same window are aggregated in the same bin. The higher the number, the bigger the resolution of the plots but also longer time will be used to process the data. By default 400 windows are used.
 
-:guilabel:`Number of Threads`
+:guilabel:`Number of threads`
   In order to speed up the computation, the BAM QC analysis **computation** can be performed **in parallel** on a multicore system using the given number of threads. More information on the parallelization of qualimap can be found in :ref:`FAQ <faq>`. The default number of threads equals number of available processors.
 
-:guilabel:`Reads per Chunk`
+:guilabel:`Size of the chunk`
   In order to **reduce the load of I/O**, reads are analyzed in chunks. Each chunk contains the selected number of reads which will be loaded into memory and analyzed by a single thread. Smaller numbers may result in lower performance, but also the memory consumption will be reduced. The default value is 1000 reads.
 
 
@@ -67,7 +71,9 @@ Output
 
 :guilabel:`Summary` 
 
-  **Basic information** and statistics for the alignment data. Qualimap reports here information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, insert size, nucleotide content, coverage, mapping quaility and chromosome-based statistics.
+  **Basic information** and statistics for the alignment data. Qualimap reports here information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, insert size, nucleotide content, coverage, number of indels, mapping quaility and chromosome-based statistics. 
+  
+  For region-based analysis the information is given inside of regions, including some additional information like, for example, number of correct strand reads.
 
 :guilabel:`Input` 
 
@@ -89,15 +95,30 @@ Output
 
   Provides a visual way of knowing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as in this example:
 
-If one aims a coverage rate of **at least 25X** (*x*-axis), how much of reference (*y*-axis) will be considered? The answer to this question in the case of the whole-genome sequencing `provided example <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html#genome_coverage_quotes.png>`_ is **~83%**.
+  If one aims a coverage rate of **at least 25X** (*x*-axis), how much of reference (*y*-axis) will be considered? The answer to this question in the case of the whole-genome sequencing `provided example <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html#genome_coverage_quotes.png>`_ is **~83%**.
 
 :guilabel:`Mapped Reads Nucleotide Content` 
 
   This plot shows the **nucleotide content per position** of the **mapped reads**.
 
+:guilabel:`Mapped Reads Clipping Profile`
+
+  This plot provides the **clipping profile histogram** along the **mapped reads**. The clipping is detected via SAM format CIGAR codes 'H' (hard clipping) and 'S' (soft clipping). 
+  
+  The plot is not shown if there are no clipped-reads are found. Total number of clipped reads can be found in :guilabel:`Summary`.  
+
 :guilabel:`Mapped Reads GC Content Distribution` 
 
   This graph shows the distribution of **GC content** per **mapped read**. If compared with a precomputed :ref:`genome distribution <input-gc-content>`, this plot allows to check if there is a shift in the GC content. 
+
+:guilabel:`Homopolymer Indels`
+
+  This bar chart provides the estimation of **homopolymer indels** of various types within alignment data. Large number of homopolymer indels may indicate a problem in a sequencing process. 
+  
+  An indel is considered homopolymeric if it overlaps a homopolymer sequence with a minimum size of **5 bp**. For genomic insertions accurate calculation is performed. In case of deletions similar calculation can not be performed without reference sequence, therefore only an estimation is provided: an insertion is estimated as homopolymeric if it has a flanking homopolymer downstream or upstream of its location in the read.    
+
+  The chart is not shown if the sample doesn't contain any indels.
+
 
 :guilabel:`Duplication Rate Histogram` 
 
