@@ -60,65 +60,77 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
              maybeShowPopup(e);
         }
 
-           private void maybeShowPopup(MouseEvent e) {
-               if (e.isPopupTrigger()) {
-                   JPopupMenu popup = new JPopupMenu();
-                   final String graphicName = tabProperties.getLoadedGraphicName();
-                   if (!graphicName.isEmpty())  {
-                        JMenuItem savePictureItem = new JMenuItem("Save picture...");
-                        savePictureItem.addActionListener(new ActionListener() {
+        private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                JPopupMenu popup = new JPopupMenu();
+                final String graphicName = tabProperties.getLoadedGraphicName();
+                if (!graphicName.isEmpty())  {
+                    JMenuItem savePictureItem = createSaveGraphicMenuItem(graphicName);
+                    popup.add(savePictureItem);
+
+                    QChart chart = tabProperties.getReporter().findChartByName(graphicName);
+                    if (chart != null && chart.canExportRawData()) {
+                        JMenuItem exportDataMenuItem = createExportRawDataMenuItem(chart, parent);
+                        popup.addSeparator();
+                        popup.add(exportDataMenuItem);
+                    }
+
+                    // TODO: Each reporter should add own items to the popup menu.
+                    if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING) {
+                        JMenuItem exportGeneListItem = new JMenuItem("Export feature list...");
+                        exportGeneListItem.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent actionEvent) {
-                                JFileChooser fileChooser = HomeFrame.getFileChooser();
-                                fileChooser.setFileFilter( new FileFilter() {
-                                    @Override
-                                    public boolean accept(File file) {
-                                        return true;
-                                    }
-
-                                    @Override
-                                    public String getDescription() {
-                                        return "PNG images";
-                                    }
-                                });
-                                int res = fileChooser.showDialog(parent, "Save");
-                                if (res == JFileChooser.APPROVE_OPTION) {
-					                String path = fileChooser.getSelectedFile().getAbsolutePath();
-                                    if (path.endsWith(".png")) {
-                                        path = path + ".png";
-                                    }
-                                    BufferedImage image =
-                                            tabProperties.getReporter().findChartByName(graphicName).getBufferedImage();
-                                    try {
-                                        ImageIO.write(image, "png", new File(path));
-                                    } catch (IOException e1) {
-                                        JOptionPane.showMessageDialog(parent, "Failed to save image!",
-                                                "Save image", JOptionPane.ERROR_MESSAGE);
-                                    }
-
-                                }
+                                HomeFrame.showExportGenesDialog(parent, tabProperties);
                             }
                         });
-                        popup.add(savePictureItem);
+                        popup.addSeparator();
+                        popup.add(exportGeneListItem);
+                    }
+                }
 
-                        // TODO: Each reporter should add own items to the popup menu.
-                        if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING) {
-                            JMenuItem exportGeneListItem = new JMenuItem("Export feature list...");
-                            exportGeneListItem.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent actionEvent) {
-                                    HomeFrame.showExportGenesDialog(parent, tabProperties);
-                                }
-                            });
-                            popup.addSeparator();
-                            popup.add(exportGeneListItem);
+                popup.show(e.getComponent(),
+                        e.getX(), e.getY());
+            }
+        }
+
+        private JMenuItem createSaveGraphicMenuItem(final String graphicName) {
+            JMenuItem savePictureItem = new JMenuItem("Save picture...");
+            savePictureItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    JFileChooser fileChooser = HomeFrame.getFileChooser();
+                    fileChooser.setFileFilter( new FileFilter() {
+                        @Override
+                        public boolean accept(File file) {
+                            return true;
                         }
-                   }
 
-                   popup.show(e.getComponent(),
-                              e.getX(), e.getY());
-               }
-           }
+                        @Override
+                        public String getDescription() {
+                            return "PNG images";
+                        }
+                    });
+                    int res = fileChooser.showDialog(parent, "Save");
+                    if (res == JFileChooser.APPROVE_OPTION) {
+                        String path = fileChooser.getSelectedFile().getAbsolutePath();
+                        if (path.endsWith(".png")) {
+                            path = path + ".png";
+                        }
+                        BufferedImage image =
+                                tabProperties.getReporter().findChartByName(graphicName).getBufferedImage();
+                        try {
+                            ImageIO.write(image, "png", new File(path));
+                        } catch (IOException e1) {
+                            JOptionPane.showMessageDialog(parent, "Failed to save image!",
+                                    "Save image", JOptionPane.ERROR_MESSAGE);
+                        }
+
+                    }
+                }
+            });
+            return savePictureItem;
+        }
 
 
     }
@@ -562,9 +574,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             ChartPanel panelImage = new ChartPanel( jFreeChart );
 
             if (chart.canExportRawData()) {
-                ChartRawDataWriter dataWriter = chart.getDataWriter();
-                JMenuItem exportDataItem = new JMenuItem("Export plot data");
-                exportDataItem.addActionListener( new ExportChartDataActionListener(this, dataWriter, chart.getTitle()));
+                JMenuItem exportDataItem = createExportRawDataMenuItem(chart, this);
                 panelImage.getPopupMenu().addSeparator();
                 panelImage.getPopupMenu().add( exportDataItem );
             }
@@ -611,6 +621,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         }*/
         homeFrame.updateMenuBar();
 
+    }
+
+    private static JMenuItem createExportRawDataMenuItem(QChart chart, JComponent parent) {
+        ChartRawDataWriter dataWriter = chart.getDataWriter();
+        JMenuItem exportDataItem = new JMenuItem("Export plot data");
+        exportDataItem.addActionListener( new ExportChartDataActionListener(parent, dataWriter, chart.getTitle()));
+        return exportDataItem;
     }
 
 

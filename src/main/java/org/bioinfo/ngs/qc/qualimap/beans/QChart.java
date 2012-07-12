@@ -81,4 +81,8 @@ public class QChart {
     public ChartRawDataWriter getDataWriter() {
         return dataWriter;
     }
+
+    public void setDataWriter(ChartRawDataWriter dataWriter) {
+        this.dataWriter = dataWriter;
+    }
 }

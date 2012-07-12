@@ -2,7 +2,7 @@
 if(!require("optparse")) { install.packages("optparse", repos = "http://cran.r-project.org") }
 suppressPackageStartupMessages(library("optparse"))
 
-# Last modified: 29-VI-2011
+# Last modified: 14-VI-2012
 
 option_list <- list(
                  make_option(c("-v", "--verbose"), action="store_true", default=TRUE,
@@ -67,22 +67,20 @@ cc <- 1.2   # cex
 nom1 <- opt$name1
 nom2 <- opt$name2
 
-#agru.vari <- "biotype"
+
 
 
 if (!is.null(opt$info)){
 #file including features ID in "datos1" and biotypes or other classification
-	infobio <- opt$info # NO header
-	if (!is.null(opt$groups)){
-		agru.biotype <- TRUE
+  infobio <- opt$info # NO header
+  if (!is.null(opt$groups)){
+    agru.biotype <- TRUE
 		# two columns file: 1) all biotypes in infobio   2) group for biotypes
-		file.agru <- opt$groups # NO header
-	}else{
-		file.agru <- NULL
-		agru.biotype <- FALSE
-	}
-
-
+    file.agru <- opt$groups # NO header
+  }else{
+    file.agru <- NULL
+    agru.biotype <- FALSE
+  }
 }
 
 
@@ -116,10 +114,8 @@ if (is.null(datos2)) {
 if (!is.null(opt$info)) {
 
   infofile <- read.delim(infobio, header = FALSE, sep = "\t", as.is = TRUE)
-  info <- infofile[,2]
-  names(info) <- infofile[,1]
-  myinfo <- info
-  #myinfo[which(is.na(myinfo))] <- "unknown"
+  myinfo <- infofile[,2]
+  names(myinfo) <- infofile[,1]
 
 
   ## Completing files: data & info
@@ -239,7 +235,7 @@ if (!is.null(opt$info)) {
 
     bio.agru2 <- names(table(myinfo))
     names(bio.agru2) <- bio.agru2
-  
+
   }
 
 
@@ -277,7 +273,15 @@ if (!is.null(opt$info)) {
 
   if (is.null(misdatos2)) {
 
-  # Plot (1 sample)
+    # Saving data in a txt file
+    mybiotable <- cbind(colnames(biotable), t(biotable[-4,]))
+    colnames(mybiotable)[1] <- "biotype"
+    
+    write.table(mybiotable,
+                file.path(opt$dirOut, "DetectionPerGroup.txt"),
+                sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
+
+    # Plot (1 sample)
     png(filename = file.path(opt$dirOut, "DetectionPerGroup.png"),
         width = 3*480*2, height = 3*480, units = "px", pointsize = 3*12)
 
@@ -310,12 +314,10 @@ if (!is.null(opt$info)) {
 
   } else {
 
-  # Plot (2 samples)
-
     detect2 <- misdatos2>k
 
     perdet3 <- genome*table(mybioagru, detect2)[names(genome),2]/
-             table(bio.agru2[info])[names(genome)]
+             table(bio.agru2[myinfo])[names(genome)]
     perdet4 <- 100*table(mybioagru, detect2)[,2]/
              sum(table(mybioagru, detect2)[,2])
 
@@ -324,14 +326,29 @@ if (!is.null(opt$info)) {
     rownames(biotable2) <- c("genome", "detectionVSgenome", "detectionVSsample",
                           "ceros")
 
+
+    # Saving data in a txt file
+    mybiotable <- cbind(colnames(biotable), t(biotable[-4,]))
+    colnames(mybiotable)[1] <- "biotype"
+    mybiotable2 <- t(biotable2[-c(1,4),])
+    mybiotable2 <- mybiotable2[rownames(mybiotable),]
+
+    mybiotable12 <- cbind(mybiotable, mybiotable2)
+    colnames(mybiotable12)[-c(1,2)] <- apply(cbind(colnames(mybiotable12)[-c(1,2)],
+                                                   rep(1:2, each = 2)), 1, paste, collapse = "_")
+    
+    write.table(mybiotable12,
+                file.path(opt$dirOut, "DetectionPerGroup.txt"),
+                sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
+
+    
+    # Plot (2 samples)
     png(filename = file.path(opt$dirOut, "DetectionPerGroup.png"),
       width = 3*480*2, height = 3*480*2, units = "px", pointsize = 3*12)
-#   pdf(file = file.path(opt$dirOut, "DetectionPerGroup.pdf"),
-#       width = 7*2, height = 7*2)
 
     par(mar = c(11, 4, 2, 2), mfrow = c(2,1), bg = "#e6e6e6")
 
-  # Datos1
+    # Datos1
     barplot(biotable[c(1,3),],
           main = paste("Detection per group:", nom1),
           xlab = "", ylab = "%features", axis.lty = 1, legend = FALSE,
@@ -359,7 +376,7 @@ if (!is.null(opt$info)) {
          legend = c("% in genome", "detected", "% in sample"))
 
 
-  # Datos2
+    # Datos2
     barplot(biotable2[c(1,3),],
           main = paste("Detection per group:", nom2),
           xlab = "", ylab = "%features", axis.lty = 1, legend = FALSE,
@@ -387,10 +404,13 @@ if (!is.null(opt$info)) {
          legend = c("% in genome", "detected", "% in sample"))
 
     garbage <- dev.off()
+
   }
-
-
+  
 }
+
+
+
 
 
 ###########################################################################
@@ -401,14 +421,12 @@ if (!is.null(opt$info)) {
 
 png(filename = paste(opt$dirOut, "GlobalSaturation.png", sep=""),
     width = 3*480, height = 3*480, units = "px", pointsize = 3*12)
-# pdf(file = file.path(opt$dirOut, "GlobalSaturation.pdf"),
-#       width = 7, height = 7)
-
 
 par(mar = c(5,6,4,6), bg = "#e6e6e6") 
 
-satur.plot2(datos1 = misdatos1, datos2 = misdatos2, k = k,
-            tit = "Global Saturation Plot",
+satur.plot2(datos1 = misdatos1, datos2 = misdatos2,
+            myoutput = file.path(opt$dirOut, "GlobalSaturation.txt"),
+            tit = "Global Saturation Plot", k = k,
             #yleftlim = NULL, yrightlim = NULL,
             cex.main = cm, cex.lab = cl, cex.axis = ca, cex = cc,
             legend = c(nom1, nom2))
@@ -429,42 +447,62 @@ garbage <- dev.off()
 #### SATURATION PLOTS per BIOTYPE
 
 if (!is.null(opt$info)) {
-
   
+  satbio.mine <- saturbio.dat(datos1 = misdatos1, datos2 = misdatos2, k = k,
+                              infobio = myinfo, biotypes = biotipus)
 
-satbio.mine <- saturbio.dat(datos1 = misdatos1, datos2 = misdatos2, k = k,
-                            infobio = myinfo, biotypes = biotipus)
+  mytable1 <- satbio.mine$depth1
+  mytable2 <- satbio.mine$depth2
 
-         
-for (i in 1:length(biotipus)) {
+  for (i in 1:length(biotipus)) {
+    
+    mytable1 <- cbind(mytable1, satbio.mine$cond1[[i]], satbio.mine$newdet1[[i]])    
+    mytable2 <- cbind(mytable2, satbio.mine$cond2[[i]], satbio.mine$newdet2[[i]])    
+
+    png(paste(opt$dirOut, names(biotipus)[i],".png", sep = ""),
+        width = 3*480, height = 3*480, pointsize = 3*12)
+
+    par(mar = c(5,6,4,6), bg = "#e6e6e6")
+    
+    titulo <- paste("Number of features with reads >", k)
+
+    saturbio.plot(depth1 = satbio.mine$depth1, depth2 = satbio.mine$depth2,
+                  sat1 = satbio.mine$cond1[[i]], sat2 = satbio.mine$cond2[[i]],
+                  newdet1 = satbio.mine$newdet1[[i]],
+                  newdet2 = satbio.mine$newdet2[[i]],
+                  bionum = satbio.mine$bionum[i],
+                  main = paste(names(biotipus)[i],
+                    " (", satbio.mine$bionum[i], ")", sep = ""),
+                  legend = c(nom1, nom2),
+                  yleftlim = c(0, satbio.mine$bionum[i]),
+                  ylabL = titulo,
+                  ylabR = "New detections per million reads",
+                  cex = cc, cex.main = cm, cex.lab = cl)
+    
+    garbage <- dev.off()
+    
+    }
   
-  png(paste(opt$dirOut, names(biotipus)[i],".png", sep = ""),
-      width = 3*480, height = 3*480, pointsize = 3*12)
-
-#     pdf(paste(opt$dirOut, names(biotipus)[i],".pdf", sep = ""),
-#         width = 7, height = 7)
-
-
-
-  par(mar = c(5,6,4,6), bg = "#e6e6e6")
+  colnames(mytable1) <- c("depth",
+                          apply(cbind(rep(c("detec","newdetec"), length(satbio.mine$cond1)),
+                                      rep(names(satbio.mine$cond1), each = 2)),
+                                1, paste, collapse = "_"))
   
-  titulo <- paste("Number of features with reads >", k)
+  write.table(mytable1, file.path(opt$dirOut, "SaturationPerGroup_1.txt"),
+              sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
   
-  saturbio.plot(depth1 = satbio.mine$depth1, depth2 = satbio.mine$depth2,
-                sat1 = satbio.mine$cond1[[i]], sat2 = satbio.mine$cond2[[i]],
-                newdet1 = satbio.mine$newdet1[[i]],
-                newdet2 = satbio.mine$newdet2[[i]],
-                bionum = satbio.mine$bionum[i],
-                main = paste(names(biotipus)[i],
-                  " (", satbio.mine$bionum[i], ")", sep = ""),
-                legend = c(nom1, nom2),
-                yleftlim = c(0, satbio.mine$bionum[i]),
-                ylabL = titulo,
-                ylabR = "New detections per million reads",
-                cex = cc, cex.main = cm, cex.lab = cl)
+  if(!is.null(mytable2)) {
+    
+    colnames(mytable2) <- c("depth",
+                            apply(cbind(rep(c("detec","newdetec"), length(satbio.mine$cond2)),
+                                        rep(names(satbio.mine$cond2), each = 2)),
+                                  1, paste, collapse = "_"))
 
-  garbage <- dev.off()
-}
+    write.table(mytable2, file.path(opt$dirOut, "SaturationPerGroup_2.txt"),
+              sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
+    
+    }
+
 
 
 
@@ -475,98 +513,104 @@ for (i in 1:length(biotipus)) {
 
 
 #### COUNTS DISTRIBUTION -- per BIOTYPE
+  
+  countdist.mine <- countsbio.dat(misdatos1, misdatos2, k = k, nbox = 1,
+                                  infobio = myinfo, biotypes = biotipus)
+  
+  countlist <- countdist.mine$cond1[[1]]
 
-countdist.mine <- countsbio.dat(misdatos1, misdatos2, k = k, nbox = 1,
-                                infobio = myinfo, biotypes = biotipus)
+  for (i in 2:length(countdist.mine$cond1)) {
+    countlist <- c(countlist, countdist.mine$cond1[[i]])
+    }
+  names(countlist) <- names(countdist.mine$cond1)
 
-countlist <- countdist.mine$cond1[[1]]
-
-for (i in 2:length(countdist.mine$cond1)) {
-  countlist <- c(countlist, countdist.mine$cond1[[i]])
-}
-names(countlist) <- names(countdist.mine$cond1)
-
-ysup <- max(sapply(countlist, quantile, probs = 0.75, na.rm = TRUE),
+  ysup <- max(sapply(countlist, quantile, probs = 0.75, na.rm = TRUE),
               na.rm = TRUE)*1.3
 
-if (is.null(misdatos2)) {
+  if (is.null(misdatos2)) {
 
-  png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
-      width = 3*480, height = 3*480, pointsize = 3*12)
-#     pdf(paste(opt$dirOut, "counts_boxplot.pdf", sep=""),
-#  width = 7, height = 7)
+    png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
+        width = 3*480, height = 3*480, pointsize = 3*12)
 
-  par(mar = c(11,4,6,2), bg = "#e6e6e6")
-
-} else {
-
-  countlist2 <- countdist.mine$cond2[[1]]
-
-  for (i in 2:length(countdist.mine$cond2)) {
-    countlist2 <- c(countlist2, countdist.mine$cond2[[i]])
-  }
-  names(countlist2) <- names(countdist.mine$cond2)
-
-  ysup2 <- max(sapply(countlist2, quantile, probs = 0.75, na.rm = TRUE),
-               na.rm = TRUE)*1.3
-
-  ysup <- max(ysup, ysup2, na.rm = TRUE)
-
-  png(paste(opt$dirOut, "counts_boxplot.png", sep=""), 
-	width = 3*480*2, height = 3*480, pointsize = 3*12)
-#   pdf(paste(opt$dirOut, "counts_boxplot.pdf", sep=""), width = 7*2, height = 7)
-
-
-  par(mar = c(11,4,6,2), mfrow = c(1,2), bg = "#e6e6e6")
-
-}
-
-
-boxplot(countlist[ordre], las = 2,
-        main = paste("Counts distribution per group:", nom1),
-        ylim = c(k, ysup), col = 2)
-
-rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white")
-
-boxplot(countlist[ordre], las = 2,
-        main = paste("Counts distribution per group:", nom1),
-        ylim = c(k, ysup), col = 2, add = TRUE,
-        ylab = "Read counts of detected features")
-
-cuantos <- sapply(countlist, length)
-cuantos1 <- which(cuantos == 1)
-sumant <- sapply(countlist, sum, na.rm = TRUE)
-sumant0 <- which(sumant == 0)
-cuantosNA <- intersect(cuantos1, sumant0)
-cuantos[cuantosNA] <- 0
-mtext(cuantos[ordre], 3, at = 1:length(countlist), cex = 1, las = 2)
-
-
-if (!is.null(misdatos2)) {
-
-  boxplot(countlist2[ordre], las = 2,
-          main = paste("Counts distribution per group:", nom2),
-          ylim = c(k, ysup), col = 4)
-
-  rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4],
-       col = "white")
-
-  boxplot(countlist2[ordre], las = 2,
-          main = paste("Counts distribution per group:", nom2),
-          ylim = c(k, ysup), col = 4, add = TRUE,
-          ylab = "Read counts of detected features")
+    par(mar = c(11,4,6,2), bg = "#e6e6e6")
+    
+    } else {
+      
+      countlist2 <- countdist.mine$cond2[[1]]
+      
+      for (i in 2:length(countdist.mine$cond2)) {
+        countlist2 <- c(countlist2, countdist.mine$cond2[[i]])
+        }
+      names(countlist2) <- names(countdist.mine$cond2)
+      
+      ysup2 <- max(sapply(countlist2, quantile, probs = 0.75, na.rm = TRUE),
+                 na.rm = TRUE)*1.3
+      
+      ysup <- max(ysup, ysup2, na.rm = TRUE)
+      
+      png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
+          width = 3*480*2, height = 3*480, pointsize = 3*12)
+      
+      par(mar = c(11,4,6,2), mfrow = c(1,2), bg = "#e6e6e6")
+      
+      }
   
-  cuantos <- sapply(countlist2, length)
+  boxplot(countlist[ordre], las = 2,
+          main = paste("Counts distribution per group:", nom1),
+          ylim = c(k, ysup), col = 2)
+
+  rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white")
+
+  boxplot(countlist[ordre], las = 2,
+          main = paste("Counts distribution per group:", nom1),
+          ylim = c(k, ysup), col = 2, add = TRUE,
+          ylab = "Read counts of detected features")
+
+  cuantos <- sapply(countlist, length)
   cuantos1 <- which(cuantos == 1)
-  sumant <- sapply(countlist2, sum, na.rm = TRUE)
+  sumant <- sapply(countlist, sum, na.rm = TRUE)
   sumant0 <- which(sumant == 0)
   cuantosNA <- intersect(cuantos1, sumant0)
   cuantos[cuantosNA] <- 0
-  mtext(cuantos[ordre], 3, at = 1:length(countlist2), cex = 1, las = 2)
+  mtext(cuantos[ordre], 3, at = 1:length(countlist), cex = 1, las = 2)
 
-}
 
-garbage <- dev.off()
+  # txt file
+  write.table(unlist(countlist), file.path(opt$dirOut, "Counts_boxplot_1.txt"),
+              sep = "\t", quote = FALSE, col.names = FALSE, row.names = TRUE)
+  
+  
+  
+  if (!is.null(misdatos2)) {
+    
+    write.table(unlist(countlist2), file.path(opt$dirOut, "Counts_boxplot_2.txt"),
+              sep = "\t", quote = FALSE, col.names = FALSE, row.names = TRUE)
+
+    boxplot(countlist2[ordre], las = 2,
+            main = paste("Counts distribution per group:", nom2),
+            ylim = c(k, ysup), col = 4)
+
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4],
+         col = "white")
+
+    boxplot(countlist2[ordre], las = 2,
+            main = paste("Counts distribution per group:", nom2),
+            ylim = c(k, ysup), col = 4, add = TRUE,
+            ylab = "Read counts of detected features")
+
+    cuantos <- sapply(countlist2, length)
+    cuantos1 <- which(cuantos == 1)
+    sumant <- sapply(countlist2, sum, na.rm = TRUE)
+    sumant0 <- which(sumant == 0)
+    cuantosNA <- intersect(cuantos1, sumant0)
+    cuantos[cuantosNA] <- 0
+    mtext(cuantos[ordre], 3, at = 1:length(countlist2), cex = 1, las = 2)
+    
+    }
+  
+  garbage <- dev.off()
+
+
 
 
 
@@ -574,36 +618,103 @@ garbage <- dev.off()
 ############################################################################
 
 
+  
 #### COUNTS DISTRIBUTION -- per BIOTYPE + sequencing depth
+  
+  countbio.mine <- countsbio.dat(misdatos1, misdatos2, k = k,
+                                 infobio = myinfo, biotypes = biotipus)
 
-countbio.mine <- countsbio.dat(misdatos1, misdatos2, k = k,
-                               infobio = myinfo, biotypes = biotipus)
+  mytable1 <- c("depth", "--", countbio.mine$depth1)
+  mytable2 <- c("depth", "--", countbio.mine$depth2)
+  
+  mystats <- c("lower_whisker", "lower_quartile", "median", "upper_quartile", "upper_whisker")
+
+  for (i in 1:length(biotipus)) {
+    
+    mytable1 <- rbind(mytable1,
+                      cbind(mystats, names(countbio.mine$cond1)[i],
+                            sapply(countbio.mine$cond1[[i]],
+                                   function(x) { boxplot(x, plot = FALSE)$stats })))
+    mytable1 <- rbind(mytable1, c("number", names(countbio.mine$cond1)[i],
+                            sapply(countbio.mine$cond1[[i]],
+                                   function(x) { boxplot(x, plot = FALSE)$n })))
+
+    mytable2 <- rbind(mytable2,
+                      cbind(mystats, names(countbio.mine$cond2)[i],
+                            sapply(countbio.mine$cond2[[i]],
+                                   function(x) { boxplot(x, plot = FALSE)$stats })))
+    mytable2 <- rbind(mytable2, c("number", names(countbio.mine$cond2)[i],
+                            sapply(countbio.mine$cond2[[i]],
+                                   function(x) { boxplot(x, plot = FALSE)$n })))
+    
+
+    png(paste(opt$dirOut, names(biotipus)[i],"_boxplot.png", sep = ""),
+        width = 3*480, height = 3*480, pointsize = 3*12)
+
+    countbio.plot(depth1 = countbio.mine$depth1,
+                  depth2 = countbio.mine$depth2,
+                  sat1 = countbio.mine$cond1[[i]],
+                  sat2 = countbio.mine$cond2[[i]],
+                  bionum = countbio.mine$bionum[[i]], las = 1, cex = 1.2,
+                  legend = c(nom1, nom2),
+                  main = names(biotipus)[i],
+                  ylab = "Read counts of detected features",
+                  xlab = "Sequencing Depth (million reads)")
+
+    
+
+    garbage <- dev.off()
+    }
+  
+  colnames(mytable1) <- c("stat", "group", paste("depth", 1:length(countbio.mine$depth1), sep = ""))
+
+  write.table(mytable1, file.path(opt$dirOut, "CountsPerGroup_boxplot_1.txt"),
+              sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
+  
+  
+  if(!is.null(misdatos2)) {
+    
+    colnames(mytable2) <- c("stat", "group", paste("depth", 1:length(countbio.mine$depth2), sep = ""))
+
+    write.table(mytable2, file.path(opt$dirOut, "CountsPerGroup_boxplot_2.txt"),
+              sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
+    
+    }
+  
+  }
 
 
-for (i in 1:length(biotipus)) {
 
-  png(paste(opt$dirOut, names(biotipus)[i],"_boxplot.png", sep = ""),
+
+
+
+############################################################################
+
+
+#### CORRELATION PLOT
+
+
+if (!is.null(misdatos2)) {
+  
+  png(paste(opt$dirOut, "correlation_plot.png", sep = ""),
       width = 3*480, height = 3*480, pointsize = 3*12)
-#   pdf(paste(opt$dirOut, names(biotipus)[i],"_boxplot.pdf", sep = ""),
-#       width = 7, height = 7)
-
-
-  countbio.plot(depth1 = countbio.mine$depth1,
-                depth2 = countbio.mine$depth2,
-                sat1 = countbio.mine$cond1[[i]],
-                sat2 = countbio.mine$cond2[[i]],
-                bionum = countbio.mine$bionum[[i]], las = 1, cex = 1.2,
-                legend = c(nom1, nom2),
-                main = names(biotipus)[i],
-                ylab = "Read counts of detected features",
-                xlab = "Sequencing Depth (million reads)")
-
+  
+  cor.plot.2D(misdatos1, misdatos2, noplot = 0.001, log.scale = TRUE, 
+              xlab = paste("log2(", nom1, "+1)", sep = ""),
+              ylab = paste("log2(", nom2, "+1)", sep = ""))
+  
   garbage <- dev.off()
-}
+  
+  }
 
 
 
-}
+
+
+
+
+
+
 
 
 

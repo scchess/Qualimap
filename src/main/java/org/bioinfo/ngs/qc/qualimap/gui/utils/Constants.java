@@ -154,14 +154,12 @@ public final class Constants {
 	//******************************************************************************************
 	//***************************** GRAPHICS NAMES RNA CONSTANTS *******************************
 	//******************************************************************************************
-	// Name of the graphic for the Global Saturation
-	public static final String GRAPHIC_NAME_RNA_GLOBAL_SATURATION = "GlobalSaturation.png";
-	
-	// Name of the graphic for the Global Saturation
+
+    public static final String GRAPHIC_NAME_RNA_GLOBAL_SATURATION = "GlobalSaturation.png";
 	public static final String GRAPHIC_NAME_RNA_SATURATION_PER_CLASS = "DetectionPerGroup.png";
-	
-	// Name of the graphic for the Global Saturation
 	public static final String GRAPHIC_NAME_RNA_COUNTS_PER_CLASS = "counts_boxplot.png";
+    public static final String GRAPHIC_NAME_RNA_SAMPLE_CORRELATION = "correlation_plot.png";
+
 
 	
 	//******************************************************************************************

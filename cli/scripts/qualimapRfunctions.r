@@ -3,7 +3,7 @@
 ####################################################################
 
 # By Sonia Tarazona
-# Last modified: 29-VI-2011
+# Last modified: June-2012
 #
 
 
@@ -1138,7 +1138,7 @@ plot.y2 <- function(x, yright, yleft, yrightlim = range(yright, na.rm = TRUE),
 ## Global Saturation Plot including new detection per million reads
 
 
-satur.plot2 <- function (datos1, datos2, yleftlim = NULL, yrightlim = NULL,
+satur.plot2 <- function (datos1, datos2, myoutput, yleftlim = NULL, yrightlim = NULL,
                          k = 0, tit = "Saturation", cex.main = cex.main,
                          cex.lab = cex.lab, cex.axis = cex.axis, cex = cex,
                          legend = c(deparse(substitute(datos1)),
@@ -1356,7 +1356,17 @@ satur.plot2 <- function (datos1, datos2, yleftlim = NULL, yrightlim = NULL,
     par(mar=c(5, 4, 4, 2) + 0.1)
 
 
-  } else {
+    # txt file for sample 1 and 2
+    mytxt <- cbind(satura1$seq.depth, satura1$noceros, newdet1,
+                   satura2$seq.depth, satura2$noceros, newdet2)
+    colnames(mytxt) <- c("depth1", "detec1", "newdetec1",
+                         "depth2", "detec2", "newdetec2")
+
+    write.table(mytxt, file = myoutput, quote = FALSE,
+                col.names = TRUE, row.names = FALSE, sep = "\t")
+
+
+  } else {  ## 1 sample
 
         ## PLOT LIMITS
 
@@ -1381,8 +1391,7 @@ satur.plot2 <- function (datos1, datos2, yleftlim = NULL, yrightlim = NULL,
     }
     
 
-        ## PLOT for SAMPLE 1
-
+    ## PLOT for SAMPLE 1       
     plot.y2(x = satura1$seq.depth/10^6, yright = newdet1,
             yleft = satura1$noceros,
             type = c("h", "o"), lwd = c(20,2), pch = c(1, 19), 
@@ -1403,8 +1412,18 @@ satur.plot2 <- function (datos1, datos2, yleftlim = NULL, yrightlim = NULL,
     legend("top",
            legend = legend.text, pch = legend.pch,
            col = legend.col, ncol = 2, bty = "n")
+    
  
     par(mar=c(5, 4, 4, 2) + 0.1)
+
+
+    # txt file for sample 1
+    mytxt <- cbind(satura1$seq.depth, satura1$noceros, newdet1)                   
+    colnames(mytxt) <- c("depth1", "detec1", "newdetec1")
+
+    write.table(mytxt, file = myoutput, quote = FALSE,
+                col.names = TRUE, row.names = FALSE, sep = "\t")
+
 
   }
 
@@ -1417,3 +1436,159 @@ satur.plot2 <- function (datos1, datos2, yleftlim = NULL, yrightlim = NULL,
 #***************************************************************************#
 
 
+
+
+
+
+
+## Correlation plot between two samples
+
+
+cor.plot <- function(datos1, datos2, log.scale = FALSE, ...) {
+
+  if (log.scale) {
+
+    datos1 <- log2(datos1 + 1)
+    datos2 <- log2(datos2 + 1)
+
+  }
+  
+  plot(datos1, datos2,...)
+
+  coefLR <- summary(lm(datos2~datos1))$coefficients[,"Estimate"]
+
+  abline(a = coefLR[1], b = coefLR[2], col = 2, lwd = 2)
+
+  mycor <- cor(datos1, datos2)
+
+  myR2 <- round(100*mycor^2,2)
+ 
+  my.y <- min(datos2)+0.1*diff(range(datos2))
+
+  text(max(datos1), my.y, paste("y =", round(coefLR[1],3), "+", round(coefLR[2],3), "x"), col = 2, adj = 1)
+  text(max(datos1), my.y-0.05*diff(range(datos2)), paste("R2 =", myR2, "%"), col = 2, adj = 1)
+
+}
+
+
+
+
+
+## Function filled.contour with legend
+
+filled.contour <- 
+function (x = seq(0, 1, length.out = nrow(z)), y = seq(0, 1, 
+    length.out = ncol(z)), z, xlim = range(x, finite = TRUE), 
+    ylim = range(y, finite = TRUE), zlim = range(z, finite = TRUE), 
+    levels = pretty(zlim, nlevels), nlevels = 20, color.palette = cm.colors, 
+    col = color.palette(length(levels) - 1), plot.title, plot.axes, 
+    key.title, key.axes, asp = NA, xaxs = "i", yaxs = "i", las = 1, 
+    axes = TRUE, frame.plot = axes, key.border = NA, ...) 
+{
+    if (missing(z)) {
+        if (!missing(x)) {
+            if (is.list(x)) {
+                z <- x$z
+                y <- x$y
+                x <- x$x
+            }
+            else {
+                z <- x
+                x <- seq.int(0, 1, length.out = nrow(z))
+            }
+        }
+        else stop("no 'z' matrix specified")
+    }
+    else if (is.list(x)) {
+        y <- x$y
+        x <- x$x
+    }
+    if (any(diff(x) <= 0) || any(diff(y) <= 0)) 
+        stop("increasing 'x' and 'y' values expected")
+    mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+    on.exit(par(par.orig))
+    w <- (3 + mar.orig[2L]) * par("csi") * 2.54
+    layout(matrix(c(2, 1), ncol = 2L), widths = c(1, lcm(w)))
+    par(las = las)
+    mar <- mar.orig
+    mar[4L] <- mar[2L]
+    mar[2L] <- 1
+    par(mar = mar)
+    plot.new()
+    plot.window(xlim = c(0, 1), ylim = range(levels), xaxs = "i", 
+        yaxs = "i")
+    rect(0, levels[-length(levels)], 1, levels[-1L], col = col,
+         border=key.border)
+    if (missing(key.axes)) {
+        if (axes) 
+            axis(4)
+    }
+    else key.axes
+    box()
+    if (!missing(key.title)) 
+        key.title
+    mar <- mar.orig
+    mar[4L] <- 1
+    par(mar = mar)
+    plot.new()
+    plot.window(xlim, ylim, "", xaxs = xaxs, yaxs = yaxs, asp = asp)
+    if (!is.matrix(z) || nrow(z) <= 1L || ncol(z) <= 1L) 
+        stop("no proper 'z' matrix specified")
+    if (!is.double(z)) 
+        storage.mode(z) <- "double"
+    .Internal(filledcontour(as.double(x), as.double(y), z, as.double(levels), 
+        col = col))
+    if (missing(plot.axes)) {
+        if (axes) {
+            title(main = "", xlab = "", ylab = "")
+            Axis(x, side = 1)
+            Axis(y, side = 2)
+        }
+    }
+    else plot.axes
+    if (frame.plot) 
+        box()
+    if (missing(plot.title)) 
+        title(...)
+    else plot.title
+    invisible()
+}
+
+
+
+
+
+## Contour plot for correlation
+
+#library(colorRamps)
+
+cor.plot.2D <- function(datos1, datos2, noplot = 0.01,
+                        log.scale = TRUE,...) {
+
+  nozeros <- which(rowSums(cbind(datos1, datos2)) > 0)
+
+  datos1 <- datos1[nozeros]
+  datos2 <- datos2[nozeros]
+
+  mycor <- round(cor(datos1, datos2),3)
+  
+  if (log.scale) {
+
+    datos1 <- log2(datos1 + 1)
+    datos2 <- log2(datos2 + 1)
+
+  }
+
+  library(MASS)
+
+  limx <- quantile(datos1, c(noplot, 1-noplot))
+  limy <- quantile(datos2, c(noplot, 1-noplot))
+
+  d <- kde2d(datos1, datos2, n=100, lims=c(limx, limy))
+
+  filled.contour(d, color.palette = topo.colors,
+                 main = paste("Pearson's correlation coefficient =", mycor),
+                 n=100, key.title = title(main="Density"),
+                 key.axes = axis(4),...)
+
+}

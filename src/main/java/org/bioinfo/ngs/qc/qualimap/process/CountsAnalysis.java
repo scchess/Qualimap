@@ -1,13 +1,14 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.beans.TextFileDataWriter;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
-import org.jdom.Document;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -42,7 +43,6 @@ public class CountsAnalysis {
 
     /** Variable to control the current step loaded */
 	private int currentStepLoaded;
-
 
     public CountsAnalysis(TabPropertiesVO tabProperties, String homePath) {
         this.tabProperties = tabProperties;
@@ -174,7 +174,11 @@ public class CountsAnalysis {
         List<QChart> chartList = new ArrayList<QChart>();
 
         increaseProgressBar(currentStepLoaded, "Loading graphic: Global Saturation");
-		addImage(chartList, Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, "Global Saturation");
+		addImage(chartList, Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, "Global Saturation", "GlobalSaturation.txt");
+
+        if (secondSampleIsProvided) {
+            addImage(chartList, Constants.GRAPHIC_NAME_RNA_SAMPLE_CORRELATION, "Samples Correlation");
+        }
 
 		Iterator<Map.Entry<String,String>> it =
                 tabProperties.getRnaAnalysisVO().getMapClassesInfoFile().entrySet().iterator();
@@ -183,9 +187,15 @@ public class CountsAnalysis {
 		// the counts per class and the graphics of each biotype
 		if (it.hasNext()) {
 			increaseProgressBar(currentStepLoaded, "Loading graphic: Detection per Class");
-			addImage(chartList,Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS, "Detection Per Class");
-			increaseProgressBar(currentStepLoaded, "Loading graphic: Counts per Class");
-			addImage(chartList,Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS, "Counts Per Class");
+			addImage(chartList,Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS,
+                    "Detection Per Class", "DetectionPerGroup.txt");
+
+            increaseProgressBar(currentStepLoaded, "Loading graphic: Counts per Class");
+			String countsPerGroupData =  "Counts_boxplot_1.txt";
+            if (secondSampleIsProvided) {
+                countsPerGroupData += ";Counts_boxplot_2.txt";
+            }
+            addImage(chartList,Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS, "Counts Per Class", countsPerGroupData);
 
 			while (it.hasNext()) {
 				Map.Entry<String, String> aux =  it.next();
@@ -193,26 +203,38 @@ public class CountsAnalysis {
 				addImage(chartList,aux.getValue(), aux.getKey());
 				addImage(chartList, aux.getKey()+"_boxplot.png", aux.getKey() + " (boxplot)");
 			}
-			addImage(chartList,"unknown.png", "Unknown");
+			addImage(chartList,"unknown.png", "Unknown", "nogroup.txt");
 			addImage(chartList,"unknown_boxplot.png", "Unknown (boxplot)");
 		}
 
         reporter.setChartList(chartList);
 	}
 
+    private void addImage(List<QChart> chartList, String name, String title) {
+        addImage(chartList, name, title, "");
+    }
 
-     private void addImage(List<QChart> chartList, String name, String title) {
-		String path = HomeFrame.outputpath + tabProperties.getOutputFolder().toString() + name;
-		BufferedImage imageToDisplay;
+
+
+    private void addImage(List<QChart> chartList, String name, String title, String rawDataFileName) {
+        String dirPath = HomeFrame.outputpath + tabProperties.getOutputFolder().toString();
+        String imagePath = dirPath + name;
+        BufferedImage imageToDisplay;
         try {
-	        imageToDisplay = ImageIO.read(new FileInputStream(new File(path)));
-		} catch (Exception e) {
-	        System.out.println("Image not found: " + path );
+            imageToDisplay = ImageIO.read(new FileInputStream(new File(imagePath)));
+        } catch (Exception e) {
+            System.out.println("Image not found: " + imagePath );
             return;
         }
-        chartList.add(new QChart(name, title, imageToDisplay));
 
-	}
+        QChart chart = new QChart(name, title, imageToDisplay);
+        if (!rawDataFileName.isEmpty()) {
+            chart.setDataWriter( new TextFileDataWriter(dirPath, rawDataFileName));
+        }
+
+        chartList.add(chart);
+
+    }
 
 
 	/**
