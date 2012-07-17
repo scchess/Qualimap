@@ -522,11 +522,11 @@ public class BamQCRegionReporter implements Serializable {
         if (bamStats.getReadMaxSize() > 0) {
             BamQCChart readsContentChart = new BamQCChart(Constants.PLOT_TITLE_READS_NUCLEOTIDE_CONTENT,
                     subTitle, " Position (bp)", " Nucleotide Content (%) ");
-            readsContentChart.addSeries("% A", bamStats.getReadsAsHistogram(), new Color(255, 0,0,255));
-            readsContentChart.addSeries("% C", bamStats.getReadsCsHistogram(), new Color(0, 0,255,255));
-            readsContentChart.addSeries("% G", bamStats.getReadsGsHistogram(), new Color(0, 255,0,255));
-            readsContentChart.addSeries("% T", bamStats.getReadsTsHistogram(), new Color(0, 0, 0,255));
-            readsContentChart.addSeries("% N", bamStats.getReadsNsHistogram(), new Color(0, 255, 255, 255));
+            readsContentChart.addSeries("A", bamStats.getReadsAsHistogram(), new Color(255, 0,0,255));
+            readsContentChart.addSeries("C", bamStats.getReadsCsHistogram(), new Color(0, 0,255,255));
+            readsContentChart.addSeries("G", bamStats.getReadsGsHistogram(), new Color(0, 255,0,255));
+            readsContentChart.addSeries("T", bamStats.getReadsTsHistogram(), new Color(0, 0, 0,255));
+            readsContentChart.addSeries("N", bamStats.getReadsNsHistogram(), new Color(0, 255, 255, 255));
             readsContentChart.setAdjustDomainAxisLimits(false);
             readsContentChart.setDomainAxisIntegerTicks(true);
             readsContentChart.setPercentageChart(true);
@@ -537,11 +537,12 @@ public class BamQCRegionReporter implements Serializable {
 
         if (bamStats.clippingIsPresent()) {
             BamQCChart clippingProfile = new BamQCChart(Constants.PLOT_TITLE_READS_CLIPPING_PROFILE,
-                    subTitle, "Read position (bp)", " Bases clipped (%)");
+                    subTitle, "Read position (bp)", " Clipped bases (%)");
             clippingProfile.addSeries("Clipping profile", bamStats.getReadsClippingProfileHistogram(), new Color(255, 0, 0, 255));
             clippingProfile.setAdjustDomainAxisLimits(false);
             clippingProfile.setDomainAxisIntegerTicks(true);
             clippingProfile.setPercentageChart(true);
+            clippingProfile.setShowLegend(false);
             clippingProfile.render();
             charts.add(new QChart(bamStats.getName() + "_reads_clipping_profile.png",
                     clippingProfile.getChart(), clippingProfile));
@@ -901,10 +902,10 @@ public class BamQCRegionReporter implements Serializable {
         int numIndels = numInsertions + numDeletions;
         if ( numIndels > 0) {
             StatsKeeper.Section indelsSection = new StatsKeeper.Section("Indels" + postfix);
-            indelsSection.addRow("Total", sdf.formatInteger(numIndels));
+            indelsSection.addRow("Total reads with indels", sdf.formatInteger(numIndels));
             indelsSection.addRow("Insertions",sdf.formatDecimal(numInsertions) );
             indelsSection.addRow("Deletions",sdf.formatDecimal(numDeletions) );
-            indelsSection.addRow("Percentage homopolymer",sdf.formatPercentage(homopolymerIndelFraction * 100.0) );
+            indelsSection.addRow("Homopolymer indels",sdf.formatPercentage(homopolymerIndelFraction * 100.0) );
 
             summaryStatsKeeper.addSection(indelsSection);
 

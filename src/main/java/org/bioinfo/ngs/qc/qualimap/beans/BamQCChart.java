@@ -47,6 +47,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 	private boolean rangeAxisIntegerTicks;
 	private boolean domainAxisIntegerTicks;
 	private boolean adjustDomainAxisLimits;
+    private boolean showLegend;
 	
 	// chart
 	private JFreeChart chart;
@@ -73,6 +74,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 		adjustDomainAxisLimits = true;
         domainAxisTickUnitSize = 0;
         seriesToExportIndex = -1;
+        showLegend = true;
 	}
 	
 	// line rendered series
@@ -279,12 +281,14 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 			lis.getLegendItems().add(legendItem);
 		}
 
-		// finalize legend		
-		chart.addLegend(new LegendTitle(lis));
-		chart.getLegend().setMargin(2,0,-7,10);		
-		chart.getLegend().setVerticalAlignment(VerticalAlignment.TOP);
-		chart.getLegend().setHorizontalAlignment(HorizontalAlignment.RIGHT);
-		chart.getLegend().setLegendItemGraphicPadding(new RectangleInsets(5,5,5,5));
+		// finalize legend
+        if (showLegend) {
+            chart.addLegend(new LegendTitle(lis));
+            chart.getLegend().setMargin(2,0,-7,10);
+            chart.getLegend().setVerticalAlignment(VerticalAlignment.TOP);
+            chart.getLegend().setHorizontalAlignment(HorizontalAlignment.RIGHT);
+            chart.getLegend().setLegendItemGraphicPadding(new RectangleInsets(5,5,5,5));
+        }
 
 		// adjust axis limits
 		double abit = 0;
@@ -364,6 +368,10 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 
         }
 
+    }
+
+    void setShowLegend(boolean showLegend) {
+        this.showLegend = showLegend;
     }
 
 
