@@ -1,7 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;

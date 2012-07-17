@@ -177,7 +177,7 @@ public class BamQCXYHistogramChart extends ChartRawDataWriter {
 		
 		// mean renderer
 		XYBarRenderer renderer = new XYBarRenderer();
-		BamXYBarPainter barPainter = new BamXYBarPainter(numberOfBins);
+		BamXYBarPainter barPainter = new BamXYBarPainter();
 		renderer.setBarPainter(barPainter);
 		plot.setRenderer(renderer);
 

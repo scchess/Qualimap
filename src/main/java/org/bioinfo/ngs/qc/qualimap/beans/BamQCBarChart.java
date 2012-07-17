@@ -4,13 +4,16 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarPainter;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
 import java.awt.*;
+import java.awt.geom.RectangularShape;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,6 +31,35 @@ public class BamQCBarChart extends ChartRawDataWriter {
     Collection<CategoryItem> series;
     JFreeChart chart;
 
+
+    static class CustomBarPainter implements BarPainter {
+
+        private static Color DEFAULT_BORDER_BAR_COLOR = new Color(50,50,50);
+
+
+        @Override
+        public void paintBar(Graphics2D g, BarRenderer barRenderer, int i, int i1, RectangularShape rectangularShape, RectangleEdge rectangleEdge) {
+            // create shape
+            RectangularShape myshape = (RectangularShape) rectangularShape.clone();
+            //barwidth = (g.getClip().getBounds().getWidth()/(double)numberOfBars)*0.9;
+            //myshape.setFrame(shape.getMinX(),shape.getMinY(),barwidth,shape.getHeight());
+
+            // fill
+            g.setPaint(barRenderer.getItemPaint(i,i1));
+            g.fill(myshape);
+
+            // border
+            g.setColor(DEFAULT_BORDER_BAR_COLOR);
+            g.setStroke(new BasicStroke(1.5f));
+            g.draw(myshape);
+        }
+
+        @Override
+        public void paintBarShadow(Graphics2D graphics2D, BarRenderer barRenderer, int i, int i1, RectangularShape rectangularShape, RectangleEdge rectangleEdge, boolean b) {
+            // NOTHING TO DO
+        }
+    }
+
     static class CustomRenderer extends BarRenderer {
 
         /** The colors. */
@@ -40,6 +72,8 @@ public class BamQCBarChart extends ChartRawDataWriter {
          */
         public CustomRenderer(final Paint[] colors) {
             this.colors = colors;
+            BarPainter barPainter = new CustomBarPainter();
+            setBarPainter(barPainter);
         }
 
         /**
@@ -117,12 +151,14 @@ public class BamQCBarChart extends ChartRawDataWriter {
         //plot.getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
         plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(100.0f);
 
-         final CategoryItemRenderer renderer = new CustomRenderer(
+        final CategoryItemRenderer renderer = new CustomRenderer(
             new Paint[] {Color.red, Color.blue, Color.green,
                 Color.black, Color.cyan, Color.yellow }
         );
 
+
         plot.setRenderer(renderer);
+
 
 		// grid
 		plot.setBackgroundPaint(Color.WHITE);

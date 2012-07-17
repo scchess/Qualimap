@@ -23,12 +23,7 @@ public abstract class LoggerThread extends Thread {
         String line;
         try {
             while ((line = outputReader.readLine()) != null) {
-
-                logLine(line);
-                //logArea.append(line + "\n");
-                //logArea.setCaretPosition(logArea.getText().length());
-                //System.out.println("We got something!");
-
+               logLine(line);
             }
 
         } catch (IOException e) {

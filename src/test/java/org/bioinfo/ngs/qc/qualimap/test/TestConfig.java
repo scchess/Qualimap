@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap;
+package org.bioinfo.ngs.qc.qualimap.test;
 
 import java.io.BufferedReader;
 import java.io.File;

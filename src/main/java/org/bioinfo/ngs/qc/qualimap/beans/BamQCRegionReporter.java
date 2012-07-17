@@ -575,8 +575,6 @@ public class BamQCRegionReporter implements Serializable {
             charts.add( new QChart(bamStats.getName() + "_homopolymer_indels", homopolymerIndels.getChart(), homopolymerIndels ));
         }
 
-
-
 		///////////////// mapping quality charts ///////////////
 
 		// mapping quality across reference
@@ -691,10 +689,6 @@ public class BamQCRegionReporter implements Serializable {
 
     }
 
-
-	// ******************************************************************************************
-	// ********************************* GETTERS / SETTERS **************************************
-	// ******************************************************************************************
 
 	/**
 	 * @param paintChromosomeLimits the paintChromosomeLimits to set

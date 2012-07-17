@@ -25,8 +25,8 @@ import org.jfree.data.xy.*;
 import org.jfree.ui.*;
 
 public class BamQCChart extends ChartRawDataWriter implements Serializable {
-	// org.bioinfo.ntools.main params
-	private String title;
+
+    private String title;
 	private String subTitle;
 	private String xLabel;
 	private String yLabel;
@@ -109,9 +109,8 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 	
 	public void addBarRenderedSeries(String name, XYVector series, Color color, Stroke stroke){
 		XYBarRenderer renderer = new XYBarRenderer();
-		BamXYBarPainter barPainter = new BamXYBarPainter(series.getSize());
-		barPainter.setBarColor(color);
-        renderer.setBarPainter(barPainter);
+		BamXYBarPainter barPainter = new BamXYBarPainter();
+		renderer.setBarPainter(barPainter);
         addSeries(name, series, color, stroke, renderer);
 	}
 	

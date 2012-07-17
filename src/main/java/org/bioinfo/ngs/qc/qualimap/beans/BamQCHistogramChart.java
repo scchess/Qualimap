@@ -24,8 +24,8 @@ import java.util.Map;
  * Time: 10:10 AM
  */
 public class BamQCHistogramChart extends ChartRawDataWriter {
-    // org.bioinfo.ntools.main params
-	private String title;
+
+    private String title;
 	private String subTitle;
 	private String xLabel;
 	private String yLabel;
@@ -37,16 +37,6 @@ public class BamQCHistogramChart extends ChartRawDataWriter {
 	// chart
 	private JFreeChart chart;
 
-	private int numberOfBins;
-	private boolean cumulative;
-	private boolean zoomed;
-	private double maxValue;
-	private boolean rangeAxisIntegerTicks;
-	private boolean domainAxisIntegerTicks;
-	private boolean adjustDomainAxisLimits;
-    private double domainAxisTickUnitSize;
-
-
     public BamQCHistogramChart(String title,String subTitle, String xLabel, String yLabel,
                                XYVector data, Map<Double,String> barNames){
 
@@ -57,10 +47,6 @@ public class BamQCHistogramChart extends ChartRawDataWriter {
 		this.yLabel = yLabel;
         this.data = data;
         this.barNames = barNames;
-
-		numberOfBins = 50;
-		maxValue = 100;
-		adjustDomainAxisLimits = true;
 
 	}
 
@@ -97,8 +83,7 @@ public class BamQCHistogramChart extends ChartRawDataWriter {
 	public void render() throws IOException {
 
 		// init chart
-		//chart = ChartFactory.createXYBarChart(title, xLabel, false, yLabel, null, PlotOrientation.VERTICAL, true, true, false);
-        chart = ChartFactory.createHistogram(title, xLabel, yLabel, null, PlotOrientation.VERTICAL, true, true, false);
+		chart = ChartFactory.createHistogram(title, xLabel, yLabel, null, PlotOrientation.VERTICAL, true, true, false);
 
 
 		// title
@@ -126,80 +111,12 @@ public class BamQCHistogramChart extends ChartRawDataWriter {
 		Font tickFont = new Font(Font.SANS_SERIF,Font.PLAIN,10);
 		plot.getDomainAxis().setTickLabelFont(tickFont);
 		plot.getRangeAxis().setTickLabelFont(tickFont);
-		/*if(domainAxisIntegerTicks){
-			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getDomainAxis();
-		    numberaxis.setAutoRangeIncludesZero(false);
-		    numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		}
-
-        if (domainAxisTickUnitSize != 0) {
-            NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getDomainAxis();
-            numberaxis.setTickLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,8));
-		    numberaxis.setTickUnit( new NumberTickUnit(domainAxisTickUnitSize));
-        }
-
-		if(rangeAxisIntegerTicks){
-			NumberAxis numberaxis = (NumberAxis)chart.getXYPlot().getRangeAxis();
-		    numberaxis.setAutoRangeIncludesZero(false);
-		    numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        }*/
-
 
 		// grid
 		plot.setBackgroundPaint(Color.WHITE);
 		chart.setBackgroundPaint(new Color(230,230,230));
 		plot.setDomainGridlinePaint(new Color(214,139,74));
 		plot.setRangeGridlinePaint(new Color(214,139,74));
-
-
-
-		// prepare series
-		/*(if(!zoomed && histograms.get(0).getSize() > 0) {
-			maxValue = histograms.get(0).get(histograms.get(0).getSize()-1).getX();
-		}*/
-
-		/*double inc = maxValue/(double)numberOfBins;
-		double [] covs = new double[numberOfBins+1];
-		for(int i=0; i<covs.length; i++){
-			covs[i] = inc*i;
-		}
-
-		// convert to bins
-		double [] values = new double[numberOfBins+1];
-		double [] rfreqs = new double[numberOfBins+1];
-		XYItem item;
-		int pos;
-		double total = 0;
-
-		for(int i=0; i<histograms.get(0).getSize(); i++){
-			item = histograms.get(0).get(i);
-//			if(item.getX()>0){
-				pos = (int)Math.floor(item.getX()/inc);
-				if(pos<covs.length){
-					values[pos] = values[pos] + item.getY();
-					rfreqs[pos] = rfreqs[pos] + 1;
-				}
-				total+=item.getY();
-//			}
-		}
-
-
-
-		XYSeries series = new XYSeries("frequencies");
-		double acum = 0;
-		double next = 0;
-
-		for(int i=0; i<values.length; i++){
-			if(cumulative){
-				acum += (values[i]/total)*100.0;
-				next = acum;
-			} else {
-				next = values[i];
-			}
-			series.add(covs[i],next);
-		}*/
-
 
         XYSeries series = new XYSeries("Coverage");
 
@@ -223,16 +140,10 @@ public class BamQCHistogramChart extends ChartRawDataWriter {
 
 		// mean renderer
 		XYBarRenderer renderer = new XYBarRenderer();
-		BamXYBarPainter barPainter = new BamXYBarPainter(len);
+		BamXYBarPainter barPainter = new BamXYBarPainter();
 		renderer.setBarPainter(barPainter);
 		plot.setRenderer(renderer);
 
-		// adjust axis limits
-		//if(adjustDomainAxisLimits && histograms.get(0).getSize() > 0){
-        //    double minDomainAxis = histograms.get(0).get(0).getX() - inc/2.0;
-		//    double maxDomainAxis = maxValue + inc/2.0;
-		//	chart.getXYPlot().getDomainAxis().setRange(minDomainAxis,maxDomainAxis);
-		//}
 	}
 
 

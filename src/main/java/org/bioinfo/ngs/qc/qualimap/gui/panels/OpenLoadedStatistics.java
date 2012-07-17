@@ -228,8 +228,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         leftPanel.add(checkFirstSection);
 
         JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
-        //String iconM
-        //TODO: make red color of button if warning
+
+        //TODO: make red color of button if warning?
         j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
 	    leftPanel.add(j1_0);
         initialLabel = j1_0;
@@ -296,48 +296,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             JLabel j = createImageLinkLabel(chart.getTitle(), chart.getName() );
             leftPanel.add(j);
         }
-
-        // TODO: provide the grouping of items as it was before
-        /*JLabel j1_0 = createImageLinkLabel("Global Saturation", Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION);
-		j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
-		j1_0.setToolTipText("Basic information and statistics for the alignment sequencing input");
-		leftPanel.add(j1_0);
-		initialLabel = j1_0;
-
-		if (infoFileIsSet) {
-
-			JLabel j1_1 = createImageLinkLabel("Detection per group", Constants.GRAPHIC_NAME_RNA_SATURATION_PER_CLASS);
-			leftPanel.add(j1_1);
-
-			JLabel j1_2 = createImageLinkLabel("Counts per group", Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS);
-			j1_2.setToolTipText("Frequency histogram of the coverageData");
-			leftPanel.add(j1_2);
-
-
-			JCheckBox checkSaturationSection = createResultsCheckBox("Saturation per group");
-			leftPanel.add(checkSaturationSection);
-
-            Map<String, Object> mapGenotypes = tabProperties.getRnaAnalysisVO().getMapClassesInfoFile();
-			// Hack to add unknown
-			mapGenotypes.put("unknown", "unknown.png");
-			Iterator it = mapGenotypes.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
-				JLabel j = createImageLinkLabel(entry.getKey(), entry.getValue());
-				leftPanel.add(j);
-			}
-
-			JCheckBox checkCountsSection = createResultsCheckBox("Counts & Sequencing depth");
-			checkCountsSection.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "add.png")));
-			leftPanel.add(checkCountsSection);
-
-			it = mapGenotypes.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
-				JLabel j = createImageLinkLabel(entry.getKey().toString(), entry.getKey().toString() + "_boxplot.png");
-				leftPanel.add(j);
-			}
-		}*/
 
     }
 

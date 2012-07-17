@@ -3,10 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.process;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 
-import java.io.*;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by kokonech
@@ -20,28 +17,12 @@ public class FinalizeWindowTask implements Callable<Integer> {
     BamStats bamStats;
     BamGenomeWindow window;
 
-    /*static private PrintStream getLogger() {
-        OutputStream log = null;
-        try {
-            log = new BufferedOutputStream(new FileOutputStream("/home/kokonech/final.log")) ;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new PrintStream(log);
-    }
-
-    static private PrintStream log = getLogger();
-    */
-
     public FinalizeWindowTask(BamStats bamStats, BamGenomeWindow windowToFinalize) {
         this.bamStats = bamStats;
         this.window = windowToFinalize;
     }
 
     public Integer call() {
-
-        //System.out.println("From FinalizeWindowTask: started!");
-        //long startTime = System.currentTimeMillis();
 
         try {
             window.computeDescriptors();
@@ -50,11 +31,6 @@ public class FinalizeWindowTask implements Callable<Integer> {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             return -1;
         }
-
-        //long endTime = System.currentTimeMillis();
-        //System.out.println("Finalized window " + window.getName() + " of " + bamStats.getNumberOfWindows());
-
-        //System.out.println("Finalize window, time taken: " +  (endTime - startTime) );
 
         return 0;
     }

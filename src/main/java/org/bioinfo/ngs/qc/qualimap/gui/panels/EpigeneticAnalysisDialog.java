@@ -1,15 +1,14 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditEpigeneticsInputDataDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.EpigeneticsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
-import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.ReplicateItem;
 import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
 

@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap;
+package org.bioinfo.ngs.qc.qualimap.test;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;

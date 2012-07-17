@@ -34,26 +34,35 @@ import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
 public class HomeFrame extends JFrame implements WindowListener, ActionListener, MouseListener {
 	private static final long serialVersionUID = -3290549319383957609L;
 	
-	public static String outputpath =File.separator+"tmp"+File.separator + "qualimap";
+	public static final String outputpath =File.separator+"tmp"+File.separator + "qualimap";
 	
-	//private static String title = "QualiMap v.1.0.1";
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 	public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
 	public static Font defaultFontItalic = new Font(Font.DIALOG, Font.ITALIC, 12);
 	private static final int FRAME_WIDTH = 1000;
 	private static final int FRAME_HEIGHT = 600;
-	private int screenHeight;
-	private int screenWidth;
+    private static final String WM_COMMAND_EXPORT_GENE_LIST = "exportgenelist";
+    private static final String WM_COMMAND_EXIT = "exit";
+    private static final String WM_COMMAND_ABOUT = "about";
+    private static final String WM_COMMAND_OPEN_MANUAL = "manual";
+    private static final String WM_COMMAND_CLOSE_TABS = "closealltabs";
+    private static final String WM_COMMAND_WEB_BIOINFO = "bioinfoweb";
+    private static final String WM_COMMAND_WEB_QUALIMAP = "qualionline";
+    private int screenHeight;
+    private int screenWidth;
 
-    public static final String BAMQC_COMMAND = "bamqc";
-    public static final String COUNTSQC_COMMAND = "counts";
-    public static final String CLUSTERING_COMMAND = "clustering";
-    public static final String CALC_COUNTS_COMMAND = "calc-counts";
+    private static final String WM_COMMAND_EXPORT_HTML = "exporthtml";
+    private static final String WM_COMMAND_EXPORT_PDF = "exportpdf";
+
+    public static final String WM_COMMAND_BAMQC = "bamqc";
+    public static final String WM_COMMAND_COUNTSQC = "counts";
+    public static final String WM_COMMAND_CLUSTERING = "clustering";
+    public static final String WM_COMMAND_CALC_COUNTS = "calc-counts";
+
 
     // Menu items with configurable state
-    JMenuItem saveReportItem, exportToPdfItem, exportToHtmlItem, openReportItem, exportGeneListItem, closeAllTabsItem;
-	JMenuItem openPdfItem;
-    
+    JMenuItem exportToPdfItem, exportToHtmlItem, exportGeneListItem, closeAllTabsItem;
+
 	/** Logger to print information */
 	protected Logger logger;
 
@@ -346,40 +355,38 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.add(analysisMenu);
 
         fileMenu.addSeparator();
-        exportToHtmlItem = addMenuItem("Export as HTML", "exporthtml", "save_zip.png", "ctrl pressed H");
+        exportToHtmlItem = addMenuItem("Export as HTML", WM_COMMAND_EXPORT_HTML, "save_zip.png", "ctrl pressed H");
         fileMenu.add(exportToHtmlItem);
-        exportToPdfItem = addMenuItem("Export as PDF", "exportpdf", "save_pdf.png", "ctrl pressed P");
+        exportToPdfItem = addMenuItem("Export as PDF", WM_COMMAND_EXPORT_HTML, "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
-        exportGeneListItem = addMenuItem("Export feature list", "exportgenelist", "save_zip.png", null);
+        exportGeneListItem = addMenuItem("Export feature list", WM_COMMAND_EXPORT_GENE_LIST, "save_zip.png", null);
         fileMenu.add(exportGeneListItem);
         fileMenu.addSeparator();
-        fileMenu.add(addMenuItem("Exit QualiMap", "exit", "door_out.png", "ctrl pressed Q"));
+        fileMenu.add(addMenuItem("Exit QualiMap", WM_COMMAND_EXIT, "door_out.png", "ctrl pressed Q"));
 
-        analysisMenu.add(addMenuItem(AnalysisType.BAM_QC.toString() , BAMQC_COMMAND, "chart_curve_add.png", "ctrl pressed G"));
-        JMenuItem rnaSeqItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), COUNTSQC_COMMAND, "chart_curve_add.png", "ctrl pressed C");
+        analysisMenu.add(addMenuItem(AnalysisType.BAM_QC.toString() , WM_COMMAND_BAMQC, "chart_curve_add.png", "ctrl pressed G"));
+        JMenuItem rnaSeqItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), WM_COMMAND_COUNTSQC, "chart_curve_add.png", "ctrl pressed C");
         rnaSeqItem.setEnabled(countsQCPackagesAvailable);
         analysisMenu.add(rnaSeqItem);
-        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), CLUSTERING_COMMAND, "chart_curve_add.png", "ctrl pressed E");
+        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), WM_COMMAND_CLUSTERING, "chart_curve_add.png", "ctrl pressed E");
         epiMenuItem.setEnabled(clusteringPacakgesAvailble);
         analysisMenu.add(epiMenuItem);
 
-		closeAllTabsItem =  addMenuItem("Close All Tabs", "closealltabs", null,"ctrl pressed A");
+		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, null,"ctrl pressed A");
         windowsMenu.add(closeAllTabsItem);
 
-        toolsMenu.add(addMenuItem("Compute counts", CALC_COUNTS_COMMAND, "calculator_edit.png", "ctrl pressed T"));
+        toolsMenu.add(addMenuItem("Compute counts", WM_COMMAND_CALC_COUNTS, "calculator_edit.png", "ctrl pressed T"));
 
 		if (checkForUserManual()) {
-            helpMenu.add(addMenuItem("User Manual", "manual", "help.png", "F1"));
+            helpMenu.add(addMenuItem("User Manual", WM_COMMAND_OPEN_MANUAL, "help.png", "F1"));
             
         }
-        helpMenu.add(addMenuItem("QualiMap Online", "qualionline", "world_go.png", null));
-		helpMenu.add(addMenuItem("CIPF BioInfo Web", "bioinfoweb", "world_go.png", null));
-        helpMenu.add(addMenuItem("About QualiMap", "about", "help.png","F12"));
-
+        helpMenu.add(addMenuItem("QualiMap Online", WM_COMMAND_WEB_QUALIMAP, "world_go.png", null));
+		helpMenu.add(addMenuItem("CIPF BioInfo Web", WM_COMMAND_WEB_BIOINFO, "world_go.png", null));
+        helpMenu.add(addMenuItem("About QualiMap", WM_COMMAND_ABOUT, "help.png","F12"));
 
         JMenuBar menuBar = getJMenuBar();
         menuBar.add(fileMenu);
-        //menuBar.add(analysisMenu);
         menuBar.add(toolsMenu);
         menuBar.add(windowsMenu);
         menuBar.add(helpMenu);
@@ -405,15 +412,18 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		a.setText(text);
 		a.setActionCommand(command);
 		a.addActionListener(this);
-		if(icon!=null)a.setIcon(new ImageIcon(this.getClass().getResource(Constants.pathImages + icon)));
-		if(keys!=null)a.setAccelerator(KeyStroke.getKeyStroke(keys));
+		if (icon!=null) {
+            a.setIcon(new ImageIcon(this.getClass().getResource(Constants.pathImages + icon)));
+        }
+		if (keys!=null) {
+            a.setAccelerator(KeyStroke.getKeyStroke(keys));
+        }
 		return a;
 	}
 
 	public void addNewPane(final String inputFileName, final TabPropertiesVO tabProperties) {
 		
-		//TODO: the dialog has to be closed where it was opened!
-        this.getPopUpDialog().setVisible(false);
+		this.getPopUpDialog().setVisible(false);
 		this.remove(this.getPopUpDialog());
 		
 	    AnalysisType typeAnalysis = tabProperties.getTypeAnalysis();
@@ -527,10 +537,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	@Override
     public void actionPerformed(ActionEvent e) {
 	    splashWindow.setVisible(false);
-        if(e.getActionCommand().equalsIgnoreCase("exit")){
+        if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXIT) ){
 	    	this.closeHomeFrame();
 	    }
-	    else if (e.getActionCommand().equalsIgnoreCase("about")){
+	    else if (e.getActionCommand().equalsIgnoreCase(WM_COMMAND_ABOUT)){
 			AboutDialog about = new AboutDialog(HomeFrame.this);
 			about.dispose();
 			about.pack();
@@ -538,23 +548,23 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			about.setLocationRelativeTo(null);
 			about.setVisible(true);
 	    }
-	    else if(e.getActionCommand().equalsIgnoreCase("qualionline")){
+	    else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_WEB_QUALIMAP)){
 	    	openUrl("http://bioinfo.cipf.es/qualimap");
 	    }
-	    else if(e.getActionCommand().equalsIgnoreCase("bioinfoweb")){
+	    else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_WEB_BIOINFO)){
 	    	openUrl("http://bioinfo.cipf.es");
 	    }
-	    else if(e.getActionCommand().equalsIgnoreCase("closealltabs")){
+	    else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_CLOSE_TABS)){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
                 int res = JOptionPane.showConfirmDialog(this,
-                                "Close all tabs?", "QualiMap", JOptionPane.OK_CANCEL_OPTION);
+                        "Close all tabs?", "QualiMap", JOptionPane.OK_CANCEL_OPTION);
                 if (res == 0) {
 	    		    aTabbedPane.removeAll();
 				    aTabbedPane = new JTabbedPane();
 				    this.validate();
                 }
 			}
-	    }else if(e.getActionCommand().equalsIgnoreCase("exporthtml")){
+	    }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXPORT_HTML)){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
 
                 TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
@@ -571,7 +581,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                     JOptionPane.showMessageDialog(this, "Can not export to HTML!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 			}
-	    } else if(e.getActionCommand().equalsIgnoreCase("exportpdf")){
+	    } else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXPORT_PDF)){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
 				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
 
@@ -582,41 +592,17 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                     JOptionPane.showMessageDialog(this, "Can not export PDF!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 			}
-	    } else if(e.getActionCommand().equalsIgnoreCase("saveproject")){
-	    	// First of all, we test if there is a tab selected
-			if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
-				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
-				// We test if this tab has result values or is an input tab
-				if (tabProperties != null && tabProperties.getReporter() != null) {
-					if (tabProperties.getTypeAnalysis() == AnalysisType.BAM_QC ) {
-						SavePanel pathSaveDialog = new SavePanel();
-                    	popUpDialog = pathSaveDialog.getSaveFileDialog(HomeFrame.this, Constants.FILE_EXTENSION_COMPRESS_FILE);
-						popUpDialog.setModal(true);
-						popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-						popUpDialog.setLocationRelativeTo(HomeFrame.this);
-						popUpDialog.setVisible(true);
-					}
-			    }
-            }
-	    }
-	    else if(e.getActionCommand().equalsIgnoreCase("openproject")){
-	    	OpenFilePanel inputDataZipDialog = new OpenFilePanel();
-			popUpDialog = inputDataZipDialog.getOpenZipFilePanel(HomeFrame.this, dim);
-			popUpDialog.setModal(true);
-			popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			popUpDialog.setLocationRelativeTo(HomeFrame.this);
-			popUpDialog.setVisible(true);
-	    }else if(e.getActionCommand().equalsIgnoreCase(BAMQC_COMMAND)){
+	    } else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_BAMQC)){
 	    	runBamQC();
-        }else if(e.getActionCommand().equalsIgnoreCase(COUNTSQC_COMMAND)){
+        }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC)){
 	        runCountsAnalysis();
-	    }else if(e.getActionCommand().equals(CLUSTERING_COMMAND)) {
+	    }else if(e.getActionCommand().equals(WM_COMMAND_CLUSTERING)) {
             runClusteringAnalysis();
-        } else if (e.getActionCommand().equals(CALC_COUNTS_COMMAND)) {
+        } else if (e.getActionCommand().equals(WM_COMMAND_CALC_COUNTS)) {
             showCountReadsDialog(this);
-        } else if (e.getActionCommand().equalsIgnoreCase("exportgenelist")) {
+        } else if (e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXPORT_GENE_LIST)) {
             showExportGenesDialog(this, getSelectedTabPropertiesVO());
-        } else if (e.getActionCommand().equals("manual")) {
+        } else if (e.getActionCommand().equals(WM_COMMAND_OPEN_MANUAL)) {
             openUserManual();
         }
     }

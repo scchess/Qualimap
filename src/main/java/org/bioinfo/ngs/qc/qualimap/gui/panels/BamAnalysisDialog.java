@@ -3,11 +3,11 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
-import org.bioinfo.ngs.qc.qualimap.utils.AnalysisDialog;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
