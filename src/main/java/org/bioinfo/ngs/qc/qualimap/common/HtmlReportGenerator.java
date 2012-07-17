@@ -1,9 +1,8 @@
-package org.bioinfo.ngs.qc.qualimap.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 
 import java.text.DateFormat;

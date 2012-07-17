@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 import net.sf.samtools.SAMRecord;
 
@@ -7,7 +7,7 @@ import net.sf.samtools.SAMRecord;
  * Date: 5/11/12
  * Time: 2:17 PM
  */
-public class ReadStats {
+public class BamStatsCollector {
 
     int numMappedReads, numPairedReads;
     int numMappedFirstInPair, numMappedSecondInPair, numSingletons;
@@ -28,9 +28,9 @@ public class ReadStats {
         return numSingletons;
     }
 
-    public ReadStats() {}
+    public BamStatsCollector() {}
 
-    public void collectReadStats(SAMRecord read) {
+    public void updateStats(SAMRecord read) {
         numMappedReads++;
         if (read.getReadPairedFlag()) {
             numPairedReads++;

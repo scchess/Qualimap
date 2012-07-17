@@ -1,8 +1,8 @@
 package org.bioinfo.ngs.qc.qualimap.gui.utils;
 
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
+
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;

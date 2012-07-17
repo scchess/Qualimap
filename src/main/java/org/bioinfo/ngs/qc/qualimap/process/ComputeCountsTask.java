@@ -8,9 +8,8 @@ import net.sf.samtools.util.CoordMath;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.bioinfo.formats.exception.FileFormatException;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
-import org.bioinfo.ngs.qc.qualimap.utils.*;
-import psidev.psi.mi.xml.model.Feature;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
+import org.bioinfo.ngs.qc.qualimap.common.*;
 
 import java.io.File;
 import java.io.IOException;

@@ -3,12 +3,10 @@ package org.bioinfo.ngs.qc.qualimap.gui.utils;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Locale;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.StringUtils;
 
-import com.ibm.icu.text.NumberFormat.SimpleNumberFormatFactory;
 
 
 public class StringUtilsSwing {
@@ -37,7 +35,7 @@ public class StringUtilsSwing {
 	
 	public Long parseLong(String s){
 		NumberFormat format = new DecimalFormat("###,###,####,###,###,###,###,###,###,###,###.##");
-		Long result = new Long(0);
+		Long result = 0L;
 		
 		if(s != null){
 			try {
@@ -50,36 +48,9 @@ public class StringUtilsSwing {
 		return result;
 	}
 
-    public boolean parseBool(String s) {
-        return s.compareTo("true") == 0 ? true : false;
-    }
-
-
-	public Double parseDouble(String s){
-		// To parse the double we have to put the English format.
-		NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);
-		Double result = new Double(0.0);
-		
-		if(s != null){
-			try {
-				Number obj = format.parse(s);
-				/*if(obj instanceof Long){
-					result = ((Long) obj).doubleValue();
-				} else if (obj instanceof Double){
-					result = (Double) obj;
-				}*/
-				result = obj.doubleValue();
-			} catch (ParseException e) {
-				logger.error("Cannot parse the String " + s + " from the properites file to a Double value");
-			}	
-		}
-		
-		return result;
-	}
-	
 	public Integer parseInt(String s){
 		NumberFormat format = new DecimalFormat("###,###,###,###,###,###,###.##");
-		Integer result = new Integer(0);
+		Integer result = 0;
 		
 		if(s != null){
 			try {

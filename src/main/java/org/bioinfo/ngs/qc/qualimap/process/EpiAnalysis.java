@@ -2,12 +2,11 @@ package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.formats.core.feature.Gff;
 import org.bioinfo.formats.core.feature.io.GffReader;
-import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

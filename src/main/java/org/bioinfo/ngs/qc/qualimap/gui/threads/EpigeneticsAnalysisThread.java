@@ -4,7 +4,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.Config;
-import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 
 
 import javax.swing.*;

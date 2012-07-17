@@ -10,7 +10,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.ReplicateItem;
-import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
+import org.bioinfo.ngs.qc.qualimap.common.DocumentUtils;
 
 
 import javax.swing.*;

@@ -7,8 +7,8 @@ import java.util.Properties;
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 
 public class NgsSmartMain {
 

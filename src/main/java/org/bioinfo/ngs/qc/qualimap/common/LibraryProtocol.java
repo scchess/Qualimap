@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap.gui.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 import java.util.Arrays;
 

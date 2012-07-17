@@ -10,7 +10,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.utils.UniqueID;
+import org.bioinfo.ngs.qc.qualimap.common.UniqueID;
 
 /**
  * Value Object to manage the properties of each tab

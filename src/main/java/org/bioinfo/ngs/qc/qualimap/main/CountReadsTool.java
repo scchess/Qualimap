@@ -2,8 +2,8 @@ package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 
 import java.io.FileWriter;

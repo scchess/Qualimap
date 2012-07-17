@@ -1,14 +1,13 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.TextFileDataWriter;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
-import org.bioinfo.ngs.qc.qualimap.utils.DocumentUtils;
+import org.bioinfo.ngs.qc.qualimap.common.DocumentUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -195,7 +194,7 @@ public class CountsAnalysis {
             if (secondSampleIsProvided) {
                 countsPerGroupData += ";Counts_boxplot_2.txt";
             }
-            addImage(chartList,Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS, "Counts Per Class", countsPerGroupData);
+            addImage(chartList, Constants.GRAPHIC_NAME_RNA_COUNTS_PER_CLASS, "Counts Per Class", countsPerGroupData);
 
 			while (it.hasNext()) {
 				Map.Entry<String, String> aux =  it.next();

@@ -4,8 +4,7 @@ import net.sf.picard.PicardException;
 import net.sf.picard.reference.IndexedFastaSequenceFile;
 import net.sf.samtools.*;
 import org.apache.commons.cli.ParseException;
-import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 
 import java.io.File;
 import java.util.ArrayList;

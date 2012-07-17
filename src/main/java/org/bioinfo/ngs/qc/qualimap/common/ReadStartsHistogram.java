@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 /**
  * Created by kokonech

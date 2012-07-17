@@ -12,9 +12,9 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.ContigRecord;
 import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
-import org.bioinfo.ngs.qc.qualimap.utils.*;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
+import org.bioinfo.ngs.qc.qualimap.common.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,8 +93,8 @@ public class BamStatsAnalysis {
     RegionOverlapLookupTable regionOverlapLookupTable;
     LibraryProtocol protocol;
 
-    ReadStats readStats;
-    ReadStats outsideReadStats;
+    BamStatsCollector bamStatsCollector;
+    BamStatsCollector outsideBamStatsCollector;
 
 	// chromosome
 	private boolean computeChromosomeStats;
@@ -201,7 +201,7 @@ public class BamStatsAnalysis {
         bamStats.setSourceFile(bamFile);
         //bamStats.setWindowReferences("w",windowSize);
         bamStats.setWindowReferences("w", windowPositions);
-        readStats = new ReadStats();
+        bamStatsCollector = new BamStatsCollector();
         openWindows = new ConcurrentHashMap<Long,BamGenomeWindow>();
 
         //regions
@@ -209,7 +209,7 @@ public class BamStatsAnalysis {
 
 			// load selected regions
             loadSelectedRegions();
-            outsideReadStats = new ReadStats();
+            outsideBamStatsCollector = new BamStatsCollector();
 
             // outside of regions stats
             if (computeOutsideStats) {
@@ -299,13 +299,13 @@ public class BamStatsAnalysis {
                     boolean readOverlapsRegions = readOverlapsRegions(read);
 
                     if (readOverlapsRegions) {
-                        readStats.collectReadStats(read);
+                        bamStatsCollector.updateStats(read);
                         read.setAttribute(Constants.READ_IN_REGION, 1);
                         bamStats.updateReadStartsHistogram(position);
                         bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
                         read.setAttribute(Constants.READ_IN_REGION, 0);
-                        outsideReadStats.collectReadStats(read);
+                        outsideBamStatsCollector.updateStats(read);
                         if (computeOutsideStats) {
                             outsideBamStats.updateReadStartsHistogram(position);
                             outsideBamStats.updateInsertSizeHistogram(insertSize);
@@ -313,7 +313,7 @@ public class BamStatsAnalysis {
                     }
                 } else {
                     read.setAttribute(Constants.READ_IN_REGION, 1);
-                    readStats.collectReadStats(read);
+                    bamStatsCollector.updateStats(read);
                     bamStats.updateReadStartsHistogram(position);
                     bamStats.updateInsertSizeHistogram(insertSize);
                 }
@@ -387,11 +387,11 @@ public class BamStatsAnalysis {
             logger.warn("SAMRecordParser failed to process " + numberOfProblematicReads + " reads.");
         }
         logger.println("\nInside of regions...");
-        logger.print(readStats.report());
+        logger.print(bamStatsCollector.report());
 
         if (computeOutsideStats) {
             logger.println("\nOuside of regions...");
-            logger.print(outsideReadStats.report());
+            logger.print(outsideBamStatsCollector.report());
         }
 
         logger.println("Time taken to analyze reads: " + (endTime - startTime) / 1000);
@@ -404,11 +404,11 @@ public class BamStatsAnalysis {
         //percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
         bamStats.setNumberOfReads(numberOfReads);
 
-        int totalNumberOfMappedReads = readStats.getNumMappedReads();
-        int totalNumberOfPairedReads = readStats.getNumPairedReads();
-        int totalNumberOfMappedFirstOfPair = readStats.getNumMappedFirstInPair();
-        int totalNumberOfMappedSecondOfPair = readStats.getNumMappedSecondInPair();
-        int totalNumberOfSingletons = readStats.getNumSingletons();
+        int totalNumberOfMappedReads = bamStatsCollector.getNumMappedReads();
+        int totalNumberOfPairedReads = bamStatsCollector.getNumPairedReads();
+        int totalNumberOfMappedFirstOfPair = bamStatsCollector.getNumMappedFirstInPair();
+        int totalNumberOfMappedSecondOfPair = bamStatsCollector.getNumMappedSecondInPair();
+        int totalNumberOfSingletons = bamStatsCollector.getNumSingletons();
 
         if (selectedRegionsAvailable) {
 
@@ -416,18 +416,18 @@ public class BamStatsAnalysis {
             bamStats.setInRegionReferenceSize(insideReferenceSize);
 
             // update totals
-            totalNumberOfMappedReads  += outsideReadStats.getNumMappedReads();
-            totalNumberOfPairedReads += outsideReadStats.getNumPairedReads();
-            totalNumberOfMappedFirstOfPair += outsideReadStats.getNumMappedFirstInPair();
-            totalNumberOfMappedSecondOfPair += outsideReadStats.getNumMappedSecondInPair();
-            totalNumberOfSingletons += outsideReadStats.getNumSingletons();
+            totalNumberOfMappedReads  += outsideBamStatsCollector.getNumMappedReads();
+            totalNumberOfPairedReads += outsideBamStatsCollector.getNumPairedReads();
+            totalNumberOfMappedFirstOfPair += outsideBamStatsCollector.getNumMappedFirstInPair();
+            totalNumberOfMappedSecondOfPair += outsideBamStatsCollector.getNumMappedSecondInPair();
+            totalNumberOfSingletons += outsideBamStatsCollector.getNumSingletons();
 
             // inside of regions
-            bamStats.setNumberOfMappedReadsInRegions(readStats.getNumMappedReads());
-            bamStats.setNumberOfPairedReadsInRegions(readStats.getNumPairedReads());
-            bamStats.setNumberOfMappedFirstOfPairInRegions(readStats.getNumMappedFirstInPair());
-            bamStats.setNumberOfMappedSecondOfPairInRegions(readStats.getNumMappedSecondInPair());
-            bamStats.setNumberOfSingletonsInRegions(readStats.getNumSingletons());
+            bamStats.setNumberOfMappedReadsInRegions(bamStatsCollector.getNumMappedReads());
+            bamStats.setNumberOfPairedReadsInRegions(bamStatsCollector.getNumPairedReads());
+            bamStats.setNumberOfMappedFirstOfPairInRegions(bamStatsCollector.getNumMappedFirstInPair());
+            bamStats.setNumberOfMappedSecondOfPairInRegions(bamStatsCollector.getNumMappedSecondInPair());
+            bamStats.setNumberOfSingletonsInRegions(bamStatsCollector.getNumSingletons());
             bamStats.setNumberOfCorrectStrandReads(numberOfCorrectStrandReads);
         }
 
@@ -474,11 +474,11 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumberOfMappedSecondOfPair(totalNumberOfMappedSecondOfPair);
             outsideBamStats.setNumberOfSingletons(totalNumberOfSingletons);
 
-            outsideBamStats.setNumberOfMappedReadsInRegions(outsideReadStats.getNumMappedReads());
-            outsideBamStats.setNumberOfPairedReadsInRegions(outsideReadStats.getNumPairedReads());
-            outsideBamStats.setNumberOfMappedFirstOfPairInRegions(outsideReadStats.getNumMappedFirstInPair());
-            outsideBamStats.setNumberOfMappedSecondOfPairInRegions(outsideReadStats.getNumMappedSecondInPair());
-            outsideBamStats.setNumberOfSingletonsInRegions(outsideReadStats.getNumSingletons());
+            outsideBamStats.setNumberOfMappedReadsInRegions(outsideBamStatsCollector.getNumMappedReads());
+            outsideBamStats.setNumberOfPairedReadsInRegions(outsideBamStatsCollector.getNumPairedReads());
+            outsideBamStats.setNumberOfMappedFirstOfPairInRegions(outsideBamStatsCollector.getNumMappedFirstInPair());
+            outsideBamStats.setNumberOfMappedSecondOfPairInRegions(outsideBamStatsCollector.getNumMappedSecondInPair());
+            outsideBamStats.setNumberOfSingletonsInRegions(outsideBamStatsCollector.getNumSingletons());
 
             outsideBamStats.setReadMaxSize(maxReadSize);
             outsideBamStats.setReadMinSize(minReadSize);

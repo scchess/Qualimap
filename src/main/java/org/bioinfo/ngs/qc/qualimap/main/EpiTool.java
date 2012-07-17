@@ -1,11 +1,11 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
-import org.bioinfo.ngs.qc.qualimap.utils.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 
 import java.io.File;
 

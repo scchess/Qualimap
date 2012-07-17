@@ -9,7 +9,7 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
 import org.bioinfo.ngs.qc.qualimap.process.ReadStatsCollector;
-import org.bioinfo.ngs.qc.qualimap.utils.ReadStartsHistogram;
+import org.bioinfo.ngs.qc.qualimap.common.ReadStartsHistogram;
 
 public class BamStats implements Serializable {
 	private String name;

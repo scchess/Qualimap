@@ -15,13 +15,14 @@ import javax.swing.event.ChangeListener;
 
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ComputeCountsDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ExportGeneListDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
-import org.bioinfo.ngs.qc.qualimap.utils.LODFileChooser;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.LODFileChooser;
 
 
 /**

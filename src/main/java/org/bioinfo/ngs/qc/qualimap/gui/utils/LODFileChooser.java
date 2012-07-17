@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap.utils;
+package org.bioinfo.ngs.qc.qualimap.gui.utils;
 
 import javax.swing.*;
 import java.awt.*;

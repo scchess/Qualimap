@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;

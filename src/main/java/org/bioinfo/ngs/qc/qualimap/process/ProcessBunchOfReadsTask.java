@@ -4,7 +4,7 @@ import net.sf.samtools.*;
 import org.bioinfo.ngs.qc.qualimap.beans.BamGenomeWindow;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats;
 import org.bioinfo.ngs.qc.qualimap.beans.SingleReadData;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 
 import java.util.*;
 import java.util.concurrent.Callable;

@@ -2,10 +2,10 @@ package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
-import org.bioinfo.ngs.qc.qualimap.utils.*;
+import org.bioinfo.ngs.qc.qualimap.common.*;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;

@@ -3,6 +3,8 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
@@ -447,6 +449,6 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     }
 
     public LibraryProtocol getLibraryProtocol() {
-        return LibraryProtocol.getProtocolByName( protocolCombo.getSelectedItem().toString() );
+        return LibraryProtocol.getProtocolByName(protocolCombo.getSelectedItem().toString());
     }
 }
