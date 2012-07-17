@@ -45,7 +45,7 @@ public class BamQCBarChart extends ChartRawDataWriter {
             //myshape.setFrame(shape.getMinX(),shape.getMinY(),barwidth,shape.getHeight());
 
             // fill
-            g.setPaint(barRenderer.getItemPaint(i,i1));
+            g.setPaint(barRenderer.getItemPaint(i, i1));
             g.fill(myshape);
 
             // border
@@ -152,8 +152,8 @@ public class BamQCBarChart extends ChartRawDataWriter {
         plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(100.0f);
 
         final CategoryItemRenderer renderer = new CustomRenderer(
-            new Paint[] {Color.red, Color.blue, Color.green,
-                Color.black, Color.cyan, Color.yellow }
+            new Paint[] {new Color(255,20,20,150), new Color(20,20,255,150), new Color(20,255,20,150),
+                new Color(20,20,20,150), new Color(20,255,255,150), new Color(255,180,20,150) }
         );
 
 
