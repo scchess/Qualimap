@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class CountReadsTool extends NgsSmartTool {
 
-    public static String OPTION_GTF = "gtf";
+    public static String OPTION_ANNOTATION = "gtf";
     public static String OPTION_BAM = "bam";
     public static String OPTION_FEATURE_ID = "id";
     public static String OPTION_FEATURE_TYPE = "type";
@@ -48,17 +48,18 @@ public class CountReadsTool extends NgsSmartTool {
     @Override
     protected void initOptions() {
 
-        options.addOption( requiredOption(OPTION_BAM, true, "mapping file in BAM format)") );
-		options.addOption(requiredOption(OPTION_GTF, true, "region file in GTF format") );
-        options.addOption(new Option(OPTION_OUT_FILE, true, "path to output file") );
+        options.addOption( requiredOption(OPTION_BAM, true, "Mapping file in BAM format") );
+		options.addOption(requiredOption(OPTION_ANNOTATION, true, "Region file in GTF, GFF or BED format. " +
+                "If GTF format is provided, counting is based on attributes, otherwise based on feature name") );
+        options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
         options.addOption(new Option(OPTION_PROTOCOL, true, getProtocolTypes()) );
-        options.addOption(new Option(OPTION_FEATURE_TYPE, true, "Value of the third column of the GTF considered" +
+        options.addOption(new Option(OPTION_FEATURE_TYPE, true, "GTF-specific. Value of the third column of the GTF considered" +
                 " for counting. Other types will be ignored. Default: exon"));
-        options.addOption(new Option(OPTION_FEATURE_ID, true, "attribute of the GTF to be used as feature ID. " +
+        options.addOption(new Option(OPTION_FEATURE_ID, true, "GTF-specific. Attribute of the GTF to be used as feature ID. " +
                 "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
         options.addOption(new Option(OPTION_ALGORITHM, true, getAlgorithmTypes()));
-        options.addOption(new Option(OPTION_OUT_FILE, true, "path to output file") );
-        options.addOption( new Option(OPTION_5_TO_3_BIAS, false, "calculate 5' and 3' coverage bias"));
+        options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
+        options.addOption( new Option(OPTION_5_TO_3_BIAS, false, "GTF-specific. Calculate 5' and 3' coverage bias."));
 
 
     }
@@ -70,7 +71,7 @@ public class CountReadsTool extends NgsSmartTool {
 		if (!exists(bamFile))
             throw new ParseException("input mapping file not found");
 
-        gffFile = commandLine.getOptionValue(OPTION_GTF);
+        gffFile = commandLine.getOptionValue(OPTION_ANNOTATION);
 	    if(!exists(gffFile))
             throw new ParseException("input region gtf file not found");
 

@@ -10,6 +10,7 @@ import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.utils.*;
+import psidev.psi.mi.xml.model.Feature;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class ComputeCountsTask  {
     String attrName;
     LoggerThread logger;
     boolean calcCoverageBias;
+    boolean loadGenericRegions;
 
     String pathToBamFile, pathToGffFile;
 
@@ -52,6 +54,7 @@ public class ComputeCountsTask  {
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
         calcCoverageBias = false;
+        loadGenericRegions = false;
 
         logger = new LoggerThread() {
             @Override
@@ -80,13 +83,7 @@ public class ComputeCountsTask  {
 
     public void run() throws Exception {
 
-        if (allowedFeatureList.isEmpty()) {
-            // default feature to consider
-            addSupportedFeatureType("exon");
-        }
-
-
-        loadRegions();
+        initRegions();
 
         logger.logLine("Starting BAM file analysis\n");
 
@@ -133,7 +130,7 @@ public class ComputeCountsTask  {
 
             if (regionSet == null ) {
                 seqNotFoundCount++;
-                System.err.println("Chromosome " + chrName + " from read is not found in GTF.");
+                System.err.println("Chromosome " + chrName + " from read is not found in annotations.");
                 continue;
             }
 
@@ -255,7 +252,7 @@ public class ComputeCountsTask  {
         }
 
         if (seqNotFoundCount + alignmentNotUnique == readCount) {
-            throw new RuntimeException("The BAM file and GTF have no intersections. " +
+            throw new RuntimeException("The BAM file and annotations file have no intersections. " +
                     "Check sequence names for consistency.");
         }
 
@@ -271,11 +268,70 @@ public class ComputeCountsTask  {
 
     }
 
+    void initRegions() throws Exception {
 
-    void loadRegions() throws IOException, NoSuchMethodException, FileFormatException {
+        FeatureFileFormat format = DocumentUtils.guessFeaturesFileFormat(pathToGffFile);
+
+        if (format == FeatureFileFormat.UNKNOWN) {
+            throw new RuntimeException("Failed to detect annotations file format.");
+        }
+
+        if (format == FeatureFileFormat.GTF) {
+            loadRegionsFromGTF();
+        } else {
+            loadGenericRegions(format);
+        }
+
+    }
+
+    void loadGenericRegions(FeatureFileFormat format) throws Exception {
+
+        logger.logLine("Detected non-GTF annotations file. The counting will " +
+                "be performed based only on feature name");
+
+         if (calcCoverageBias) {
+            throw new RuntimeException("Calculating coverage bias is only available for GTF files. " +
+                    "Please change your annotations file.");
+         }
+
+        GenomicFeatureStreamReader parser = new GenomicFeatureStreamReader(pathToGffFile, format);
+		logger.logLine("Initializing regions from " + pathToGffFile + "...\n");
+
+        chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
+        readCounts = new HashMap<String, Double>();
+
+        GenomicFeature record;
+        int recordCount = 0;
+        while((record = parser.readNextRecord())!=null){
+            recordCount++;
+            if (recordCount % 100000 == 0) {
+                logger.logLine("Initialized " + recordCount + " regions...");
+            }
+            addRegionToIntervalMap(record,false);
+
+            // init results map
+            readCounts.put(record.getFeatureName(), 0.0);
+}
+
+        if (chromosomeRegionSetMap.isEmpty()) {
+            throw new RuntimeException("Unable to load any regions from file.");
+        }
+
+        logger.logLine("\nInitialized " + recordCount + " regions it total\n\n");
+        loadGenericRegions = true;
+
+        parser.close();
+    }
+
+    void loadRegionsFromGTF() throws IOException, NoSuchMethodException, FileFormatException {
+
+        if (allowedFeatureList.isEmpty()) {
+            // default feature to consider
+            addSupportedFeatureType("exon");
+        }
 
         GenomicFeatureStreamReader gtfParser = new GenomicFeatureStreamReader(pathToGffFile, FeatureFileFormat.GTF);
-		logger.logLine("Initializing regions from " + pathToGffFile + "...\n");
+        logger.logLine("Initializing regions from " + pathToGffFile + "...\n");
 
         chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
         readCounts = new HashMap<String, Double>();
@@ -296,7 +352,7 @@ public class ComputeCountsTask  {
                     logger.logLine("Initialized " + recordCount + " regions...");
                 }
                 if (record.getFeatureName().equalsIgnoreCase(featureType)) {
-                    addRegionToIntervalMap(record);
+                    addRegionToIntervalMap(record, true);
                     // init results map
                     readCounts.put(record.getAttribute(attrName), 0.0);
                     if (calcCoverageBias) {
@@ -322,7 +378,9 @@ public class ComputeCountsTask  {
 
     }
 
-    void addRegionToIntervalMap(GenomicFeature feature) {
+
+
+    void addRegionToIntervalMap(GenomicFeature feature, boolean useAttributeForCounting) {
 
         GenomicRegionSet regionSet = chromosomeRegionSetMap.get(feature.getSequenceName());
         if (regionSet == null) {
@@ -330,7 +388,10 @@ public class ComputeCountsTask  {
             chromosomeRegionSetMap.put(feature.getSequenceName(), regionSet);
         }
 
-        regionSet.addRegion(feature, attrName);
+        String featureName = useAttributeForCounting ? feature.getAttribute(attrName) : feature.getFeatureName();
+
+        regionSet.addRegion(feature, featureName);
+
 
     }
 
@@ -358,7 +419,11 @@ public class ComputeCountsTask  {
 
     public StringBuilder getOutputStatsMessage() {
         StringBuilder message = new StringBuilder();
-        message.append("Feature \"").append(attrName).append("\" counts: ").append(getTotalReadCounts()).append("\n");
+        message.append("Feature ");
+        if (!loadGenericRegions) {
+            message.append("\"").append(attrName).append("\" ");
+        }
+        message.append("counts: ").append(getTotalReadCounts()).append("\n");
         message.append("No feature: ").append(noFeature).append("\n");
         message.append("Not unique alignment: ");
         if (countingAlgorithm.equals(COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)){
@@ -367,6 +432,10 @@ public class ComputeCountsTask  {
             message.append("NA\n");
         }
         message.append("Ambiguous: ").append(ambiguous).append("\n");
+
+        if (loadGenericRegions) {
+            message.append("NOTE: features were computed based on feature name\n");
+        }
 
         if (calcCoverageBias) {
             message.append("Median 5' bias: ").append( transcriptDataHandler.getMedianFivePrimeBias() ).append("\n");

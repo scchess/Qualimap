@@ -51,9 +51,8 @@ public class GenomicRegionSet {
         ambiguousRegions = new HashSet<Interval>();
     }
 
-    public void addRegion(GenomicFeature r, String attrName) {
+    public void addRegion(GenomicFeature r, String featureName) {
 
-            String featureName = r.getAttribute(attrName);
             boolean featureStrand = r.isPositiveStrand();
 
             Interval newInterval = new Interval(r.getSequenceName(), r.getStart(), r.getEnd(), r.isPositiveStrand(), featureName);

@@ -90,14 +90,15 @@ public class DocumentUtils {
 
         String fileExt = FilenameUtils.getExtension(fileName);
 
-
         if (fileExt.equalsIgnoreCase("bed")) {
             return FeatureFileFormat.BED;
         } else if (fileExt.equalsIgnoreCase("gff") ) {
             return FeatureFileFormat.GFF;
+        } else if (fileExt.equalsIgnoreCase("gtf")) {
+            return FeatureFileFormat.GTF;
         } else {
             // try guessing format, read 100 lines and collect scores
-            int scoreBed = 0, scoreGff = 0, countRecords = 0;
+            int scoreBed = 0, scoreGff = 0, scoreGtf = 0, countRecords = 0;
             try {
                 BufferedReader br = new BufferedReader(new FileReader(fileName));
                 while (countRecords < MAX_SCORE) {
@@ -110,7 +111,7 @@ public class DocumentUtils {
                         // skip comments and empty lines
                     }
 
-                    String[] items = line.split("\\s+");
+                    String[] items = line.split("\t");
 
                     if (items.length >= 9) {
                         try {
@@ -119,6 +120,12 @@ public class DocumentUtils {
                             --scoreGff;
                         }
                         ++scoreGff;
+
+                        String attrs = items[8];
+                        if (attrs.contains("gene_id") && attrs.contains("transcript_id")) {
+                            scoreGtf++;
+                        }
+
                     }
 
                     if (items.length >= 3) {
@@ -142,7 +149,11 @@ public class DocumentUtils {
             if (scoreBed == countRecords)  {
                 return FeatureFileFormat.BED;
             } if (scoreGff == countRecords) {
-                return FeatureFileFormat.GFF;
+                if (scoreGtf > 0) {
+                    return FeatureFileFormat.GTF;
+                } else {
+                    return FeatureFileFormat.GFF;
+                }
             } else {
                 return FeatureFileFormat.UNKNOWN;
             }

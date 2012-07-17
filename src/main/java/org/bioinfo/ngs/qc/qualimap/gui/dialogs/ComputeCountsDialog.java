@@ -47,9 +47,10 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         ComputeCountsDialog dlg;
         Set<String> featuresTypes, featureNames;
         static final int NUM_LINES = 100000;
+        static final String[] extentions = { "gtf", "gff", "bed" };
 
         public BrowseGffButtonListener(ComputeCountsDialog parent, JTextField textField) {
-            super(parent, textField, "GTF files", "gtf");
+            super(parent, textField, "Annotation files", extentions );
             this.dlg = parent;
             featuresTypes = new HashSet<String>();
             featureNames = new HashSet<String>();
@@ -57,6 +58,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         @Override
         public void performAdditionalOperations() {
+            dlg.setGtfSpecificOptionsEnabled(false);
             dlg.availableFeatureTypesCombo.removeAllItems();
             dlg.availableFeatureNamesCombo.removeAllItems();
 
@@ -64,9 +66,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
             try {
                 preloadGff(filePath);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(parent,
-                        "Failed to preload GTF file, please make sure the file has correct format.",
-                        dlg.getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -76,6 +75,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                         dlg.getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            dlg.setGtfSpecificOptionsEnabled(true);
 
             for (String s : featuresTypes) {
                 dlg.availableFeatureTypesCombo.addItem(s);
@@ -109,6 +109,19 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
             }
 
         }
+    }
+
+    private void setGtfSpecificOptionsEnabled(boolean enabled) {
+
+        for (Component c : fnPanel.getComponents()) {
+            c.setEnabled(enabled);
+        }
+
+        for (Component c : ftPanel.getComponents()) {
+            c.setEnabled(enabled);
+        }
+
+        calcCoverageBias.setEnabled(enabled);
     }
 
     static class FeatureComboBoxListener implements ActionListener {
@@ -154,7 +167,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         add(new JLabel("Annotation file:"), "");
 
         gffPathEdit = new JTextField(40);
-        gffPathEdit.setToolTipText("GTF file with the definition of the regions for the features.");
+        gffPathEdit.setToolTipText("File with the definition of the regions for the features (GTF/GFF or BED).");
         add(gffPathEdit, "grow");
 
         browseGffButton = new JButton();
@@ -171,6 +184,10 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
 
+        JLabel gtfLabel = new JLabel("GTF-specific options:");
+        gtfLabel.setToolTipText("<html>If annotations are given in GTF format, counting is performed based " +
+                "on given attributes.</html>");
+        add(gtfLabel, "wrap");
         fnPanel = new JPanel();
         fnPanel.setLayout(new MigLayout("insets 5"));
         fnPanel.add(new JLabel("Feature ID:"));
@@ -181,7 +198,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         fnPanel.add(featureNameField, "");
         fnPanel.add(new JLabel("Available feature IDs:"));
         availableFeatureNamesCombo = new JComboBox();
-        availableFeatureNamesCombo.setToolTipText("These feature IDS were found in first 1000 of the GFF file");
+        availableFeatureNamesCombo.setToolTipText("These feature IDS were found in first 1000 of the GTF file");
         availableFeatureNamesCombo.addActionListener(
                 new FeatureComboBoxListener(availableFeatureNamesCombo, featureNameField));
         fnPanel.add(availableFeatureNamesCombo, "wrap");
@@ -207,6 +224,11 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         add(ftPanel, "span, wrap");
 
+        calcCoverageBias = new JCheckBox("Calculate 5' and 3' coverage bias");
+        calcCoverageBias.setToolTipText(covBiasTooltip);
+        add(calcCoverageBias, "wrap");
+
+        setGtfSpecificOptionsEnabled(false);
 
         advancedOptions = new JCheckBox("Advanced options:");
         advancedOptions.addActionListener(this);
@@ -221,9 +243,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         countingAlgoCombo = new JComboBox(algoComboItems);
         countingAlgoCombo.addActionListener(this);
         add(countingAlgoCombo, "wrap");
-        calcCoverageBias = new JCheckBox("Calculate 5' and 3' coverage bias");
-        calcCoverageBias.setToolTipText(covBiasTooltip);
-        add(calcCoverageBias, "wrap");
 
 
         add(new JLabel("Output:"), "");
@@ -371,7 +390,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     private void updateState() {
         countingAlgoCombo.setEnabled(advancedOptions.isSelected());
         countingMethodLabel.setEnabled(advancedOptions.isSelected());
-        calcCoverageBias.setEnabled(advancedOptions.isSelected());
 
         String countingMethod =  countingAlgoCombo.getSelectedItem().toString();
         String algorithmHint =  countingMethod.equals(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)  ?
@@ -405,12 +423,12 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
             c.setEnabled(enabled);
         }
 
-        for (Component c : fnPanel.getComponents()) {
-            c.setEnabled(enabled);
-        }
-
-        for (Component c: ftPanel.getComponents()) {
-            c.setEnabled(enabled);
+        if (enabled) {
+            boolean gtfSpecific =
+                    DocumentUtils.guessFeaturesFileFormat(gffPathEdit.getText()) == FeatureFileFormat.GTF;
+            setGtfSpecificOptionsEnabled( gtfSpecific );
+        } else {
+            setGtfSpecificOptionsEnabled(false);
         }
 
         okButton.setEnabled(enabled);
@@ -427,7 +445,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         File gffFile = new File(gffPathEdit.getText());
         if (!gffFile.exists())  {
-            return "GFF file is not found!";
+            return "Annotations file is not found!";
         }
 
         File outputFile = new File(outputPathField.getText());
