@@ -76,10 +76,25 @@
            <name>Bioinfo Library</name>
            <url>http://repos.bioinfo.cipf.es/maven2/</url>
         </repository>
-	
+        
+   	
     </repositories>
 	
+   <pluginRepositories>
 
+     <pluginRepository>
+            <id>mc-release</id>
+            <name>Local Maven repository of releases</name>
+            <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+   </pluginRepositories> 
+    
 	<build>
 
 		<finalName>${project.artifactId}</finalName>
@@ -133,6 +148,19 @@
 					</execution>
 				</executions>
 			</plugin>
+
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                    <configuration>
+                        <header>src/etc/header.txt</header>
+                        <includes>
+                            <include>src/main/java/**</include>
+                            <include>src/test/java/**</include>
+                        </includes>
+                    </configuration>
+            </plugin>
+
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -143,6 +171,7 @@
 								<copy todir="${project.build.directory}/install">
 									<fileset dir="cli"></fileset>
 								</copy>
+                                <copy todir="{project.build.directory}/install" file="LICENSE"></copy>
 								<chmod file="${project.build.directory}/install/qualimap"
 									perm="755" />
 								<copy file="${project.build.directory}/qualimap.jar" todir="${project.build.directory}/install" />
