@@ -1,7 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-import org.dom4j.Text;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;

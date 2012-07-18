@@ -358,7 +358,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.addSeparator();
         exportToHtmlItem = addMenuItem("Export as HTML", WM_COMMAND_EXPORT_HTML, "save_zip.png", "ctrl pressed H");
         fileMenu.add(exportToHtmlItem);
-        exportToPdfItem = addMenuItem("Export as PDF", WM_COMMAND_EXPORT_HTML, "save_pdf.png", "ctrl pressed P");
+        exportToPdfItem = addMenuItem("Export as PDF", WM_COMMAND_EXPORT_PDF, "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
         exportGeneListItem = addMenuItem("Export feature list", WM_COMMAND_EXPORT_GENE_LIST, "save_zip.png", null);
         fileMenu.add(exportGeneListItem);
@@ -682,7 +682,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     private void exportToPdf() {
         SavePanel pathSaveDialog = new SavePanel();
-		popUpDialog = pathSaveDialog.getSaveFileDialog(HomeFrame.this, Constants.FILE_EXTENSION_PDF_FILE);
+		popUpDialog = pathSaveDialog.getExportToPdfDialog(this);
 		popUpDialog.setModal(true);
 		popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		popUpDialog.setLocationRelativeTo(HomeFrame.this);

@@ -41,8 +41,6 @@ public class BamQCBarChart extends ChartRawDataWriter {
         public void paintBar(Graphics2D g, BarRenderer barRenderer, int i, int i1, RectangularShape rectangularShape, RectangleEdge rectangleEdge) {
             // create shape
             RectangularShape myshape = (RectangularShape) rectangularShape.clone();
-            //barwidth = (g.getClip().getBounds().getWidth()/(double)numberOfBars)*0.9;
-            //myshape.setFrame(shape.getMinX(),shape.getMinY(),barwidth,shape.getHeight());
 
             // fill
             g.setPaint(barRenderer.getItemPaint(i, i1));
@@ -60,7 +58,7 @@ public class BamQCBarChart extends ChartRawDataWriter {
         }
     }
 
-    static class CustomRenderer extends BarRenderer {
+    static class CustomBarRenderer extends BarRenderer {
 
         /** The colors. */
         private Paint[] colors;
@@ -70,7 +68,7 @@ public class BamQCBarChart extends ChartRawDataWriter {
          *
          * @param colors  the colors.
          */
-        public CustomRenderer(final Paint[] colors) {
+        public CustomBarRenderer(final Paint[] colors) {
             this.colors = colors;
             BarPainter barPainter = new CustomBarPainter();
             setBarPainter(barPainter);
@@ -151,7 +149,7 @@ public class BamQCBarChart extends ChartRawDataWriter {
         //plot.getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
         plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(100.0f);
 
-        final CategoryItemRenderer renderer = new CustomRenderer(
+        final CategoryItemRenderer renderer = new CustomBarRenderer(
             new Paint[] {new Color(255,20,20,150), new Color(20,20,255,150), new Color(20,255,20,150),
                 new Color(20,20,20,150), new Color(20,255,255,150), new Color(255,180,20,150) }
         );

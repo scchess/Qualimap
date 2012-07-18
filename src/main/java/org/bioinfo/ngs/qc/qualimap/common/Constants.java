@@ -53,9 +53,6 @@ public final class Constants {
         FILE_EXTENSION_REGION.put("BED", "BED");
 	}
 	
-	// Extension for the Compress File
-	public static final String FILE_EXTENSION_COMPRESS_FILE = "ZIP";
-	
 	// Extension for the PDF File
 	public static final String FILE_EXTENSION_PDF_FILE = "PDF";
 	

@@ -544,38 +544,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 
 
-        //Object imageToDisplay = reporter.getChart(name);
 
-
-		// The image can be a JFreeChart generated of come from a file like a
-
-		// BufferedImage
-		/*if (imageToDisplay instanceof JFreeChart) {
-			// Create the ChartPanel that contains the chart
-			ChartPanel panelImage = new ChartPanel((JFreeChart) imageToDisplay);
-			panelImage.setSize(rightScrollPane.getSize());
-
-			rightScrollPane.setViewportView(panelImage);
-		} else if (imageToDisplay instanceof BufferedImage) {
-			// Get a Singleton to manage the image to display
-
-			GraphicImagePanel panelImage = tabProperties.getGraphicImage();
-
-  			// Set the image with the file image get
-			panelImage.setImage((BufferedImage) imageToDisplay);
-
-            // Scale the image
-            if (tabProperties.getTypeAnalysis() == Constants.TYPE_BAM_ANALYSIS_EPI ) {
-                int width = ((BufferedImage) imageToDisplay).getWidth();
-                int height  = ((BufferedImage) imageToDisplay).getHeight();
-                panelImage.setPreferredSize(new Dimension(width, height));
-                panelImage.resizeImage(width, height);
-            } else {
-                panelImage.resizeImage(rightScrollPane.getWidth(), rightScrollPane.getHeight());
-            }
-
-            rightScrollPane.setViewportView(panelImage);
-        }*/
         homeFrame.updateMenuBar();
 
     }
@@ -713,7 +682,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     @Override
     public void componentResized(ComponentEvent componentEvent) {
         Component c = componentEvent.getComponent();
-        //TabPropertiesVO tabProperties =  homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
         GraphicImagePanel imagePanel = tabProperties.getGraphicImage();
         if (c == imagePanel && tabProperties.getTypeAnalysis() != AnalysisType.CLUSTERING) {
             imagePanel.resizeImage(c.getWidth(), c.getHeight());

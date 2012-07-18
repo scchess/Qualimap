@@ -28,8 +28,9 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 /**
  * Class to generate the save panel to control the save options
- * for a file
+ * for a file.
  * @author Luis Miguel Cruz
+ * @author kokonech
  */
 public class SavePanel extends javax.swing.JPanel {
 	/** Serial Version ID */
@@ -93,14 +94,7 @@ public class SavePanel extends javax.swing.JPanel {
 
     }
 
-    /**
-         * Create a panel that contains the information to set the input data path to
-         * save the data into a file of the type specified.
-         * @param homeFrame HomeFrame reference that contains the reference to the wrapper
-         * @param fileType, String that contains the type of file to return.
-         * @return JDialog, User Interface to set information needed to save the file.
-         */
-    public JDialog getSaveFileDialog(HomeFrame homeFrame, String fileType) {
+    public JDialog getExportToPdfDialog(HomeFrame homeFrame) {
         this.homeFrame = homeFrame;
 
         resultContainer = new JDialog();
@@ -108,6 +102,8 @@ public class SavePanel extends javax.swing.JPanel {
 
         KeyListener keyListener = new PopupKeyListener(homeFrame, resultContainer, progressBar);
         resultContainer.add(new JLabel("Path:"));
+
+        final String fileType = Constants.FILE_EXTENSION_PDF_FILE;
 
         pathDataDir = new JTextField(40);
         pathDataDir.addKeyListener(keyListener);
@@ -140,18 +136,10 @@ public class SavePanel extends javax.swing.JPanel {
 
         JButton saveButton = new JButton();
         saveButton.setText("Save");
-        if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
-            saveButton.setAction(getActionSaveZip());
-        } else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
-            saveButton.setAction(getActionSavePdf());
-        }
+        saveButton.setAction(getActionSavePdf());
         saveButton.addKeyListener(keyListener);
         resultContainer.add(saveButton, "span, align right");
-        if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_COMPRESS_FILE)){
-            resultContainer.setTitle("Save to Zip");
-        } else if(fileType.equalsIgnoreCase(Constants.FILE_EXTENSION_PDF_FILE)){
-            resultContainer.setTitle("Export to PDF");
-        }
+        resultContainer.setTitle("Export to PDF");
         resultContainer.setResizable(false);
 
         resultContainer.pack();
@@ -269,21 +257,9 @@ public class SavePanel extends javax.swing.JPanel {
 
 		return stringValidation.length() == 0;
 	}
-	
-	/**
-	 * Function that calls a thread that create the zip file with the data read in the selected tab
-	 * and save it into the disk.
-     * @param path Output ZIP path
-     */
-	private void createZipFile(String path){
-		//SaveZipThread t = new SaveZipThread("Save to Zip Thread", this,
-		//	homeFrame.getSelectedTabPropertiesVO(), path);
-		
-		//t.start();
-	}
 
 
-/**
+    /**
 	 * Function that calls a thread that create the pdf file with the data read in the selected tab
 	 * and save it into the disk.
      * @param path Output PDF path
@@ -307,44 +283,7 @@ public class SavePanel extends javax.swing.JPanel {
         t.start();
     }
 
-	
-	// ***************************************************************************************
-	// ************************************** LISTENERS **************************************
-	// ***************************************************************************************
 
-	/**
-	 * Action to save all the loaded data into a zip file.
-	 * @return AbstractAction with the event
-	 */
-	private AbstractAction getActionSaveZip() {
-		return new AbstractAction("Save", null) {
-			private static final long serialVersionUID = -6901271560142385333L;
-
-			public void actionPerformed(ActionEvent evt) {
-				if (validateInput()) {
-					// Add the extension if necessary
-					if(!pathDataDir.getText().endsWith(".zip")){
-						pathDataDir.setText(pathDataDir.getText() + ".zip");
-					}
-
-					// Try if the file exists
-					File file = new File(pathDataDir.getText());
-					
-					// If the file doesn't exists or exits and the user want to replace it
-					if (!file.exists() || (file.exists() && JOptionPane.showConfirmDialog(null,
-							"The file " + file.getPath() + " already exists." +
-							"Do you want to replace the existing file?", 
-							"Confirm", JOptionPane.OK_OPTION) == 0)) {
-						createZipFile(file.getAbsolutePath());
-					}
-				} else {
-					JOptionPane.showMessageDialog(null,
-						stringValidation.toString(), "Error", 0);
-				}
-			}
-		};
-
-	}
 	
 	/**
 	 * Action to save all the loaded data into a pdf file.
