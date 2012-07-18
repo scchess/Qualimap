@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+	
+    <modelVersion>4.0.0</modelVersion>
 	<groupId>org.bioinfo.ngs</groupId>
 	<artifactId>qualimap</artifactId>
 	<version>0.4</version>
@@ -19,13 +20,7 @@
 			<version>4.4</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.samtools</groupId>
-            <artifactId>samtools</artifactId>
-            <version>1.70</version>
-            <scope>compile</scope>
-        </dependency>
-		<dependency>
+	    <dependency>
 			<groupId>org.bioinfo</groupId>
 			<artifactId>bioinfo-formats</artifactId>
 			<version>0.2.0</version>
@@ -53,34 +48,36 @@
 			<groupId>org.bioinfo</groupId>
 			<artifactId>bioinfo-graphics</artifactId>
 			<version>0.4.0</version>
-			<scope>test</scope>
+			<scope>compile</scope>
 		</dependency>
-            <dependency>
+        <dependency>
        		<groupId>net.sf.picard</groupId>
         	<artifactId>picard</artifactId>
            	<version>1.70</version>
        	</dependency>
+        <dependency>
+			<groupId>net.sf.samtools</groupId>
+            <artifactId>samtools</artifactId>
+            <version>1.70</version>
+            <scope>compile</scope>
+        </dependency>
        	<dependency>
            	<groupId>com.miglayout</groupId>
            	<artifactId>miglayout</artifactId>
            	<version>3.7.4</version>
        	</dependency>
 
-        <!--
-            <dependency> <groupId>es.blast2go</groupId>
-            <artifactId>blast2go</artifactId> <version>babel2</version>
-            </dependency>
-        -->
-
 	</dependencies>
 	
 	<repositories>
-	    <repository>
-			<id>biojava-maven-repo</id>
-			<name>BioJava repository</name>
-			<url>http://www.biojava.org/download/maven/</url>			
-		</repository>
-	</repositories>
+	
+       <repository>
+           <id>org.bioinfo</id>
+           <name>Bioinfo Library</name>
+           <url>http://repos.bioinfo.cipf.es/maven2/</url>
+        </repository>
+	
+    </repositories>
 	
 
 	<build>
