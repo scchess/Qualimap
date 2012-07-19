@@ -1,18 +1,47 @@
 #!/bin/bash
 
 
-# This script launches Qualimap on Linux
+# This script launches Qualimap on Linux and MacOS
 
 
-# Change memory settings here
+# Change default memory settings here
 
+JAVA_MEM_DEFAULT_SIZE="1200M"
+
+# Check for special argument controlling memory size
+
+ARGS=()
+for p in "$@"
+do
+    if [[ "$p" = "--java-mem-size="* ]]; then
+        # skip argument to prevent propogating and get its value  
+        JAVA_MEM_SIZE=`echo $p | cut -d \= -f 2`
+    else 
+        # collect arguments
+        ARGS+=($p)
+    fi
+
+    if [[ "$p" = *"help"* || "$p" = *"-h" ]]; then 
+        OUTPUT_ADDITIONAL_HELP="1" 
+    fi   
+
+done
+
+if [ "$JAVA_MEM_SIZE" = "" ]; then
+    # Setting default memory size
+    JAVA_MEM_SIZE=$JAVA_MEM_DEFAULT_SIZE
+fi
+
+echo "Java memory size is set to $JAVA_MEM_SIZE" 
+echo "Launching application..."
+echo
 
 if [ "$JAVA_OPTS" != "" ]
 then
 	java_options=$JAVA_OPTS
 	echo "detected environment java options $java_options"
 else
-	java_options="-Xms32m -Xmx1G -XX:MaxPermSize=1024m"
+	java_options="-Xms32m -Xmx$JAVA_MEM_SIZE -XX:MaxPermSize=1024m"
 fi
 
 
@@ -46,10 +75,15 @@ fi
 # For debug purposes
 
 #echo $QUALIMAP_HOME
-#echo
+#echo "ARGS are ${ARGS[@]}"
 
+java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain "${ARGS[@]}"
 
-java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain $@
-
-
+if [ -n "$OUTPUT_ADDITIONAL_HELP" ]; then 
+    echo "Special arguments: "
+    echo
+    echo "    --java-mem-size  Use this argument to set Java memory heap size. Example:"
+    echo "                     qualimap bamqc -bam very_large_alignment.bam --java-mem-size=4G"
+    echo
+fi
 

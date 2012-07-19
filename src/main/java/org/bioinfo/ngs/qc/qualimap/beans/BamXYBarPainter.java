@@ -40,7 +40,13 @@ public class BamXYBarPainter implements XYBarPainter, Serializable {
 		barColor = DEFAULT_BAR_COLOR;
 		borderBarColor = DEFAULT_BORDER_BAR_COLOR;
 	}
-	
+
+    public BamXYBarPainter(Color color){
+		barColor = color;
+		borderBarColor = DEFAULT_BORDER_BAR_COLOR;
+	}
+
+
 	@Override
 	public void paintBar(Graphics2D g, XYBarRenderer renderer, int row, int column, RectangularShape shape, RectangleEdge edge) {
 		// create shape		

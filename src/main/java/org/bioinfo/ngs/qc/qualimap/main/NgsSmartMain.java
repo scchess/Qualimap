@@ -149,7 +149,7 @@ public class NgsSmartMain {
 	
 	public static String getHelp() throws IOException{		
 		InputStream resource = ClassLoader.getSystemResourceAsStream("org/bioinfo/ngs/qc/qualimap/help/main-help.txt");
-		return IOUtils.toString(resource);	
+		return IOUtils.toString(resource)+"\n";
 	}
 
 	public static void error(Logger logger, String message) throws IOException{

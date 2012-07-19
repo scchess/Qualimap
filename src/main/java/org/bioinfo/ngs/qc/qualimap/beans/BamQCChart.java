@@ -129,7 +129,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 	
 	public void addBarRenderedSeries(String name, XYVector series, Color color, Stroke stroke){
 		XYBarRenderer renderer = new XYBarRenderer();
-		BamXYBarPainter barPainter = new BamXYBarPainter();
+		BamXYBarPainter barPainter = new BamXYBarPainter(color);
 		renderer.setBarPainter(barPainter);
         addSeries(name, series, color, stroke, renderer);
 	}
