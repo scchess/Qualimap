@@ -12,13 +12,21 @@ General
 
 **Q**: *How to increase maximum Java heap memory size?*
 
-**A**: Open the Qualimap launching script in any text editor. Find the following lines: 
+**A**: The Qualimap launching script allows to set desired memory size using special command line argument :samp:`--java-mem-size`. Here are some usage examples:
 
-    java_options="-Xms32m -Xmx1G -XX:MaxPermSize=1024m"
+    :samp:`qualimap --java-mem-size=1200M`
 
-Set the -Xmx parameter as desired parameter.
+    :samp:`qualimap bamqc -bam very_large_alignment.bam --java-mem-size=4G`
 
-Also you can override this parameter by setting environment variable $JAVA_OPTS.
+Note that there should be **no whitespace** between argument and its value.     
+
+Alternatively one can change default memory size parameter  by modifying the following line in the launching script:
+
+    JAVA_MEM_DEFAULT_SIZE="1200M"
+    
+
+Also one can override this parameter by setting environment variable $JAVA_OPTS.
+
 
 |
 
