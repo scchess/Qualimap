@@ -58,6 +58,10 @@ public class BamQCRegionReporter implements Serializable {
         return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
     }
 
+    public double getPercentageClippedReads() {
+        return (numClippedReads * 100.0) / (double) numReads;
+    }
+
     public double getPercentageBothMatesPairedInRegions() {
        return ((numPairedReadsInRegions - numSingletonsInRegions) * 100.0) / (double) numReads ;
     }
@@ -845,7 +849,9 @@ public class BamQCRegionReporter implements Serializable {
                         + sdf.formatLong(readMaxSize) + " / "
                         + sdf.formatDecimal(readMeanSize));
 
-        globals.addRow("Clipped reads", sdf.formatInteger(numClippedReads));
+        globals.addRow("Clipped reads",
+                sdf.formatInteger(numClippedReads) + " / " +
+                sdf.formatPercentage(getPercentageClippedReads()));
         globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
 
 

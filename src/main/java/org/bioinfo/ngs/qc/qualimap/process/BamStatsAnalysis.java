@@ -803,6 +803,11 @@ public class BamStatsAnalysis {
             throw new RuntimeIOException("Unknown feature file format. Please provide file in GFF/GTF or BED format.");
         }
 
+        if (featureFileFormat == FeatureFileFormat.GTF) {
+            // while not interested in GTF-specific information we save some memory by using GFF reader
+            featureFileFormat = FeatureFileFormat.GFF;
+        }
+
 		// init gff reader
 		numberOfSelectedRegions = 0;
 		GenomicFeatureStreamReader featureFileReader = new GenomicFeatureStreamReader(featureFile, featureFileFormat);
