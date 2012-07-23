@@ -389,14 +389,15 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         JMenuItem rnaSeqItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), WM_COMMAND_COUNTSQC, "chart_curve_add.png", "ctrl pressed C");
         rnaSeqItem.setEnabled(countsQCPackagesAvailable);
         analysisMenu.add(rnaSeqItem);
-        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), WM_COMMAND_CLUSTERING, "chart_curve_add.png", "ctrl pressed E");
-        epiMenuItem.setEnabled(clusteringPacakgesAvailble);
-        analysisMenu.add(epiMenuItem);
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, null,"ctrl pressed A");
         windowsMenu.add(closeAllTabsItem);
 
         toolsMenu.add(addMenuItem("Compute counts", WM_COMMAND_CALC_COUNTS, "calculator_edit.png", "ctrl pressed T"));
+        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), WM_COMMAND_CLUSTERING, "chart_curve_add.png", "ctrl pressed E");
+        epiMenuItem.setEnabled(clusteringPacakgesAvailble);
+        toolsMenu.add(epiMenuItem);
+
 
 		if (checkForUserManual()) {
             helpMenu.add(addMenuItem("User Manual", WM_COMMAND_OPEN_MANUAL, "help.png", "F1"));
