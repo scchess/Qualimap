@@ -14,6 +14,8 @@ Alignments
 - `ERR089819.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/ERR089819.bam>`_ (2.6 GB)
    Whole genome sequencing data of C. elegans from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
 
+- `HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/HG00096.chrom20.bam>`_ (278 MB)
+   Whole genome sequencing of H. sapiens from `1000 Genomes project <http://www.1000genomes.org/>`_. The header of the BAM file was changed in order to contain only chromosome 20. Original file can be found `here <ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/data/HG00096/alignment/HG00096.chrom20.ILLUMINA.bwa.GBR.low_coverage.20101123.bam>`_.
 
 Annotations
 ***********
@@ -66,12 +68,14 @@ Sample Output
 BAM QC
 ******
 
-Analysis of the WG-seq data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_.
+Analysis of the WG-seq data (ERR089819.bam): `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_.
+
+Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_.
 
 Counts QC
 *********
 
-Analysis of RNA-seq data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/counts_result/qualimapReport.html>`_. 
+Analysis of RNA-seq counts data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/countsqc_result/qualimapReport.html>`_. 
 
 Clustering
 **********

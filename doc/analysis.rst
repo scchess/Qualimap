@@ -18,7 +18,13 @@ To start a new BAM QC analysis activate main menu item :menuselection:`File --> 
 Example
 ^^^^^^^
 
-- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
+- `Whole-genome sequencing: HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_. Report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
+ 
+.. - Why is it no working?
+
+
+ 
+- `Whole-genome sequencing: ERRR089819.bam <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
 
 .. !!FIX!!- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/plasm/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
 .. - `RNA-seq <http://qualimap.bioinfo.cipf.es/samples/plasm_RNASeq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
@@ -103,7 +109,7 @@ Output
 
 :guilabel:`Mapped Reads Clipping Profile`
 
-  This plot provides the **clipping profile histogram** along the **mapped reads**. The clipping is detected via SAM format CIGAR codes 'H' (hard clipping) and 'S' (soft clipping). 
+  This plot provides the **clipping profile histogram** along the **mapped reads**. The clipping is detected via SAM format CIGAR codes 'H' (hard clipping) and 'S' (soft clipping). Example is available `here <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html#genome_reads_clipping_profile.png>`_.
   
   The plot is not shown if there are no clipped-reads are found. Total number of clipped reads can be found in :guilabel:`Summary`.  
 
