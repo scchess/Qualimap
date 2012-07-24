@@ -7,7 +7,6 @@ Frequently Asked Questions
 
 General
 -------
-
 .. _heapsize:
 
 **Q**: *How to increase maximum Java heap memory size?*
@@ -64,6 +63,12 @@ Here each block denotes a certain algorithm step. Analysis starts with dividing 
 When all reads belonging to current window (region of genome) are processed, the window is finalized. This task is also performed in a separate thread. 
 
 Analysis is finished when all windows are processed.
+
+|
+
+**Q**: *What is the scalability of QualiMap? Can it be run on a cluster?*
+
+**A**: Currently QualiMap can only use multicore systems to improve the performance. In future we plan to support cluster and computational cloud execution for BAM QC.
 
 |
 
