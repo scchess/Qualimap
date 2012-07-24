@@ -121,9 +121,9 @@ Output
 
   This bar chart provides the estimation of **homopolymer indels** of various types within alignment data. Large number of homopolymer indels may indicate a problem in a sequencing process. 
   
-  An indel is considered homopolymeric if it overlaps a homopolymer sequence with a minimum size of **5 bp**. For genomic insertions accurate calculation is performed. In case of deletions similar calculation can not be performed without reference sequence, therefore only an estimation is provided: an insertion is estimated as homopolymeric if it has a flanking homopolymer downstream or upstream of its location in the read.    
+  An indel is considered homopolymeric if it overlaps a homopolymer sequence with a minimum size of **5 bp**. For genomic insertions accurate calculation is performed. In case of deletions similar calculation can not be performed without reference sequence, therefore only an estimation is provided: an insertion is estimated as belonging to a homopolymeric region if it has a flanking homopolymer downstream or upstream of its location in the read.    
 
-  The chart is not shown if the sample doesn't contain any indels.
+  This chart is not shown if the sample doesn't contain any indels.
 
 
 :guilabel:`Duplication Rate Histogram` 
