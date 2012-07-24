@@ -59,11 +59,11 @@ Below you can find a schema, depicting the applied algorithm.
     :width: 450pt
     :align: center
 
-Here each block denotes a certain algorithm step. Analysis starts with dividing reference genome into windows. The first window is set to be the current. Then analysis continues with processing BAM records belonging to current window.
+Here each block denotes a certain algorithm step. The analysis starts dividing the reference genome into windows. The first window is set to be the current one. Then the analysis continues processing BAM records belonging to the current window.
 
-When all reads belonging to current window (region of genome) are processed, the window is finalized. This task is also performed in a separate thread. 
+When all the reads belonging to the current window are processed, the window is finalized in a newly created thread. 
 
-Analysis is finished when all windows are processed.
+The analysis is finished when all windows are processed.
 
 |
 
