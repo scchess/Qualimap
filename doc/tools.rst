@@ -9,10 +9,10 @@ Tools
 Compute counts
 --------------
 
-Given a BAM file and an annotation (`GTF file <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_), this tool calculates how many reads are mapped to each region of interest.
+* Given a BAM file and an annotation (`GTF file <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_), this tool calculates how many reads are mapped to each region of interest.
 
   
-The user can decide:
+* The user can decide:
 
   - At which level wants to perform the counting (genes, transcripts...).
 
@@ -20,7 +20,7 @@ The user can decide:
 
   - The strand-specifity.
 
-Additionaly the tool allows to calculate 5' and 3' prime coverage bias.
+  - When a transcriptome GTF file is provided the tool allows to calculate 5' and 3' prime coverage bias.
 
 To access the tool use :menuselection:`Tools --> Compute counts`. 
 
@@ -55,7 +55,7 @@ Input
 :guilabel:`BAM file` 
   Path to the BAM alignment file.
 :guilabel:`Annotation file` 
-  Path to the GTF file containing regions of interest.
+  Path to the GTF or BED file containing regions of interest.
 
 :guilabel:`Protocol` 
  
@@ -135,12 +135,21 @@ The following stats are calculate only if option `Calulate 5' and 3' bias` was s
 Clustering
 ----------
 
-Qualimap provides the possibility of clustering genomic features according to their surrounding coverage profiles. This is particulary interesting in epigenomic studies (e.g. methylation). The user can import a set of features (e.g. TSSs or CpG Islands) together with the BAM file. Then the application preprocess the data and clusters the profiles using the Repitools package (`Statham et al <http://bioinformatics.oxfordjournals.org/content/26/13/1662.abstract>`_). The obtained groups of features are displayed as a heatmap or as line graphs and can be exported for further
-analysis (e.g. for measuring the correlation between promoter methylation and gene expression). 
+* Qualimap provides the possibility of clustering genomic features according to their surrounding coverage profiles. This is particulary interesting in epigenomic studies (e.g. methylation). The user can import a set of features (e.g. TSSs or CpG Islands) together with the BAM file. Then the application preprocess the data and clusters the profiles using the Repitools package (`Statham et al <http://bioinformatics.oxfordjournals.org/content/26/13/1662.abstract>`_). The obtained groups of features are displayed as a heatmap or as line graphs and can be exported for further analysis (e.g. for measuring the correlation between promoter methylation and gene expression).
 
-To perform this analysis the user needs to provide at least two BAM files -- one for the sample (enriched) and other for the control (input) -- and a list of features as BED file.
+* Summary of the process:
 
-Clustering analysis can be accesed using the menu item :menuselection:`File --> New Analysis --> Clustering`.
+  - filter out the non-uniquely-mapped reads
+  - compute the smoothed coverages values of the samples at the desired locations
+  - apply k-means on the smoothed coverage values for the desired values of k
+
+
+* To perform this analysis the user needs to provide at least two BAM files -- one for the sample (enriched) and other for the control (input) -- and a list of features as BED file.
+
+* Clustering analysis can be accesed using the menu item :menuselection:`File --> Tools --> Clustering`.
+
+.. note:: Clustering coverage profiles is not a straightforward task and it may be necessary to perform a number of empirical filter steps. In order to correctly interpret the approach the results we encourage the users to read Repitools User Manual.
+
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
