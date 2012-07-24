@@ -54,4 +54,4 @@ Note that for plots in :ref:`BAM QC <bamqc>` and :ref:`Counts QC <countsqc>` it 
 Using tools
 -----------
 
-Qualimap provides also additional functionality other than quality control checks. The :guilabel:`Tools` main menu item allows to access this functionality. Currently there is one tool available -- :ref:`Compute Counts <compute-counts>` -- which is useful to obtain the number of reads that map to a given list of genomic features. More tools will be added in future versions of Qualimap.
+Qualimap provides also additional functionality other than quality control checks. The :guilabel:`Tools` main menu item allows to access this functionality. Currently there are two tools available -- :ref:`Clustering <clustering>`, for clustering genomic features, and :ref:`Compute Counts <compute-counts>`, for obtaining the number of reads that map to a given list of genomic features. More tools will be added in future versions of Qualimap.

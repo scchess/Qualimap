@@ -18,7 +18,13 @@ To start a new BAM QC analysis activate main menu item :menuselection:`File --> 
 Example
 ^^^^^^^
 
-- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
+- `Whole-genome sequencing: HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_. Report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
+ 
+.. - Why is it no working?
+
+
+ 
+- `Whole-genome sequencing: ERRR089819.bam <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
 
 .. !!FIX!!- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/plasm/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
 .. - `RNA-seq <http://qualimap.bioinfo.cipf.es/samples/plasm_RNASeq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
@@ -103,7 +109,7 @@ Output
 
 :guilabel:`Mapped Reads Clipping Profile`
 
-  This plot provides the **clipping profile histogram** along the **mapped reads**. The clipping is detected via SAM format CIGAR codes 'H' (hard clipping) and 'S' (soft clipping). 
+  This plot provides the **clipping profile histogram** along the **mapped reads**. The clipping is detected via SAM format CIGAR codes 'H' (hard clipping) and 'S' (soft clipping). Example is available `here <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html#genome_reads_clipping_profile.png>`_.
   
   The plot is not shown if there are no clipped-reads are found. Total number of clipped reads can be found in :guilabel:`Summary`.  
 
@@ -115,9 +121,9 @@ Output
 
   This bar chart provides the estimation of **homopolymer indels** of various types within alignment data. Large number of homopolymer indels may indicate a problem in a sequencing process. 
   
-  An indel is considered homopolymeric if it overlaps a homopolymer sequence with a minimum size of **5 bp**. For genomic insertions accurate calculation is performed. In case of deletions similar calculation can not be performed without reference sequence, therefore only an estimation is provided: an insertion is estimated as homopolymeric if it has a flanking homopolymer downstream or upstream of its location in the read.    
+  An indel is considered homopolymeric if it overlaps a homopolymer sequence with a minimum size of **5 bp**. For genomic insertions accurate calculation is performed. In case of deletions similar calculation can not be performed without reference sequence, therefore only an estimation is provided: an insertion is estimated as belonging to a homopolymeric region if it has a flanking homopolymer downstream or upstream of its location in the read.    
 
-  The chart is not shown if the sample doesn't contain any indels.
+  This chart is not shown if the sample doesn't contain any indels.
 
 
 :guilabel:`Duplication Rate Histogram` 
@@ -224,63 +230,6 @@ Individual Group Plots
 :guilabel:`Counts & Sequencing Depth`
 
   For each group, a plot is generated containing a boxplot with the distribution of counts at each sequencing depth. The *x*-axis shows the increasing sequencing depths of randomly generated samples from the original one till the true sequencing depth is reached. This plot allows the user to see how the increase of sequencing depth is changing the expression level quantification. 
-
-.. _clustering:
-
-Clustering
-----------
-
-Qualimap provides the possibility of clustering genomic features according to their surrounding coverage profiles. This is particulary interesting in epigenomic studies (e.g. methylation). The user can import a set of features (e.g. TSSs or CpG Islands) together with the BAM file. Then the application preprocess the data and clusters the profiles using the Repitools package (`Statham et al <http://bioinformatics.oxfordjournals.org/content/26/13/1662.abstract>`_). The obtained groups of features are displayed as a heatmap or as line graphs and can be exported for further
-analysis (e.g. for measuring the correlation between promoter methylation and gene expression). 
-
-To perform this analysis the user needs to provide at least two BAM files -- one for the sample (enriched) and other for the control (input) -- and a list of features as BED file.
-
-Clustering analysis can be accesed using the menu item :menuselection:`File --> New Analysis --> Clustering`.
-
-Input Parameters
-^^^^^^^^^^^^^^^^
-
-:guilabel:`Experiment ID`
-  The experiment name
-
-:guilabel:`Alignment data`
-  Here you can provide your replicates to analyze. Each replicate includes sample file and a control file. For example, in an epigenomics experiment, the sample file could be the MeDIP-seq data and the control the non-enriched data (the so-called INPUT data). Thus, for each replicate the following information has to be provided:
-
-  :guilabel:`Replicate name` 
-    Name of the replicate
-  :guilabel:`Sample file` 
-    Path to sample BAM file
-  :guilabel:`Control file` 
-    Path to control BAM file
-
-  To add a replicate click :guilabel:`Add` button. To remove a replicate select it and click :guilabel:`Remove` button. You can modify replicate by using :guilabel:`Edit` button.
-
-:guilabel:`Regions of interest` 
-  Path to an annotation file in `BED <http://genome.ucsc.edu/FAQ/FAQformat.html#format1>`_ or `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ format, which contains regions of interest.
-  
-
-:guilabel:`Location` 
-  Relative location to analyze 
-:guilabel:`Left offset` 
-  Offset in bp upstream the selected regions
-:guilabel:`Right offset` 
-  Offset in bp downstream the selected regions
-:guilabel:`Bin size` 
-  Can be thought as the resolution of the plot. Bins of the desired size will be computed and the information falling on each bin will be aggregated
-:guilabel:`Number of clusters` 
-  Number of groups that you the user wants to divide the data. Several values can be used by separating them with commas
-:guilabel:`Fragment length` 
-  Length of the fragments that were initially sequenced. All reads will be enlarged to this length.
-:guilabel:`Visualization type` 
-  You can visualize cluster using heatmaps or line-based graphs.
-
-Output
-^^^^^^
-
-After the analysis is performed, the regions of interest are clustered in groups based on the coverage pattern. The output graph shows the coverage pattern for each cluster either as a heatmap or a line graph. There can be multiple graphs based on the number of clusters provided as input. The name of each graph consists of the experiment name and the number of clusters. 
-
-It is possible to export list of features beloning to the particular cluster. To do this use main menu item :menuselection:`File --> Export gene list` or context menu item :menuselection:`Export gene list`. After activating the item a dialog will appear where you can choose some specific cluster. One can either copy the list of features belonging to this cluster in the clipboard or export it to a text file. 
-
 
 .. [#X] Example for the meaning of *X*: If one genomic region has a coverage of 10X, it means that, on average, 10 different reads are mapped to each nucleotide of the region.
 

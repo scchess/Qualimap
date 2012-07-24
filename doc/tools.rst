@@ -128,4 +128,63 @@ The following stats are calculate only if option `Calulate 5' and 3' bias` was s
 
   :dfn:`Median 5' to 3` 
     For 1000 most expressed genes the ratio between coverag of 100 leftmost and 100 rightmost bases is calculated and median value is provided.
- 
+
+
+.. _clustering:
+
+Clustering
+----------
+
+Qualimap provides the possibility of clustering genomic features according to their surrounding coverage profiles. This is particulary interesting in epigenomic studies (e.g. methylation). The user can import a set of features (e.g. TSSs or CpG Islands) together with the BAM file. Then the application preprocess the data and clusters the profiles using the Repitools package (`Statham et al <http://bioinformatics.oxfordjournals.org/content/26/13/1662.abstract>`_). The obtained groups of features are displayed as a heatmap or as line graphs and can be exported for further
+analysis (e.g. for measuring the correlation between promoter methylation and gene expression). 
+
+To perform this analysis the user needs to provide at least two BAM files -- one for the sample (enriched) and other for the control (input) -- and a list of features as BED file.
+
+Clustering analysis can be accesed using the menu item :menuselection:`File --> New Analysis --> Clustering`.
+
+Input Parameters
+^^^^^^^^^^^^^^^^
+
+:guilabel:`Experiment ID`
+  The experiment name
+
+:guilabel:`Alignment data`
+  Here you can provide your replicates to analyze. Each replicate includes sample file and a control file. For example, in an epigenomics experiment, the sample file could be the MeDIP-seq data and the control the non-enriched data (the so-called INPUT data). Thus, for each replicate the following information has to be provided:
+
+  :guilabel:`Replicate name` 
+    Name of the replicate
+  :guilabel:`Sample file` 
+    Path to sample BAM file
+  :guilabel:`Control file` 
+    Path to control BAM file
+
+  To add a replicate click :guilabel:`Add` button. To remove a replicate select it and click :guilabel:`Remove` button. You can modify replicate by using :guilabel:`Edit` button.
+
+:guilabel:`Regions of interest` 
+  Path to an annotation file in `BED <http://genome.ucsc.edu/FAQ/FAQformat.html#format1>`_ or `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_ format, which contains regions of interest.
+  
+
+:guilabel:`Location` 
+  Relative location to analyze 
+:guilabel:`Left offset` 
+  Offset in bp upstream the selected regions
+:guilabel:`Right offset` 
+  Offset in bp downstream the selected regions
+:guilabel:`Bin size` 
+  Can be thought as the resolution of the plot. Bins of the desired size will be computed and the information falling on each bin will be aggregated
+:guilabel:`Number of clusters` 
+  Number of groups that you the user wants to divide the data. Several values can be used by separating them with commas
+:guilabel:`Fragment length` 
+  Length of the fragments that were initially sequenced. All reads will be enlarged to this length.
+:guilabel:`Visualization type` 
+  You can visualize cluster using heatmaps or line-based graphs.
+
+Output
+^^^^^^
+
+After the analysis is performed, the regions of interest are clustered in groups based on the coverage pattern. The output graph shows the coverage pattern for each cluster either as a heatmap or a line graph. There can be multiple graphs based on the number of clusters provided as input. The name of each graph consists of the experiment name and the number of clusters. 
+
+It is possible to export list of features beloning to the particular cluster. To do this use main menu item :menuselection:`File --> Export gene list` or context menu item :menuselection:`Export gene list`. After activating the item a dialog will appear where you can choose some specific cluster. One can either copy the list of features belonging to this cluster in the clipboard or export it to a text file. 
+
+
+
