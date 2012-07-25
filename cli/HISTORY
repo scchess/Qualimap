@@ -1,6 +1,20 @@
 Version Release History
 =======================
 
+Version 0.5 - July 25, 2012 
+--------------------------
+
+    * BED format is now supported throughout application 
+    * Raw data from BAM QC and Counts QC plots can be exported
+    * BAM QC: Added homopolymer indels estimation
+    * BAM QC: Added strand specificity calculation
+    * BAM QC: Added clipping profile and number of clipped reads statistics 
+    * Compute counts: Added 5' to 3' prime bias calculation 
+    * Allow to set java memory size from launching script 
+    * Fixed problem with upperCoverageBound in Coverage Across Reference chart 
+    * Fixed issue with insert size limits 
+    * Added missing qualimap.bat to launch application on MS Windows
+
 Version 0.4 - June 4, 2012 
 --------------------------
 
