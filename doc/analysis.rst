@@ -10,13 +10,13 @@ BAM QC
 
 BAM QC reports information for the evaluation of the quality of the provided alignment data (a BAM file). In short, the basic statistics of the alignment (number of reads, coverage, GC-content, etc.) are summarized and a number of useful graphs are produced. This analysis can be performed with any kind of sequencing data, e.g. whole-genome sequencing, exome sequencing, RNA-seq, ChIP-seq, etc.
 
-In addition, it is possible to provide an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions, which can be especially useful for evaluating RNA-seq studies.
+In addition, it is possible to provide an annotation file so the results are computed for the reads mapping inside (and optionally outside) of the corresponding genomic regions, which can be especially useful for evaluating *target-enrichment* sequencing studies.
 
 To start a new BAM QC analysis activate main menu item :menuselection:`File --> New Analysis --> BAM QC`.
 
 
-Example
-^^^^^^^
+Examples
+^^^^^^^^
 
 - `Whole-genome sequencing: HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_. Report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
  
@@ -56,7 +56,7 @@ Input Parameters
 
 .. _input-gc-content:
 
-:guilabel:`Compare GC content distribution with...` 
+:guilabel:`Compare GC content distribution with` 
   This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
 
 Advanced parameters
@@ -83,7 +83,7 @@ Output
 
 :guilabel:`Input` 
 
-  In this section information about the **input data** and parameters is shown.
+  Here one can check the **input data** and the **parameters** used for the analysis.
 
 :guilabel:`Coverage Across Reference`
 
@@ -109,9 +109,7 @@ Output
 
 :guilabel:`Mapped Reads Clipping Profile`
 
-  This plot provides the **clipping profile histogram** along the **mapped reads**. The clipping is detected via SAM format CIGAR codes 'H' (hard clipping) and 'S' (soft clipping). Example is available `here <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html#genome_reads_clipping_profile.png>`_.
-  
-  The plot is not shown if there are no clipped-reads are found. Total number of clipped reads can be found in :guilabel:`Summary`.  
+  Represents the percentage of clipped bases across the reads. The clipping is detected via SAM format CIGAR codes ‘H’ (hard clipping) and ‘S’ (soft clipping). In addition, the total number of clipped reads can be found in the report Summary. The plot is not shown if there are no clipped-reads are found. Total number of clipped reads can be found in :guilabel:`Summary`. `Example <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html#genome_reads_clipping_profile.png>`_.
 
 :guilabel:`Mapped Reads GC Content Distribution` 
 
@@ -119,9 +117,8 @@ Output
 
 :guilabel:`Homopolymer Indels`
 
-  This bar chart provides the estimation of **homopolymer indels** of various types within alignment data. Large number of homopolymer indels may indicate a problem in a sequencing process. 
-  
-  An indel is considered homopolymeric if it overlaps a homopolymer sequence with a minimum size of **5 bp**. For genomic insertions accurate calculation is performed. In case of deletions similar calculation can not be performed without reference sequence, therefore only an estimation is provided: an insertion is estimated as belonging to a homopolymeric region if it has a flanking homopolymer downstream or upstream of its location in the read.    
+  This bar plot shows separately the number of indels that are within a **homopolymer** of A's, C's, G's or T's together with the number of **indels** that are not within a homopolymer. Large numbers of homopolymer indels may indicate a problem in a sequencing process. An indel is considered homopolymeric if it is found within a homopolymer (defined as at least 5 equal consecutive bases). Owing to the fact that Qualimap works directly from BAM files (and not from reference genomes), we make use of the CIGAR code from the corresponding read for this task. 
+  Indel statistics cam be found in a dedicated section of the report Summary.
 
   This chart is not shown if the sample doesn't contain any indels.
 
@@ -212,11 +209,19 @@ Global Plots
 
   When a **Group File** is **provided** by the user or chosen from those supplied by Qualimap, a series of **plots** are **additionally generated**:
 
-:guilabel:`Detection per group`
+:guilabel:`Samples Correlation`
+
+  When two samples are provided, this plot determines the **correlation level** between both samples. Due to the often wide range of expression data (counts), a log2-transformation is applied in order to improve the graphical representation. Features not detected in any of the two samples are removed for this analysis. To avoid infinite values in the case of genes with 0 counts in one of the samples, log2(expression + 1) is used.  Thus, sample 1 is depicted in X-axis and sample 2 in Y-axis.
+  The colors of the plot should be interpreted as a map. The blue color is the level of the sea and the white color the top of the mountain. Hence, the higher you are over the sea level, the more genes you have in that range of X-Y values.
+  In addition, the title of the plot includes the **Pearson's correlation coefficient**, which indicates if both samples present a linear relationship.
+
+  
+
+:guilabel:`Detection Per Class`
 
   This barplot allows the user to know which kind of features are being detected his sample(s). The *x*-axis shows all the groups included in the :guilabel:`Group File` (or the biotypes supplied by Qualimap). The grey bars are the percentage of features of each group within the reference genome (or transcriptome, etc.). The striped color bars are the percentages of features of each group detected in the sample with regard to the genome. The solid color bars are the percentages that each group represents in the total detected features in the sample.
 
-:guilabel:`Counts per group`
+:guilabel:`Counts Per Class`
 
   A boxplot per each group describes the counts distribution for the detected features in that group.
 

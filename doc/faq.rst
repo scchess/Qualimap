@@ -66,9 +66,9 @@ The analysis is finished when all windows are processed.
 
 |
 
-**Q**: *What is the scalability of QualiMap? Can it be run on a cluster?*
+**Q**: *What is the scalability of QualiMap? Can it run on a cluster?*
 
-**A**: Currently QualiMap can only use multicore systems to improve the performance. In future we plan to support cluster and computational cloud execution for BAM QC.
+**A**: Currently qualimap is designed to run in a single multicore machine. In the future we plan to support cluster and computational cloud execution for BAM QC.
 
 |
 

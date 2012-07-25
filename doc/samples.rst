@@ -15,7 +15,7 @@ Alignments
    Whole genome sequencing data of C. elegans from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
 
 - `HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/HG00096.chrom20.bam>`_ (278 MB)
-   Whole genome sequencing of H. sapiens from `1000 Genomes project <http://www.1000genomes.org/>`_. The header of the BAM file was changed in order to contain only chromosome 20. Original file can be found `here <ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/data/HG00096/alignment/HG00096.chrom20.ILLUMINA.bwa.GBR.low_coverage.20101123.bam>`_.
+   Sequencing of the chromosome 20 from a H. sapiens sample from `1000 Genomes project <http://www.1000genomes.org/>`_. The header of the BAM file was changed in order to contain only chromosome 20. Original file can be found `here <ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/data/HG00096/alignment/HG00096.chrom20.ILLUMINA.bwa.GBR.low_coverage.20101123.bam>`_.
 
 Annotations
 ***********

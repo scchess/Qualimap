@@ -48,7 +48,7 @@ Exporting results
 
 - Similarly one can save the report to a PDF document by using a main menu item :menuselection:`File --> Export to PDF`.
 
-- Note that for plots in :ref:`BAM QC <bamqc>` and :ref:`Counts QC <countsqc>` it is also possible to export the underlying raw data using context menu, which can be summoned with right mouse button.
+- Note that for plots in :ref:`BAM QC <bamqc>` and :ref:`Counts QC <countsqc>` it is also possible to export the underlying raw data using the context menu, with appears by clicking the right mouse button in the corresponding plot. In addition, when the report is exported to HTML, the raw data for all plots can be found in the output folder.
 
 
 Using tools
@@ -60,4 +60,3 @@ Using tools
  
   2. :ref:`Clustering <clustering>` for obtaining groups of genomic features that share similar coverage profiles
   
-  which is of interest in epigenomic studies (e.g. methylation). Here, the smoothed coverages of the corresponding genomic features are computed and k-means clustering is applied by means of the Repitools package (Statham et al., 2010).provides also additional fuality other than quality control checks. The :guilabel:`Tools` main menu item allows to access this functionality. Currently there are two tools available -- :ref:`Clustering <clustering>`, for clustering genomic features, and :ref:`Compute Counts <compute-counts>`, for obtaining the number of reads that map to a given list of genomic features. More tools will be added in future versions of Qualimap.

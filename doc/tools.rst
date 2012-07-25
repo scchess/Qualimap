@@ -81,7 +81,7 @@ Input
   Path to the ouput file.
 
 :guilabel:`Save computation summary`
-  This option controls whether to save overall computation statistics. !Say where!
+  This option controls whether to save overall computation statistics. If selected, the statistics will be saved in a file named `$INPUT_BAM`.counts
 
 
 :guilabel:`Multi-mapped reads`
@@ -96,7 +96,9 @@ Input
     Each read is weighted according to the number of mapped locations. For example, a read mapped to 4 different locations will add 0.25 to the counts of each location.
 
 :guilabel:`Calculate 5' and 3' coverage bias`
-   When this option is selected coverage of 1000 most expressed genes is analysed to determine coverage bias in 5' and 3' ends of the genes. Note, that this option currently works only for canonical gene model as it presented in GTF file i.e. if `Feature ID` equals **gene_id** and `Feature type` equals **exon**, and also attributes must include **transcript_id**.    
+  If a **GTF file** is provided, the user has the possibility of computing **5' - 3' bias**. The application automatically constructs the 5' and 3' UTR (100 bp) from the gene definitions of the GTF file and determines the coverage rate of the 1000 most highly expressed transcripts in the UTR regions. This information is then stored in the *computation summary* file, together with the statistics of the counting procedure.   
+
+.. note:: This option requires a standard gene model definition. The UTRs are computed for the first and last exons of each transcript. Therefore, `exon` is the feature of interest (third field of the GTF) and `gene_id`, `transcript_id` should be attributes (ninth field of the GTF).
 
 
 Output
