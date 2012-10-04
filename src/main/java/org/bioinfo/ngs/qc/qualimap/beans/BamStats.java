@@ -2909,17 +2909,17 @@ public class BamStats implements Serializable {
 
         numClippedReads += readStatsCollector.getNumClippedReads();
 
-        int[] homopolymerInsertions = readStatsCollector.getHomopolymerIndels();
-        int numHomopolymerInsertions = 0;
+        int[] homopolymerIndels = readStatsCollector.getHomopolymerIndels();
+        int numHomopolymerIndels = 0;
         for (int i = 0; i < 5; ++i) {
-            homopolymerIndelsData[i] += homopolymerInsertions[i];
-            numHomopolymerInsertions += homopolymerInsertions[i];
+            homopolymerIndelsData[i] += homopolymerIndels[i];
+            numHomopolymerIndels += homopolymerIndels[i];
         }
 
         numInsertions += readStatsCollector.getNumInsertions();
         numDeletions += readStatsCollector.getNumDeletions();
 
-        homopolymerIndelsData[5] += readStatsCollector.getNumIndels() - numHomopolymerInsertions;
+        homopolymerIndelsData[5] += readStatsCollector.getNumIndels() - numHomopolymerIndels;
 
     }
 

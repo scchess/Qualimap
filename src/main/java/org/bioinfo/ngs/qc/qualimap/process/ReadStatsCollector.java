@@ -55,9 +55,11 @@ public class ReadStatsCollector {
     int numInsertions;
     int numDeletions;
 
+    boolean upstreamDeletedRegion;
+
     int numBases;
     int numGC;
-    final static int DEFAULT_HOMOPOLYMER_SIZE = 5;
+    final static int DEFAULT_HOMOPOLYMER_SIZE = 2;
     int minHomopolymerSize;
     boolean prevBaseInsideIndelRegion, homopolymerStartsInsideIndelRegion;
 
@@ -180,10 +182,12 @@ public class ReadStatsCollector {
         if (nextBase != prevBase) {
             if (homopolymerSize + 1 >= minHomopolymerSize )  {
                 saveHomopolymerData();
+                homopolymerStartsInsideIndelRegion = false;
+            } else {
+                homopolymerStartsInsideIndelRegion = true;
             }
             prevBase = nextBase;
             homopolymerSize = 1;
-            homopolymerStartsInsideIndelRegion = true;
         } else {
             homopolymerSize += 1;
         }
