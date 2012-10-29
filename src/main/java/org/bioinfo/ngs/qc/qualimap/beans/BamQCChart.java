@@ -389,7 +389,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 
     }
 
-    void setShowLegend(boolean showLegend) {
+    public void setShowLegend(boolean showLegend) {
         this.showLegend = showLegend;
     }
 

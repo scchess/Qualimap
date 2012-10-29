@@ -224,5 +224,5 @@ public final class Constants {
     public static final String TOOL_NAME_COMPUTE_COUNTS = "comp-counts";
     public static final String TOOL_NAME_GC_CONTENT = "gc-content";
     public static final String TOOL_NAME_INDEL_COUNT = "indel-count";
-
+    public static final String TOOL_NAME_GENE_COVERAGE = "gene-cov";
 }

@@ -54,6 +54,7 @@ public class ComputeCountsTask  {
     LoggerThread logger;
     boolean calcCoverageBias;
     boolean loadGenericRegions;
+    boolean outputCoverage;
 
     String pathToBamFile, pathToGffFile;
 
@@ -74,6 +75,7 @@ public class ComputeCountsTask  {
         featureIntervalMap = new MultiHashMap<String, Interval>();
         calcCoverageBias = false;
         loadGenericRegions = false;
+        outputCoverage = true;
 
         logger = new LoggerThread() {
             @Override
@@ -483,5 +485,11 @@ public class ComputeCountsTask  {
 
     public void setCountingAlgorithm(String countingAlgorithm) {
         this.countingAlgorithm = countingAlgorithm;
+    }
+
+    public void saveCoverage(String fileName) throws IOException {
+        if ( transcriptDataHandler != null ) {
+            transcriptDataHandler.outputTranscriptsCoverage(fileName);
+        }
     }
 }

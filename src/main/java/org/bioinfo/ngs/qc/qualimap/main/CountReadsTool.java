@@ -48,7 +48,7 @@ public class CountReadsTool extends NgsSmartTool {
     public static String OPTION_5_TO_3_BIAS = "b";
 
     String bamFile, gffFile, outFile, protocol, featureType, attrName, alg;
-    boolean calcCovBias;
+    boolean calcCovBias, saveTranscriptCoverage;
 
     static String getProtocolTypes() {
         return  LibraryProtocol.PROTOCOL_FORWARD_STRAND + ","
@@ -63,6 +63,7 @@ public class CountReadsTool extends NgsSmartTool {
 
     public CountReadsTool() {
         super(Constants.TOOL_NAME_COMPUTE_COUNTS,false,false);
+        this.saveTranscriptCoverage = true;
     }
 
     @Override
@@ -168,6 +169,7 @@ public class CountReadsTool extends NgsSmartTool {
                 outWriter.println(str);
             }
 
+
             outWriter.flush();
 
         } catch (Exception e) {
@@ -179,6 +181,11 @@ public class CountReadsTool extends NgsSmartTool {
         StringBuilder message = new StringBuilder();
         message.append("Calculation successful!\n");
         message.append( computeCountsTask.getOutputStatsMessage() );
+
+        if (calcCovBias  && saveTranscriptCoverage) {
+            computeCountsTask.saveCoverage(outFile + ".cov");
+            message.append("Transcript coverage is saved to file").append(outFile).append(".cov.png\n");
+        }
 
         if (!outFile.isEmpty()) {
             message.append("Result is saved to file ").append(outFile);

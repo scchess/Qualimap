@@ -25,7 +25,13 @@ import net.sf.picard.util.MathUtil;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.math.stat.StatUtils;
+import org.bioinfo.ngs.qc.qualimap.beans.*;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -284,6 +290,63 @@ public class TranscriptDataHandler {
         return retval;
     }
 
+    public double[] computeTranscriptCoverageHist() {
+
+        final int NUM_BINS = 100;
+
+        GenericHistogram hist = new GenericHistogram(NUM_BINS, true);
+
+        Collection<Gene> genes = geneMap.values();
+
+        for (final Gene gene : genes) {
+
+            for (final Gene.Transcript tx : gene) {
+
+                final int[] cov = transcriptCoverage.get(tx);
+
+                if (cov == null)
+                    continue;
+
+                hist.updateHistogram(cov);
+
+
+            }
+        }
+
+        return hist.getHist();
+
+    }
+
+    public void outputTranscriptsCoverage(String fileName) throws IOException {
+
+        double[] coverageHist = computeTranscriptCoverageHist();
+
+        XYVector coverageData = new XYVector();
+
+        for (int i = 0; i < coverageHist.length; ++i) {
+            coverageData.addItem( new XYItem(i,coverageHist[i]));
+        }
+
+
+        BamQCChart geneCoverage = new BamQCChart("Transcript coverage",
+                "Sample", "Transcript position", " Counts ");
+        geneCoverage.addSeries("Transcript coverage profile", coverageData, new Color(255, 0, 0, 255));
+        geneCoverage.setAdjustDomainAxisLimits(false);
+        geneCoverage.setDomainAxisIntegerTicks(true);
+        geneCoverage.setShowLegend(false);
+        geneCoverage.render();
+        QChart chart = new QChart(fileName, geneCoverage.getChart(), geneCoverage);
+
+        BufferedImage bufImage =chart.getJFreeChart().createBufferedImage(
+                Constants.GRAPHIC_TO_SAVE_WIDTH,
+                Constants.GRAPHIC_TO_SAVE_HEIGHT);
+
+        String imagePath = fileName + ".png";
+
+        File imageFile = new File(imagePath);
+        ImageIO.write(bufImage, "PNG", imageFile);
+
+    }
 
 
 
