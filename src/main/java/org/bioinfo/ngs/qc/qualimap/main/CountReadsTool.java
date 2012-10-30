@@ -63,7 +63,7 @@ public class CountReadsTool extends NgsSmartTool {
 
     public CountReadsTool() {
         super(Constants.TOOL_NAME_COMPUTE_COUNTS,false,false);
-        this.saveTranscriptCoverage = true;
+        this.saveTranscriptCoverage = false;
     }
 
     @Override
