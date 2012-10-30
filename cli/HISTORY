@@ -1,6 +1,15 @@
 Version Release History
 =======================
 
+
+Version 0.6 - October 30, 2012 
+--------------------------
+
+    * Fixed bug with small homopolymer indels estimation 
+    * Fixed bug with EQ and X SAM format tags in BAM QC
+    * BAM QC: added option to set minimum homopolymer size
+    * BAM QC: added option to open SAM files along with BAM files from GUI
+
 Version 0.5 - July 25, 2012 
 --------------------------
 
