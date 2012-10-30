@@ -50,6 +50,11 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
     ArrayList<Float> outOfRegionsReadsGCContent;
     ReadStatsCollector outOfRegionsReadStatsCollector;
 
+    static final char CIGAR_M = CigarOperator.MATCH_OR_MISMATCH.name().charAt(0);
+    static final char CIGAR_EQ = CigarOperator.EQ.name().charAt(0);
+    //TODO: use variables instead of magic constants in computeAlignment()
+    //static final char CIGAR_X = CigarOperator.X.name().charAt(0);
+
     public static class Result {
         Collection<SingleReadData> readsData;
         Collection<SingleReadData> outRegionReadsData;
@@ -263,7 +268,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 		for( int pos = 0; pos < extendedCigarVector.length; ++pos){
             char cigarChar = extendedCigarVector[pos];
 			// M
-			if(cigarChar == 'M'){
+			if(cigarChar == CIGAR_M || cigarChar == CIGAR_EQ){
 				// get base
                 byte base = readBases[readPos];
                 statsCollector.collectBase(readPos, base, false);
@@ -356,7 +361,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 
 		for(char cigarChar : extendedCigarVector){
 			// M
-			if(cigarChar == 'M'){
+			if(cigarChar == CIGAR_M || cigarChar == CIGAR_EQ){
 				// get base
 				byte base = readBases[readPos];
                 readPos++;

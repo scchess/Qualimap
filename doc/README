@@ -9,7 +9,13 @@ make html
 make pdflatex
 
 
+Note:
 
+To build pdf version on Ubuntu the following packages have to be installed:
+
+    texlive-latex-recommended
+    texlive-latex-extra
+    texlive-fonts-recommended
 
 
 
