@@ -105,11 +105,11 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         analysisResults = new HashMap<Long, SingleReadData>();
         computeOutsideStats = ctx.getComputeOutsideStats();
         readsGcContent = new ArrayList<Float>();
-        readStatsCollector = new ReadStatsCollector();
+        readStatsCollector = new ReadStatsCollector(ctx.getMinHomopolymerSize());
         if ( analyzeRegions && computeOutsideStats ) {
             outOfRegionsResults = new HashMap<Long, SingleReadData>();
             outOfRegionsReadsGCContent = new ArrayList<Float>();
-            outOfRegionsReadStatsCollector = new ReadStatsCollector();
+            outOfRegionsReadStatsCollector = new ReadStatsCollector(ctx.getMinHomopolymerSize());
         }
 
     }

@@ -51,13 +51,13 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
-    JSpinner numThreadsSpinner,numReadsPerBunchSpinner;
+    JSpinner numThreadsSpinner,numReadsPerBunchSpinner, minHmSizeSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
     JComboBox genomeGcContentCombo, protocolCombo;
     JProgressBar progressBar;
-    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile,
-            labelNw, labelNumThreads, labelNumReadsPerBunch, protocolLabel;
+    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw,
+            labelNumThreads, labelNumReadsPerBunch, protocolLabel, minHmSizeLabel;
     File inputFile, regionFile;
 
     StringBuilder stringValidation;
@@ -145,6 +145,13 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         valueNw.setToolTipText("Number of sampling windows across the genome");
         add(valueNw, "wrap");
 
+        minHmSizeLabel = new JLabel("Size of a homoplymer:");
+        add(minHmSizeLabel, "gapleft 20");
+        minHmSizeSpinner = new JSpinner(new SpinnerNumberModel(Constants.DEFAULT_HOMOPOLYMER_SIZE, 2, 7, 1));
+        minHmSizeSpinner.setToolTipText("<html>Only homopolymers of this size or larger will be considered " +
+                "<br>when estimating number of homopolymer indels.</html>" );
+        add(minHmSizeSpinner, "wrap");
+
         labelNumThreads = new JLabel("Number of threads:");
         add(labelNumThreads, "gapleft 20");
         int numCPUs =  Runtime.getRuntime().availableProcessors();
@@ -210,6 +217,8 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         numThreadsSpinner.setEnabled(advOptionsEnabled);
         numReadsPerBunchSpinner.setEnabled(advOptionsEnabled);
         labelNumReadsPerBunch.setEnabled(advOptionsEnabled);
+        minHmSizeLabel.setEnabled(advOptionsEnabled);
+        minHmSizeSpinner.setEnabled(advOptionsEnabled);
 
         genomeGcContentCombo.setEnabled(compareGcContentDistr.isSelected());
     }
@@ -474,5 +483,9 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public LibraryProtocol getLibraryProtocol() {
         return LibraryProtocol.getProtocolByName(protocolCombo.getSelectedItem().toString());
+    }
+
+    public int getMinHomopolymerSize() {
+        return ((SpinnerNumberModel) minHmSizeSpinner.getModel()).getNumber().intValue();
     }
 }

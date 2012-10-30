@@ -89,6 +89,7 @@ public class BamAnalysisThread extends Thread {
         bamQC.setNumberOfThreads(bamDialog.getNumThreads());
         bamQC.setNumberOfReadsInBunch(bamDialog.getBunchSize());
         bamQC.setProtocol( bamDialog.getLibraryProtocol() );
+        bamQC.setMinHomopolymerSize( bamDialog.getMinHomopolymerSize());
 
 		// Set the region file
 		if (bamDialog.getRegionFile() != null) {
@@ -225,6 +226,8 @@ public class BamAnalysisThread extends Thread {
         Date date = new Date();
         alignParams.put("Analysis date: ", date.toString() );
         alignParams.put("Number of windows: ", Integer.toString(bamQC.getNumberOfWindows()));
+        alignParams.put("Size of a homopolymer: ", Integer.toString(bamQC.getMinHomopolymerSize()));
+
 
         Boolean.toString(true);
         alignParams.put("Draw chromosome limits: ", boolToStr(drawChromosomeLimits));

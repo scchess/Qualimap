@@ -84,6 +84,7 @@ public class BamStatsAnalysis {
     private int threadNumber;
     private int numReadsInBunch;
     private int progress;
+    private int minHomopolymerSize;
 
 	// nucleotide reporting
 	private String outdir;
@@ -155,6 +156,7 @@ public class BamStatsAnalysis {
 		this.bamFile = bamFile;
 		this.numberOfWindows = Constants.DEFAULT_NUMBER_OF_WINDOWS;
         this.numReadsInBunch = Constants.DEFAULT_CHUNK_SIZE;
+        this.minHomopolymerSize = Constants.DEFAULT_HOMOPOLYMER_SIZE;
         this.maxSizeOfTaskQueue = 10;
         this.minReadSize = Integer.MAX_VALUE;
         this.threadNumber = 4;
@@ -1046,5 +1048,13 @@ public class BamStatsAnalysis {
 
     public LibraryProtocol getProtocol() {
         return protocol;
+    }
+
+    public int getMinHomopolymerSize() {
+        return minHomopolymerSize;
+    }
+
+    public void setMinHomopolymerSize(int size) {
+        minHomopolymerSize = size;
     }
 }

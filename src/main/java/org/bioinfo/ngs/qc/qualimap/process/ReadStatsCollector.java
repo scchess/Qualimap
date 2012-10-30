@@ -55,11 +55,8 @@ public class ReadStatsCollector {
     int numInsertions;
     int numDeletions;
 
-    boolean upstreamDeletedRegion;
-
     int numBases;
     int numGC;
-    final static int DEFAULT_HOMOPOLYMER_SIZE = 2;
     int minHomopolymerSize;
     boolean prevBaseInsideIndelRegion, homopolymerStartsInsideIndelRegion;
 
@@ -95,7 +92,7 @@ public class ReadStatsCollector {
         return readsClippingContent;
     }
 
-    ReadStatsCollector() {
+    ReadStatsCollector(int homopolymerSize) {
         readsGcContent = new ArrayList<Float>();
         readsAContent = new int[INITIAL_SIZE];
         readsCContent = new int[INITIAL_SIZE];
@@ -104,7 +101,7 @@ public class ReadStatsCollector {
         readsNContent = new int[INITIAL_SIZE];
         readsClippingContent = new int[INITIAL_SIZE];
         homopolymerIndels = new int[5];
-        minHomopolymerSize = DEFAULT_HOMOPOLYMER_SIZE;
+        minHomopolymerSize = homopolymerSize;
     }
 
     void saveGC() {
@@ -262,8 +259,5 @@ public class ReadStatsCollector {
         return numDeletions;
     }
 
-    void setMinHomopolymerSize(int minHomopolymerSize)  {
-        this.minHomopolymerSize = minHomopolymerSize;
-    }
 
 }

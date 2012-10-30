@@ -41,6 +41,7 @@ public class BamQcTool extends NgsSmartTool{
 	private int numberOfWindows;
 	private int numThreads;
     private int bunchSize;
+    private int minHomopolymerSize;
     private boolean paintChromosomeLimits;
 	private boolean computeOutsideStats;
     private String genomeToCompare;
@@ -55,6 +56,7 @@ public class BamQcTool extends NgsSmartTool{
     static final String OPTION_NUM_THREADS = "nt";
     static final String OPTION_OUTSIDE_STATS = "os";
     static final String OPTION_LIBRARY_PROTOCOL = "p";
+    static final String OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
 
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
@@ -77,6 +79,9 @@ public class BamQcTool extends NgsSmartTool{
                 "number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
         options.addOption(OPTION_CHUNK_SIZE, true,
                 "number of reads in the chunk (default equals the number of cores" );
+         options.addOption(OPTION_MIN_HOMOPOLYMER_SIZE, true,
+                "minimum size of a homopolymer to be considered in analysis (default is "
+                        + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
 
 		options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false, "paint chromosome limits inside charts");
 		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false, "compute region outside stats (works only with -gff option)");
@@ -127,6 +132,9 @@ public class BamQcTool extends NgsSmartTool{
         bunchSize = commandLine.hasOption(OPTION_CHUNK_SIZE) ?
                 Integer.parseInt(commandLine.getOptionValue(OPTION_CHUNK_SIZE)) : Constants.DEFAULT_CHUNK_SIZE;
 
+
+        minHomopolymerSize = commandLine.hasOption(OPTION_MIN_HOMOPOLYMER_SIZE) ?
+                Integer.parseInt(commandLine.getOptionValue(OPTION_MIN_HOMOPOLYMER_SIZE)) : Constants.DEFAULT_HOMOPOLYMER_SIZE;
 
 
         if (commandLine.hasOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
@@ -187,6 +195,7 @@ public class BamQcTool extends NgsSmartTool{
         bamQC.setNumberOfThreads(numThreads);
         bamQC.setNumberOfReadsInBunch(bunchSize);
         bamQC.setProtocol(protocol);
+        bamQC.setMinHomopolymerSize(minHomopolymerSize);
 
 		// run evaluation
 		bamQC.run();
