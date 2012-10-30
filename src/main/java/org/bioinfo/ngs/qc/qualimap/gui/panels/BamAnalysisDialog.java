@@ -71,7 +71,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         labelPathDataFile = new JLabel();
-        labelPathDataFile.setText("BAM file:");
+        labelPathDataFile.setText("BAM/SAM file:");
         add(labelPathDataFile, "");
 
         pathDataFile = new JTextField(40);
@@ -225,6 +225,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 		 return new AbstractAction() {
 			private static final long serialVersionUID = -8111339366112980049L;
 
+            boolean hasExtension(final String fileName, final String ext) {
+                return (fileName.substring(fileName.lastIndexOf(".") + 1).equalsIgnoreCase(ext));
+            }
+
 			public void actionPerformed(ActionEvent evt) {
 
                 JFileChooser fileChooser = HomeFrame.getFileChooser();
@@ -233,7 +237,8 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 					public boolean accept(File fileShown) {
 						boolean result = true;
 
-						if (!fileShown.isDirectory() && !fileShown.getName().substring(fileShown.getName().lastIndexOf(".") + 1).equalsIgnoreCase(Constants.FILE_EXTENSION_DATA_INPUT)) {
+						if (!fileShown.isDirectory() &&!hasExtension(fileShown.getName(), Constants.FILE_EXTENSION_BAM)
+                                && !hasExtension(fileShown.getName(), Constants.FILE_EXTENSION_SAM) ) {
 							result = false;
 						}
 
@@ -241,7 +246,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 					}
 
 					public String getDescription() {
-						return ("BAM Files (*.bam)");
+						return ("BAM/SAM Files (*.bam, *.sam)");
 					}
 				};
 				fileChooser.setFileFilter(filter);
@@ -337,14 +342,13 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 		if ( !pathDataFile.getText().isEmpty() ) {
 			inputFile = new File(pathDataFile.getText());
 			String mimeType = new MimetypesFileTypeMap().getContentType(inputFile);
-			String extension = FilenameUtils.getExtension(inputFile.getName());
-			if (mimeType == null || !extension.equalsIgnoreCase("bam")) {
-				stringValidation.append(" • Incorrect MimeType for the input BAM file (*.bam) \n");
+			if (mimeType == null ) {
+				stringValidation.append(" • Incorrect MimeType for the input BAM/SAM file \n");
 			}
 		}
 
         if (inputFile == null) {
-            stringValidation.append(" • The path to the BAM file is required \n");
+            stringValidation.append(" • The path to the SAM file is required \n");
         }else {
 			try {
 				FileUtils.checkFile(inputFile);

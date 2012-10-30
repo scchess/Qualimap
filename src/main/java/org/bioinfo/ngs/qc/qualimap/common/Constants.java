@@ -63,7 +63,9 @@ public final class Constants {
 	//******************************* FILE EXTENSION CONSTANTS *********************************
 	//******************************************************************************************
 	// Extension for the data Input File
-	public static final String FILE_EXTENSION_DATA_INPUT = "BAM";
+	public static final String FILE_EXTENSION_BAM = "BAM";
+    public static final String FILE_EXTENSION_SAM = "SAM";
+
 
 	// Extension for the Region Input File
 	public static final Map<String, String> FILE_EXTENSION_REGION = new HashMap<String, String>();
