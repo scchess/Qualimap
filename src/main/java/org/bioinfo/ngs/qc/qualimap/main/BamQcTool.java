@@ -80,7 +80,7 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(OPTION_CHUNK_SIZE, true,
                 "number of reads in the chunk (default equals the number of cores" );
          options.addOption(OPTION_MIN_HOMOPOLYMER_SIZE, true,
-                "minimum size of a homopolymer to be considered in analysis (default is "
+                "minimum size for a homopolymer to be considered in indel analysis (default is "
                         + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
 
 		options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false, "paint chromosome limits inside charts");

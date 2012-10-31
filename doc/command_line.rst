@@ -35,6 +35,8 @@ The following command allows to perform BAM QC analysis::
      -gd <arg>                      compare with genome distribution (possible
                                     values: HUMAN or MOUSE)
      -gff <arg>                     region file (in GFF/GTF or BED format)
+     -hm <arg>                      minimum size for a homopolymer to be considered
+                                    in indel analysis (default is 3)
      -nr <arg>                      number of reads in the chunk (default is 500)
      -nt <arg>                      number of threads (default equals the number of cores)
      -nw <arg>                      number of windows (default is 400)

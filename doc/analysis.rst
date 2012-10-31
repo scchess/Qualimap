@@ -65,6 +65,9 @@ Advanced parameters
 :guilabel:`Number of windows`
   Number of **windows** used to **split** the reference **genome**. This value is used for computing the graphs that plot information across the reference. Basically, reads falling in the same window are aggregated in the same bin. The higher the number, the bigger the resolution of the plots but also longer time will be used to process the data. By default 400 windows are used.
 
+:guilabel:`Homopolymer size`
+  Only homopolymers of this size or larger will be considered when estimating homopolymer indels count. 
+
 :guilabel:`Number of threads`
   In order to speed up the computation, the BAM QC analysis **computation** can be performed **in parallel** on a multicore system using the given number of threads. More information on the parallelization of qualimap can be found in :ref:`FAQ <faq>`. The default number of threads equals number of available processors.
 

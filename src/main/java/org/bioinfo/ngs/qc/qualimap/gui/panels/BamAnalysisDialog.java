@@ -145,7 +145,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         valueNw.setToolTipText("Number of sampling windows across the genome");
         add(valueNw, "wrap");
 
-        minHmSizeLabel = new JLabel("Size of a homoplymer:");
+        minHmSizeLabel = new JLabel("Homopolymer size:");
         add(minHmSizeLabel, "gapleft 20");
         minHmSizeSpinner = new JSpinner(new SpinnerNumberModel(Constants.DEFAULT_HOMOPOLYMER_SIZE, 2, 7, 1));
         minHmSizeSpinner.setToolTipText("<html>Only homopolymers of this size or larger will be considered " +
