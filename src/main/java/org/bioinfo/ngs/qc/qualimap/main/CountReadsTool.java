@@ -99,7 +99,7 @@ public class CountReadsTool extends NgsSmartTool {
         if(commandLine.hasOption(OPTION_PROTOCOL)) {
 		    protocol = commandLine.getOptionValue(OPTION_PROTOCOL);
             if ( !(protocol.equals( LibraryProtocol.PROTOCOL_FORWARD_STRAND ) ||
-                    protocol.equals( LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC ) ||
+                    protocol.equals( LibraryProtocol.PROTOCOL_REVERSE_STRAND ) ||
                     protocol.equals( LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
                 throw  new ParseException("wrong protocol type! supported types: " + getProtocolTypes());
             }
