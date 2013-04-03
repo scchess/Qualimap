@@ -35,6 +35,7 @@ import javax.swing.event.ChangeListener;
 
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AboutDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ComputeCountsDialog;
@@ -191,7 +192,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         String errMsg = "";
 
         try {
-            Process p = Runtime.getRuntime().exec("Rscript --version");
+            String testCommand = AppSettings.getGlobalSettings().getPathToRScript() + " --version";
+            Process p = Runtime.getRuntime().exec( testCommand );
             BufferedReader outputReader = new BufferedReader( new InputStreamReader(
                                 new SequenceInputStream( p.getInputStream(), p.getErrorStream() )
             ) );
@@ -239,7 +241,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         String path = getQualimapFolder() + File.separator;
         final ArrayList<String> missingPackages = new ArrayList<String>();
 
-        final Process p = Runtime.getRuntime().exec("Rscript " + path + "scripts/init.r");
+        String pathToRScript = AppSettings.getGlobalSettings().getPathToRScript();
+        final Process p = Runtime.getRuntime().exec(pathToRScript + " " + path + "scripts/init.r");
         Thread outputReadingThread = new Thread(new Runnable() { public void run() {
             BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
             String line;

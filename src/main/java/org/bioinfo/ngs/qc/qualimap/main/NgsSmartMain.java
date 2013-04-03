@@ -27,6 +27,7 @@ import java.util.Properties;
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 
@@ -40,7 +41,8 @@ public class NgsSmartMain {
 		Logger logger = new Logger();
         NgsSmartTool tool = null;
 
-        tryLoadingAppProperties();
+        loadAppPropertiesFile();
+        loadAppSettings();
 
 		if(args.length == 0 || args[0].equals("--home")){
 			launchGUI(args);
@@ -103,7 +105,12 @@ public class NgsSmartMain {
 		}
 	}
 
-    private static void tryLoadingAppProperties()  {
+    private static void loadAppSettings() {
+        AppSettings appSettings = new AppSettings();
+        AppSettings.setGlobalSettings(appSettings);
+    }
+
+    private static void loadAppPropertiesFile()  {
         InputStream inStream = ClassLoader.getSystemClassLoader().getResourceAsStream("app.properties");
         if (inStream == null) {
             return;

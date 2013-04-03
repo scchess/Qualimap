@@ -23,6 +23,7 @@ package org.bioinfo.ngs.qc.qualimap.process;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.TextFileDataWriter;
+import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
@@ -87,7 +88,8 @@ public class CountsAnalysis {
         increaseProgressBar(currentStepLoaded, "Building Rscript sentence");
 
         // Create the string to execute
-        String command = "Rscript " + homePath + "scripts" + File.separator + "qualimapRscript.r";
+        String pathToRScript = AppSettings.getGlobalSettings().getPathToRScript();
+        String command = pathToRScript + " " + homePath + "scripts" + File.separator + "qualimapRscript.r";
 
         command += " --homesrc " + homePath + "scripts";
         command += " --data1 " + firstSampleDataPath;

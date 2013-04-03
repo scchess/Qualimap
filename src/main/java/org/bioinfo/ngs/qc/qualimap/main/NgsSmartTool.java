@@ -23,7 +23,9 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import java.io.File;
 
 import org.apache.commons.cli.*;
+import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
@@ -51,6 +53,7 @@ public abstract class NgsSmartTool {
     static String OPTION_NAME_OUTDIR = "outdir";
     static String OPTION_NAME_HOMEDIR = "home";
     static String OPTION_NAME_OUTPUT_TYPE = "outformat";
+    static String OPTION_NAME_PATH_TO_RSCRIPT = "rscriptpath";
 
 	public NgsSmartTool(String toolName){
 
@@ -107,6 +110,9 @@ public abstract class NgsSmartTool {
         if (outFormatIsRequired) {
             options.addOption( OPTION_NAME_OUTPUT_TYPE, true, "output report format (PDF or HTML, default is HTML)");
         }
+
+        options.addOption( OPTION_NAME_PATH_TO_RSCRIPT, true, "path to Rscript executable (by default it is assumed " +
+                "to be available from system $PATH)" );
 	}
 	
 	// init options
@@ -129,6 +135,15 @@ public abstract class NgsSmartTool {
                 throw new ParseException("Unknown output report format " + outputType);
             }
         }
+
+        if (commandLine.hasOption(OPTION_NAME_PATH_TO_RSCRIPT)) {
+            String pathToRScript = commandLine.getOptionValue(OPTION_NAME_PATH_TO_RSCRIPT);
+            if (! (new File(pathToRScript).canExecute()) ) {
+                throw new ParseException("Wrong path to RScript command: " + pathToRScript);
+            }
+            AppSettings.getGlobalSettings().setPathToRScript(pathToRScript);
+        }
+
 
 	}
 	

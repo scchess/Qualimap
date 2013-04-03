@@ -24,6 +24,7 @@ import org.bioinfo.formats.core.feature.Gff;
 import org.bioinfo.formats.core.feature.io.GffReader;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
@@ -190,7 +191,8 @@ public class EpiAnalysis {
     }
 
     String createCommand(String outputDir) {
-        String commandString = "Rscript " + homePath
+        String pathToRscript = AppSettings.getGlobalSettings().getPathToRScript();
+        String commandString = pathToRscript + " " + homePath
                 + File.separator + "scripts"+ File.separator + "paintLocation.r";
 
         commandString += " --fileConfig=" + outputDir + "config.xml";
@@ -333,6 +335,11 @@ public class EpiAnalysis {
 
 
         xmlWriter.writeEndDocument();
+
+        xmlWriter.close();
+
+        stream.close();
+
 
 
     }

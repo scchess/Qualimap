@@ -139,7 +139,7 @@ Citing Qualimap
 
 If you use Qualimap for your research, please cite the following:
 
-*Garcia-Alcalde et al. (2012) "Qualimap: evaluating next generation sequencing alignmnent data", submitted*
+*García-Alcalde, et al. "Qualimap: evaluating next generation sequencing alignment data." Bioinformatics(2012) 28 (20): 2678-2679*
 
 
 
