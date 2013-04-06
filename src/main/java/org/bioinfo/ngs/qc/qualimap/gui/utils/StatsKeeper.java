@@ -76,9 +76,19 @@ public class StatsKeeper {
     }
 
     List<Section> sectionList;
+    String name;
 
     public StatsKeeper() {
+        name = "";
         sectionList = new ArrayList<Section>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void addSection(Section section) {

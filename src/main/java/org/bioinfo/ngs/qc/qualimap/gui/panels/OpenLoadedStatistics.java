@@ -595,8 +595,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
     public static void addChromosomesSections(StringBuffer summaryHtml,
                                               int width,
-                                              List<StatsKeeper.Section> chromosomeSections) {
-        summaryHtml.append(HtmlJPanel.COLSTART).append("<b>").append("Chromosome stats").append("</b>");
+                                              StatsKeeper chromosomeStats) {
+        List<StatsKeeper.Section> chromosomeSections = chromosomeStats.getSections();
+        summaryHtml.append(HtmlJPanel.COLSTART).append("<b>").append(chromosomeStats.getName()).append("</b>");
         summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 
         for (StatsKeeper.Section s : chromosomeSections ) {
@@ -634,9 +635,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             addSummarySection(summaryHtml, s, width);
         }
 
-        List<StatsKeeper.Section> chromosomeSections = reporter.getChromosomeSections();
-
-        addChromosomesSections(summaryHtml, width, chromosomeSections);
+        addChromosomesSections(summaryHtml, width, reporter.getChromosomeStats());
 
         summaryHtml.append(HtmlJPanel.getTableFooter());
 

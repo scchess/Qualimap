@@ -121,7 +121,7 @@ public class BamGenomeWindow {
 	protected int correctInsertSizes;
 	protected double acumInsertSize;
 	protected double meanInsertSize;
-    protected double effectiveWindowLength;
+    protected long effectiveWindowLength;
 
 	public BamGenomeWindow(String name, long start, long end, byte[] reference){
 		this.name = name;
@@ -223,7 +223,7 @@ public class BamGenomeWindow {
 
 
         effectiveWindowLength = windowSize;
-        if (selectedRegionsAvailable && numberOfMappedBases != 0) {
+        if ( selectedRegionsAvailable ) {
             effectiveWindowLength = selectedRegions.cardinality();
         }
 
@@ -608,7 +608,7 @@ public class BamGenomeWindow {
 
     }
 
-    public double getEffectiveWindowLength() {
+    public long getEffectiveWindowLength() {
         return effectiveWindowLength;
     }
 }

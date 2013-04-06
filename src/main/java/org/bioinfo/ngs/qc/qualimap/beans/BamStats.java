@@ -59,7 +59,7 @@ public class BamStats implements Serializable {
 
     private ArrayList<Long>  numMappedBasesPerWindow;
     private ArrayList<Long> coverageSquaredPerWindow;
-    private ArrayList<Double> windowLengthes;
+    private ArrayList<Long> windowLengthes;
 
 
 	/*
@@ -364,7 +364,7 @@ public class BamStats implements Serializable {
 
         numMappedBasesPerWindow = new ArrayList<Long>(numberOfWindows);
         coverageSquaredPerWindow = new ArrayList<Long>(numberOfWindows);
-        windowLengthes = new ArrayList<Double>(numberOfWindows);
+        windowLengthes = new ArrayList<Long>(numberOfWindows);
 
 
 
@@ -3117,7 +3117,7 @@ public class BamStats implements Serializable {
                     ? chromosomeWindowIndexes.get(k + 1) - 1 : numberOfWindows - 1;
 
             long numBases = 0;
-            double length = 0;
+            long length = 0;
             long sumCovSquared = 0;
             for (int i = firstWindowIndex; i <= lastWindowIndex; ++i) {
                 numBases += numMappedBasesPerWindow.get(i);
@@ -3130,9 +3130,9 @@ public class BamStats implements Serializable {
             ChromosomeInfo info = new ChromosomeInfo();
             info.name = contig.getName();
             if (length != 0) {
-                info.length = (long) length;
+                info.length = length;
                 info.numBases = numBases;
-                info.covMean =  numBases / length;
+                info.covMean =  numBases / (double) length;
                 info.covStd = Math.sqrt( sumCovSquared / length - info.covMean *info.covMean);
             }
             chromosomeStats[k] = info;

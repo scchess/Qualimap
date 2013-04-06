@@ -645,8 +645,7 @@ public class BamStatsAnalysis {
         w.setSelectedRegions(bitSet);
         w.setSelectedRegionsAvailable(true);
 
-        // TEMP: uncomment
-        //insideReferenceSize += bitSet.cardinality();
+        insideReferenceSize += bitSet.cardinality();
 
     }
 
@@ -840,7 +839,7 @@ public class BamStatsAnalysis {
             pos = locator.getAbsoluteCoordinates(region.getSequenceName(),region.getStart());
 	        int regionLength = region.getEnd() - region.getStart() + 1;
             // TEMPTODO: delete next line
-            insideReferenceSize += regionLength;
+            //insideReferenceSize += regionLength;
             selectedRegionStarts[index] = pos;
             selectedRegionEnds[index] = pos + regionLength - 1;
             regionOverlapLookupTable.putRegion(region.getStart(), region.getEnd(),

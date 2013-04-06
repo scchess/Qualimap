@@ -943,13 +943,14 @@ public class BamQCRegionReporter implements Serializable {
         }
     }
 
-    public List<StatsKeeper.Section> getChromosomeSections() {
-        return chromosomeStatsKeeper.getSections();
+    public StatsKeeper getChromosomeStats() {
+        return chromosomeStatsKeeper;
     }
 
     private void createChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
 
         chromosomeStatsKeeper = new StatsKeeper();
+        chromosomeStatsKeeper.setName("Chromosome stats" + getNamePostfix() );
 
         StatsKeeper.Section headerSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_HEADER);
         String[] header = {
@@ -1099,7 +1100,7 @@ public class BamQCRegionReporter implements Serializable {
 
 
         // per reference stats
-        StatsKeeper.Section dataSection = getChromosomeSections().get(1);
+        StatsKeeper.Section dataSection = chromosomeStatsKeeper.getSections().get(1);
 
         for (String[] row : dataSection.getRows() ) {
             prop.setProperty(row[0], Arrays.toString(ArrayUtils.subarray(row, 1, row.length - 1)) );

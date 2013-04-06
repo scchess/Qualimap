@@ -355,8 +355,9 @@ public class ExportPdfThread extends Thread {
         }
 
 
-        List<StatsKeeper.Section> chromosomeSections = reporter.getChromosomeSections();
-        Paragraph chrTitle = createSectionTitle("Chromosome stats:");
+        StatsKeeper chrStatsKeeper = reporter.getChromosomeStats();
+        List<StatsKeeper.Section> chromosomeSections = chrStatsKeeper.getSections();
+        Paragraph chrTitle = createSectionTitle(chrStatsKeeper.getName());
         Section chrSection = summaryChapter.addSection(chrTitle);
 
         Table chrTable = new Table(5);

@@ -1,0 +1,18 @@
+The following files have to updated (new version should be set):
+
+cli/HISTORY
+pom.xml
+
+Make sure all source files have GPL header.
+
+How to add:
+mvn license:format -Dyear=2012 
+
+Git tag has to be created.
+
+
+The following pages must be updated:
+
+index.html
+archive.html
+Example reports

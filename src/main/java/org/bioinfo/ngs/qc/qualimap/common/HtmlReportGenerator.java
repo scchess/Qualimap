@@ -23,6 +23,7 @@ package org.bioinfo.ngs.qc.qualimap.common;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 
 import java.text.DateFormat;
@@ -173,10 +174,11 @@ public class HtmlReportGenerator {
 
     void appendChromosomeStats() {
 
-        List<Section> sections = reporter.getChromosomeSections();
+        StatsKeeper chrStatsKeeper = reporter.getChromosomeStats();
+        List<Section> sections = chrStatsKeeper.getSections();
 
         append("\n<div class=table-summary>");
-        append("<h3>" + "Per chromosome statistics" + reporter.getNamePostfix() + "</h3>" );
+        append("<h3>" + chrStatsKeeper.getName() + "</h3>" );
         append("<table class=\"summary hovertable\">");
 
         for(Section s : sections) {
