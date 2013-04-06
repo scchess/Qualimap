@@ -78,7 +78,7 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(OPTION_NUM_THREADS, true,
                 "number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
         options.addOption(OPTION_CHUNK_SIZE, true,
-                "number of reads in the chunk (default equals the number of cores" );
+                "number of reads in the chunk" );
          options.addOption(OPTION_MIN_HOMOPOLYMER_SIZE, true,
                 "minimum size for a homopolymer to be considered in indel analysis (default is "
                         + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
