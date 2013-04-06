@@ -1,8 +1,6 @@
-# the region contains all reads of the file
+# some big test
 
-bamfile=/home/kokonech/sample_data/pl_big.bam
-result=/home/kokonech/sample_data/pl_big.properties
-compute_outside_stats=true
-outside_result=/home/kokonech/sample_data/pl_big_outside.properties
-regions=/home/kokonech/sample_data/pl_big.gff
+bamfile=/home/kokonech/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_RNASeq.bam
+result=$TEST_ROOT_DIR/bamqc/results/pl_inside.props
+regions=/home/kokonech/qualimap_release_data/annotations/Plasmodium-falciparum-3D7.gff
 

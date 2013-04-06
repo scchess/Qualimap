@@ -181,9 +181,6 @@ public class BamQcTool extends NgsSmartTool{
 			bamQC.setComputeOutsideStats(computeOutsideStats);
 		}
 
-		// chromosome stats
-		bamQC.setComputeChromosomeStats(true);
-
 		// reporting
 		bamQC.activeReporting(outdir);
 		//if(saveCoverage) bamQC.ctiveCoverageReporting();
@@ -206,7 +203,6 @@ public class BamQcTool extends NgsSmartTool{
 
 		BamQCRegionReporter reporter = new BamQCRegionReporter();
 		reporter.setPaintChromosomeLimits(paintChromosomeLimits);
-        reporter.setChromosomeFilePath(outdir + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES);
         if (selectedRegionsAvailable) {
             reporter.setNamePostfix(" (inside of regions)");
         }
@@ -235,7 +231,6 @@ public class BamQcTool extends NgsSmartTool{
 
             BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
             outsideReporter.setNamePostfix(" (outside of regions)");
-            outsideReporter.setChromosomeFilePath(outdir + File.separator + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE);
             outsideReporter.setPaintChromosomeLimits(paintChromosomeLimits);
             if (!genomeToCompare.isEmpty()) {
                 outsideReporter.setGenomeGCContentName(genomeToCompare);

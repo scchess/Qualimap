@@ -1,6 +1,6 @@
-#testing read begining is out of region
+# Test in regions
 
 bamfile=$COMMON_DATA_DIR/pl_1_and_2.bam
-result=$TEST_ROOT_DIR/bamqc/results/pl.inside.properties
+result=$TEST_ROOT_DIR/bamqc/results/pl_1_and_2_inside.props
 regions=$COMMON_DATA_DIR/test_region_01.gff
 

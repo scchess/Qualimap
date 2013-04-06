@@ -1,4 +1,4 @@
-#Basic region test with gff file
+#Basic test
 bamfile=$COMMON_DATA_DIR/pl_1_and_2.bam
-result=$TEST_ROOT_DIR/bamqc/results/pl.bam.properties
+result=$TEST_ROOT_DIR/bamqc/results/pl_1_and_2.props
 

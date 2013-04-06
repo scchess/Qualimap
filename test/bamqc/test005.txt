@@ -1,6 +1,5 @@
 # some big test
 
 bamfile=/home/kokonech/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_RNASeq.bam
-result=$TEST_ROOT_DIR/bamqc/results/plasmodium.properties
-regions=/home/kokonech/qualimap_release_data/annotations/Plasmodium-falciparum-3D7.gff
+result=$TEST_ROOT_DIR/bamqc/results/pl.props
 

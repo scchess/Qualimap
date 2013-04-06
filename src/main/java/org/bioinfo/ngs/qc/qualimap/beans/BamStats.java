@@ -239,6 +239,41 @@ public class BamStats implements Serializable {
     XYVector readsClippingProfileHistogram;
     int[] homopolymerIndelsData;
 
+    // chromosome stats
+    public class ChromosomeInfo {
+        String name;
+        long length, numBases;
+        double covMean,covStd;
+
+        public String getName() {
+            return name;
+        }
+
+        public long getLength() {
+            return length;
+        }
+
+        public long getNumBases() {
+            return numBases;
+        }
+
+        public double getCovMean() {
+            return covMean;
+        }
+
+        public double getCovStd() {
+            return covStd;
+        }
+    }
+
+    public ChromosomeInfo[] getChromosomeStats() {
+        return chromosomeStats;
+    }
+
+
+    ChromosomeInfo[] chromosomeStats;
+
+
 	// windows
 	private int numberOfWindows;
 	private int numberOfProcessedWindows;
@@ -3068,14 +3103,14 @@ public class BamStats implements Serializable {
 
     }
 
-
-    public void saveChromosomeStats(String fileName, GenomeLocator locator, ArrayList<Integer> chromosomeWindowIndexes) throws IOException {
+    public void computeChromosomeStats(GenomeLocator locator, ArrayList<Integer> chromosomeWindowIndexes) throws IOException {
         int chromosomeCount = chromosomeWindowIndexes.size();
         List<ContigRecord> contigRecords = locator.getContigs();
 
-        PrintWriter chromoWriter = new PrintWriter(new FileWriter(fileName));
+        //chromoWriter.println("#name\tabsolute_pos\tmapped_bases\tmean_coverage\tstd_coverage");
 
-        chromoWriter.println("#name\tabsolute_pos\tmapped_bases\tmean_coverage\tstd_coverage");
+        chromosomeStats = new ChromosomeInfo[chromosomeCount];
+
         for (int k = 0; k < chromosomeCount; ++k) {
             int firstWindowIndex = chromosomeWindowIndexes.get(k);
             int lastWindowIndex = k + 1 < chromosomeCount
@@ -3091,22 +3126,31 @@ public class BamStats implements Serializable {
             }
 
             ContigRecord contig = contigRecords.get(k);
-            chromoWriter.print(contig.getName() + "\t");
-            chromoWriter.print(contig.getStart() + ":"+ contig.getEnd() + "\t");
 
-            if (length == 0) {
-                chromoWriter.println("0\t0\t0\t");
-            } else {
-                chromoWriter.print(numBases + "\t");
-                double mean =  numBases / length;
-                double std = Math.sqrt( sumCovSquared / length - mean*mean);
-                chromoWriter.print(StringUtils.decimalFormat(mean,"#,###,###,###.##")+ "\t" );
-                chromoWriter.println(StringUtils.decimalFormat(std, "#,###,###,###.##"));
+            ChromosomeInfo info = new ChromosomeInfo();
+            info.name = contig.getName();
+            if (length != 0) {
+                info.length = (long) length;
+                info.numBases = numBases;
+                info.covMean =  numBases / length;
+                info.covStd = Math.sqrt( sumCovSquared / length - info.covMean *info.covMean);
             }
+            chromosomeStats[k] = info;
+
+            //if (length == 0) {
+            //    chromoWriter.println("0\t0\t0\t");
+            //} else {
+            //    chromoWriter.print(numBases + "\t");
+            //    double mean =  numBases / length;
+            //    double std = Math.sqrt( sumCovSquared / length - mean*mean);
+                //chromoWriter.print(StringUtils.decimalFormat(mean,"#,###,###,###.##")+ "\t" );
+                //chromoWriter.println(StringUtils.decimalFormat(std, "#,###,###,###.##"));
+            //}
         }
 
-        chromoWriter.close();
     }
+
+
 
     public XYVector getBalancedCoverageHistogram() {
         return balancedCoverageHistogram;

@@ -46,10 +46,6 @@ public class BamQCTest {
         tests.add( new TestConfig("bamqc/test003.txt", testEnv) );
         tests.add( new TestConfig("bamqc/test004.txt", testEnv) );
         tests.add( new TestConfig("bamqc/test005.txt", testEnv) );
-
-
-        // BIG TESTS JUST TO SEE IF QUALIMAP WILL FINISH
-
         //tests.add( new TestConfig("bamqc/test006.txt", testEnv) );
         //tests.add( new TestConfig("bamqc/test007.txt", testEnv) );
     }
@@ -82,11 +78,11 @@ public class BamQCTest {
             Properties calculatedProps = bamQcReporter.generateBamQcProperties();
 
             // For generating correct tests
-            /*try {
-                calculatedProps.store(new FileOutputStream(test.getResultsPath()), null);
+            try {
+                calculatedProps.store(new FileOutputStream(test.getResultsPath() + ".new"), null);
             } catch (IOException e) {
                 e.printStackTrace();
-            }*/
+            }
 
             compareProperties(calculatedProps, test.getResultsPath());
 

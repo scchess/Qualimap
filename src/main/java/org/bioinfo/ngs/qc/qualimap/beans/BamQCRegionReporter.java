@@ -117,15 +117,13 @@ public class BamQCRegionReporter implements Serializable {
     private Map<String,String> warnings;
     String namePostfix;
     String genomeGCContentName;
-    String chromosomeFilePath;
     int numSelectedRegions;
 
     public BamQCRegionReporter() {
         namePostfix = "";
         inputDataKeeper = new StatsKeeper();
+        chromosomeStatsKeeper = new StatsKeeper();
         summaryStatsKeeper = null;
-        chromosomeStatsKeeper = null;
-        chromosomeFilePath = "";
         genomeGCContentName = "";
     }
 
@@ -250,7 +248,8 @@ public class BamQCRegionReporter implements Serializable {
 	 * @param bamStats data read in the input file
 	 */
 	public void loadReportData(BamStats bamStats) {
-		this.bamFileName = bamStats.getSourceFile();
+
+        this.bamFileName = bamStats.getSourceFile();
 		this.referenceSize = bamStats.getReferenceSize();
 		this.contigsNumber = bamStats.getNumberOfReferenceContigs();
 
@@ -340,6 +339,9 @@ public class BamQCRegionReporter implements Serializable {
         numInsertions = bamStats.getNumInsertions();
         numDeletions = bamStats.getNumDeletions();
         homopolymerIndelFraction = bamStats.getHomopolymerIndelFraction();
+
+        createChromosomeStatsKeeper(bamStats.getChromosomeStats());
+
 
 
 	}
@@ -942,13 +944,10 @@ public class BamQCRegionReporter implements Serializable {
     }
 
     public List<StatsKeeper.Section> getChromosomeSections() {
-        if (chromosomeStatsKeeper == null) {
-            createChromosomeStatsKeeper();
-        }
         return chromosomeStatsKeeper.getSections();
     }
 
-    private void createChromosomeStatsKeeper() {
+    private void createChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
 
         chromosomeStatsKeeper = new StatsKeeper();
 
@@ -960,40 +959,19 @@ public class BamQCRegionReporter implements Serializable {
         chromosomeStatsKeeper.addSection(headerSection);
 
         StatsKeeper.Section dataSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_DATA);
-        BufferedReader br = null;
 
-        try {
-            br = new BufferedReader(new FileReader(new File(chromosomeFilePath)));
-            String strLine;
-            // Iterate the file reading the lines
-            while ((strLine = br.readLine()) != null) {
-                // Test if the read is the header of the table or not
+        for (BamStats.ChromosomeInfo statsRecord : statsArray) {
+            String[] row = new String[5];
+            row[0] =  statsRecord.getName();
+            row[1] = Long.toString(statsRecord.getLength());
+            row[2] = Long.toString(statsRecord.getNumBases());
+            row[3] = StringUtils.decimalFormat(statsRecord.getCovMean(),"#,###,###,###.##");
+            row[4] = StringUtils.decimalFormat(statsRecord.getCovStd(),"#,###,###,###.##");
 
-                if (!strLine.startsWith("#")) {
-                    String[] tableValues = strLine.split("\t");
-                    String[] coords = tableValues[1].split(":");
-                    long len = Long.parseLong(coords[1]) - Long.parseLong(coords[0]) + 1;
-                    tableValues[1] = Long.toString(len);
-                    dataSection.addRow(tableValues);
-
-                }
-            }
-
-            chromosomeStatsKeeper.addSection(dataSection);
-
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
+            dataSection.addRow(row);
         }
+
+        chromosomeStatsKeeper.addSection(dataSection);
 
     }
 
@@ -1045,11 +1023,6 @@ public class BamQCRegionReporter implements Serializable {
         return res;
     }
 
-    public void setChromosomeFilePath(String chromosomeFilePath) {
-        this.chromosomeFilePath = chromosomeFilePath;
-    }
-
-
     public void setWarningInfo(Map<String, String> warnings) {
         this.warnings  = warnings;
     }
@@ -1067,24 +1040,20 @@ public class BamQCRegionReporter implements Serializable {
 
         Properties prop = new Properties();
 
-        prop.setProperty("refSize", referenceSize.toString());
+
+        List<StatsKeeper.Section> summarySections = getSummaryDataSections();
+        for (StatsKeeper.Section s : summarySections) {
+            String sectionName = s.getName().toUpperCase().replaceAll("\\s","_");
+            for (String[] row : s.getRows()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(sectionName).append("_").append(row[0].replaceAll("\\s","_"));
+                prop.setProperty(builder.toString(), row[1].replaceAll("\\s", ""));
+            }
+        }
+
+        /*prop.setProperty("refSize", referenceSize.toString());
         prop.setProperty("numContigs", contigsNumber.toString());
         prop.setProperty("numRegions", Integer.toString(numSelectedRegions));
-
-        // reference
-        /*if (reporter.getReferenceFileName() != null && !reporter.getReferenceFileName().isEmpty()) {
-            prop.setProperty("referenceFileName", reporter.getReferenceFileName());
-            prop.setProperty("aReferenceNumber", reporter.getaReferenceNumber().toString());
-            prop.setProperty("aReferencePercent", reporter.getaReferencePercent().toString());
-            prop.setProperty("cReferenceNumber", reporter.getcReferenceNumber().toString());
-            prop.setProperty("cReferencePercent", reporter.getcReferencePercent().toString());
-            prop.setProperty("tReferenceNumber", reporter.gettReferenceNumber().toString());
-            prop.setProperty("tReferencePercent", reporter.gettReferencePercent().toString());
-            prop.setProperty("gReferenceNumber", reporter.getgReferenceNumber().toString());
-            prop.setProperty("gReferencePercent", reporter.getgReferencePercent().toString());
-            prop.setProperty("nReferenceNumber", reporter.getnReferenceNumber().toString());
-            prop.setProperty("nReferencePercent", reporter.getnReferencePercent().toString());
-         }*/
 
         // globals
         prop.setProperty("numWindows", numWindows.toString());
@@ -1126,7 +1095,16 @@ public class BamQCRegionReporter implements Serializable {
         prop.setProperty("gPercent", gPercent.toString());
         prop.setProperty("nNumber", nNumber.toString());
         prop.setProperty("nPercent",  nPercent.toString());
-        prop.setProperty("gcPercent", gcPercent.toString());
+        prop.setProperty("gcPercent", gcPercent.toString()); */
+
+
+        // per reference stats
+        StatsKeeper.Section dataSection = getChromosomeSections().get(1);
+
+        for (String[] row : dataSection.getRows() ) {
+            prop.setProperty(row[0], Arrays.toString(ArrayUtils.subarray(row, 1, row.length - 1)) );
+        }
+
 
         return prop;
     }

@@ -118,7 +118,7 @@ public class BamStatsAnalysis {
     BamStatsCollector outsideBamStatsCollector;
 
 	// chromosome
-	private boolean computeChromosomeStats;
+	//private boolean computeChromosomeStats;
 	private ArrayList<Integer> chromosomeWindowIndexes;
 
     private int maxSizeOfTaskQueue;
@@ -160,7 +160,6 @@ public class BamStatsAnalysis {
         this.maxSizeOfTaskQueue = 10;
         this.minReadSize = Integer.MAX_VALUE;
         this.threadNumber = 4;
-        this.computeChromosomeStats = true;
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.outdir = ".";
@@ -467,21 +466,12 @@ public class BamStatsAnalysis {
 
         isPairedData = bamStats.getNumberOfPairedReads() > 0;
 
-        // compute descriptors
         logger.println("Computing descriptors...");
 		bamStats.computeDescriptors();
-        // compute histograms
-		logger.println("Computing histograms...");
+        logger.println("Computing per chromosome statistics...");
+		bamStats.computeChromosomeStats(locator, chromosomeWindowIndexes);
+        logger.println("Computing histograms...");
 		bamStats.computeHistograms();
-
-        if (computeChromosomeStats) {
-            String fileName = outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES;
-            bamStats.saveChromosomeStats(fileName, locator, chromosomeWindowIndexes);
-            if (selectedRegionsAvailable && computeOutsideStats) {
-                String outsideFilename = outdir + "/" + Constants.NAME_OF_FILE_CHROMOSOMES_OUTSIDE;
-                outsideBamStats.saveChromosomeStats(outsideFilename, locator, chromosomeWindowIndexes);
-            }
-        }
 
         if(selectedRegionsAvailable && computeOutsideStats){
             outsideBamStats.setReferenceSize(referenceSize);
@@ -508,8 +498,11 @@ public class BamStatsAnalysis {
 
             logger.println("Computing descriptors for outside regions...");
             outsideBamStats.computeDescriptors();
+            logger.println("Computing per chromosome statistics for outside regions...");
+		    outsideBamStats.computeChromosomeStats(locator, chromosomeWindowIndexes);
             logger.println("Computing histograms for outside regions...");
 		    outsideBamStats.computeHistograms();
+
         }
 
         long overallTime = System.currentTimeMillis();
@@ -626,9 +619,11 @@ public class BamStatsAnalysis {
         long windowStart = w.getStart();
         long windowEnd = w.getEnd();
 
+
         BitSet bitSet = new BitSet((int)w.getWindowSize());
 
         int numRegions = selectedRegionStarts.length;
+
         for (int i = 0; i < numRegions; ++i) {
             long regionStart = selectedRegionStarts[i];
             long regionEnd = selectedRegionEnds[i];
@@ -649,6 +644,10 @@ public class BamStatsAnalysis {
 
         w.setSelectedRegions(bitSet);
         w.setSelectedRegionsAvailable(true);
+
+        // TEMP: uncomment
+        //insideReferenceSize += bitSet.cardinality();
+
     }
 
 
@@ -840,6 +839,7 @@ public class BamStatsAnalysis {
             }*/
             pos = locator.getAbsoluteCoordinates(region.getSequenceName(),region.getStart());
 	        int regionLength = region.getEnd() - region.getStart() + 1;
+            // TEMPTODO: delete next line
             insideReferenceSize += regionLength;
             selectedRegionStarts[index] = pos;
             selectedRegionEnds[index] = pos + regionLength - 1;
@@ -878,14 +878,14 @@ public class BamStatsAnalysis {
 	}
 
 
-	private int computeEffectiveNumberOfWindows(long referenceSize, int windowSize){
+	/*private int computeEffectiveNumberOfWindows(long referenceSize, int windowSize){
 		int numberOfWindows = (int)Math.floor((double)referenceSize/(double)windowSize);
 		if(((double)referenceSize/(double)windowSize)>numberOfWindows){
 			numberOfWindows++;
 		}
 
 		return numberOfWindows;
-	}
+	}*/
 
     private ArrayList<Long> computeWindowPositions(int windowSize){
         List<ContigRecord> contigs = locator.getContigs();
@@ -991,10 +991,6 @@ public class BamStatsAnalysis {
 		this.outdir = outdir;
 		this.activeReporting = true;
 	}
-
-    public void setComputeChromosomeStats(boolean computeChromosomeStats) {
-        this.computeChromosomeStats = computeChromosomeStats;
-    }
 
     public void setSelectedRegions(String featureFile){
 		this.featureFile = featureFile;
