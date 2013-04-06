@@ -775,14 +775,18 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		if (event.getButton() == MouseEvent.BUTTON3 && event.getClickCount() == 1 && tabsPropertiesMap.size() > 0) {
 			JPopupMenu popupMenu = new JPopupMenu();
 			JMenuItem renameBtn = new JMenuItem("Rename Tab");
-			renameBtn.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve_edit.png")));
+			//renameBtn.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "chart_curve_edit.png")));
 			renameBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					String title = aTabbedPane.getSelectedComponent().getName();
+                    //Component tabPane =
+                    ButtonTabComponent tabPane = (ButtonTabComponent) aTabbedPane.getTabComponentAt(aTabbedPane.getSelectedIndex());
+					String title = tabPane.getTitle();
+                    //String title = aTabbedPane.getSelectedComponent().getName();
 					//showInputDialog(Component parentComponent, Object message, String title, int messageType, Icon icon, Object[] selectionValues, Object initialSelectionValue) 
 					String temp = (String) JOptionPane.showInputDialog(null,"Enter the name for the tab", "Tab Name", JOptionPane.QUESTION_MESSAGE, null, null,title);
 					if(temp.length()>1){
-						aTabbedPane.setTitleAt(aTabbedPane.getSelectedIndex(), temp);
+                        tabPane.setTitle(temp);
+						//aTabbedPane.setTitleAt(aTabbedPane.getSelectedIndex(), temp);
 					}
 				}
 			});
