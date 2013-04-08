@@ -33,4 +33,5 @@ public class AppSettings {
     public static void setGlobalSettings(AppSettings settings) {
         globalSettings = settings;
     }
+
 }

@@ -44,6 +44,8 @@ Input Parameters
 :guilabel:`Regions file(GFF/BED file)` 
   The path to the annotation file that defines the regions of interest. The file must be **tab-separated** and have `GFF <http://genome.ucsc.edu/FAQ/FAQformat.html#format3>`_/`GTF <http://genome.ucsc.edu/FAQ/FAQformat.html#format4>`_  or `BED <http://genome.ucsc.edu/FAQ/FAQformat.html# format1>`_ format.
 
+.. note:: A typical problem when working with human genome annotations is the inconsistency between chromosome names due to "chr" prefix. For example, Ensemble annotations do not include this prefix, while UCSC annotations do. This can become a problem when asscociating regions file with the BAM alignment. Qualimap handles this problem: if the reference sequence of a region has "chr" prefix, it tries to search for sequence name with prefix and without prefix.
+
 :guilabel:`Library strand specificity`
 
   The sequencing protocol strand specificity: *non-strand-specific*, *forward-stranded* or *reverse-stranded*. This information is required to calculate the number of **correct strand** reads.

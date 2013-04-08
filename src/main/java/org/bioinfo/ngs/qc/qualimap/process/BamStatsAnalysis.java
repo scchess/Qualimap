@@ -132,7 +132,7 @@ public class BamStatsAnalysis {
     long timeToCalcOverlappers;
     private String pgProgram, pgCommandString;
 
-    static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Sequence is missing";
+    public static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Some regions are not loaded";
 
     public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
     public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
@@ -629,6 +629,10 @@ public class BamStatsAnalysis {
             long regionStart = selectedRegionStarts[i];
             long regionEnd = selectedRegionEnds[i];
 
+            if (regionStart == -1) {
+                continue;
+            }
+
             if ( regionStart >= windowStart && regionStart <= windowEnd ) {
                 //System.out.println("Have match! Type1 " + w.getName());
                 long end = Math.min(windowEnd,regionEnd);
@@ -832,12 +836,19 @@ public class BamStatsAnalysis {
 		long pos;
 		insideReferenceSize = 0;
         GenomicFeature region;
+        int regionsWithMissingChromosomesCount = 0;
 
         while((region = featureFileReader.readNextRecord()) != null){
             /*if (!region.getFeature().equalsIgnoreCase("exon")) {
                 continue;
             }*/
             pos = locator.getAbsoluteCoordinates(region.getSequenceName(),region.getStart());
+            if (pos == -1) {
+                selectedRegionStarts[index] = -1;
+                selectedRegionEnds[index] = -1;
+                regionsWithMissingChromosomesCount++;
+                continue;
+            }
 	        int regionLength = region.getEnd() - region.getStart() + 1;
             // TEMPTODO: delete next line
             //insideReferenceSize += regionLength;
@@ -849,22 +860,19 @@ public class BamStatsAnalysis {
 			index++;
 		}
 
-        featureFileReader.close();
-        validateSequenceNames();
-
-    }
-
-    private void validateSequenceNames() {
-        Set<String> seqNames = regionOverlapLookupTable.getSequenceNames();
-
-        for (String seqName : seqNames) {
-            if (!locator.containsContig(seqName)) {
-                String msg = "Sequence id " + seqName + " from regions is not found.";
+        if (regionsWithMissingChromosomesCount > 0)  {
+            if (regionsWithMissingChromosomesCount == numberOfSelectedRegions) {
+                throw new RuntimeException("Given file with regions can not be associated with the BAM file.\n" +
+                    "Please check, if the chromosome names match in the regions and the alignment files.");
+            } else {
+                String msg = regionsWithMissingChromosomesCount + " regions were skipped because chromosome" +
+                        " name was not found in the BAM file.";
                 bamStats.addWarning(WARNING_ID_CHROMOSOME_NOT_FOUND, msg);
-                logger.warn(msg);
             }
+
         }
 
+        featureFileReader.close();
 
     }
 
