@@ -592,7 +592,6 @@ public class BamGenomeWindow {
 
     public void addReadAlignmentData(SingleReadData readData) {
 
-        numberOfAlignedBases += readData.numberOfAlignedBases;
         numberOfMappedBases += readData.numberOfMappedBases;
         numberOfSequencedBases += readData.numberOfSequencedBases;
         numberOfProperlyPairedMappedBases += readData.numberOfProperlyPairedBases;
@@ -603,7 +602,6 @@ public class BamGenomeWindow {
         numberOfTs += readData.numberOfTs;
 
         acumInsertSize += readData.acumInsertSize;
-        //correctInsertSizes += readData.correctInsertSizes;
 
 
     }

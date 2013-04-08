@@ -53,7 +53,10 @@ public class BamQCTest {
     @Test
     public void testStats() {
 
+
         for (TestConfig test : tests) {
+
+            System.err.println("Running test " + test.getPath());
 
             BamQCRegionReporter bamQcReporter = new BamQCRegionReporter();
 

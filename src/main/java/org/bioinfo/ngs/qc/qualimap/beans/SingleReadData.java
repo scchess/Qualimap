@@ -36,7 +36,8 @@ public class SingleReadData {
     public long numberOfTs;
     public long numberOfCs;
     public long numberOfGs;
-    public long numberOfAlignedBases;
+    // These number denotes how many bases are aligned from sequenced bases
+    //public long numberOfAlignedBases;
     public long acumInsertSize;
     public long numberOfProperlyPairedBases;
 
@@ -73,7 +74,6 @@ public class SingleReadData {
 
     public void acumBase(long relative, char base, long insertSize){
 		numberOfSequencedBases++;
-		numberOfMappedBases++;
 
         // ATCG content
         if(base=='A'){

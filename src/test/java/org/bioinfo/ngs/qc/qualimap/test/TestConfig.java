@@ -35,6 +35,7 @@ public class TestConfig {
 
 
     HashMap<String,String> attributes;
+    String path;
 
     private final String BAM_FILE_ATTR = "bamfile";
     private final String RESULTS_FILE_ATTR = "result";
@@ -62,9 +63,13 @@ public class TestConfig {
 
     public TestConfig(String pathToConfig, Environment testEnv ) throws IOException {
         String qualimapTestDir = testEnv.getQualimapTestDir();
-        String path = qualimapTestDir + File.separator + pathToConfig;
+        path = qualimapTestDir + File.separator + pathToConfig;
         BufferedReader fileReader = new BufferedReader( new FileReader(path));
         attributes = parseConfigFile(fileReader,testEnv);
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public String getSpecificAttribute(String attrName) { return attributes.get(attrName); }

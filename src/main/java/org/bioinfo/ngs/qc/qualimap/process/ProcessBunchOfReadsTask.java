@@ -457,7 +457,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
                 char nucleotide = alignment[pos];
 
                 // aligned bases
-                readData.numberOfAlignedBases++;
+                readData.numberOfMappedBases++;
 
                 if (nucleotide != '-' && nucleotide != 'N') {
                     // mapping quality
