@@ -1,6 +1,16 @@
 Version Release History
 =======================
 
+Version 0.7 - April 8, 2013 
+--------------------------
+
+    * Fixed per chromosome coverage report 
+    * Took into account deletions when calculating coverage
+    * Fixed renaming of tabs
+    * Added global parameter to set Rscript path 
+    * Minor fixes in command line tools argument parsing
+    * Improved handling of improper regions in BAMQC
+    * Updated documentation 
 
 Version 0.6 - October 30, 2012 
 --------------------------
