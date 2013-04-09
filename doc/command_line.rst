@@ -14,6 +14,8 @@ Each analysis type presented in QualiMap GUI is also available as command line t
 
 :guilabel:`<tool_options>` are specific to each type analysis. If not option is provided for the specific tool a full list of available options will be shown
 
+.. note:: If you are using Qualimap on Unix server without X11 system, make sure that the DISPLAY environment variable is unset. Otherwise this might result in problems when running Qualimap. :ref:`Here<x11problem>` is an instruction how to solve this issue.
+
 To show available tools use command:: 
 
     qualimap --help

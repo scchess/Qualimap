@@ -41,6 +41,24 @@ Also one can override this parameter by setting environment variable $JAVA_OPTS.
 
 |
 
+Command line
+------------
+.. _x11problem:
+
+**Q**: *I launch Qualimap command-line tool on my big and powerful Linux server. However it doesn't finish properly and outputs some strange message like*:
+
+| **Exception in thread "main" java.lang.InternalError: Can't connect to X11**
+| **window server using 'foo:42.0' as the value of the DISPLAY variable.**
+
+*What is going on?*
+
+**A**: Java virtual machine uses **DISPLAY** environment variable to detect if the X11 system is available. Sometimes this variable is set incorrectly by the operating system or some applications. To make Qualimap work simply unset this variable:
+    :samp:`unset DISPLAY`
+or like this:
+    :samp:`export DISPLAY=:0`
+
+|
+
 Performance
 -----------
 
