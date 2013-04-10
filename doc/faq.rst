@@ -7,6 +7,15 @@ Frequently Asked Questions
 
 General
 -------
+
+**Q**: *How to cite Qualimap?*
+
+**A**: If you use Qualimap for your research, please cite the following:
+
+**García-Alcalde, et al. "Qualimap: evaluating next generation sequencing alignment data." Bioinformatics(2012) 28 (20): 2678-2679**
+
+|
+
 .. _heapsize:
 
 **Q**: *How to increase maximum Java heap memory size?*
