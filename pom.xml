@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 	<groupId>org.bioinfo.ngs</groupId>
 	<artifactId>qualimap</artifactId>
-	<version>0.7</version>
+	<version>0.7.1</version>
     <name>qualimap</name>
     
     <properties>

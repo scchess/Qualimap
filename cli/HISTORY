@@ -1,8 +1,16 @@
 Version Release History
 =======================
 
+
+Version 0.7.1 - April 19, 2013 
+------------------------------
+        
+    * Fixed bug with "Coverage Across Reference" plot
+    * Fixed bug in BAM QC when regions don't have any coverage 
+
+
 Version 0.7 - April 10, 2013 
---------------------------
+----------------------------
 
     * Fixed bug in per chromosome coverage report (https://groups.google.com/d/msg/qualimap/AO_6111Gg1E/21SdvEWeAfUJ)
     * Deletions are now properly computed when calculating coverage
