@@ -221,21 +221,26 @@ public class BamGenomeWindow {
 		
 		// org.bioinfo.ntools.process acums		
 
-
         effectiveWindowLength = windowSize;
         if ( selectedRegionsAvailable ) {
             effectiveWindowLength = selectedRegions.cardinality();
         }
 
-        meanCoverage = (double) numberOfMappedBases / effectiveWindowLength;
+        if (effectiveWindowLength != 0) {
+            meanCoverage = (double) numberOfMappedBases / effectiveWindowLength;
+        } else {
+            meanCoverage = 0;
+        }
 
-		meanMappingQuality = acumMappingQuality/(double)numberOfMappedBases;
 
-        meanInsertSize = acumInsertSize/(double)numberOfProperlyPairedMappedBases;
-
+        if (numberOfProperlyPairedMappedBases > 0) {
+            meanInsertSize = acumInsertSize/(double)numberOfProperlyPairedMappedBases;
+        }
 
 		// ACTG absolute content
 		if(meanCoverage > 0){
+
+            meanMappingQuality = acumMappingQuality/(double)numberOfMappedBases;
 
             //meanARelativeContent = numberOfAs / numberOfMappedBases * 100.0
 
