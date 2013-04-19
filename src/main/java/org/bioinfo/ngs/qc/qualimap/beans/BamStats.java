@@ -1028,7 +1028,7 @@ public class BamStats implements Serializable {
 
         double[] coverages = new double[coverageHistogramMap.size()];
 		double[] freqs = new double[coverageHistogramMap.size()];
-		
+
 		// read keys
 		Object[] raw = coverageHistogramMap.keySet().toArray();
 		int totalCoverage = 0;
@@ -1037,17 +1037,17 @@ public class BamStats implements Serializable {
 			freqs[i] = coverageHistogramMap.get(raw[i]);
 			totalCoverage+=freqs[i];
 		}
-		
+
 		// sort coverages
 		int[] index = ArrayUtils.order(coverages);
 		double[] sortedCoverages = ArrayUtils.ordered(coverages,index);
 		double[] sortedFreqs = ArrayUtils.ordered(freqs,index);
-		
+
 		// fill output
 		coverageHistogram = new XYVector();
 		for(int i=0; i<sortedCoverages.length; i++){
 			coverageHistogram.addItem(new XYItem(sortedCoverages[i],sortedFreqs[i]));
-		} 
+		}
 
 
         //TODO: what if coverage is constant, for example 1 everywhere? This has code has to be checked
@@ -1079,21 +1079,28 @@ public class BamStats implements Serializable {
         }
 
         int borderIndex = 0;
-        for (int i = 0; i < balancedCoverages.size(); ++i) {
-            int coverage = balancedCoverages.get(i);
-            double sum = 0;
-            int prevIndex = borderIndex;
-            while(  borderIndex < sortedCoverages.length && sortedCoverages[borderIndex] <= coverage) {
-                sum += sortedFreqs[borderIndex];
-                ++borderIndex;
-            }
-            //System.out.println("i = " + i + " ,borderIndex = " + borderIndex + " ,sum= " + sum) ;
-            String barName = borderIndex == prevIndex + 1 ? (int)sortedCoverages[prevIndex] + "" :
-                    (int)sortedCoverages[prevIndex] +" - " + (int)sortedCoverages[(borderIndex - 1)];
-            //System.out.println("Bar name is " + barName);
-            balancedCoverageBarNames.put((double)i, barName);
-            balancedCoverageHistogram.addItem(new XYItem(i, sum));
 
+        if (sortedCoverages.length == 1) {
+            String barName = "" + sortedCoverages[0];
+            balancedCoverageBarNames.put(0., barName);
+            balancedCoverageHistogram.addItem(new XYItem(0, sortedFreqs[0]));
+        } else {
+            for (int i = 0; i < balancedCoverages.size(); ++i) {
+                int coverage = balancedCoverages.get(i);
+                double sum = 0;
+                int prevIndex = borderIndex;
+                while(  borderIndex < sortedCoverages.length && sortedCoverages[borderIndex] <= coverage) {
+                    sum += sortedFreqs[borderIndex];
+                    ++borderIndex;
+                }
+                //System.out.println("i = " + i + " ,borderIndex = " + borderIndex + " ,sum= " + sum) ;
+                String barName = borderIndex == prevIndex + 1 ? (int)sortedCoverages[prevIndex] + "" :
+                        (int)sortedCoverages[prevIndex] +" - " + (int)sortedCoverages[(borderIndex - 1)];
+                //System.out.println("Bar name is " + barName);
+                balancedCoverageBarNames.put((double)i, barName);
+                balancedCoverageHistogram.addItem(new XYItem(i, sum));
+
+            }
         }
 
 

@@ -382,7 +382,7 @@ public class BamQCRegionReporter implements Serializable {
 		}
 
         double maxInsertSize = 0;
-        if (isPairedData) {
+        if (isPairedData && maxCoverage > 0) {
             int length = bamStats.getInsertSizeHistogram().getSize();
             maxInsertSize = bamStats.getInsertSizeHistogram().get(length - 1).getX();
         }
@@ -484,6 +484,12 @@ public class BamQCRegionReporter implements Serializable {
 		combinedChart.setPadding(new RectangleInsets(30,20,30,20));
 		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
         charts.add(new QChart(bamStats.getName() + "_coverage_across_reference.png", combinedChart, coverageChart) );
+
+        if (bamStats.getNumberOfMappedBases() == 0) {
+            // It doesn't make sense to draw any other graphs
+            // tODO: show user a message?
+            return;
+        }
 
 
 		////////////////////////////// Balanced coverage histogram ////////////////////////////////
