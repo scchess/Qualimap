@@ -46,11 +46,13 @@ public abstract class NgsSmartTool {
 	
 	// common params
 	protected String outdir;
+    protected String reportFileName;
     protected String toolName;
     protected String outputType;
     protected boolean outDirIsRequired,outFormatIsRequired, homeDirIsRequired;
 
     static String OPTION_NAME_OUTDIR = "outdir";
+    static String OPTION_NAME_OUTFILE = "outfile";
     static String OPTION_NAME_HOMEDIR = "home";
     static String OPTION_NAME_OUTPUT_TYPE = "outformat";
     static String OPTION_NAME_PATH_TO_RSCRIPT = "rscriptpath";
@@ -91,6 +93,7 @@ public abstract class NgsSmartTool {
 		options = new Options();
 		parser = new PosixParser();
 		outdir = "";
+        reportFileName = "";
         outputType = Constants.REPORT_TYPE_HTML;
 
 		initCommonOptions();
@@ -106,6 +109,7 @@ public abstract class NgsSmartTool {
 
         if (outDirIsRequired) {
             options.addOption( OPTION_NAME_OUTDIR, true, "output folder" );
+            options.addOption( OPTION_NAME_OUTFILE, true, "output file for PDF report (default value is report.pdf)");
         }
         if (outFormatIsRequired) {
             options.addOption( OPTION_NAME_OUTPUT_TYPE, true, "output report format (PDF or HTML, default is HTML)");
@@ -128,12 +132,17 @@ public abstract class NgsSmartTool {
 			outdir = commandLine.getOptionValue(OPTION_NAME_OUTDIR);
 		}
 
+        if (commandLine.hasOption(OPTION_NAME_OUTFILE)) {
+            reportFileName = commandLine.getOptionValue(OPTION_NAME_OUTFILE);
+        }
+
 
         if (commandLine.hasOption(OPTION_NAME_OUTPUT_TYPE)) {
             outputType = commandLine.getOptionValue(OPTION_NAME_OUTPUT_TYPE);
             if (!outputType.equals(Constants.REPORT_TYPE_HTML) && !outputType.equals(Constants.REPORT_TYPE_PDF)) {
                 throw new ParseException("Unknown output report format " + outputType);
             }
+
         }
 
         if (commandLine.hasOption(OPTION_NAME_PATH_TO_RSCRIPT)) {
@@ -143,6 +152,9 @@ public abstract class NgsSmartTool {
             }
             AppSettings.getGlobalSettings().setPathToRScript(pathToRScript);
         }
+
+
+
 
 
 	}
@@ -207,9 +219,19 @@ public abstract class NgsSmartTool {
 	}
 
     protected void exportResult(TabPropertiesVO tabProperties) {
-         Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
-                new ExportPdfThread(tabProperties, outdir + File.separator + "report.pdf") :
-                new ExportHtmlThread(tabProperties, outdir);
+
+        // check output options
+        if (outputType.equals(Constants.REPORT_TYPE_PDF)) {
+            if (reportFileName.isEmpty()) {
+                reportFileName = outdir + File.separator + "report.pdf";
+            } else if (!outdir.isEmpty()) {
+                logger.warn("The output file path is set. Ingoing output dir param.");
+            }
+        }
+
+        Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
+               new ExportPdfThread(tabProperties, reportFileName  ) :
+               new ExportHtmlThread(tabProperties, outdir);
 
          exportReportThread.run();
     }
