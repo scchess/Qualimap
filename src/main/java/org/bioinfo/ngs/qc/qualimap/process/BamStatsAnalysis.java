@@ -48,12 +48,12 @@ import java.util.concurrent.*;
  */
 public class BamStatsAnalysis {
 
-    // input data
+    // input alignment
 	private String bamFile;
-	private String referenceFile;
 
 	// reference
-	private boolean referenceAvailable;
+    private String referenceFile;
+    private boolean referenceAvailable;
 	private byte[] reference;
 	private long referenceSize;
 	private int numberOfReferenceContigs;
@@ -118,7 +118,6 @@ public class BamStatsAnalysis {
     BamStatsCollector outsideBamStatsCollector;
 
 	// chromosome
-	//private boolean computeChromosomeStats;
 	private ArrayList<Integer> chromosomeWindowIndexes;
 
     private int maxSizeOfTaskQueue;

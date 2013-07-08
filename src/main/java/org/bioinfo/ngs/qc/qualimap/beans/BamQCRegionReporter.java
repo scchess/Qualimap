@@ -79,14 +79,11 @@ public class BamQCRegionReporter implements Serializable {
 
 	private Long referenceSize, contigsNumber, aNumber, cNumber, gNumber,
 	tNumber, nNumber, numReads, numMappedReads, numMappedBases, numSequencedBases,
-	numAlignedBases, aReferenceNumber, cReferenceNumber, gReferenceNumber,
-	tReferenceNumber, nReferenceNumber, numBasesInsideRegions;
+	numAlignedBases, numBasesInsideRegions;
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
 	gcPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
-    medianInsertSize,
-	aReferencePercent, cReferencePercent, gReferencePercent,
-	tReferencePercent, nReferencePercent, meanCoverage, stdCoverage;
+    medianInsertSize, meanCoverage, stdCoverage;
 
     int readMinSize, readMaxSize, numClippedReads;
     double readMeanSize;
@@ -153,6 +150,7 @@ public class BamQCRegionReporter implements Serializable {
 		report.println("     number of contigs = " + bamStats.getNumberOfReferenceContigs());
 		report.println("");
 		if(bamStats.isReferenceAvailable()) {
+			/*
 			report.println("     reference file = " + bamStats.getReferenceFile());
 			report.println("");			
 			report.println("     number of A's = " + formatLong(bamStats.getNumberOfAsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanARelativeContentPerWindowInReference()) + ")");
@@ -163,6 +161,7 @@ public class BamQCRegionReporter implements Serializable {
 			report.println("");
 			report.println("     GC percentage = " + formatPercentage(bamStats.getMeanGcRelativeContentPerWindowInReference()));
 			report.println("     AT percentage = " + formatPercentage(bamStats.getMeanAtRelativeContentPerWindowInReference()));
+			*/
 		} else {
 			report.println("");
 			report.println("     (reference file is not available)");
@@ -254,7 +253,7 @@ public class BamQCRegionReporter implements Serializable {
 		this.contigsNumber = bamStats.getNumberOfReferenceContigs();
 
 		if(bamStats.isReferenceAvailable()) {
-			this.referenceFileName = bamStats.getReferenceFile();
+			/*this.referenceFileName = bamStats.getReferenceFile();
 			this.aReferenceNumber = bamStats.getNumberOfAsInReference();
 			this.aReferencePercent = bamStats.getMeanARelativeContentPerWindowInReference();
 			this.cReferenceNumber = bamStats.getNumberOfCsInReference();
@@ -265,7 +264,7 @@ public class BamQCRegionReporter implements Serializable {
 			this.gReferencePercent = bamStats.getMeanGRelativeContentPerWindowInReference();
 			this.nReferenceNumber = bamStats.getNumberOfNsInReference();
 			this.nReferencePercent = bamStats.getMeanNRelativeContentPerWindowInReference();
-    		this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();
+    		this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();*/
 		}
 
 		// globals
