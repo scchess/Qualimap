@@ -39,7 +39,7 @@ public enum LibraryProtocol {
 
     public String toString() {
         if (this == STRAND_NON_SPECIFIC) {
-            return PROTOCOL_FORWARD_STRAND;
+            return PROTOCOL_NON_STRAND_SPECIFIC;
         } else if (this == STRAND_SPECIFIC_FORWARD) {
             return PROTOCOL_FORWARD_STRAND;
         } else if (this == STRAND_SPECIFIC_REVERSE) {

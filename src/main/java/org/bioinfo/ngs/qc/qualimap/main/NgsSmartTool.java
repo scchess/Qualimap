@@ -137,7 +137,7 @@ public abstract class NgsSmartTool {
 
 
         if (commandLine.hasOption(OPTION_NAME_OUTPUT_TYPE)) {
-            outputType = commandLine.getOptionValue(OPTION_NAME_OUTPUT_TYPE);
+            outputType = commandLine.getOptionValue(OPTION_NAME_OUTPUT_TYPE).toUpperCase();
             if (!outputType.equals(Constants.REPORT_TYPE_HTML) && !outputType.equals(Constants.REPORT_TYPE_PDF)) {
                 throw new ParseException("Unknown output report format " + outputType);
             }
