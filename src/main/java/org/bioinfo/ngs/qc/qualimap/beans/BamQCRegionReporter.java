@@ -44,7 +44,6 @@ import org.jfree.ui.RectangleInsets;
 
 public class BamQCRegionReporter implements Serializable {
 
-    private int numCorrectStrandReads;
 
     public String getNamePostfix() {
         return namePostfix;
@@ -76,10 +75,10 @@ public class BamQCRegionReporter implements Serializable {
 	/** Variable that contains the input files names */
 	private String bamFileName, referenceFileName;
 
-	private Integer numWindows, numMappedReads;
+	private Integer numWindows;
 
 	private Long referenceSize, contigsNumber, aNumber, cNumber, gNumber,
-	tNumber, nNumber, numReads, numMappedBases, numSequencedBases,
+	tNumber, nNumber, numReads, numMappedReads, numMappedBases, numSequencedBases,
 	numAlignedBases, aReferenceNumber, cReferenceNumber, gReferenceNumber,
 	tReferenceNumber, nReferenceNumber, numBasesInsideRegions;
 
@@ -92,17 +91,18 @@ public class BamQCRegionReporter implements Serializable {
     int readMinSize, readMaxSize, numClippedReads;
     double readMeanSize;
 
-    private int numPairedReads, numberOfMappedFirstOfPair, numberOfMappedSecondOfPair;
+    private long numPairedReads, numberOfMappedFirstOfPair, numberOfMappedSecondOfPair;
     private double percantagePairedReads, percentageOfMappedFirstOfPair, percentageOfMappedSecondOfPair;
-    private int numSingletons;
+    private long numSingletons;
     private double percentageSingletons;
+    private long numCorrectStrandReads;
 
-    private int numMappedReadsInRegions, numPairedReadsInRegions;
+    private long numMappedReadsInRegions, numPairedReadsInRegions;
     private double percentageMappedReadsInRegions;
 
-    private int numMappedFirstOfPairInRegions, numMappedSecondOfPairInRegions;
+    private long numMappedFirstOfPairInRegions, numMappedSecondOfPairInRegions;
     private double percentageOfMappedFirstOfPairInRegions, percentageOfMappedSecondOfPairInRegions;
-    private int numSingletonsInRegions;
+    private long numSingletonsInRegions;
     private double percentageSingletonsInRegions, percentageCorrectStrandReads;
 
     private double duplicationRate;
@@ -177,7 +177,7 @@ public class BamQCRegionReporter implements Serializable {
 		report.println("     number of windows = " + bamStats.getNumberOfWindows());
 		report.println("");
 		report.println("     number of reads = " + formatLong(bamStats.getNumberOfReads()));		
-		report.println("     number of mapped reads = " + formatInteger(bamStats.getNumberOfMappedReads()) + " (" + formatPercentage(bamStats.getPercentageOfMappedReads())+ ")");
+		report.println("     number of mapped reads = " + formatLong(bamStats.getNumberOfMappedReads()) + " (" + formatPercentage(bamStats.getPercentageOfMappedReads())+ ")");
 		report.println("");
 		report.println("     number of mapped bases = " + formatLong(bamStats.getNumberOfMappedBases()) + " bp");
 		report.println("     number of sequenced bases = " + formatLong(bamStats.getNumberOfSequencedBases()) + " bp");
@@ -823,7 +823,7 @@ public class BamQCRegionReporter implements Serializable {
 
         globals.addRow("Number of reads", sdf.formatLong(numReads));
 
-        globals.addRow("Mapped reads", sdf.formatInteger(numMappedReads)
+        globals.addRow("Mapped reads", sdf.formatLong(numMappedReads)
                 + " / " + sdf.formatPercentage(getPercentMappedReads()));
 
         globals.addRow("Unmapped reads",
@@ -836,11 +836,11 @@ public class BamQCRegionReporter implements Serializable {
         if (numPairedReads > 0) {
 
             globals.addRow("Mapped reads, only first in pair",
-                    sdf.formatInteger(numberOfMappedFirstOfPair) + " / " +
+                    sdf.formatLong(numberOfMappedFirstOfPair) + " / " +
                     sdf.formatPercentage(percentageOfMappedFirstOfPair));
 
             globals.addRow("Mapped reads, only second in pair",
-                    sdf.formatInteger(numberOfMappedSecondOfPair) + " / " +
+                    sdf.formatLong(numberOfMappedSecondOfPair) + " / " +
                     sdf.formatPercentage(percentageOfMappedSecondOfPair));
 
             globals.addRow("Mapped reads, both in pair",
@@ -877,22 +877,22 @@ public class BamQCRegionReporter implements Serializable {
                             + "  /  " + sdf.formatPercentage(percentageMappedReadsInRegions));
             if (numPairedReads > 0) {
                 globalsInRegions.addRow("Mapped reads, only first in pair",
-                        sdf.formatInteger(numMappedFirstOfPairInRegions) + " / " +
+                        sdf.formatLong(numMappedFirstOfPairInRegions) + " / " +
                                 sdf.formatPercentage(percentageOfMappedFirstOfPairInRegions));
 
                 globalsInRegions.addRow("Mapped reads, only second in pair",
-                        sdf.formatInteger(numMappedSecondOfPairInRegions) + " / " +
+                        sdf.formatLong(numMappedSecondOfPairInRegions) + " / " +
                                 sdf.formatPercentage(percentageOfMappedSecondOfPairInRegions));
                 globalsInRegions.addRow("Mapped reads, both in pair",
-                                   sdf.formatInteger(numPairedReadsInRegions - numSingletonsInRegions) + " / "
+                                   sdf.formatLong(numPairedReadsInRegions - numSingletonsInRegions) + " / "
                                         + sdf.formatPercentage((getPercentageBothMatesPairedInRegions())));
                 globalsInRegions.addRow("Mapped reads, singletons",
-                        sdf.formatInteger(numSingletonsInRegions) + " / "
+                        sdf.formatLong(numSingletonsInRegions) + " / "
                                 + sdf.formatPercentage(percentageSingletonsInRegions));
 
 
                 globalsInRegions.addRow("Correct strand reads",
-                        sdf.formatInteger(numCorrectStrandReads) + " / " +
+                        sdf.formatLong(numCorrectStrandReads) + " / " +
                         sdf.formatPercentage(percentageCorrectStrandReads) );
             }
 

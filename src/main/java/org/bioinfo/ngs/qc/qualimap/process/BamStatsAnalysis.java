@@ -67,11 +67,11 @@ public class BamStatsAnalysis {
 	private GenomeLocator locator;
 
 	// globals
-	private int numberOfReads;
-	private int numberOfValidReads;
-	private int numberOfDuplicatedReads;
-    private int numberOfCorrectStrandReads;
-    private int numberOfProblematicReads;
+	private long numberOfReads;
+	private long numberOfValidReads;
+	private long numberOfDuplicatedReads;
+    private long numberOfCorrectStrandReads;
+    private long numberOfProblematicReads;
 
 	// statistics
 	private BamStats bamStats;
@@ -426,11 +426,11 @@ public class BamStatsAnalysis {
         //percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
         bamStats.setNumberOfReads(numberOfReads);
 
-        int totalNumberOfMappedReads = bamStatsCollector.getNumMappedReads();
-        int totalNumberOfPairedReads = bamStatsCollector.getNumPairedReads();
-        int totalNumberOfMappedFirstOfPair = bamStatsCollector.getNumMappedFirstInPair();
-        int totalNumberOfMappedSecondOfPair = bamStatsCollector.getNumMappedSecondInPair();
-        int totalNumberOfSingletons = bamStatsCollector.getNumSingletons();
+        long totalNumberOfMappedReads = bamStatsCollector.getNumMappedReads();
+        long totalNumberOfPairedReads = bamStatsCollector.getNumPairedReads();
+        long totalNumberOfMappedFirstOfPair = bamStatsCollector.getNumMappedFirstInPair();
+        long totalNumberOfMappedSecondOfPair = bamStatsCollector.getNumMappedSecondInPair();
+        long totalNumberOfSingletons = bamStatsCollector.getNumSingletons();
 
         if (selectedRegionsAvailable) {
 

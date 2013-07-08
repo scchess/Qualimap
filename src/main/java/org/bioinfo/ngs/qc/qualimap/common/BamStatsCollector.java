@@ -29,23 +29,27 @@ import net.sf.samtools.SAMRecord;
  */
 public class BamStatsCollector {
 
-    int numMappedReads, numPairedReads;
-    int numMappedFirstInPair, numMappedSecondInPair, numSingletons;
+    long numMappedReads, numPairedReads;
+    long numMappedFirstInPair, numMappedSecondInPair, numSingletons;
 
-    public int getNumMappedReads() {
+    public long getNumMappedReads() {
         return numMappedReads;
     }
 
-    public int getNumMappedFirstInPair() {
+    public long getNumMappedFirstInPair() {
         return numMappedFirstInPair;
     }
 
-    public int getNumMappedSecondInPair() {
+    public long getNumMappedSecondInPair() {
         return numMappedSecondInPair;
     }
 
-    public int getNumSingletons() {
+    public long getNumSingletons() {
         return numSingletons;
+    }
+
+    public long getNumPairedReads() {
+        return numPairedReads;
     }
 
     public BamStatsCollector() {}
@@ -76,7 +80,5 @@ public class BamStatsCollector {
     }
 
 
-    public int getNumPairedReads() {
-        return numPairedReads;
-    }
+
 }

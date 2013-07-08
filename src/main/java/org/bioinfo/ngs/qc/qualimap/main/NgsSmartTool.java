@@ -23,7 +23,6 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import java.io.File;
 
 import org.apache.commons.cli.*;
-import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;

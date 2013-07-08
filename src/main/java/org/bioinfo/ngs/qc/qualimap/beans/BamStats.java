@@ -43,19 +43,19 @@ public class BamStats implements Serializable {
 	private long numberOfReads;
 	private long numberOfValidReads;
 	private double percentageOfValidReads;
-	private int numberOfMappedReads;
-	private int numberOfPairedReads;
-    private int numberOfSingletons;
-    private int numberOfMappedFirstOfPair;
-    private int numberOfMappedSecondOfPair;
+	private long numberOfMappedReads;
+	private long numberOfPairedReads;
+    private long numberOfSingletons;
+    private long numberOfMappedFirstOfPair;
+    private long numberOfMappedSecondOfPair;
 
     // regions related
-    private  int numberOfMappedReadsInRegions;
-    private int numberOfPairedReadsInRegions;
-    private int numberOfSingletonsInRegions;
-    private int numberOfMappedFirstOfPairInRegions;
-    private int numberOfMappedSecondOfPairInRegions;
-    private int numCorrectStrandReads;
+    private long numberOfMappedReadsInRegions;
+    private long numberOfPairedReadsInRegions;
+    private long numberOfSingletonsInRegions;
+    private long numberOfMappedFirstOfPairInRegions;
+    private long numberOfMappedSecondOfPairInRegions;
+    private long numCorrectStrandReads;
 
     private ArrayList<Long>  numMappedBasesPerWindow;
     private ArrayList<Long> coverageSquaredPerWindow;
@@ -1355,14 +1355,14 @@ public class BamStats implements Serializable {
 	/**
 	 * @return the numberOfMappedReads
 	 */
-	public int getNumberOfMappedReads() {
+	public long getNumberOfMappedReads() {
 		return numberOfMappedReads;
 	}
 
 	/**
 	 * @param numberOfMappedReads the numberOfMappedReads to set
 	 */
-	public void setNumberOfMappedReads(int numberOfMappedReads) {
+	public void setNumberOfMappedReads(long numberOfMappedReads) {
 		this.numberOfMappedReads = numberOfMappedReads;
 	}
 
@@ -2895,11 +2895,11 @@ public class BamStats implements Serializable {
         this.numSelectedRegions = numSelectedRegions;
     }
 
-    public int getNumberOfMappedReadsInRegions() {
+    public long getNumberOfMappedReadsInRegions() {
         return numberOfMappedReadsInRegions;
     }
 
-    public void setNumberOfMappedReadsInRegions(int numberOfMappedReadsInRegions) {
+    public void setNumberOfMappedReadsInRegions(long numberOfMappedReadsInRegions) {
         this.numberOfMappedReadsInRegions = numberOfMappedReadsInRegions;
     }
     public double getPercentageOfInsideMappedReads() {
@@ -2983,11 +2983,11 @@ public class BamStats implements Serializable {
         return homopolymerIndelsData;
     }
 
-    public int getNumberOfPairedReads() {
+    public long getNumberOfPairedReads() {
         return numberOfPairedReads;
     }
 
-    public void setNumberOfPairedReads(int numberOfPairedReads) {
+    public void setNumberOfPairedReads(long numberOfPairedReads) {
         this.numberOfPairedReads = numberOfPairedReads;
     }
 
@@ -2996,11 +2996,11 @@ public class BamStats implements Serializable {
     }
 
 
-    public int getNumberOfSingletons() {
+    public long getNumberOfSingletons() {
         return numberOfSingletons;
     }
 
-    public void setNumberOfSingletons(int numberOfSingletons) {
+    public void setNumberOfSingletons(long numberOfSingletons) {
         this.numberOfSingletons = numberOfSingletons;
     }
 
@@ -3179,43 +3179,43 @@ public class BamStats implements Serializable {
         return medianInsertSize;
     }
 
-    public int getNumberOfMappedFirstOfPair() {
+    public long getNumberOfMappedFirstOfPair() {
         return numberOfMappedFirstOfPair;
     }
 
-    public void setNumberOfMappedFirstOfPair(int numberOfMappedFirstOfPair) {
+    public void setNumberOfMappedFirstOfPair(long numberOfMappedFirstOfPair) {
         this.numberOfMappedFirstOfPair = numberOfMappedFirstOfPair;
     }
 
-    public int getNumberOfMappedSecondOfPair() {
+    public long getNumberOfMappedSecondOfPair() {
         return numberOfMappedSecondOfPair;
     }
 
-    public void setNumberOfMappedSecondOfPair(int numberOfMappedSecondOfPair) {
+    public void setNumberOfMappedSecondOfPair(long numberOfMappedSecondOfPair) {
         this.numberOfMappedSecondOfPair = numberOfMappedSecondOfPair;
     }
 
-    public int getNumberOfSingletonsInRegions() {
+    public long getNumberOfSingletonsInRegions() {
         return numberOfSingletonsInRegions;
     }
 
-    public void setNumberOfSingletonsInRegions(int numberOfSingletonsInRegions) {
+    public void setNumberOfSingletonsInRegions(long numberOfSingletonsInRegions) {
         this.numberOfSingletonsInRegions = numberOfSingletonsInRegions;
     }
 
-    public int getNumberOfMappedFirstOfPairInRegions() {
+    public long getNumberOfMappedFirstOfPairInRegions() {
         return numberOfMappedFirstOfPairInRegions;
     }
 
-    public void setNumberOfMappedFirstOfPairInRegions(int numberOfMappedFirstOfPairInRegions) {
+    public void setNumberOfMappedFirstOfPairInRegions(long numberOfMappedFirstOfPairInRegions) {
         this.numberOfMappedFirstOfPairInRegions = numberOfMappedFirstOfPairInRegions;
     }
 
-    public int getNumberOfMappedSecondOfPairInRegions() {
+    public long getNumberOfMappedSecondOfPairInRegions() {
         return numberOfMappedSecondOfPairInRegions;
     }
 
-    public void setNumberOfMappedSecondOfPairInRegions(int numberOfMappedSecondOfPairInRegions) {
+    public void setNumberOfMappedSecondOfPairInRegions(long numberOfMappedSecondOfPairInRegions) {
         this.numberOfMappedSecondOfPairInRegions = numberOfMappedSecondOfPairInRegions;
     }
 
@@ -3227,11 +3227,11 @@ public class BamStats implements Serializable {
     }
 
 
-    public void setNumberOfPairedReadsInRegions(int numPairedReads) {
+    public void setNumberOfPairedReadsInRegions(long numPairedReads) {
         numberOfPairedReadsInRegions = numPairedReads;
     }
 
-    public int getNumberOfPairedReadsInRegions() {
+    public long getNumberOfPairedReadsInRegions() {
         return numberOfPairedReadsInRegions;
     }
 
@@ -3247,11 +3247,11 @@ public class BamStats implements Serializable {
         return numClippedReads;
     }
 
-    public void setNumberOfCorrectStrandReads(int numberOfCorrectStrandReads) {
+    public void setNumberOfCorrectStrandReads(long numberOfCorrectStrandReads) {
         this.numCorrectStrandReads = numberOfCorrectStrandReads;
     }
 
-    public int getNumCorrectStrandReads() {
+    public long getNumCorrectStrandReads() {
         return numCorrectStrandReads;
     }
 
