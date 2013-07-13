@@ -1750,7 +1750,7 @@ public class BamStats implements Serializable {
                 info.length = length;
                 info.numBases = numBases;
                 info.covMean =  numBases / (double) length;
-                info.covStd = Math.sqrt( sumCovSquared / length - info.covMean *info.covMean);
+                info.covStd = Math.sqrt( sumCovSquared / (double)length - info.covMean *info.covMean);
             }
             chromosomeStats[k] = info;
 
