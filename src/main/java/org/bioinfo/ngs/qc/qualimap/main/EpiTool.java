@@ -21,9 +21,9 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 
@@ -164,9 +164,9 @@ public class EpiTool extends NgsSmartTool {
 
         initOutputDir();
 
-        TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.CLUSTERING);
+        AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.CLUSTERING);
 
-        EpiAnalysis epiAnalysis = new EpiAnalysis(tabProperties,homePath,cfg);
+        EpiAnalysis epiAnalysis = new EpiAnalysis(resultManager,homePath,cfg);
 
         LoggerThread loggerThread = new LoggerThread() {
             public void logLine(String msg) {
@@ -183,7 +183,7 @@ public class EpiTool extends NgsSmartTool {
             System.exit(-1);
         }
 
-        exportResult(tabProperties);
+        exportResult(resultManager);
 
         System.out.println("Finished");
 

@@ -23,12 +23,12 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import java.io.File;
@@ -201,11 +201,8 @@ public class BamQcTool extends NgsSmartTool{
 
 		logger.println("Computing report...");
 
-		BamQCRegionReporter reporter = new BamQCRegionReporter();
+		BamQCRegionReporter reporter = new BamQCRegionReporter(selectedRegionsAvailable, true);
 		reporter.setPaintChromosomeLimits(paintChromosomeLimits);
-        if (selectedRegionsAvailable) {
-            reporter.setNamePostfix(" (inside of regions)");
-        }
         if (!genomeToCompare.isEmpty()) {
             reporter.setGenomeGCContentName(genomeToCompare);
         }
@@ -217,20 +214,16 @@ public class BamQcTool extends NgsSmartTool{
 
         reporter.writeReport(bamQC.getBamStats(),outdir);
 
-        TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.BAM_QC);
-        tabProperties.setBamStats(bamQC.getBamStats());
-        tabProperties.setPairedData(bamQC.isPairedData());
-        tabProperties.setBamStats(bamQC.getBamStats());
-        tabProperties.setGenomeLocator(bamQC.getLocator());
+        AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.BAM_QC);
+
 
         reporter.loadReportData(bamQC.getBamStats());
         reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
-        tabProperties.setReporter(reporter);
+        resultManager.addReporter(reporter);
 
         if(selectedRegionsAvailable && computeOutsideStats){
 
-            BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
-            outsideReporter.setNamePostfix(" (outside of regions)");
+            BamQCRegionReporter outsideReporter = new BamQCRegionReporter(selectedRegionsAvailable, false);
             outsideReporter.setPaintChromosomeLimits(paintChromosomeLimits);
             if (!genomeToCompare.isEmpty()) {
                 outsideReporter.setGenomeGCContentName(genomeToCompare);
@@ -241,12 +234,11 @@ public class BamQcTool extends NgsSmartTool{
             outsideReporter.loadReportData(bamQC.getOutsideBamStats());
             outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 
-            tabProperties.setOutsideReporter(outsideReporter);
-            tabProperties.setOutsideStatsAvailable(true);
+            resultManager.addReporter(outsideReporter);
         }
 
 
-        exportResult(tabProperties);
+        exportResult(resultManager);
 
         logger.println("Finished");
 

@@ -20,9 +20,8 @@
  */
 package org.bioinfo.ngs.qc.qualimap.common;
 
-import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
-import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
@@ -39,13 +38,13 @@ import java.util.*;
  */
 public class HtmlReportGenerator {
 
-    BamQCRegionReporter reporter;
+    StatsReporter reporter;
     AnalysisType analysisType;
     String dirPath;
     StringBuffer htmlReport;
     List<String> plotNames, plotLinks;
 
-    public HtmlReportGenerator(BamQCRegionReporter reporter, String dirPath, AnalysisType analysisType) {
+    public HtmlReportGenerator(StatsReporter reporter, String dirPath, AnalysisType analysisType) {
         this.reporter = reporter;
         this.analysisType = analysisType;
         this.dirPath = dirPath;

@@ -43,7 +43,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.ExportGeneListDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.*;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.LODFileChooser;
 
 
 /**
@@ -77,6 +76,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     private static final String WM_COMMAND_EXPORT_PDF = "exportpdf";
 
     public static final String WM_COMMAND_BAMQC = "bamqc";
+    public static final String WM_COMMAND_RNASEQQC = "rnaseqqc";
     public static final String WM_COMMAND_COUNTSQC = "counts";
     public static final String WM_COMMAND_CLUSTERING = "clustering";
     public static final String WM_COMMAND_CALC_COUNTS = "calc-counts";
@@ -101,7 +101,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	 * Variable that contains the list of paths from the output folders for each
 	 * tab in the program
 	 */
-	private Map<Component,TabPropertiesVO> tabsPropertiesMap;
+	private Map<Component,TabPageController> tabsPropertiesMap;
 
 	/** Dialog to show beside the window */
 	private JDialog popUpDialog;
@@ -299,7 +299,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	}
 
 	public void initGUI() {
-        this.tabsPropertiesMap = new HashMap<Component, TabPropertiesVO>();
+        this.tabsPropertiesMap = new HashMap<Component, TabPageController>();
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
 
@@ -383,17 +383,20 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         fileMenu.add(exportToHtmlItem);
         exportToPdfItem = addMenuItem("Export as PDF", WM_COMMAND_EXPORT_PDF, "save_pdf.png", "ctrl pressed P");
         fileMenu.add(exportToPdfItem);
-        exportGeneListItem = addMenuItem("Export feature list", WM_COMMAND_EXPORT_GENE_LIST, "save_zip.png", null);
+        exportGeneListItem = addMenuItem("Export feature list", WM_COMMAND_EXPORT_GENE_LIST, "save_zip.png", "" );
         fileMenu.add(exportGeneListItem);
         fileMenu.addSeparator();
         fileMenu.add(addMenuItem("Exit QualiMap", WM_COMMAND_EXIT, "door_out.png", "ctrl pressed Q"));
 
-        analysisMenu.add(addMenuItem(AnalysisType.BAM_QC.toString() , WM_COMMAND_BAMQC, "chart_curve_add.png", "ctrl pressed G"));
-        JMenuItem rnaSeqItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), WM_COMMAND_COUNTSQC, "chart_curve_add.png", "ctrl pressed C");
-        rnaSeqItem.setEnabled(countsQCPackagesAvailable);
-        analysisMenu.add(rnaSeqItem);
+        analysisMenu.add(addMenuItem(AnalysisType.BAM_QC.toString() , WM_COMMAND_BAMQC,
+                "chart_curve_add.png", "ctrl pressed G"));
+        analysisMenu.add(addMenuItem(AnalysisType.RNA_SEQ_QC.toString(), WM_COMMAND_RNASEQQC,
+                "chart_curve_add.png", "ctrl pressed R"));
+        JMenuItem analyzeCountsItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), WM_COMMAND_COUNTSQC, "chart_curve_add.png", "ctrl pressed C");
+        analyzeCountsItem.setEnabled(countsQCPackagesAvailable);
+        analysisMenu.add(analyzeCountsItem);
 
-		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, null,"ctrl pressed A");
+		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, "", "ctrl pressed A");
         windowsMenu.add(closeAllTabsItem);
 
         toolsMenu.add(addMenuItem("Compute counts", WM_COMMAND_CALC_COUNTS, "calculator_edit.png", "ctrl pressed T"));
@@ -406,8 +409,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             helpMenu.add(addMenuItem("User Manual", WM_COMMAND_OPEN_MANUAL, "help.png", "F1"));
             
         }
-        helpMenu.add(addMenuItem("QualiMap Online", WM_COMMAND_WEB_QUALIMAP, "world_go.png", null));
-		helpMenu.add(addMenuItem("CIPF BioInfo Web", WM_COMMAND_WEB_BIOINFO, "world_go.png", null));
+        helpMenu.add(addMenuItem("QualiMap Online", WM_COMMAND_WEB_QUALIMAP, "world_go.png", ""));
+		helpMenu.add(addMenuItem("CIPF BioInfo Web", WM_COMMAND_WEB_BIOINFO, "world_go.png", ""));
         helpMenu.add(addMenuItem("About QualiMap", WM_COMMAND_ABOUT, "help.png","F12"));
 
         JMenuBar menuBar = getJMenuBar();
@@ -437,16 +440,16 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		a.setText(text);
 		a.setActionCommand(command);
 		a.addActionListener(this);
-		if (icon!=null) {
+		if ( icon.length() > 0 ) {
             a.setIcon(new ImageIcon(this.getClass().getResource(Constants.pathImages + icon)));
         }
-		if (keys!=null) {
+		if ( keys.length() > 0 ) {
             a.setAccelerator(KeyStroke.getKeyStroke(keys));
         }
 		return a;
 	}
 
-	public void addNewPane(final String inputFileName, final TabPropertiesVO tabProperties) {
+	public void addNewPane(final String inputFileName, final TabPageController tabProperties) {
 		
 		this.getPopUpDialog().setVisible(false);
 		this.remove(this.getPopUpDialog());
@@ -468,7 +471,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
         aTabbedPane.setSelectedComponent(statisticsPane);
 
-        op.showInitialPage(tabProperties);
+        op.showInitialPage();
 
 	}
 	
@@ -480,9 +483,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 		File dir = new File(HomeFrame.outputpath);
 
 		if (dir.isDirectory()) {
-            Collection<TabPropertiesVO> tabPropertiesVOList = tabsPropertiesMap.values();
-			for (TabPropertiesVO tabProperties : tabPropertiesVOList) {
-				deleteOutputIndivifualFolder(tabProperties);
+            Collection<TabPageController> tabPropertiesVOList = tabsPropertiesMap.values();
+			for (TabPageController tabController : tabPropertiesVOList) {
+				deleteOutputIndivifualFolder(tabController);
 			}
 		}
 	}
@@ -491,8 +494,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	 * Private function that erase from the disk the temporal directory
 	 * specified
 	 */
-	private void deleteOutputIndivifualFolder(TabPropertiesVO tabProperties) {
-		String path =HomeFrame.outputpath + tabProperties.getOutputFolder();
+	private void deleteOutputIndivifualFolder(TabPageController tabPageController) {
+		String path = HomeFrame.outputpath + tabPageController.getOutputFolder();
 
 		try {
 			FileUtils.checkDirectory(path);
@@ -592,10 +595,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXPORT_HTML)){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
 
-                TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
+                TabPageController tabProperties = getSelectedTabPageController();
 
 				// We test if this tab has result values or is an input tab
-				if (tabProperties != null && tabProperties.getReporter() != null) {
+				if (tabProperties != null && tabProperties.getReporters().size() > 0) {
 					SavePanel pathSaveDialog = new SavePanel();
                     popUpDialog = pathSaveDialog.getExportToHtmlFilePanel(this);
                     popUpDialog.setModal(true);
@@ -608,10 +611,10 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			}
 	    } else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXPORT_PDF)){
 	    	if (aTabbedPane != null && aTabbedPane.getTabCount() > 0) {
-				TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
+				TabPageController tabProperties = getSelectedTabPageController();
 
 				// We test if this tab has result values or is an input tab
-				if (tabProperties != null && tabProperties.getReporter() != null) {
+				if (tabProperties != null && tabProperties.getReporters().size() > 0) {
 					exportToPdf();
 				} else {
                     JOptionPane.showMessageDialog(this, "Can not export PDF!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -619,6 +622,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 			}
 	    } else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_BAMQC)){
 	    	runBamQC();
+        }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_RNASEQQC)){
+	    	runRnaSeqQC();
         }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC)){
 	        runCountsAnalysis();
 	    }else if(e.getActionCommand().equals(WM_COMMAND_CLUSTERING)) {
@@ -626,7 +631,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         } else if (e.getActionCommand().equals(WM_COMMAND_CALC_COUNTS)) {
             showCountReadsDialog(this);
         } else if (e.getActionCommand().equalsIgnoreCase(WM_COMMAND_EXPORT_GENE_LIST)) {
-            showExportGenesDialog(this, getSelectedTabPropertiesVO());
+            showExportGenesDialog(this, getSelectedTabPageController());
         } else if (e.getActionCommand().equals(WM_COMMAND_OPEN_MANUAL)) {
             openUserManual();
         }
@@ -644,7 +649,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             }
     }
 
-    public static void showExportGenesDialog(Component frame, TabPropertiesVO tabProperties) {
+    public static void showExportGenesDialog(Component frame, TabPageController tabProperties) {
         ExportGeneListDialog dlg;
         try {
             String exprName = tabProperties.getLoadedGraphicName();
@@ -676,6 +681,16 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog.setVisible(true);
 
 	}
+
+    private void runRnaSeqQC(){
+
+            popUpDialog = new RNASeqQCDialog(this);
+            popUpDialog.setModal(true);
+            popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            popUpDialog.setLocationRelativeTo(this);
+            popUpDialog.setVisible(true);
+    }
+
 
 
     private void runCountsAnalysis(){
@@ -721,7 +736,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         boolean activeTabsAvailable = aTabbedPane != null && aTabbedPane.getTabCount() > 0;
         boolean canExportGeneList = false;
         if (activeTabsAvailable) {
-            TabPropertiesVO tabProperties = getSelectedTabPropertiesVO();
+            TabPageController tabProperties = getSelectedTabPageController();
             if (tabProperties != null ) {
 
                 AnalysisType typeAnalysis = tabProperties.getTypeAnalysis();
@@ -741,7 +756,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     }
 
-    public TabPropertiesVO getSelectedTabPropertiesVO() {
+    public TabPageController getSelectedTabPageController() {
         Component selectedComponent = aTabbedPane.getSelectedComponent();
         if (selectedComponent != null) {
             return tabsPropertiesMap.get(selectedComponent);

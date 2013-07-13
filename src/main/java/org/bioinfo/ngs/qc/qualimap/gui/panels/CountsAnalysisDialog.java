@@ -28,7 +28,8 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.*;
@@ -65,6 +66,7 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
 
     static final String SPECIES_ITEM_TOOLTIP = "If the Info File is not given by the user, " +
             "Qualimap provides the Ensemble biotype classification for certain species";
+    private RNAAnalysisVO rnaAnalysisVO;
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -74,6 +76,8 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
 
     public CountsAnalysisDialog(HomeFrame homeFrame) {
         super(homeFrame, "Analyze counts data");
+        this.rnaAnalysisVO = new RNAAnalysisVO();
+
 
         getContentPane().setLayout(new MigLayout("insets 20"));
 
@@ -196,7 +200,6 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
 
 
         calcCountsButton = new JButton("Compute counts...");
-        final Component frame = this;
         calcCountsButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -302,7 +305,8 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 				// We can load from file or from a BAM file
-				TabPropertiesVO tabProperties = new TabPropertiesVO( AnalysisType.COUNTS_QC );
+
+                TabPageController tabProperties = new TabPageController( AnalysisType.COUNTS_QC );
 
                 if (validateInput()) {
 
@@ -420,7 +424,4 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
         return Integer.parseInt( thresholdEdit.getText() );
     }
 
-    public JTextArea getLogArea() {
-        return logArea;
-    }
 }

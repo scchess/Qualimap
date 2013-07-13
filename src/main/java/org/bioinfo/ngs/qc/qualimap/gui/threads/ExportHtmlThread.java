@@ -38,13 +38,13 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.common.HtmlReportGenerator;
 
 
@@ -65,24 +65,25 @@ public class ExportHtmlThread extends Thread{
 	private String dirPath;
 
 	/** Variables that contains the tab properties loaded in the thread*/
-	TabPropertiesVO tabProperties;
+	AnalysisResultManager resultManager;
 
     boolean guiAvailable, saveRawData;
 
 
-	public ExportHtmlThread(String str, Component component, TabPropertiesVO tabProperties, String dirPath) {
-        super(str);
+	public ExportHtmlThread(Component component, AnalysisResultManager resultManager, String dirPath) {
+        super("ExportHtmlThread_Gui");
         if (component instanceof SavePanel) {
         	this.savePanel = (SavePanel)component;
         }
-        this.tabProperties = tabProperties;
+        this.resultManager = resultManager;
         this.dirPath = dirPath;
         this.guiAvailable = true;
         this.saveRawData = true;
     }
 
-    public ExportHtmlThread(TabPropertiesVO tabProperties, String dirPath) {
-        this.tabProperties = tabProperties;
+    public ExportHtmlThread(AnalysisResultManager resultManager, String dirPath) {
+        super("ExportHtmlThread");
+        this.resultManager = resultManager;
         this.dirPath = dirPath;
         this.guiAvailable = false;
         this.saveRawData = true;
@@ -135,45 +136,37 @@ public class ExportHtmlThread extends Thread{
                 }
             }
 
-            String htmlReportFilePath = dirPath + "/qualimapReport.html";
-
-			boolean loadOutsideReporter = false;
-
 			// Show the ProgressBar and the Text Description
             setGuiVisible(true);
 
 			// Set the number of files saved to initial value
 	    	numSavedFiles = 0;
 
-	    	int numItemsToSave = tabProperties.getReporter().getCharts().size();
-	    	AnalysisType analysisType = tabProperties.getTypeAnalysis();
-
-	    	if(tabProperties.getOutsideReporter() != null &&
-					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
-	    		loadOutsideReporter = true;
-	    		numItemsToSave += tabProperties.getOutsideReporter().getCharts().size() + 1;
+	    	int numItemsToSave = 0;
+            List<StatsReporter> reporters = resultManager.getReporters();
+	    	AnalysisType analysisType = resultManager.getTypeAnalysis();
+	    	for (StatsReporter reporter : reporters) {
+	            numItemsToSave += reporter.getCharts().size();
 	    	}
 
 	    	percentLoad = (100.0/numItemsToSave);
 
 			// Add the first file of the reporter
-			BamQCRegionReporter reporter = tabProperties.getReporter();
-            boolean  success = generateAndSaveReport(reporter, htmlReportFilePath, analysisType);
-
-			// Add the files of the third reporter
-			if(success && loadOutsideReporter){
-				BamQCRegionReporter outsideReporter = tabProperties.getOutsideReporter();
-                String outsideReportFilePath = dirPath + "/qualimapReportOutsideOfRegions.html";
-                success = generateAndSaveReport(outsideReporter, outsideReportFilePath, analysisType);
+			boolean success = true;
+            for ( StatsReporter reporter : reporters) {
+                String htmlReportFilePath = dirPath + File.separator + reporter.getFileName() + ".html";
+                success = generateAndSaveReport(reporter, htmlReportFilePath, analysisType);
+                if (!success) {
+                    break;
+                }
             }
 
             prepareCss();
 
             if (saveRawData) {
-               saveRawData(reporter, "raw_data");
-               if (loadOutsideReporter) {
-                   saveRawData(tabProperties.getOutsideReporter(), "raw_data_outside_of_regions");
-               }
+                for ( StatsReporter reporter : reporters) {
+                    saveRawData(reporter, "raw_data" + reporter.getName() );
+                }
             }
 
             if(success){
@@ -188,7 +181,7 @@ public class ExportHtmlThread extends Thread{
     }
 
 
-    private boolean generateAndSaveReport(BamQCRegionReporter reporter, String path, AnalysisType genomicAnalysis) throws IOException {
+    private boolean generateAndSaveReport(StatsReporter reporter, String path, AnalysisType genomicAnalysis) throws IOException {
 
         HtmlReportGenerator generator = new HtmlReportGenerator(reporter, dirPath, genomicAnalysis);
         StringBuffer htmlReport = generator.getReport();
@@ -251,7 +244,7 @@ public class ExportHtmlThread extends Thread{
     }
 
 
-    public boolean saveImages(BamQCRegionReporter reporter) throws IOException {
+    public boolean saveImages(StatsReporter reporter) throws IOException {
 
         boolean success = true;
 
@@ -308,7 +301,7 @@ public class ExportHtmlThread extends Thread{
 		}
     }
 
-    void saveRawData(BamQCRegionReporter reporter, String subFolderName) throws IOException{
+    void saveRawData(StatsReporter reporter, String subFolderName) throws IOException{
         List<QChart> charts = reporter.getCharts();
         String newPath = dirPath + File.separator + subFolderName;
 

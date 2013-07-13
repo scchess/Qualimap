@@ -21,7 +21,6 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import org.jfree.chart.JFreeChart;
-
 import java.awt.image.BufferedImage;
 
 /**

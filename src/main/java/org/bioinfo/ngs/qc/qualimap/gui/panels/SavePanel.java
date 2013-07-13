@@ -44,7 +44,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.PopupKeyListener;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 
 /**
  * Class to generate the save panel to control the save options
@@ -285,20 +285,20 @@ public class SavePanel extends javax.swing.JPanel {
      * @param path Output PDF path
      */
 	private void exportToPdf(String path){
-		TabPropertiesVO tabProperties = homeFrame.getSelectedTabPropertiesVO();
+		TabPageController tabController = homeFrame.getSelectedTabPageController();
 
 		ExportPdfThread t =
-			new ExportPdfThread("Export to Pdf Thread", this, tabProperties, path);
+			new ExportPdfThread(this, tabController, path);
 
 		t.start();
 	}
 
 	
 	private void exportToHtml(String dirPath) {
-        TabPropertiesVO tabPropertiesVO = homeFrame.getSelectedTabPropertiesVO();
+        TabPageController tabController = homeFrame.getSelectedTabPageController();
 
         ExportHtmlThread t =
-                new ExportHtmlThread("Export to Html Thread", this, tabPropertiesVO, dirPath);
+                new ExportHtmlThread(this, tabController, dirPath);
 
         t.start();
     }

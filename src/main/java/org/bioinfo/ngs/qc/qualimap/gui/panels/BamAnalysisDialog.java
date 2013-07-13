@@ -282,11 +282,11 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
 			public void actionPerformed(ActionEvent evt) {
                 // We can load from file or from a BAM file
-                TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.BAM_QC);
+                TabPageController tabPageController = new TabPageController(AnalysisType.BAM_QC);
 				if (validateInput()) {
 					// If the input has the required values, load the
 					// results
-					runAnalysis(tabProperties);
+					runAnalysis(tabPageController);
 				} else {
 					JOptionPane.showMessageDialog(null, stringValidation.toString(), "Error", 0);
 				}
@@ -398,12 +398,9 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 	 * Function that execute the quality map program an show the results from
 	 * the input data files
 	 */
-	private synchronized void runAnalysis(TabPropertiesVO tabProperties) {
+	private synchronized void runAnalysis(TabPageController tabPageController) {
 		BamAnalysisThread t;
-        //TODO: make sure that regions are no different !
-		/*tabProperties.setTypeAnalysis(analyzeRegionsCheckBox.isSelected() ? Constants.TYPE_BAM_ANALYSIS_DNA
-         : Constants.TYPE_BAM_ANALYSIS_DNA);*/
-		t = new BamAnalysisThread("StatisticsAnalysisProcessThread", this, tabProperties);
+        t = new BamAnalysisThread("BamAnalysisThread", this, tabPageController);
 
 		t.start();
 	}
@@ -460,7 +457,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     }
 
-    public void addNewPane(TabPropertiesVO tabProperties) {
+    public void addNewPane(TabPageController tabProperties) {
         homeFrame.addNewPane(inputFile.getName(), tabProperties);
     }
 

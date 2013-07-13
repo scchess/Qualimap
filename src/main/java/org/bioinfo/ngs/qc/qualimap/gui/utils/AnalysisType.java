@@ -27,9 +27,10 @@ package org.bioinfo.ngs.qc.qualimap.gui.utils;
  */
 public enum AnalysisType {
 
-    BAM_QC, COUNTS_QC, CLUSTERING;
+    BAM_QC, RNA_SEQ_QC, COUNTS_QC, CLUSTERING;
 
     static final String NAME_BAM_QC = "BAM QC";
+    static final String NAME_RNA_SEQ_QC = "RNA Seq QC";
     static final String NAME_COUNTS_QC = "Counts QC";
     static final String NAME_CLUSTERING = "Clustering";
     static final String UNKNOWN = "Unknown analysis";
@@ -37,6 +38,8 @@ public enum AnalysisType {
     public String toString() {
         if (this == BAM_QC) {
             return NAME_BAM_QC;
+        }else if (this == RNA_SEQ_QC) {
+            return NAME_RNA_SEQ_QC;
         } else if (this == COUNTS_QC) {
             return NAME_COUNTS_QC;
         } else if (this == CLUSTERING ) {

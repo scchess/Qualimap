@@ -30,7 +30,6 @@ import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.panels.HtmlJPanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
@@ -42,7 +41,7 @@ import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.*;
 import org.jfree.ui.RectangleInsets;
 
-public class BamQCRegionReporter implements Serializable {
+public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 
     public String getNamePostfix() {
@@ -70,7 +69,6 @@ public class BamQCRegionReporter implements Serializable {
     }
 
     private boolean paintChromosomeLimits;
-    private List<QChart> charts;
 
 	/** Variable that contains the input files names */
 	private String bamFileName, referenceFileName;
@@ -107,20 +105,21 @@ public class BamQCRegionReporter implements Serializable {
     private int numInsertions, numDeletions;
     private double homopolymerIndelFraction;
 
-    StatsKeeper inputDataKeeper;
-    StatsKeeper summaryStatsKeeper;
-    StatsKeeper chromosomeStatsKeeper;
-
     private Map<String,String> warnings;
     String namePostfix;
     String genomeGCContentName;
     int numSelectedRegions;
 
-    public BamQCRegionReporter() {
-        namePostfix = "";
-        inputDataKeeper = new StatsKeeper();
-        chromosomeStatsKeeper = new StatsKeeper();
-        summaryStatsKeeper = null;
+    public BamQCRegionReporter(boolean gffIsAvailable, boolean inside) {
+        if (gffIsAvailable) {
+            if (inside) {
+                namePostfix = " (inside of regions)";
+            } else {
+                namePostfix = " (outside of regions)";
+                fileName = "qualimapReportOutsideRegions";
+            }
+            reportName += namePostfix;
+        }
         genomeGCContentName = "";
     }
 
@@ -339,7 +338,8 @@ public class BamQCRegionReporter implements Serializable {
         numDeletions = bamStats.getNumDeletions();
         homopolymerIndelFraction = bamStats.getHomopolymerIndelFraction();
 
-        createChromosomeStatsKeeper(bamStats.getChromosomeStats());
+        prepareSummaryStatsKeeper();
+        prepareChromosomeStatsKeeper(bamStats.getChromosomeStats());
 
 
 
@@ -680,45 +680,6 @@ public class BamQCRegionReporter implements Serializable {
 	}
 
 
-    public void addInputDataSection(String name, Map<String,String> paramsMap) {
-
-        StatsKeeper.Section section = new StatsKeeper.Section(name);
-        section.addData(paramsMap);
-
-        inputDataKeeper.addSection(section);
-    }
-
-    public String getInputDescription(int tableWidth) {
-
-
-        if (inputDataKeeper.getSections().isEmpty()) {
-            return "No input description is available";
-        }
-
-        StringBuilder inputDesc = new StringBuilder();
-
-        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters</b></p>" + HtmlJPanel.BR);
-        inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "EEEEEE"));
-
-        List<StatsKeeper.Section> inputDataSections = inputDataKeeper.getSections();
-
-        for (StatsKeeper.Section section : inputDataSections) {
-            inputDesc.append(HtmlJPanel.COLSTART).append("<b>").append(section.getName()).append("</b>");
-            List<String[]> params = section.getRows();
-            inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "FFFFFF"));
-            for ( String[] row: params ) {
-                 inputDesc.append(HtmlJPanel.COLSTARTFIX).append(row[0]).
-                         append(HtmlJPanel.COLMID).append( row[1] ).append( HtmlJPanel.COLEND) ;
-            }
-            inputDesc.append(HtmlJPanel.getTableFooter());
-            inputDesc.append(HtmlJPanel.COLEND);
-        }
-
-        inputDesc.append(HtmlJPanel.getTableFooter());
-
-        return inputDesc.toString();
-
-    }
 
 
 	/**
@@ -728,16 +689,6 @@ public class BamQCRegionReporter implements Serializable {
 		this.paintChromosomeLimits = paintChromosomeLimits;
 	}
 
-
-    public QChart findChartByName(String name) {
-        for (QChart chart : charts) {
-            if (chart.getName().equals(name)) {
-                return chart;
-            }
-        }
-
-        return null;
-    }
 
 	public String getBamFileName() {
 		return bamFileName;
@@ -795,16 +746,7 @@ public class BamQCRegionReporter implements Serializable {
         return inputDataKeeper.getSections();
     }
 
-    public List<StatsKeeper.Section> getSummaryDataSections() {
-        if (summaryStatsKeeper == null) {
-            createSummaryStatsKeeper();
-        }
-
-        return summaryStatsKeeper.getSections();
-    }
-
-    private void createSummaryStatsKeeper() {
-        summaryStatsKeeper = new StatsKeeper();
+    private void prepareSummaryStatsKeeper() {
         StringUtilsSwing sdf = new StringUtilsSwing();
         String postfix = getNamePostfix();
 
@@ -948,11 +890,7 @@ public class BamQCRegionReporter implements Serializable {
         }
     }
 
-    public StatsKeeper getChromosomeStats() {
-        return chromosomeStatsKeeper;
-    }
-
-    private void createChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
+    private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
 
         chromosomeStatsKeeper = new StatsKeeper();
         chromosomeStatsKeeper.setName("Chromosome stats" + getNamePostfix() );
@@ -979,10 +917,6 @@ public class BamQCRegionReporter implements Serializable {
 
         chromosomeStatsKeeper.addSection(dataSection);
 
-    }
-
-    public void setNamePostfix(String namePostfix) {
-        this.namePostfix = namePostfix;
     }
 
     public XYVector getGenomeGcContentHistogram() {
@@ -1033,13 +967,6 @@ public class BamQCRegionReporter implements Serializable {
         this.warnings  = warnings;
     }
 
-    public List<QChart> getCharts() {
-        return charts;
-    }
-
-    public void setChartList(List<QChart> chartList) {
-        charts = chartList;
-    }
 
 
     public Properties generateBamQcProperties() {
@@ -1119,5 +1046,6 @@ public class BamQCRegionReporter implements Serializable {
     public double getSelectedRegionsPercentage() {
         return (numBasesInsideRegions / (double) referenceSize) * 100.0;
     }
+
 
 }

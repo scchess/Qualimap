@@ -100,13 +100,13 @@ public class BrowseButtonActionListener implements ActionListener {
 
         if (result == JFileChooser.APPROVE_OPTION) {
             pathEdit.setText(fileOpenChooser.getSelectedFile().getPath());
-            performAdditionalOperations();
+            validateInput();
         }
 
 
     }
 
-    protected void performAdditionalOperations() {
+    protected void validateInput() {
 
     }
 }

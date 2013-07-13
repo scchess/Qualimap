@@ -27,7 +27,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditEpigeneticsInputDataDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.EpigeneticsAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.ReplicateItem;
 import org.bioinfo.ngs.qc.qualimap.common.DocumentUtils;
@@ -348,8 +348,8 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
             String errMsg = validateInput();
             if (errMsg.isEmpty()) {
-                TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.CLUSTERING);
-                EpigeneticsAnalysisThread t = new EpigeneticsAnalysisThread(this, tabProperties );
+                TabPageController tabController = new TabPageController(AnalysisType.CLUSTERING);
+                EpigeneticsAnalysisThread t = new EpigeneticsAnalysisThread(this, tabController );
                 t.start();
             } else {
                 JOptionPane.showMessageDialog(this, errMsg, "Validate Input", JOptionPane.ERROR_MESSAGE);

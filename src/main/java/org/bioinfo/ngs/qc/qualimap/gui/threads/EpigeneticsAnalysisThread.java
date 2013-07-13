@@ -21,7 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import org.bioinfo.ngs.qc.qualimap.gui.panels.EpigeneticAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis;
 import org.bioinfo.ngs.qc.qualimap.process.EpiAnalysis.Config;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
@@ -38,7 +38,7 @@ import javax.swing.*;
 public class EpigeneticsAnalysisThread extends Thread {
 
     EpigeneticAnalysisDialog settingsDialog;
-    TabPropertiesVO tabProperties;
+    TabPageController tabProperties;
 
     static class OutputParsingThread extends LoggerThread {
 
@@ -63,7 +63,7 @@ public class EpigeneticsAnalysisThread extends Thread {
 
     }
 
-    public EpigeneticsAnalysisThread(EpigeneticAnalysisDialog settingsDialog, TabPropertiesVO tabProperties) {
+    public EpigeneticsAnalysisThread(EpigeneticAnalysisDialog settingsDialog, TabPageController tabProperties) {
         super("EpigeneticsAnalysisThread");
         this.settingsDialog = settingsDialog;
         this.tabProperties = tabProperties;

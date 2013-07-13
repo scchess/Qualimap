@@ -23,9 +23,9 @@ package org.bioinfo.ngs.qc.qualimap.main;
 import java.io.File;
 
 import org.apache.commons.cli.ParseException;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.process.CountsAnalysis;
 
 
@@ -151,9 +151,9 @@ public class RNAseqTool extends NgsSmartTool{
 		// init output dir
 		initOutputDir();
 
-        TabPropertiesVO tabProperties = new TabPropertiesVO(AnalysisType.COUNTS_QC);
+       AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.COUNTS_QC);
 
-        CountsAnalysis countsAnalysis = new CountsAnalysis(tabProperties, homePath + File.separator);
+        CountsAnalysis countsAnalysis = new CountsAnalysis(resultManager, homePath + File.separator);
 
         countsAnalysis.setSample1Name( name1 );
         countsAnalysis.setFirstSampleDataPath( data1 );
@@ -181,7 +181,7 @@ public class RNAseqTool extends NgsSmartTool{
         }
 
 
-        exportResult(tabProperties);
+        exportResult(resultManager);
 
         logger.println("Finished");
 	}

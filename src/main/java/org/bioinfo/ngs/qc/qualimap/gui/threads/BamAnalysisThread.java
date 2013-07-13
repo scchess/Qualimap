@@ -27,9 +27,10 @@ import java.util.Timer;
 
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import javax.swing.*;
@@ -49,7 +50,8 @@ public class BamAnalysisThread extends Thread {
 	private BamAnalysisDialog bamDialog;
 
 	/** Variables that contains the tab properties loaded in the thread */
-	TabPropertiesVO tabProperties;
+    // TODO: make this AnalysisResultManager insted of page controller
+	TabPageController resultManager;
 
     private static class UpdateProgressTask extends TimerTask {
         JProgressBar progressBar;
@@ -65,10 +67,10 @@ public class BamAnalysisThread extends Thread {
         }
     }
 
-	public BamAnalysisThread(String str, BamAnalysisDialog bamDialog, TabPropertiesVO tabProperties) {
+	public BamAnalysisThread(String str, BamAnalysisDialog bamDialog, TabPageController tabProperties) {
 		super(str);
 		this.bamDialog = bamDialog;
-        this.tabProperties = tabProperties;
+        this.resultManager = tabProperties;
 		logger = new Logger(this.getClass().getName());
 	}
 
@@ -79,7 +81,7 @@ public class BamAnalysisThread extends Thread {
 	public void run() {
 
 		// Create the outputDir directory
-		StringBuilder outputDirPath = tabProperties.createDirectory();
+		StringBuilder outputDirPath = resultManager.createDirectory();
 
 		BamStatsAnalysis bamQC = new BamStatsAnalysis(bamDialog.getInputFile().getAbsolutePath());
 
@@ -91,15 +93,12 @@ public class BamAnalysisThread extends Thread {
         bamQC.setMinHomopolymerSize( bamDialog.getMinHomopolymerSize());
 
 		// Set the region file
+        boolean regionsAvailable = false;
 		if (bamDialog.getRegionFile() != null) {
 			bamQC.setSelectedRegions(bamDialog.getRegionFile().getAbsolutePath());
             bamQC.setComputeOutsideStats(bamDialog.getComputeOutsideRegions());
+            regionsAvailable = true;
 		}
-
-		// Put the gff variable to know if the user has added a region file only
-		// if we are analyzing the exome
-		tabProperties.setGffSelected(bamDialog.getRegionFile() != null);
-        tabProperties.setOutsideStatsAvailable(bamDialog.getComputeOutsideRegions());
 
 		// reporting
 		bamQC.activeReporting(outputDirPath.toString());
@@ -115,21 +114,17 @@ public class BamAnalysisThread extends Thread {
             bamQC.run();
 	        timer.cancel();
 
-            tabProperties.setPairedData(bamQC.isPairedData());
-            tabProperties.setBamStats(bamQC.getBamStats());
-            tabProperties.setGenomeLocator(bamQC.getLocator());
+            //resultManager.setPairedData(bamQC.isPairedData());
+            //resultManager.setBamStats(bamQC.getBamStats());
+            //resultManager.setGenomeLocator(bamQC.getLocator());
 
 			bamDialog.getProgressStream().setText("End of bam qc");
             bamDialog.getProgressBar().setValue(100);
 	
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
-			BamQCRegionReporter reporter = new BamQCRegionReporter();
+			BamQCRegionReporter reporter = new BamQCRegionReporter(regionsAvailable, true);
             prepareInputDescription(reporter,bamQC,bamDialog.getDrawChromosomeLimits());
-
-            if (bamDialog.getRegionFile() != null) {
-                reporter.setNamePostfix(" (inside of regions)");
-            }
 
 			// Draw the Chromosome Limits or not
 			reporter.setPaintChromosomeLimits( bamDialog.getDrawChromosomeLimits() );
@@ -148,15 +143,14 @@ public class BamAnalysisThread extends Thread {
 
 
 			// Set the reporter into the created tab
-			tabProperties.setReporter(reporter);
+			resultManager.addReporter(reporter);
 
             if (bamDialog.getRegionFile() != null && bamDialog.getComputeOutsideRegions() ) {
 
-                BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
+                BamQCRegionReporter outsideReporter = new BamQCRegionReporter(regionsAvailable, false);
 
                 prepareInputDescription(outsideReporter, bamQC, bamDialog.getDrawChromosomeLimits());
-	            outsideReporter.setNamePostfix(" (outside of regions)");
-                // Draw the Chromosome Limits or not
+	            // Draw the Chromosome Limits or not
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 
                 if (bamDialog.compareGcContentToPrecalculated()) {
@@ -175,7 +169,7 @@ public class BamAnalysisThread extends Thread {
 				bamDialog.getProgressStream().setText("OK");
 
 				// Set the reporters into the created tab
-				tabProperties.setOutsideReporter(outsideReporter);
+				resultManager.addReporter(outsideReporter);
             }
 
 			// Increment the pogress bar
@@ -204,9 +198,11 @@ public class BamAnalysisThread extends Thread {
             bamDialog.setUiEnabled(true);
             timer.cancel();
             return;
-		}
-		bamDialog.addNewPane(tabProperties);
-	}
+     	}
+
+        bamDialog.addNewPane(resultManager);
+
+    }
 
 
     private static String boolToStr(boolean yes) {

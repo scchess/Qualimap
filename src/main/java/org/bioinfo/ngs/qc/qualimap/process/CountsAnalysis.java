@@ -20,14 +20,14 @@
  */
 package org.bioinfo.ngs.qc.qualimap.process;
 
-import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.TextFileDataWriter;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.RNAAnalysisVO;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.common.DocumentUtils;
 
 import javax.imageio.ImageIO;
@@ -44,7 +44,7 @@ import java.util.*;
 public class CountsAnalysis {
 
 
-    TabPropertiesVO tabProperties;
+    AnalysisResultManager tabProperties;
     String homePath;
 
     String sample1Name, sample2Name;
@@ -63,9 +63,11 @@ public class CountsAnalysis {
 
     /** Variable to control the current step loaded */
 	private int currentStepLoaded;
+    private RNAAnalysisVO rnaAnalysisVO;
 
-    public CountsAnalysis(TabPropertiesVO tabProperties, String homePath) {
+    public CountsAnalysis(AnalysisResultManager tabProperties, String homePath) {
         this.tabProperties = tabProperties;
+        this.rnaAnalysisVO = new RNAAnalysisVO();
         this.homePath = homePath;
         this.currentStepLoaded = 0;
         includeInfoFile = false;
@@ -77,12 +79,12 @@ public class CountsAnalysis {
 
         checkInput();
 
-        RNAAnalysisVO rnaAnalysisVO = tabProperties.getRnaAnalysisVO();
+        //RNAAnalysisVO rnaAnalysisVO = tabProperties.getRnaAnalysisVO();
 
         // Create the outputDir directory
         StringBuilder outputDirPath = tabProperties.createDirectory();
 
-        rnaAnalysisVO.setInfoFileIsSet(includeInfoFile);
+        //rnaAnalysisVO.setInfoFileIsSet(includeInfoFile);
 
 
         increaseProgressBar(currentStepLoaded, "Building Rscript sentence");
@@ -137,9 +139,9 @@ public class CountsAnalysis {
         }
 
         double numStepsRnaToDo;
-        if (tabProperties.getRnaAnalysisVO().getMapClassesInfoFile() != null
-                && tabProperties.getRnaAnalysisVO().getMapClassesInfoFile().size() > 0) {
-            numStepsRnaToDo = 5 + tabProperties.getRnaAnalysisVO().getMapClassesInfoFile().size();
+        if (rnaAnalysisVO.getMapClassesInfoFile() != null
+                && rnaAnalysisVO.getMapClassesInfoFile().size() > 0) {
+            numStepsRnaToDo = 5 + rnaAnalysisVO.getMapClassesInfoFile().size();
         } else {
             numStepsRnaToDo = 3;
         }
@@ -189,7 +191,7 @@ public class CountsAnalysis {
      * @throws java.io.IOException In case the images ca not be saved
      */
 	private void loadBufferedImages() throws IOException {
-		BamQCRegionReporter reporter = tabProperties.getReporter();
+		StatsReporter reporter = new StatsReporter();
         prepareInputDescription(reporter);
 
         List<QChart> chartList = new ArrayList<QChart>();
@@ -202,7 +204,7 @@ public class CountsAnalysis {
         }
 
 		Iterator<Map.Entry<String,String>> it =
-                tabProperties.getRnaAnalysisVO().getMapClassesInfoFile().entrySet().iterator();
+                rnaAnalysisVO.getMapClassesInfoFile().entrySet().iterator();
 
 		// If a info_file or species is selected, add the Saturation per class,
 		// the counts per class and the graphics of each biotype
@@ -229,6 +231,8 @@ public class CountsAnalysis {
 		}
 
         reporter.setChartList(chartList);
+
+        tabProperties.addReporter(reporter);
 	}
 
     private void addImage(List<QChart> chartList, String name, String title) {
@@ -238,7 +242,7 @@ public class CountsAnalysis {
 
 
     private void addImage(List<QChart> chartList, String name, String title, String rawDataFileName) {
-        String dirPath = HomeFrame.outputpath + tabProperties.getOutputFolder().toString();
+        String dirPath = HomeFrame.outputpath + tabProperties.getOutputFolder();
         String imagePath = dirPath + name;
         BufferedImage imageToDisplay;
         try {
@@ -280,7 +284,7 @@ public class CountsAnalysis {
 		}
 	}
 
-    private void prepareInputDescription(BamQCRegionReporter reporter) {
+    private void prepareInputDescription(StatsReporter reporter) {
 
         HashMap<String,String> sample1Params = new HashMap<String, String>();
         sample1Params.put("Path: ", firstSampleDataPath);

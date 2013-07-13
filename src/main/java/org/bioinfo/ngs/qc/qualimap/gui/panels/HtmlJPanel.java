@@ -32,6 +32,9 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLEditorKit;
 
+//TODO: move pure HTML stuff to another class
+
+
 public class HtmlJPanel extends JPanel implements HyperlinkListener {
 
 	public static final Object BR = "<br/>";

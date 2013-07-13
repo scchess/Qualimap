@@ -24,11 +24,11 @@ import java.io.File;
 
 import org.apache.commons.cli.*;
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 
 public abstract class NgsSmartTool {
 	
@@ -217,7 +217,7 @@ public abstract class NgsSmartTool {
 		return new File(fileName).exists();
 	}
 
-    protected void exportResult(TabPropertiesVO tabProperties) {
+    protected void exportResult(AnalysisResultManager resultManager) {
 
         // check output options
         if (outputType.equals(Constants.REPORT_TYPE_PDF)) {
@@ -229,8 +229,8 @@ public abstract class NgsSmartTool {
         }
 
         Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
-               new ExportPdfThread(tabProperties, reportFileName  ) :
-               new ExportHtmlThread(tabProperties, outdir);
+               new ExportPdfThread(resultManager, reportFileName  ) :
+               new ExportHtmlThread(resultManager, outdir);
 
          exportReportThread.run();
     }

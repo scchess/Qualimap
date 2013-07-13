@@ -20,15 +20,16 @@
  */
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
+import com.ibm.icu.impl.ICURWLock;
 import com.lowagie.text.*;
 import com.lowagie.text.Document;
 import com.lowagie.text.pdf.PdfWriter;
-import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 
 import javax.swing.*;
@@ -51,28 +52,31 @@ import java.util.List;
  */
 public class ExportPdfThread extends Thread {
 
+
+    //TODO: remove GUI?
     SavePanel savePanel;
-    TabPropertiesVO tabProperties;
     String path;
     boolean guiAvailable;
     boolean bamQCAnalysis;
     double percentLoad;
     int curChapterNum;
     int numSavedItems;
+    AnalysisResultManager resultManager;
 
 
-    public ExportPdfThread(String str, Component component, TabPropertiesVO tabProperties, String path) {
-        super(str);
+    public ExportPdfThread(Component component, AnalysisResultManager resultManager, String path) {
+        super("ExportPDFThread_Gui");
         if (component instanceof SavePanel) {
         	this.savePanel = (SavePanel)component;
         }
-        this.tabProperties = tabProperties;
+        this.resultManager =  resultManager;
         this.path = path;
         this.guiAvailable = true;
     }
 
-    public ExportPdfThread(TabPropertiesVO tabProperties, String path) {
-        this.tabProperties = tabProperties;
+    public ExportPdfThread(AnalysisResultManager resultManager, String path) {
+        super("ExportPdfThread");
+        this.resultManager = resultManager;
         this.path = path;
         this.guiAvailable = false;
     }
@@ -124,26 +128,21 @@ public class ExportPdfThread extends Thread {
             initDocument(document);
 
         	// Number of items to save into the PDF file (graphics + 3 files of properties + Header + Footer)
-	    	int numItemsToSave =  tabProperties.getReporter().getCharts().size();
 
-            bamQCAnalysis = tabProperties.getTypeAnalysis().isBamQC();
+            int numItemsToSave = 0;
+            List<StatsReporter> reporters =  resultManager.getReporters();
+            for (StatsReporter reporter :  reporters ) {
+                numItemsToSave +=  reporter.getCharts().size();
+            }
 
-	    	if(tabProperties.getOutsideReporter() != null &&
-					!tabProperties.getOutsideReporter().getBamFileName().isEmpty()){
-	    		loadOutsideReporter = true;
-	    		numItemsToSave += tabProperties.getOutsideReporter().getCharts().size();
-	    	}
+            bamQCAnalysis = resultManager.getTypeAnalysis().isBamQC();
 
 	    	percentLoad = (100.0/numItemsToSave);
 
-			BamQCRegionReporter reporter = tabProperties.getReporter();
-            addReporterData(document, reporter);
 
-            if (loadOutsideReporter) {
-                BamQCRegionReporter outsideReporter = tabProperties.getOutsideReporter();
-                addReporterData(document, outsideReporter);
+            for (StatsReporter reporter : reporters ) {
+                addReporterData(document, reporter);
             }
-
 
             document.close();
             file.close();
@@ -165,7 +164,7 @@ public class ExportPdfThread extends Thread {
     }
 
 
-    private void addReporterData(Document document, BamQCRegionReporter reporter) throws Exception{
+    private void addReporterData(Document document, StatsReporter reporter) throws Exception{
         if (bamQCAnalysis) {
                 addSummary( document, reporter );
             }
@@ -233,7 +232,7 @@ public class ExportPdfThread extends Thread {
     	title.add(pdfTitle);
 
 
-         Paragraph analysisTitle = new Paragraph(tabProperties.getTypeAnalysis().toString() + " analysis",
+         Paragraph analysisTitle = new Paragraph(resultManager.getTypeAnalysis().toString() + " analysis",
                 FontFactory.getFont(FontFactory.HELVETICA , 18,
                         Font.ITALIC));
          analysisTitle.setAlignment(Element.ALIGN_CENTER);
@@ -256,7 +255,7 @@ public class ExportPdfThread extends Thread {
 
     }
 
-    private void addPlots(Document document, BamQCRegionReporter reporter) throws Exception {
+    private void addPlots(Document document, StatsReporter reporter) throws Exception {
        for (QChart chart : reporter.getCharts() ){
 
             String chartTitle = chart.getTitle();
@@ -270,7 +269,7 @@ public class ExportPdfThread extends Thread {
                         Constants.GRAPHIC_TO_SAVE_HEIGHT);
            }
 
-            Paragraph chartsTitle = createChapterTitle(chartTitle + reporter.getNamePostfix());
+            Paragraph chartsTitle = createChapterTitle(chartTitle + reporter.getName());
             Chapter chapter = new Chapter(chartsTitle, curChapterNum);
 
 
@@ -302,10 +301,10 @@ public class ExportPdfThread extends Thread {
 
     }
 
-    private void addInputDesc(Document doc, BamQCRegionReporter reporter) throws Exception {
+    private void addInputDesc(Document doc, StatsReporter reporter) throws Exception {
 
 
-        Paragraph chapterTitle = createChapterTitle("Input data & parameters" + reporter.getNamePostfix());
+        Paragraph chapterTitle = createChapterTitle("Input data & parameters" + reporter.getName());
 
         Chapter inputChapter = new Chapter(chapterTitle, curChapterNum);
 
@@ -335,10 +334,10 @@ public class ExportPdfThread extends Thread {
 
 
 
-    private void addSummary(Document doc, BamQCRegionReporter reporter) throws Exception {
+    private void addSummary(Document doc, StatsReporter reporter) throws Exception {
 
 
-        Paragraph chapterTitle = createChapterTitle("Summary" + reporter.getNamePostfix());
+        Paragraph chapterTitle = createChapterTitle("Summary" + reporter.getName());
 
         Chapter summaryChapter = new Chapter(chapterTitle, curChapterNum);
 

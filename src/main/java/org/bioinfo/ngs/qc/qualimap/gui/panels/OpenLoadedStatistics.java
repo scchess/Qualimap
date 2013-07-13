@@ -32,9 +32,9 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.beans.ChartRawDataWriter;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.*;
@@ -59,16 +59,16 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	/** Variable to manage the left panel that contains the links to the results */
 	public JPanel leftPanel;
     private JLabel initialLabel;
-    TabPropertiesVO tabProperties;
+    private TabPageController tabPageController;
 
     static class RightPanelListener extends MouseAdapter {
 
-        TabPropertiesVO tabProperties;
+        TabPageController tabPageController;
         JComponent parent;
 
-        public RightPanelListener(JComponent parent, TabPropertiesVO tabProperties) {
+        public RightPanelListener(JComponent parent, TabPageController tabProperties) {
             this.parent = parent;
-            this.tabProperties=tabProperties;
+            this.tabPageController = tabProperties;
         }
 
         public void mousePressed(MouseEvent e) {
@@ -82,12 +82,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 JPopupMenu popup = new JPopupMenu();
-                final String graphicName = tabProperties.getLoadedGraphicName();
+                final String graphicName = tabPageController.getLoadedGraphicName();
+                StatsReporter reporter = tabPageController.getActiveReporter();
                 if (!graphicName.isEmpty())  {
-                    JMenuItem savePictureItem = createSaveGraphicMenuItem(graphicName);
+                    JMenuItem savePictureItem = createSaveGraphicMenuItem(reporter, graphicName);
                     popup.add(savePictureItem);
 
-                    QChart chart = tabProperties.getReporter().findChartByName(graphicName);
+                    QChart chart = tabPageController.getActiveReporter().findChartByName(graphicName);
                     if (chart != null && chart.canExportRawData()) {
                         JMenuItem exportDataMenuItem = createExportRawDataMenuItem(chart, parent);
                         popup.addSeparator();
@@ -95,12 +96,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                     }
 
                     // TODO: Each reporter should add own items to the popup menu.
-                    if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING) {
+                    if (tabPageController.getTypeAnalysis() == AnalysisType.CLUSTERING) {
                         JMenuItem exportGeneListItem = new JMenuItem("Export feature list...");
                         exportGeneListItem.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent actionEvent) {
-                                HomeFrame.showExportGenesDialog(parent, tabProperties);
+                                HomeFrame.showExportGenesDialog(parent, tabPageController);
                             }
                         });
                         popup.addSeparator();
@@ -113,7 +114,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             }
         }
 
-        private JMenuItem createSaveGraphicMenuItem(final String graphicName) {
+        private JMenuItem createSaveGraphicMenuItem(final StatsReporter reporter, final String graphicName) {
             JMenuItem savePictureItem = new JMenuItem("Save picture...");
             savePictureItem.addActionListener(new ActionListener() {
                 @Override
@@ -136,8 +137,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                         if (path.endsWith(".png")) {
                             path = path + ".png";
                         }
-                        BufferedImage image =
-                                tabProperties.getReporter().findChartByName(graphicName).getBufferedImage();
+                        BufferedImage image = reporter.findChartByName(graphicName).getBufferedImage();
                         try {
                             ImageIO.write(image, "png", new File(path));
                         } catch (IOException e1) {
@@ -154,13 +154,14 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
     }
 
-	public OpenLoadedStatistics(HomeFrame homeFrame, TabPropertiesVO tabProperties) {
+	public OpenLoadedStatistics(HomeFrame homeFrame, TabPageController tabProperties) {
 		super();
 		this.homeFrame = homeFrame;
-        this.tabProperties = tabProperties;
+        this.tabPageController = tabProperties;
 		treeMinusIcon = new ImageIcon(homeFrame.getClass().getResource(Constants.pathImages + "minus_blue.png"));
         treePlusIcon = new ImageIcon(homeFrame.getClass().getResource(Constants.pathImages + "add.png"));
 	}
+
 
 	/**
 	 * Show the statistics loaded into the tab selected
@@ -185,23 +186,20 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 		rightScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		rightScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		tabProperties.getGraphicImage().addComponentListener(this);
+		tabPageController.getGraphicImage().addComponentListener(this);
 
-        tabProperties.setLastLinkSelected(null);
-        tabProperties.setLoadedGraphicName("");
+        /*
+        Done by constructor
+        tabPageController.setLastLinkSelected(null);
+        tabPageController.setLoadedGraphicName("");*/
 
-		if (tabProperties.getTypeAnalysis() == AnalysisType.COUNTS_QC ) {
-			fillLeftRnaSplit();
-		} else if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING) {
-            fillEpiSplit();
-        } else {
-			fillLeftSplit();
-		}
-		
+
+        prepareLeftPanel();
+
 		JPanel rightPanel = new JPanel();
 		rightPanel.setLayout(new GroupLayout(rightPanel));
 		rightScrollPane.setViewportView(rightPanel);
-        rightScrollPane.addMouseListener(new RightPanelListener(rightPanel,tabProperties));
+        rightScrollPane.addMouseListener(new RightPanelListener(rightPanel,tabPageController));
 
 		statisticsContainer.setLeftComponent(leftScrollPane);
 		statisticsContainer.setRightComponent(rightScrollPane);
@@ -213,7 +211,41 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         return statisticsContainer;
     }
 
-    private void fillEpiSplit() {
+    private void prepareLeftPanel() {
+
+        List<StatsReporter> reporters = tabPageController.getReporters();
+
+
+        int idx = 0;
+        for (StatsReporter reporter : reporters) {
+            String sectionName = reporter.getName();
+            JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
+            leftPanel.add(checkFirstSection);
+
+            if (reporter.hasSummary() ) {
+                JLabel j1_0 = createSummaryLinkLabel("Summary", idx);
+                j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
+	            leftPanel.add(j1_0);
+                initialLabel = j1_0;
+            }
+
+            JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", idx);
+		    j1_0_1.setToolTipText("Input data description");
+            j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+            leftPanel.add(j1_0_1);
+
+            List<QChart> charts = reporter.getCharts();
+
+            for (QChart chart : charts) {
+                JLabel linkLabel = createImageLinkLabel(chart.getTitle(), chart.getName(), idx);
+                linkLabel.setToolTipText(chart.getToolTip());
+                leftPanel.add(linkLabel);
+            }
+            ++idx;
+        }
+    }
+
+    /*private void fillEpiSplit() {
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
@@ -230,12 +262,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             leftPanel.add(j);
         }
 
-    }
+    }  */
 
     /**
 	 * Function that load the left panel with the statistics links
 	 */
-	private void fillLeftSplit() {
+	/*private void fillLeftSplit() {
 
 		boolean isGffSelected = tabProperties.isGffSelected();
 		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
@@ -294,13 +326,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
 		}
 
-	}
+	}*/
 
 	/**
 	 * Function that load the left panel with the statistics links for the
 	 * RNA-seq
 	 */
-	private void fillLeftRnaSplit() {
+	/*private void fillLeftRnaSplit() {
 
         JCheckBox checkFirstSection = createResultsCheckBox("Results");
 		leftPanel.add(checkFirstSection);
@@ -316,14 +348,14 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             leftPanel.add(j);
         }
 
-    }
+    }*/
 
-    public void showInitialPage(TabPropertiesVO tabProperties)
+    public void showInitialPage()
     {
-        if(AnalysisType.BAM_QC ==  tabProperties.getTypeAnalysis()){
+        if(AnalysisType.BAM_QC ==  tabPageController.getTypeAnalysis()){
 			showLeftSideSummaryInformation(0, initialLabel);
-		}else if (AnalysisType.COUNTS_QC ==  tabProperties.getTypeAnalysis() ){
-			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel);
+		}else if (AnalysisType.COUNTS_QC ==  tabPageController.getTypeAnalysis() ){
+			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel,0);
 		}
 
     }
@@ -413,11 +445,11 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     }
 
 
-    JLabel createImageLinkLabel(final String labelText, final String graphicName) {
+    JLabel createImageLinkLabel(final String labelText, final String graphicName, final int reporterIndex) {
         final JLabel label = createLinkLabel(labelText);
         label.addMouseListener(new JLabelMouseListener() {
             public void mouseClicked(MouseEvent arg0) {
-				showLeftSideInformation(graphicName, label);
+				showLeftSideInformation(graphicName, label, reporterIndex);
 			}
 		});
 
@@ -437,54 +469,29 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     }
 
 	public void showLeftSideSummaryInformation(int reporterIndex, JLabel label) {
-		tabProperties.setLoadedGraphicName("");
+		tabPageController.setLoadedGraphicName("");
         prepareHtmlSummary(getReporter(reporterIndex));
+        tabPageController.setSelectedReporterIndex(reporterIndex);
 		fillColorLink(label);
 	}
 
     public void showLeftSideInputDescription(int reporterIndex, JLabel label) {
-        tabProperties.setLoadedGraphicName("");
+        tabPageController.setLoadedGraphicName("");
         prepareHtmlInputDescription(getReporter(reporterIndex));
+        tabPageController.setSelectedReporterIndex(reporterIndex);
         fillColorLink(label);
     }
 
-	private void showLeftSideInformation(String graphicName, JLabel label) {
+	private void showLeftSideInformation(String graphicName, JLabel label, int reporterIndex) {
 		if (graphicName != null) {
-			showGraphic(graphicName, getReporterByName(graphicName));
+			showGraphic(graphicName, getReporter(reporterIndex));
+            tabPageController.setSelectedReporterIndex(reporterIndex);
 		}
 		fillColorLink(label);
 	}
 	
-	private BamQCRegionReporter getReporter(int reporterIndex){
-		BamQCRegionReporter reporter;
-		// Select the reporter that contains the data
-		if (reporterIndex == Constants.REPORT_OUTSIDE_BAM_FILE) {
-			reporter = tabProperties.getOutsideReporter();
-		} else {
-			reporter = tabProperties.getReporter();
-		}
-		return reporter;
-	}
-
-	
-	private BamQCRegionReporter getReporterByName(String graphicName){
-		// TODO: replace this method with getReporter(int index)
-        BamQCRegionReporter reporter;
-
-		if (tabProperties.getTypeAnalysis() == AnalysisType.BAM_QC ) {
-
-        	// Select the reporter that contains the graphics
-			if (graphicName.startsWith("outside")) {
-				reporter = tabProperties.getOutsideReporter();
-			} else {
-				reporter = tabProperties.getReporter();
-			}
-
-		} else {
-			reporter = tabProperties.getReporter();
-			
-		}
-		return reporter;
+	private StatsReporter getReporter(int reporterIndex){
+		return tabPageController.getReporters().get(reporterIndex);
 	}
 
 	/**
@@ -496,16 +503,16 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	private void fillColorLink(JLabel label) {
 		//TabPropertiesVO tabProperties = homeFrame.getListTabsProperties().get(homeFrame.getTabbedPane().getSelectedIndex());
 
-		if (tabProperties.getLastLinkSelected() != null) {
-			tabProperties.getLastLinkSelected().setBackground(null);
-			tabProperties.getLastLinkSelected().setFont(new Font(label.getFont().getFontName(), label.getFont().getStyle(), label.getFont().getSize()));
+		if (tabPageController.getLastLinkSelected() != null) {
+			tabPageController.getLastLinkSelected().setBackground(null);
+			tabPageController.getLastLinkSelected().setFont(new Font(label.getFont().getFontName(), label.getFont().getStyle(), label.getFont().getSize()));
 		}
 		if (label != null) {
 			label.setBackground(new Color(240, 230, 140));
 			label.setFont(HomeFrame.defaultFontItalic);
             label.setSize(label.getPreferredSize());
             label.validate();
-			tabProperties.setLastLinkSelected(label);
+			tabPageController.setLastLinkSelected(label);
 		}
 	}
 
@@ -517,7 +524,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 * @param reporter
 	 *            BamQCRegionReporter graphic input values
 	 */
-	private void showGraphic(String name, BamQCRegionReporter reporter) {
+	private void showGraphic(String name, StatsReporter reporter) {
 
 
 
@@ -530,12 +537,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	    if (chart.isBufferedImage()) {
 
             // Get a Singleton to manage the image to display
-            GraphicImagePanel panelImage = tabProperties.getGraphicImage();
+            GraphicImagePanel panelImage = tabPageController.getGraphicImage();
             BufferedImage imageToDisplay = chart.getBufferedImage();
   			// Set the image with the file image get
 			panelImage.setImage(imageToDisplay);
             // Scale the image
-            if (tabProperties.getTypeAnalysis() == AnalysisType.CLUSTERING ) {
+            if (tabPageController.getTypeAnalysis() == AnalysisType.CLUSTERING ) {
                 int width = imageToDisplay.getWidth();
                 int height  =  imageToDisplay.getHeight();
                 panelImage.setPreferredSize(new Dimension(width, height));
@@ -560,7 +567,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         }
 
-        tabProperties.setLoadedGraphicName(name);
+        tabPageController.setLoadedGraphicName(name);
 
 
 
@@ -577,6 +584,9 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     }
 
 
+    /*
+
+    TODO: move this stuff to StatsReporter
     public static void addSummarySection(StringBuffer buf, StatsKeeper.Section s, int width) {
 
         buf.append(HtmlJPanel.COLSTART).append("<b>").append(s.getName()).append("</b>");
@@ -650,7 +660,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	 * @param reporter
 	 *            BamQCRegionReporter data input values
 	 */
-	private void prepareHtmlSummary(BamQCRegionReporter reporter) {
+	private void prepareHtmlSummary(StatsReporter reporter) {
 		HtmlJPanel panelDerecha = new HtmlJPanel();
 		panelDerecha.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
 		panelDerecha.setFont(HomeFrame.defaultFont);
@@ -659,14 +669,14 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         StringBuilder summaryHtml = new StringBuilder();
 
         summaryHtml.append( HtmlJPanel.getHeader() );
-        summaryHtml.append(prepareHtmlReport(reporter, width));
+        summaryHtml.append(reporter.getSummary(width));
         summaryHtml.append( HtmlJPanel.getHeadFooter() );
 
         panelDerecha.setHtmlPage(summaryHtml.toString());
 		rightScrollPane.setViewportView(panelDerecha);
 	}
 
-    private void prepareHtmlInputDescription(BamQCRegionReporter reporter) {
+    private void prepareHtmlInputDescription(StatsReporter reporter) {
         HtmlJPanel htmlPanel = new HtmlJPanel();
 		htmlPanel.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
 		htmlPanel.setFont(HomeFrame.defaultFont);
@@ -701,8 +711,8 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
     @Override
     public void componentResized(ComponentEvent componentEvent) {
         Component c = componentEvent.getComponent();
-        GraphicImagePanel imagePanel = tabProperties.getGraphicImage();
-        if (c == imagePanel && tabProperties.getTypeAnalysis() != AnalysisType.CLUSTERING) {
+        GraphicImagePanel imagePanel = tabPageController.getGraphicImage();
+        if (c == imagePanel && tabPageController.getTypeAnalysis() != AnalysisType.CLUSTERING) {
             imagePanel.resizeImage(c.getWidth(), c.getHeight());
             rightScrollPane.setViewportView(imagePanel);
         }

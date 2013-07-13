@@ -58,7 +58,6 @@ public class BamQCTest {
 
             System.err.println("Running test " + test.getPath());
 
-            BamQCRegionReporter bamQcReporter = new BamQCRegionReporter();
 
             BamStatsAnalysis bamQc = new BamStatsAnalysis(test.getPathToBamFile()) ;
 
@@ -67,6 +66,9 @@ public class BamQCTest {
                 bamQc.setSelectedRegions(pathToRegionFile);
                 bamQc.setComputeOutsideStats(test.getComputeOutsideStats());
             }
+
+            BamQCRegionReporter bamQcReporter = new BamQCRegionReporter(true, true);
+
 
             try {
                 bamQc.run();
@@ -90,7 +92,7 @@ public class BamQCTest {
             compareProperties(calculatedProps, test.getResultsPath());
 
             if (test.getComputeOutsideStats() && test.getOutsideResultsPath() != null) {
-                BamQCRegionReporter outsideReporter = new BamQCRegionReporter();
+                BamQCRegionReporter outsideReporter = new BamQCRegionReporter(true, false);
                 outsideReporter.loadReportData(bamQc.getOutsideBamStats());
                 /*outsideReporter.computeChartsBuffers(bamQc.getOutsideBamStats(),
                         bamQc.getLocator(), bamQc.isPairedData());*/

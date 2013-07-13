@@ -76,7 +76,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         }
 
         @Override
-        public void performAdditionalOperations() {
+        public void validateInput() {
             dlg.setGtfSpecificOptionsEnabled(false);
             dlg.availableFeatureTypesCombo.removeAllItems();
             dlg.availableFeatureNamesCombo.removeAllItems();

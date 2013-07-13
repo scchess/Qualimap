@@ -25,11 +25,11 @@ import javax.swing.*;
 
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.CountsAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.CountsAnalysis;
 
 /**
- * Class to manage a thread that performs the analysis from RNA-Seq of the input files
+ * Class to manage a thread that performs the analysis from counts of the input files
  * 
  * @author kokonech
  */
@@ -43,11 +43,11 @@ public class CountsAnalysisThread extends Thread {
 	private CountsAnalysisDialog settingsDlg;
 
 	/** Variables that contains the tab properties loaded in the thread */
-	TabPropertiesVO tabProperties;
+	TabPageController tabProperties;
 
     String infoFilePath;
 
-	public CountsAnalysisThread(String str, CountsAnalysisDialog countsAnalysisDialog, TabPropertiesVO tabProperties) {
+	public CountsAnalysisThread(String str, CountsAnalysisDialog countsAnalysisDialog, TabPageController tabProperties) {
 		super(str);
 		this.settingsDlg = countsAnalysisDialog;
         this.tabProperties = tabProperties;

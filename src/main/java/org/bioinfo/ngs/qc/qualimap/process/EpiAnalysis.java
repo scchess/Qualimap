@@ -22,11 +22,11 @@ package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.formats.core.feature.Gff;
 import org.bioinfo.formats.core.feature.io.GffReader;
-import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
+import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPropertiesVO;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 
 import javax.imageio.ImageIO;
@@ -96,14 +96,14 @@ public class EpiAnalysis {
         }
     }
 
-    TabPropertiesVO tabProperties;
+    AnalysisResultManager tabProperties;
     Config cfg;
     LoggerThread outputParsingThread;
     JLabel progressStream;
     String homePath;
 
 
-    public EpiAnalysis(TabPropertiesVO tabProperties, String homePath, Config cfg) {
+    public EpiAnalysis(AnalysisResultManager tabProperties, String homePath, Config cfg) {
         this.tabProperties = tabProperties;
         this.cfg = cfg;
         this.homePath = homePath;
@@ -150,11 +150,14 @@ public class EpiAnalysis {
         }
 
         reportProgress("Loading images...");
-        if (!loadBufferedImages(tabProperties, workDir) ) {
+        StatsReporter statsReporter = new StatsReporter();
+        if (!loadBufferedImages(statsReporter, workDir) ) {
             throw new RuntimeException("No images generated.");
         }
 
-        prepareInputDescription(tabProperties.getReporter());
+        prepareInputDescription(statsReporter);
+
+        tabProperties.addReporter(statsReporter);
 
     }
 
@@ -355,7 +358,7 @@ public class EpiAnalysis {
     }
 
 
-    public static boolean loadBufferedImages(TabPropertiesVO tabProperties, String outDir) throws IOException {
+    public static boolean loadBufferedImages(StatsReporter reporter, String outDir) throws IOException {
 
         List<QChart> chartList = new ArrayList<QChart>();
         int imageCount = 0;
@@ -378,14 +381,13 @@ public class EpiAnalysis {
             return false;
         }
 
-        BamQCRegionReporter reporter = tabProperties.getReporter();
         reporter.setChartList(chartList);
 
         return true;
 
     }
 
-    private void prepareInputDescription(BamQCRegionReporter reporter) {
+    private void prepareInputDescription(StatsReporter reporter) {
 
         HashMap<String,String> selectionParams = new HashMap<String, String>();
         selectionParams.put("Name: ", cfg.experimentName);
