@@ -77,7 +77,7 @@ public class NgsSmartMain {
             }
 
             if (toolName.equalsIgnoreCase("run-tests")) {
-                System.out.println("Supposed to run tests...");
+                System.out.println("Supposed to run tests... Needs testing");
                 //runTests();
             } else if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help")
                     || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){

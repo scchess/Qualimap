@@ -44,9 +44,6 @@ import org.jfree.ui.RectangleInsets;
 public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 
-    public String getNamePostfix() {
-        return namePostfix;
-    }
 
     public double getPercentSingletons() {
         return percentageSingletons;
@@ -106,7 +103,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private double homopolymerIndelFraction;
 
     private Map<String,String> warnings;
-    String namePostfix;
     String genomeGCContentName;
     int numSelectedRegions;
 
@@ -118,7 +114,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                 namePostfix = " (outside of regions)";
                 fileName = "qualimapReportOutsideRegions";
             }
-            reportName += namePostfix;
+        } else {
+            namePostfix = "";
         }
         genomeGCContentName = "";
     }
@@ -689,11 +686,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		this.paintChromosomeLimits = paintChromosomeLimits;
 	}
 
-
-	public String getBamFileName() {
-		return bamFileName;
-	}
-
 	public Long getaNumber() {
 		return aNumber;
 	}
@@ -893,7 +885,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
 
         chromosomeStatsKeeper = new StatsKeeper();
-        chromosomeStatsKeeper.setName("Chromosome stats" + getNamePostfix() );
+        chromosomeStatsKeeper.setName("Chromosome stats" + namePostfix );
 
         StatsKeeper.Section headerSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_HEADER);
         String[] header = {

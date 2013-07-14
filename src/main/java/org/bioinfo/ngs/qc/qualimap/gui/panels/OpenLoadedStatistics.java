@@ -218,7 +218,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         int idx = 0;
         for (StatsReporter reporter : reporters) {
-            String sectionName = reporter.getName();
+            String sectionName = "Results" + reporter.getNamePostfix();
             JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
             leftPanel.add(checkFirstSection);
 
@@ -245,110 +245,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         }
     }
 
-    /*private void fillEpiSplit() {
-
-        JCheckBox checkFirstSection = createResultsCheckBox("Results");
-		leftPanel.add(checkFirstSection);
-
-        JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", 0);
-		j1_0_1.setToolTipText("Input data description");
-        j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_yellow.png")));
-        leftPanel.add(j1_0_1);
-
-        List<QChart> charts = tabProperties.getReporter().getCharts();
-
-        for (QChart chart : charts ) {
-            JLabel j = createImageLinkLabel(chart.getTitle(), chart.getName() );
-            leftPanel.add(j);
-        }
-
-    }  */
-
-    /**
-	 * Function that load the left panel with the statistics links
-	 */
-	/*private void fillLeftSplit() {
-
-		boolean isGffSelected = tabProperties.isGffSelected();
-		boolean showOutsideStats = tabProperties.getOutsideStatsAvailable();
-
-        BamQCRegionReporter reporter = tabProperties.getReporter();
-
-        String sectionName = isGffSelected ? "Results inside of regions" : "Results";
-        JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
-        leftPanel.add(checkFirstSection);
-
-        JLabel j1_0 = createSummaryLinkLabel("Summary", Constants.REPORT_INPUT_BAM_FILE);
-
-        //TODO: make red color of button if warning?
-        j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
-	    leftPanel.add(j1_0);
-        initialLabel = j1_0;
-
-        JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", Constants.REPORT_INPUT_BAM_FILE);
-		j1_0_1.setToolTipText("Input data description");
-        j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-        leftPanel.add(j1_0_1);
-
-        List<QChart> charts = reporter.getCharts();
-
-
-        for (QChart chart : charts) {
-            JLabel linkLabel = createImageLinkLabel(chart.getTitle(), chart.getName());
-            linkLabel.setToolTipText(chart.getToolTip());
-            leftPanel.add(linkLabel);
-        }
-
-        if (showOutsideStats) {
-
-			JCheckBox checkSecondSection = createResultsCheckBox("Results outside of regions");
-			leftPanel.add(checkSecondSection);
-
-			JLabel summary = createSummaryLinkLabel("Summary", Constants.REPORT_OUTSIDE_BAM_FILE);
-			summary.setToolTipText("Basic information and statistics for the alignment sequencing input");
-            summary.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-			leftPanel.add(summary);
-
-            JLabel inputDesc = createInputDescriptionLinkLabel("Input", Constants.REPORT_OUTSIDE_BAM_FILE);
-			inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-			inputDesc.setToolTipText("Input data description");
-            leftPanel.add(inputDesc);
-
-            List<QChart> outsideCharts = tabProperties.getOutsideReporter().getCharts();
-
-
-            for (QChart chart : outsideCharts) {
-                JLabel linkLabel = createImageLinkLabel(chart.getTitle(), chart.getName());
-                linkLabel.setToolTipText(chart.getToolTip());
-                leftPanel.add(linkLabel);
-            }
-
-
-		}
-
-	}*/
-
-	/**
-	 * Function that load the left panel with the statistics links for the
-	 * RNA-seq
-	 */
-	/*private void fillLeftRnaSplit() {
-
-        JCheckBox checkFirstSection = createResultsCheckBox("Results");
-		leftPanel.add(checkFirstSection);
-
-		JLabel inputDesc = createInputDescriptionLinkLabel("Input", 0 );
-        inputDesc.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-        leftPanel.add(inputDesc);
-
-        List<QChart> charts = tabProperties.getReporter().getCharts();
-
-        for (QChart chart : charts ) {
-            JLabel j = createImageLinkLabel(chart.getTitle(), chart.getName() );
-            leftPanel.add(j);
-        }
-
-    }*/
 
     public void showInitialPage()
     {
@@ -581,76 +477,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
         JMenuItem exportDataItem = new JMenuItem("Export plot data");
         exportDataItem.addActionListener( new ExportChartDataActionListener(parent, dataWriter, chart.getTitle()));
         return exportDataItem;
-    }
-
-
-    /*
-
-    TODO: move this stuff to StatsReporter
-    public static void addSummarySection(StringBuffer buf, StatsKeeper.Section s, int width) {
-
-        buf.append(HtmlJPanel.COLSTART).append("<b>").append(s.getName()).append("</b>");
-        buf.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-
-        for (String[] row : s.getRows()) {
-            buf.append(HtmlJPanel.COLSTARTFIX).append(row[0]).append(HtmlJPanel.COLMID)
-                    .append(row[1]).append(HtmlJPanel.COLEND);
-        }
-
-        buf.append(HtmlJPanel.getTableFooter());
-        buf.append(HtmlJPanel.COLEND);
-
-
-    }
-
-    public static void addChromosomesSections(StringBuffer summaryHtml,
-                                              int width,
-                                              StatsKeeper chromosomeStats) {
-        List<StatsKeeper.Section> chromosomeSections = chromosomeStats.getSections();
-        summaryHtml.append(HtmlJPanel.COLSTART).append("<b>").append(chromosomeStats.getName()).append("</b>");
-        summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
-
-        for (StatsKeeper.Section s : chromosomeSections ) {
-            boolean  header = s.getName().equals(Constants.CHROMOSOME_STATS_HEADER);
-            List<String[]> rows = s.getRows();
-            for (String[] row : rows) {
-                summaryHtml.append("<tr>");
-                for (String item : row) {
-                    if (header) {
-                        summaryHtml.append("<td><b>").append(item).append("</b></td>");
-                    }   else {
-                        summaryHtml.append("<td>").append(item).append("</td>");
-                    }
-                }
-                summaryHtml.append("</tr>");
-            }
-
-        }
-
-        summaryHtml.append(HtmlJPanel.getTableFooter());
-        summaryHtml.append(HtmlJPanel.COLEND);
-    }
-
-
-    public static StringBuffer prepareHtmlReport(BamQCRegionReporter reporter, int width) {
-
-
-        StringBuffer summaryHtml = new StringBuffer("");
-
-        List<StatsKeeper.Section> summarySections = reporter.getSummaryDataSections();
-        summaryHtml.append("<p align=center> <b>Summary</b></p>").append(HtmlJPanel.BR);
-        summaryHtml.append(HtmlJPanel.getTableHeader(width, "EEEEEE"));
-
-        for (StatsKeeper.Section s: summarySections) {
-            addSummarySection(summaryHtml, s, width);
-        }
-
-        addChromosomesSections(summaryHtml, width, reporter.getChromosomeStats());
-
-        summaryHtml.append(HtmlJPanel.getTableFooter());
-
-        return summaryHtml;
-
     }
 
 

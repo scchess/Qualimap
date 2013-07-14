@@ -269,7 +269,7 @@ public class ExportPdfThread extends Thread {
                         Constants.GRAPHIC_TO_SAVE_HEIGHT);
            }
 
-            Paragraph chartsTitle = createChapterTitle(chartTitle + reporter.getName());
+            Paragraph chartsTitle = createChapterTitle(chartTitle + reporter.getNamePostfix());
             Chapter chapter = new Chapter(chartsTitle, curChapterNum);
 
 
@@ -304,7 +304,7 @@ public class ExportPdfThread extends Thread {
     private void addInputDesc(Document doc, StatsReporter reporter) throws Exception {
 
 
-        Paragraph chapterTitle = createChapterTitle("Input data & parameters" + reporter.getName());
+        Paragraph chapterTitle = createChapterTitle("Input data & parameters" + reporter.getNamePostfix());
 
         Chapter inputChapter = new Chapter(chapterTitle, curChapterNum);
 
@@ -337,7 +337,7 @@ public class ExportPdfThread extends Thread {
     private void addSummary(Document doc, StatsReporter reporter) throws Exception {
 
 
-        Paragraph chapterTitle = createChapterTitle("Summary" + reporter.getName());
+        Paragraph chapterTitle = createChapterTitle("Summary" + reporter.getNamePostfix());
 
         Chapter summaryChapter = new Chapter(chapterTitle, curChapterNum);
 

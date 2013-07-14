@@ -67,7 +67,7 @@ public class BamQCTest {
                 bamQc.setComputeOutsideStats(test.getComputeOutsideStats());
             }
 
-            BamQCRegionReporter bamQcReporter = new BamQCRegionReporter(true, true);
+            BamQCRegionReporter bamQcReporter = new BamQCRegionReporter(false, true);
 
 
             try {

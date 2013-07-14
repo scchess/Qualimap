@@ -15,14 +15,14 @@ import java.util.Map;
 public class StatsReporter {
     protected List<QChart> charts;
 
-    protected String reportName, fileName;
+    protected String namePostfix, fileName;
     protected StatsKeeper inputDataKeeper;
     protected StatsKeeper summaryStatsKeeper;
     protected StatsKeeper chromosomeStatsKeeper;
 
 
     public StatsReporter() {
-        reportName = "Results";
+        namePostfix = "";
         fileName = "qualimapReport";
         inputDataKeeper = new StatsKeeper();
         summaryStatsKeeper = new StatsKeeper();
@@ -155,11 +155,6 @@ public class StatsReporter {
         return null;
     }
 
-
-    public String getName() {
-        return reportName;
-    }
-
     public boolean hasSummary() {
         return summaryStatsKeeper.getSections().size() > 0;
     }
@@ -179,4 +174,9 @@ public class StatsReporter {
     public String getFileName() {
         return fileName;
     }
+
+    public String getNamePostfix() {
+        return namePostfix;
+    }
+
 }

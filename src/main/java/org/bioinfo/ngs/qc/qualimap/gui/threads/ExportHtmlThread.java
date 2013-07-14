@@ -165,7 +165,7 @@ public class ExportHtmlThread extends Thread{
 
             if (saveRawData) {
                 for ( StatsReporter reporter : reporters) {
-                    saveRawData(reporter, "raw_data" + reporter.getName() );
+                    saveRawData(reporter, "raw_data_" + reporter.getFileName() );
                 }
             }
 

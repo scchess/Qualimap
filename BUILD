@@ -5,9 +5,9 @@ Building Qualimap from source code
 
 Install jdk-6 (both Sun and OpenJDK should work) and maven2
 
-Download picard-tools v1.70 from http://sourceforge.net/projects/picard/files/
-
 Add required picard-1.70.jar and sam-1.70.jar to maven repo:
+They can be found in directory "external"
+Alternatevly one can download picard-tools v1.70 from http://sourceforge.net/projects/picard/files/
 
 mvn install:install-file -DgroupId=net.sf.picard -DartifactId=picard -Dversion=1.70 -Dpackaging=jar -Dfile=/path/to/picard-tools-1.70/picard-1.70.jar
 
@@ -26,7 +26,12 @@ Upon first build all dependencies will be downloaded to the repo, this may requi
 The built jar can be found in target/install subdir of sources folder.
 
 
-4) Troubleshouting
+4) Develop Qualimap
+
+One can use your favorite Java IDE to work on Qualimap.
+However, we recommend (and use) IntelliJ IdeA Community Edition.
+
+5) Troubleshouting
 
 If you have problems building Qualimap, please refer to google-groups:
 http://groups.google.com/group/qualimap
