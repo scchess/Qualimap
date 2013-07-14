@@ -112,7 +112,7 @@ public class StatsReporter {
 
         StringBuilder inputDesc = new StringBuilder();
 
-        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters</b></p>" + HtmlJPanel.BR);
+        inputDesc.append("<p align=center><a name=\"input\"> <b>Input data & parameters</b></p>").append(HtmlJPanel.BR);
         inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "EEEEEE"));
 
         List<StatsKeeper.Section> inputDataSections = inputDataKeeper.getSections();
@@ -165,6 +165,14 @@ public class StatsReporter {
 
     public List<StatsKeeper.Section> getInputDataSections() {
         return inputDataKeeper.getSections();
+    }
+
+    public StatsKeeper getSummaryStatsKeeper() {
+        return summaryStatsKeeper;
+    }
+
+    public StatsKeeper getInputStatsKeeper() {
+        return inputDataKeeper;
     }
 
     public StatsKeeper getChromosomeStats() {

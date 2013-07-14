@@ -20,7 +20,6 @@
  */
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import com.ibm.icu.impl.ICURWLock;
 import com.lowagie.text.*;
 import com.lowagie.text.Document;
 import com.lowagie.text.pdf.PdfWriter;
@@ -122,7 +121,6 @@ public class ExportPdfThread extends Thread {
 
             curChapterNum = 1;
 			numSavedItems = 0;
-            boolean loadOutsideReporter = false;
 
 			setGuiVisible(true);
             initDocument(document);

@@ -1,10 +1,10 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.RNASeqQCDialog;
 
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.ngs.qc.qualimap.process.RNASeqQCAnalysis;
 
@@ -24,13 +24,9 @@ public class RNASeqQCAnalysisThread extends  Thread {
 	private RNASeqQCDialog settingsDlg;
 
 	/** Variables that contains the tab properties loaded in the thread */
-	AnalysisResultManager resultManager;
+	TabPageController resultManager;
 
-    /* TODO: this class has too much copy-paste with other similar classes
-	    Major refactoring is required to remove all this
-	*/
-
-	public RNASeqQCAnalysisThread(RNASeqQCDialog rnaSeqQCDialog,AnalysisResultManager resultManager) {
+	public RNASeqQCAnalysisThread(RNASeqQCDialog rnaSeqQCDialog,TabPageController resultManager) {
 
         super("RNASeqQCAnalysisThread");
 		this.settingsDlg = rnaSeqQCDialog;
@@ -44,7 +40,7 @@ public class RNASeqQCAnalysisThread extends  Thread {
      */
     public void run() {
 
-        /*settingsDlg.setUiEnabled(false);
+        settingsDlg.setUiEnabled(false);
 
         String bamPath = settingsDlg.getBamFilePath();
         String gffPath = settingsDlg.getGtfFilePath();
@@ -77,7 +73,7 @@ public class RNASeqQCAnalysisThread extends  Thread {
             return;
         }
 
-        settingsDlg.getHomeFrame().addNewPane(bamPath, resultManager);*/
+        settingsDlg.getHomeFrame().addNewPane(bamPath, resultManager);
 	}
 
 }

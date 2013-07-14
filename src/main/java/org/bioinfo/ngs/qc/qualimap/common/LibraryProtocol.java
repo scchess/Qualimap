@@ -67,4 +67,11 @@ public enum LibraryProtocol {
         return new String[] {PROTOCOL_NON_STRAND_SPECIFIC, PROTOCOL_FORWARD_STRAND, PROTOCOL_REVERSE_STRAND };
     }
 
+    public static String getProtocolNamesString() {
+        return  LibraryProtocol.PROTOCOL_FORWARD_STRAND + ","
+                + LibraryProtocol.PROTOCOL_REVERSE_STRAND + " or "
+                + LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
+    }
+
+
 }

@@ -7,6 +7,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.RNASeqQCAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.ngs.qc.qualimap.process.RNASeqQCAnalysis;
 
@@ -17,9 +18,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -31,11 +30,10 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
     JTextField bamPathEdit, gffPathEdit, outputPathField;
     JTextArea logArea;
-    JButton browseBamButton, browseGffButton, okButton, cancelButton;
+    JButton browseBamButton, browseGffButton, startAnalysisButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
-    JCheckBox saveStatsBox,advancedOptions;
+    JCheckBox advancedOptions;
     JLabel countingMethodLabel;
-    Thread countReadsThread;
 
 
     static class BrowseGffButtonListener extends BrowseButtonActionListener {
@@ -143,7 +141,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         add(countingAlgoCombo, "wrap");
 
 
-        add(new JLabel("Output:"), "");
+        /*add(new JLabel("Output:"), "");
         outputPathField = new JTextField(40);
         outputPathField.setToolTipText("Path to the file which will contain output");
         bamPathEdit.addCaretListener( new CaretListener() {
@@ -159,11 +157,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         JButton browseOutputPathButton = new JButton("...");
         browseOutputPathButton.addActionListener(new BrowseButtonActionListener(this,
                 outputPathField, "Counts file") );
-        add(browseOutputPathButton, "wrap");
-
-        /*saveStatsBox = new JCheckBox("Save computation summary");
-        saveStatsBox.setToolTipText("<html>This option controls whether to save overall computation statistics.</html>");
-        add(saveStatsBox, "span 2, wrap");*/
+        add(browseOutputPathButton, "wrap");*/
 
         add(new JLabel("Log:"), "wrap");
         logArea = new JTextArea(5,40);
@@ -177,16 +171,16 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 20"));
 
-        okButton = new JButton("Run calculation");
-        okButton.setActionCommand(Constants.OK_COMMAND);
-        okButton.addActionListener(this);
-        buttonPanel.add(okButton);
-        cancelButton = new JButton("Close");
-        cancelButton.setActionCommand(Constants.CANCEL_COMMAND);
-        cancelButton.addActionListener(this);
-        buttonPanel.add(cancelButton);
+        startAnalysisButton = new JButton();
+        startAnalysisButton.setActionCommand(Constants.OK_COMMAND);
+        startAnalysisButton.addActionListener(this);
+        startAnalysisButton.setText(">>> Run Analysis");
 
-        add(buttonPanel, "span, align right, wrap");
+
+        add(new JLabel(""), "span 2");
+        add(startAnalysisButton, "wrap");
+
+        //add(startAnalysisButton, "span2, align right, wrap");
 
         pack();
         updateState();
@@ -197,12 +191,15 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         if (actionEvent.getActionCommand().equals(Constants.OK_COMMAND)) {
-            /*String errMsg = validateInput();
+            String errMsg = validateInput();
             if (!errMsg.isEmpty()) {
                 JOptionPane.showMessageDialog(this, errMsg, getTitle(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            t.start();*/
+
+            TabPageController tabPageController = new TabPageController(AnalysisType.RNA_SEQ_QC);
+            RNASeqQCAnalysisThread t = new RNASeqQCAnalysisThread(this, tabPageController);
+            t.start();
 
 
         }  else if (actionEvent.getActionCommand().equals(Constants.CANCEL_COMMAND)) {
@@ -258,8 +255,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
             setGtfSpecificOptionsEnabled(false);
         }*/
 
-        okButton.setEnabled(enabled);
-        cancelButton.setEnabled(enabled);
+        startAnalysisButton.setEnabled(enabled);
     }
 
 
@@ -296,7 +292,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
             return "Annotations file is not found!";
         }
 
-        File outputFile = new File(outputPathField.getText());
+        /*File outputFile = new File(outputPathField.getText());
         try {
            if (!outputFile.exists() && !outputFile.createNewFile()) {
                throw new IOException();
@@ -306,7 +302,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         }
         if (!outputFile.delete()) {
             return "Output path is not valid! Deleting probing directory failed.";
-        }
+        }*/
 
 
         return "";

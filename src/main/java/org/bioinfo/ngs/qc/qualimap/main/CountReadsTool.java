@@ -50,16 +50,7 @@ public class CountReadsTool extends NgsSmartTool {
     String bamFile, gffFile, outFile, protocol, featureType, attrName, alg;
     boolean calcCovBias, saveTranscriptCoverage;
 
-    static String getProtocolTypes() {
-        return  LibraryProtocol.PROTOCOL_FORWARD_STRAND + ","
-                + LibraryProtocol.PROTOCOL_REVERSE_STRAND + " or "
-                + LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
-    }
 
-    static String getAlgorithmTypes() {
-        return ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED + "(default) or " +
-                ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL;
-    }
 
     public CountReadsTool() {
         super(Constants.TOOL_NAME_COMPUTE_COUNTS,false,false);
@@ -72,13 +63,12 @@ public class CountReadsTool extends NgsSmartTool {
         options.addOption( requiredOption(OPTION_BAM, true, "Mapping file in BAM format") );
 		options.addOption(requiredOption(OPTION_ANNOTATION, true, "Region file in GTF, GFF or BED format. " +
                 "If GTF format is provided, counting is based on attributes, otherwise based on feature name") );
-        options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
-        options.addOption(new Option(OPTION_PROTOCOL, true, getProtocolTypes()) );
+        options.addOption(new Option(OPTION_PROTOCOL, true, LibraryProtocol.getProtocolNamesString()) );
         options.addOption(new Option(OPTION_FEATURE_TYPE, true, "GTF-specific. Value of the third column of the GTF considered" +
                 " for counting. Other types will be ignored. Default: exon"));
         options.addOption(new Option(OPTION_FEATURE_ID, true, "GTF-specific. Attribute of the GTF to be used as feature ID. " +
                 "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
-        options.addOption(new Option(OPTION_ALGORITHM, true, getAlgorithmTypes()));
+        options.addOption(new Option(OPTION_ALGORITHM, true, ComputeCountsTask.getAlgorithmTypes()));
         options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
         options.addOption( new Option(OPTION_5_TO_3_BIAS, false, "GTF-specific. Calculate 5' and 3' coverage bias."));
 
@@ -101,7 +91,8 @@ public class CountReadsTool extends NgsSmartTool {
             if ( !(protocol.equals( LibraryProtocol.PROTOCOL_FORWARD_STRAND ) ||
                     protocol.equals( LibraryProtocol.PROTOCOL_REVERSE_STRAND ) ||
                     protocol.equals( LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC)) ) {
-                throw  new ParseException("wrong protocol type! supported types: " + getProtocolTypes());
+                throw  new ParseException("wrong protocol type! supported types: " +
+                        LibraryProtocol.getProtocolNamesString());
             }
         } else {
             protocol = LibraryProtocol.PROTOCOL_FORWARD_STRAND;
@@ -129,7 +120,8 @@ public class CountReadsTool extends NgsSmartTool {
             alg = commandLine.getOptionValue(OPTION_ALGORITHM);
             if (! ( alg.equalsIgnoreCase(ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED)  ||
                      alg.equalsIgnoreCase(ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL)) ) {
-                throw new ParseException("Unknown algorithm! Possible values are: " + getAlgorithmTypes());
+                throw new ParseException("Unknown algorithm! Possible values are: "
+                        + ComputeCountsTask.getAlgorithmTypes());
             }
         } else {
             alg = ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;

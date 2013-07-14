@@ -102,6 +102,12 @@ public class ComputeCountsTask  {
         this.calcCoverageBias = calcCoverageBias;
     }
 
+    public static String getAlgorithmTypes() {
+        return ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED + "(default) or " +
+                ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL;
+    }
+
+
     public void run() throws Exception {
 
         initRegions();
@@ -491,5 +497,9 @@ public class ComputeCountsTask  {
         if ( transcriptDataHandler != null ) {
             transcriptDataHandler.outputTranscriptsCoverage(fileName);
         }
+    }
+
+    public TranscriptDataHandler getTranscriptDataHandler() {
+        return transcriptDataHandler;
     }
 }

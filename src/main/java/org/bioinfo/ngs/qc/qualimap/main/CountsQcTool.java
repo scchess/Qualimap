@@ -29,7 +29,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.process.CountsAnalysis;
 
 
-public class RNAseqTool extends NgsSmartTool{
+public class CountsQcTool extends NgsSmartTool{
 	private String data1;
 	private String data2;
 	private String name1;
@@ -49,19 +49,19 @@ public class RNAseqTool extends NgsSmartTool{
 	private static final String RFUNCTIONS_FOLDER = "scripts";
     private boolean secondSampleIsProvided;
 	
-	public RNAseqTool(){
-		super(Constants.TOOL_NAME_RNA_SEQ);
+	public CountsQcTool(){
+		super(Constants.TOOL_NAME_COUNTS_QC);
 
-        RNAseqTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
+        CountsQcTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator + Constants.FILE_SPECIES_INFO_HUMAN;
-		RNAseqTool.GROUPS_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
+		CountsQcTool.GROUPS_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator + Constants.FILE_SPECIES_GROUPS_HUMAN;
-		RNAseqTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER +
+		CountsQcTool.INFO_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator +Constants.FILE_SPECIES_INFO_MOUSE;
-		RNAseqTool.GROUPS_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER +
+		CountsQcTool.GROUPS_FILE_MOUSE_60 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator  + Constants.FILE_SPECIES_GROUPS_MOUSE;
 
-        RNAseqTool.SCRIPT_R = homePath + File.separator + RFUNCTIONS_FOLDER +
+        CountsQcTool.SCRIPT_R = homePath + File.separator + RFUNCTIONS_FOLDER +
                 File.separator + "qualimapRscript.r";
 
         secondSampleIsProvided = false;
@@ -151,7 +151,7 @@ public class RNAseqTool extends NgsSmartTool{
 		// init output dir
 		initOutputDir();
 
-       AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.COUNTS_QC);
+        AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.COUNTS_QC);
 
         CountsAnalysis countsAnalysis = new CountsAnalysis(resultManager, homePath + File.separator);
 

@@ -116,7 +116,7 @@ public class HtmlReportGenerator {
         append("<div class=\"bodywrapper\">");
         append("<div class=\"body\">");
 
-        if (analysisType.isBamQC()) {
+        if (reporter.hasSummary()) {
             appendSummary();
         }
 

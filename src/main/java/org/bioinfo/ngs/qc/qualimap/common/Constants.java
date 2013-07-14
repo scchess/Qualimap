@@ -222,7 +222,8 @@ public final class Constants {
     public static final String CHROMOSOME_STATS_DATA = "data";
 
     public static final String TOOL_NAME_BAMQC = "bamqc";
-    public static final String TOOL_NAME_RNA_SEQ = "counts";
+    public static final String TOOL_NAME_COUNTS_QC = "counts";
+    public static final String TOOL_NAME_RNASEQ_QC = "rnaseq";
     public static final String TOOL_NAME_CLUSTERING = "clustering";
     public static final String TOOL_NAME_COMPUTE_COUNTS = "comp-counts";
     public static final String TOOL_NAME_GC_CONTENT = "gc-content";

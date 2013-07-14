@@ -55,9 +55,13 @@ public class NgsSmartMain {
 			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_BAMQC)){
 				tool = new BamQcTool();
 			}
-			
-			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_RNA_SEQ)){
-				tool = new RNAseqTool();
+
+            if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_RNASEQ_QC)){
+                tool = new RnaSeqQcTool();
+            }
+
+            if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_COUNTS_QC)){
+				tool = new CountsQcTool();
 			}
 
             if (toolName.equals(Constants.TOOL_NAME_COMPUTE_COUNTS)) {
