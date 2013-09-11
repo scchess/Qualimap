@@ -966,7 +966,7 @@ public class BamStats implements Serializable {
         double border = insertSizeArray.get(percentile75Index)*2;
 
         for (int val : insertSizeArray) {
-            if (val < border) {
+            if (val <= border) {
                 updateHistogramValue(insertSizeHistogramCache, insertSizeHistogramMap, (long) val);
             }
         }
@@ -1831,7 +1831,7 @@ public class BamStats implements Serializable {
 
 
     public void updateInsertSizeHistogram(int insertSize) {
-        if (insertSize > 0 ) {
+        if (insertSize >= 0 ) {
             insertSizeArray.add(insertSize);
         }
     }
