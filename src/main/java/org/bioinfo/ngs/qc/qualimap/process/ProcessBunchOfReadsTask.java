@@ -225,11 +225,14 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 		// init read params
 		int alignmentLength = (read.getAlignmentEnd()-read.getAlignmentStart()+1);
 
-        if (alignmentLength < 0) {
+        //TODO: analyze alignment when read length is zero
+        int readLength = read.getReadLength();
+
+        if (alignmentLength < 0 || readLength == 0) {
             return null;
         }
 
-
+        //System.err.println("Computing alignment for read " + read.getReadName());
 		Cigar cigar = read.getCigar();
 
 		// precompute total size of alignment
