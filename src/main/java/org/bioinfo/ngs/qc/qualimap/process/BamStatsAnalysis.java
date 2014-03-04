@@ -124,7 +124,7 @@ public class BamStatsAnalysis {
 
 	// reporting
 	private boolean activeReporting;
-	private boolean saveCoverage;
+	private boolean saveCoverage, nonZeroCoverageOnly;
 	private boolean isPairedData;
     List<Future<ProcessBunchOfReadsTask.Result>> results;
     Future<Integer> finalizeWindowResult;
@@ -162,6 +162,9 @@ public class BamStatsAnalysis {
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.outdir = ".";
+        // TODO: make this a parameter!
+        this.saveCoverage = true;
+        this.nonZeroCoverageOnly = true;
         protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
         pgProgram = "";
         pgCommandString = "";
@@ -215,7 +218,7 @@ public class BamStatsAnalysis {
         //effectiveNumberOfWindows = computeEffectiveNumberOfWindows(referenceSize,windowSize);
         List<Long> windowPositions = computeWindowPositions(windowSize);
         effectiveNumberOfWindows = windowPositions.size();
-        bamStats = new BamStats("genome",referenceSize,effectiveNumberOfWindows);
+        bamStats = new BamStats("genome", locator, referenceSize,effectiveNumberOfWindows);
         logger.println("Number of windows: " + numberOfWindows + ", effective number of windows: " + effectiveNumberOfWindows);
         logger.println("Chunk of reads size: " + numReadsInBunch);
         logger.println("Number of threads: " + threadNumber);
@@ -224,6 +227,10 @@ public class BamStatsAnalysis {
         bamStats.setWindowReferences("w", windowPositions);
         bamStatsCollector = new BamStatsCollector();
         openWindows = new ConcurrentHashMap<Long,BamGenomeWindow>();
+
+        if (saveCoverage) {
+            bamStats.activateCoverageReporting(outdir + File.separator + "coverage.txt", nonZeroCoverageOnly);
+        }
 
         //regions
         if(selectedRegionsAvailable){
@@ -234,7 +241,7 @@ public class BamStatsAnalysis {
 
             // outside of regions stats
             if (computeOutsideStats) {
-                outsideBamStats = new BamStats("outside",referenceSize, effectiveNumberOfWindows);
+                outsideBamStats = new BamStats("outside", locator, referenceSize, effectiveNumberOfWindows);
                 outsideBamStats.setSourceFile(bamFile);
                 outsideBamStats.setWindowReferences("out_w", windowPositions);
                 openOutsideWindows = new HashMap<Long,BamGenomeWindow>();
@@ -245,7 +252,7 @@ public class BamStatsAnalysis {
                 }
 
                 if(saveCoverage){
-                    outsideBamStats.activateCoverageReporting(outdir + "/outside_coverage.txt");
+                    outsideBamStats.activateCoverageReporting(outdir + "/outside_coverage.txt", nonZeroCoverageOnly);
                 }
 
                 // we have twice more data from the bunch, so the queue is limited now

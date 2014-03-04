@@ -230,6 +230,7 @@ public class BamStats implements Serializable {
     XYVector readsNsHistogram;
     XYVector readsClippingProfileHistogram;
     int[] homopolymerIndelsData;
+    private boolean reportNonZeroCoverageOnly;
 
     // chromosome stats
     public class ChromosomeInfo {
@@ -286,6 +287,7 @@ public class BamStats implements Serializable {
     private long sumCoverageSquared;
     private final int CACHE_SIZE = 2000;
     private Map<String,String> warnings;
+    GenomeLocator locator;
 
 
     // gc content histogram
@@ -298,12 +300,13 @@ public class BamStats implements Serializable {
     private int numInsertions;
     private int numDeletions;
 
-    public BamStats(String name, long referenceSize, int numberOfWindows){
+    public BamStats(String name, GenomeLocator locator, long referenceSize, int numberOfWindows){
 
 		// global
 		this.name = name;
 		this.referenceSize = referenceSize;
 		this.numberOfWindows = numberOfWindows;
+        this.locator = locator;
 		numberOfMappedBases = 0;
 		numberOfSequencedBases = 0;
 		numberOfAlignedBases = 0;
@@ -455,10 +458,11 @@ public class BamStats implements Serializable {
 	}
 	
 	
-	public void activateCoverageReporting(String coverageReportFile) throws FileNotFoundException{
+	public void activateCoverageReporting(String coverageReportFile, boolean nonZeroCoverageOnly) throws FileNotFoundException{
 		this.coverageReportFile = coverageReportFile;
 		this.coverageReport = new PrintWriter(new File(coverageReportFile));
 		this.activeCoverageReporting = true;
+        this.reportNonZeroCoverageOnly = nonZeroCoverageOnly;
 		reportCoverageHeader();
 	}
 	
@@ -468,13 +472,19 @@ public class BamStats implements Serializable {
 	
 	public void reportCoverageHeader(){
 //		coverageReport.println("#position\tcoverageData\tAs\tCs\tTs\tGs");
-		coverageReport.println("#position\tcoverageData");
+		coverageReport.println("#chr\tposition\tcoverageData");
 	}
 	
 	public void reportCoverage(BamDetailedGenomeWindow window){
-		coverageReport.println("# window " + window.getName());
+		//coverageReport.println("# window " + window.getName());
+        ContigRecord rec = locator.getContigCoordinates(window.getStart());
 		for(int i=0; i<window.getCoverageAcrossReference().length; i++){
-			coverageReport.print((window.getStart()+i) + "\t");
+            int coverage = window.getCoverageAcrossReference()[i];
+            if (coverage == 0 && reportNonZeroCoverageOnly) {
+                continue;
+            }
+            coverageReport.print(rec.getName() + "\t");
+            coverageReport.print((rec.getRelative() + i) + "\t");
 			coverageReport.print(window.getCoverageAcrossReference()[i]);
 //			coverageReport.print(window.getaContentAcrossReference()[i] + "\t");
 //			coverageReport.print(window.getcContentAcrossReference()[i] + "\t");
@@ -482,8 +492,8 @@ public class BamStats implements Serializable {
 //			coverageReport.print(window.getgContentAcrossReference()[i] + "\t");
 //			coverageReport.print(window.getnContentAcrossReference()[i] + "\t");
 			coverageReport.println();
-			coverageReport.flush();
-		}		
+		}
+        coverageReport.flush();
 	}
 	
 	/*
@@ -602,7 +612,9 @@ public class BamStats implements Serializable {
 		// reporting
 		if(activeWindowReporting) reportWindow(window);
 		if(isInstanceOfBamGenomeWindow){
-			if(activeCoverageReporting) reportCoverage((BamDetailedGenomeWindow)window);
+			if(activeCoverageReporting) {
+                reportCoverage((BamDetailedGenomeWindow)window);
+            }
 		}
 	}
 	
