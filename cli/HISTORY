@@ -2,6 +2,17 @@ Version Release History
 =======================
 
 
+Version 0.8 - March 5, 2014 
+------------------------------
+        
+    * Added new analysis mode "RNA-seq QC"
+    * Added PDF output path
+    * Fixed bug with R-version recognition
+    * Fixed bug with per-chromosome standard deviation calculation
+    * Fixed integer overflow in number of reads
+    * Fixed crash with insert size 
+    * Fixed bug with empty SAMRecord
+
 Version 0.7.1 - April 19, 2013 
 ------------------------------
         
