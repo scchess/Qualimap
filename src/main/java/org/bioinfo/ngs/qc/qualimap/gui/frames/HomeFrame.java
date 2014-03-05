@@ -203,12 +203,20 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             }
 
             String output = outputReader.readLine();
-            Pattern pattern = Pattern.compile("2.(\\d\\d)");
+            Pattern pattern = Pattern.compile("(\\d).([\\d]+)");
             Matcher matcher = pattern.matcher(output);
             boolean versionOk = false;
             if (matcher.find() ) {
-                int minorVersion = Integer.parseInt( matcher.group(1) );
-                if (minorVersion >= 14) {
+                int majorVersion = Integer.parseInt( matcher.group(1) );
+                if (majorVersion  < 2 ) {
+                    versionOk = false;
+                } else if (majorVersion == 2) {
+                    int minorVersion = Integer.parseInt( matcher.group(2) );
+                    if (minorVersion >= 14) {
+                        versionOk = true;
+                    }
+
+                } else {
                     versionOk = true;
                 }
             }
