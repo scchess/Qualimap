@@ -44,6 +44,13 @@ Also one can override this parameter by setting environment variable $JAVA_OPTS.
 
 |
 
+**Q**: *Does Qualimap work with R version 3?*
+
+**A**: Yes, Qualimap works with R v3. There was a bug with R-version recogintion GUI, but starting from version 0.8 the bug was fixed.   
+
+
+|
+
 **Q**: *I always get a message "Out of Memory". What should I do?*
 
 **A**: You can try decreasing the number of reads in chunk or increasing :ref:`maximum Java heap memory size <heapsize>`.  
