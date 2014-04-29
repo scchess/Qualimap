@@ -441,6 +441,10 @@ public class BamStatsAnalysis {
         if (selectedRegionsAvailable) {
 
             bamStats.setNumSelectedRegions(numberOfSelectedRegions);
+            if (computeOutsideStats)  {
+                // Size was calculated two times during the analysis
+                insideReferenceSize /= 2;
+            }
             bamStats.setInRegionReferenceSize(insideReferenceSize);
 
             // update totals
