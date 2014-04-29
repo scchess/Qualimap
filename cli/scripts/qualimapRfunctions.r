@@ -1536,8 +1536,14 @@ function (x = seq(0, 1, length.out = nrow(z)), y = seq(0, 1,
         stop("no proper 'z' matrix specified")
     if (!is.double(z)) 
         storage.mode(z) <- "double"
-    .Internal(filledcontour(as.double(x), as.double(y), z, as.double(levels), 
-        col = col))
+    
+    if (R.Version()$major > 2) {    
+        .filled.contour(as.double(x), as.double(y), z, as.double(levels), col = col)
+    } else {
+        .Internal(filledcontour(as.double(x), as.double(y), z, as.double(levels), 
+                                                        col = col))
+    }
+
     if (missing(plot.axes)) {
         if (axes) {
             title(main = "", xlab = "", ylab = "")
