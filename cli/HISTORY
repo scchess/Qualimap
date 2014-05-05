@@ -1,6 +1,11 @@
 Version Release History
 =======================
 
+Version 0.8.1 - May 5, 2014 
+---------------------------
+        
+    * Fixed bug with CountsQC and R version 3
+    * Fixed bug with double reference size computation
 
 Version 0.8 - March 5, 2014 
 ------------------------------
