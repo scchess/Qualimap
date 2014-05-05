@@ -78,7 +78,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
 	gcPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
-    medianInsertSize, meanCoverage, stdCoverage;
+    stdInsertSize, meanCoverage, stdCoverage;
+
+    private int p25InsertSize, medianInsertSize, p75InsertSize;
 
     int readMinSize, readMaxSize, numClippedReads;
     double readMeanSize;
@@ -306,7 +308,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         // insert size
         this.meanInsertSize = bamStats.getMeanInsertSize();
+        this.p25InsertSize = bamStats.getP25InsertSize();
         this.medianInsertSize = bamStats.getMedianInsertSize();
+        this.p75InsertSize = bamStats.getP75InsertSize();
+        this.stdInsertSize = bamStats.getStdInsertSize();
 
 		// actg content
 		this.aNumber = bamStats.getNumberOfAs();
@@ -660,11 +665,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 	}
 
 
-	private String formatInteger(int decimal){
-		return StringUtils.decimalFormat(decimal,"###,###,###,###,###,###,###.##");
-	}
-
-	private String formatLong(long decimal){
+    private String formatLong(long decimal){
 		return StringUtils.decimalFormat(decimal,"###,###,####,###,###,###,###,###,###,###,###.##");
 	}
 
@@ -860,6 +861,16 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		mappingQualitySection.addRow("Mean Mapping Quality", sdf.formatDecimal(meanMappingQuality));
 		summaryStatsKeeper.addSection(mappingQualitySection);
 
+        if (meanInsertSize != 0)
+        {
+            StatsKeeper.Section insertSizeSection = new StatsKeeper.Section("Insert size" + postfix);
+            insertSizeSection.addRow("Mean", sdf.formatDecimal(meanInsertSize));
+            insertSizeSection.addRow("Standard Deviation", sdf.formatDecimal(stdInsertSize));
+            insertSizeSection.addRow("P25/Median/P75", sdf.formatDecimal(p25InsertSize) + " / " +
+                    sdf.formatDecimal(medianInsertSize) + " / " + sdf.formatDecimal(p75InsertSize));
+            summaryStatsKeeper.addSection(insertSizeSection);
+        }
+
         int numIndels = numInsertions + numDeletions;
         if ( numIndels > 0) {
             StatsKeeper.Section indelsSection = new StatsKeeper.Section("Indels" + postfix);
@@ -873,13 +884,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         }
 
 
-        if (meanInsertSize != 0)
-        {
-            StatsKeeper.Section insertSizeSection = new StatsKeeper.Section("Insert size" + postfix);
-            insertSizeSection.addRow("Mean", sdf.formatDecimal(meanInsertSize));
-            insertSizeSection.addRow("Median", sdf.formatDecimal(medianInsertSize));
-            summaryStatsKeeper.addSection(insertSizeSection);
-        }
     }
 
     private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {

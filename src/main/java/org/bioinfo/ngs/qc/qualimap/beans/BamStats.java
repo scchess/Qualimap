@@ -23,6 +23,7 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import java.io.*;
 import java.util.*;
 
+import net.sf.picard.util.MathUtil;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
@@ -205,10 +206,10 @@ public class BamStats implements Serializable {
 
 	// insert size
 	private double meanInsertSize;
-	private double meanInsertSizePerWindow;
-    private double medianInsertSize;
+	private int p25InsertSize, medianInsertSize, p75InsertSize;
+    private double stdInsertSize;
     private List<Double> insertSizeAcrossReference;
-	private XYVector insertSizeHistogram;
+    private XYVector insertSizeHistogram;
     private ArrayList<Integer> insertSizeArray;
 	private HashMap<Long,Long> insertSizeHistogramMap;
     private long[] insertSizeHistogramCache;
@@ -703,12 +704,6 @@ public class BamStats implements Serializable {
 
         }
 
-		// insert size
-        double[] insertData = ListUtils.toDoubleArray(insertSizeAcrossReference);
-		meanInsertSizePerWindow = MathUtils.mean(insertData);
-		meanInsertSize = meanInsertSizePerWindow;
-        medianInsertSize = StatUtils.percentile(insertData, 50);
-
 
 		// reporting
 		if(activeWindowReporting) {
@@ -971,9 +966,15 @@ public class BamStats implements Serializable {
 
         int size = insertSizeArray.size();
         int medianIndex =  size / 2;
+        int percentile25Index = size /4;
         int percentile75Index = size * 3/ 4;
 
+        p25InsertSize = insertSizeArray.get(percentile25Index);
         medianInsertSize = insertSizeArray.get(medianIndex);
+        p75InsertSize = insertSizeArray.get(percentile75Index);
+        double[] insertData =   ListUtils.toDoubleArray(insertSizeArray);
+        meanInsertSize = MathUtils.mean( insertData );
+        stdInsertSize = MathUtils.standardDeviation( insertData );
 
         double border = insertSizeArray.get(percentile75Index)*2;
 
@@ -1797,8 +1798,20 @@ public class BamStats implements Serializable {
         return warnings;
     }
 
-    public double getMedianInsertSize() {
+    public int getP25InsertSize() {
+        return p25InsertSize;
+    }
+
+    public int getMedianInsertSize() {
         return medianInsertSize;
+    }
+
+    public int getP75InsertSize() {
+        return p75InsertSize;
+    }
+
+    public double getStdInsertSize()  {
+        return stdInsertSize;
     }
 
     public long getNumberOfMappedFirstOfPair() {

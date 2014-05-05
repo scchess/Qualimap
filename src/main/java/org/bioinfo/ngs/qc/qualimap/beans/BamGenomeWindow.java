@@ -81,7 +81,6 @@ public class BamGenomeWindow {
 	 */
 	
 	// coverageData
-	protected long numberOfProperlyPairedMappedBases;
 	protected double meanCoverage;
 	protected double stdCoverage;	
 		
@@ -208,14 +207,12 @@ public class BamGenomeWindow {
 		acumMappingQuality+=mappingQuality;
 	}
 	
-	protected void acumInsertSize(long relative, long insertSize){
-		if(insertSize>0 & insertSize<5000){
+	public void acumInsertSize(long insertSize){
+		if(insertSize > 0 /*& insertSize<5000*/){
 			correctInsertSizes++;
-			acumInsertSize+=Math.abs(insertSize);
+			acumInsertSize += Math.abs(insertSize);
 		}
 	}
-	
-
 
     public void computeDescriptors() throws CloneNotSupportedException{
 		
@@ -233,8 +230,8 @@ public class BamGenomeWindow {
         }
 
 
-        if (numberOfProperlyPairedMappedBases > 0) {
-            meanInsertSize = acumInsertSize/(double)numberOfProperlyPairedMappedBases;
+        if (correctInsertSizes > 0) {
+            meanInsertSize = acumInsertSize/(double)correctInsertSizes;
         }
 
 		// ACTG absolute content
@@ -599,14 +596,11 @@ public class BamGenomeWindow {
 
         numberOfMappedBases += readData.numberOfMappedBases;
         numberOfSequencedBases += readData.numberOfSequencedBases;
-        numberOfProperlyPairedMappedBases += readData.numberOfProperlyPairedBases;
 
         numberOfAs += readData.numberOfAs;
         numberOfCs += readData.numberOfCs;
         numberOfGs += readData.numberOfGs;
         numberOfTs += readData.numberOfTs;
-
-        acumInsertSize += readData.acumInsertSize;
 
 
     }

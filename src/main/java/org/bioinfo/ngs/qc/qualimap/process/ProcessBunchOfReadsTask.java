@@ -176,6 +176,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
             try {
                 if(computeInsertSize && read.getProperPairFlag()){
                     insertSize = read.getInferredInsertSize();
+                    currentWindow.acumInsertSize(insertSize);
                 }
             } catch(IllegalStateException ise){
                 isPairedData = false;
@@ -188,11 +189,11 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 
             //regionOverlapLookupTable = createRegionLookupTable(position, readEnd, ctx.getRegionsTree());
             boolean outOfBounds = processReadAlignment(currentWindow, alignment, position, readEnd,
-                    mappingQuality, insertSize);
+                    mappingQuality);
 
             if(outOfBounds) {
                 //System.out.println("From ProcessReadTask: propogating read" + read.getHeader().toString());
-                propagateRead(alignment, position, readEnd, mappingQuality, insertSize);
+                propagateRead(alignment, position, readEnd, mappingQuality);
             }
 
         }
@@ -405,7 +406,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 	}
 
     private boolean processReadAlignment(BamGenomeWindow window, char[] alignment, long readStart, long readEnd,
-                                         int mappingQuality, long insertSize) {
+                                         int mappingQuality) {
 
         long windowSize = window.getWindowSize();
         long windowStart = window.getStart();
@@ -426,6 +427,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
             outOfBounds = true;
             //readData.numberOfOutOfBoundsReads++;
         }
+
 
         // run read
         for(long j=readStart; j<=readEnd; j++){
@@ -465,10 +467,8 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
                 if (nucleotide != '-' && nucleotide != 'N') {
                     // mapping quality
                     readData.acumMappingQuality(relative, mappingQuality);
-                    // insert size
-                    readData.acumInsertSize(relative, insertSize);
                     // base stats
-                    readData.acumBase(relative, nucleotide, insertSize);
+                    readData.acumBase(relative, nucleotide);
                 }
 
             }
@@ -482,7 +482,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
     }
 
     private void propagateRead(char[] alignment,long readStart, long readEnd,
-                               int mappingQuality,long insertSize ){
+                               int mappingQuality ){
         // init covering stat
         BamStats bamStats = ctx.getBamStats();
 		int index = bamStats.getNumberOfProcessedWindows()+1;
@@ -505,7 +505,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
 
             // acum read
             outOfBounds = processReadAlignment(adjacentWindow, alignment, readStart, readEnd,
-                    mappingQuality, insertSize);
+                    mappingQuality);
 
 			index++;
 		}

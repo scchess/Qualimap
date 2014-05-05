@@ -16,3 +16,11 @@ The following pages must be updated:
 index.html
 archive.html
 Example reports
+
+Use script to build the version:
+./prepare_new_version.sh 
+to create all required elements.
+
+Currently qualimap is hosted at ssh.cipf.es (subserver wikis)
+
+

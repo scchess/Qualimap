@@ -38,8 +38,6 @@ public class SingleReadData {
     public long numberOfGs;
     // These number denotes how many bases are aligned from sequenced bases
     //public long numberOfAlignedBases;
-    public long acumInsertSize;
-    public long numberOfProperlyPairedBases;
 
     public static class Cell {
         int position;
@@ -72,7 +70,7 @@ public class SingleReadData {
         return windowStart;
     }
 
-    public void acumBase(long relative, char base, long insertSize){
+    public void acumBase(long relative, char base){
 		numberOfSequencedBases++;
 
         // ATCG content
@@ -125,13 +123,5 @@ public class SingleReadData {
         }
     }
 
-	public void acumInsertSize(long relative, long insertSize){
-		if(insertSize > 0 & insertSize < 5000){
-            acumInsertSize += insertSize;
-            numberOfProperlyPairedBases++;
-			//insertSizeData.add( new Cell((int) relative, (int) insertSize) );
-        }
-
-    }
 
 }

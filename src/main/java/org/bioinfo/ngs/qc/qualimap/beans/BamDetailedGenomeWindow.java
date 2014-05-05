@@ -129,11 +129,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	}
 
 	@Override
-	protected void acumInsertSize(long relative, long insertSize){
-		super.acumInsertSize(relative,insertSize);
-	}
-	
-	@Override
 	public void computeDescriptors() throws CloneNotSupportedException{
 	
 		// normalize vectors
