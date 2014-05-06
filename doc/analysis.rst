@@ -82,7 +82,28 @@ Output
 
 :guilabel:`Summary` 
 
-  **Basic information** and statistics for the alignment data. Qualimap reports here information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, insert size, nucleotide content, coverage, number of indels, mapping quaility and chromosome-based statistics. 
+  **Basic information** and statistics for the alignment data. The following sections are available:
+    * *Globals*
+    This section contains information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, number of clipped reads and duplication rate (estimated from the start positions of read alignments).
+    
+    * *ACGT Content* 
+    Nucleotide content and GC percentage in the mapped reads. 
+    
+    * *Coverage* 
+    Mean and standard deviation of the coverage depth.
+    
+    * *Mapping quality* 
+    Mean mapping quality of the mapped reads.
+
+    * *Insert size* 
+    Mean, standard deviation and percentiles of the insert size distribution if applicable. The features are computed based on the TLEN field of the SAM file.
+    
+    * *Mismatches and indels* 
+    The section reports general alignment error rate (computed as a ratio of total collected edit distance to the number of mapped bases), total number of mismatches and total number of indels (computed from the CIGAR values). Additionally fraction of the homopolymer indels among total indels is provided. Note, the error rate and mismatches metrics are based on optional fields of a SAM record (**NM** for edit distance, **MD** for mismatches). The features are not reported if these fields are missing in the SAM file.
+
+    * *Chromosome stats* 
+    Number of mapped bases, mean and standard deviation of the coverage depth for each chromosome as defined by the header of the SAM file.
+
   
   For region-based analysis the information is given inside of regions, including some additional information like, for example, number of correct strand reads.
 
