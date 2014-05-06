@@ -102,7 +102,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private double duplicationRate;
 
     private int numInsertions, numDeletions;
+    private long numMismatches;
     private double homopolymerIndelFraction;
+    private double alignmentErrorRate;
 
     private Map<String,String> warnings;
     String genomeGCContentName;
@@ -339,6 +341,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         numInsertions = bamStats.getNumInsertions();
         numDeletions = bamStats.getNumDeletions();
         homopolymerIndelFraction = bamStats.getHomopolymerIndelFraction();
+        numMismatches = bamStats.getNumMismatches();
+        alignmentErrorRate = bamStats.getErrorRate();
 
         prepareSummaryStatsKeeper();
         prepareChromosomeStatsKeeper(bamStats.getChromosomeStats());
@@ -872,12 +876,20 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         }
 
         int numIndels = numInsertions + numDeletions;
-        if ( numIndels > 0) {
-            StatsKeeper.Section indelsSection = new StatsKeeper.Section("Indels" + postfix);
-            indelsSection.addRow("Total reads with indels", sdf.formatInteger(numIndels));
-            indelsSection.addRow("Insertions",sdf.formatDecimal(numInsertions) );
-            indelsSection.addRow("Deletions",sdf.formatDecimal(numDeletions) );
-            indelsSection.addRow("Homopolymer indels",sdf.formatPercentage(homopolymerIndelFraction * 100.0) );
+        if ( numIndels > 0 || numMismatches > 0 || alignmentErrorRate > 0) {
+            StatsKeeper.Section indelsSection = new StatsKeeper.Section("Mismatches and indels" + postfix);
+            if (alignmentErrorRate > 0) {
+                indelsSection.addRow("General error rate", sdf.formatPercentage(alignmentErrorRate * 100.0));
+            }
+            if (numMismatches > 0) {
+                indelsSection.addRow("Mismatches",sdf.formatDecimal(numMismatches));
+            }
+            //indelsSection.addRow("Total reads with indels", sdf.formatInteger(numIndels));
+            if (numIndels > 0) {
+                indelsSection.addRow("Insertions",sdf.formatDecimal(numInsertions) );
+                indelsSection.addRow("Deletions",sdf.formatDecimal(numDeletions) );
+                indelsSection.addRow("Homopolymer indels",sdf.formatPercentage(homopolymerIndelFraction * 100.0) );
+            }
 
             summaryStatsKeeper.addSection(indelsSection);
 

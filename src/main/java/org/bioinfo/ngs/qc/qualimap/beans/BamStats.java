@@ -233,6 +233,19 @@ public class BamStats implements Serializable {
     int[] homopolymerIndelsData;
     private boolean reportNonZeroCoverageOnly;
 
+    public long getNumMismatches() {
+        return numMismatches;
+    }
+
+    public double getErrorRate() {
+        double errorRate = 0.;
+        if (acumEditDistance > 0 && numberOfMappedBases > 0) {
+            errorRate = ( (double)acumEditDistance / numberOfMappedBases);
+        }
+
+        return errorRate;
+    }
+
     // chromosome stats
     public class ChromosomeInfo {
         String name;
@@ -300,6 +313,8 @@ public class BamStats implements Serializable {
 
     private int numInsertions;
     private int numDeletions;
+
+    private long numMismatches, acumEditDistance;
 
     public BamStats(String name, GenomeLocator locator, long referenceSize, int numberOfWindows){
 
@@ -1587,6 +1602,9 @@ public class BamStats implements Serializable {
 
         numInsertions += readStatsCollector.getNumInsertions();
         numDeletions += readStatsCollector.getNumDeletions();
+        numMismatches += readStatsCollector.getNumMismatches();
+        acumEditDistance += readStatsCollector.getEditDistance();
+
 
         homopolymerIndelsData[5] += readStatsCollector.getNumIndels() - numHomopolymerIndels;
 

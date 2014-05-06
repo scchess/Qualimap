@@ -54,6 +54,8 @@ public class ReadStatsCollector {
     int numClippedReads;
     int numInsertions;
     int numDeletions;
+    int numMismatches;
+    int editDistance;
 
     int numBases;
     int numGC;
@@ -258,6 +260,23 @@ public class ReadStatsCollector {
     public int getNumDeletions() {
         return numDeletions;
     }
+
+    public void incNumMismatches(int mismatches) {
+        numMismatches += mismatches;
+    }
+
+    public int getNumMismatches() {
+        return numMismatches;
+    }
+
+    public void incEditDistance(int dist) {
+        editDistance += dist;
+    }
+
+    public int getEditDistance() {
+        return editDistance;
+    }
+
 
 
 }

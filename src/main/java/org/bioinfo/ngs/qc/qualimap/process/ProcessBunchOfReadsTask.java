@@ -215,6 +215,26 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         return taskResult;
     }
 
+    static private int computeNumMismatches(SAMRecord read) {
+
+        int numMismatches = 0;
+        String mdAttr = read.getStringAttribute("MD");
+
+        if (mdAttr == null) {
+            return numMismatches;
+        }
+
+        for (int i = 0; i < mdAttr.length(); i++){
+            char c = mdAttr.charAt(i);
+
+            if (c == 'A' || c== 'C' || c == 'G' || c == 'T') {
+                numMismatches += 1;
+            }
+        }
+
+        return numMismatches;
+    }
+
     /**
      * This method computes read to reference alignment vector along with collecting read's stats
      * @param read The record being analyzed
@@ -320,6 +340,17 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         if (readIsClipped) {
             statsCollector.incNumClippedReads();
         }
+
+        int numMismatches = computeNumMismatches(read);
+        statsCollector.incNumMismatches(numMismatches);
+
+        Integer editDist = read.getIntegerAttribute("NM");
+        if (editDist != null) {
+            statsCollector.incEditDistance(editDist);
+        }
+
+
+
 
 		return alignmentVector;
 	}

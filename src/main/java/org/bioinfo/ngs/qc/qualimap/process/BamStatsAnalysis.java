@@ -219,7 +219,8 @@ public class BamStatsAnalysis {
         List<Long> windowPositions = computeWindowPositions(windowSize);
         effectiveNumberOfWindows = windowPositions.size();
         bamStats = new BamStats("genome", locator, referenceSize,effectiveNumberOfWindows);
-        logger.println("Number of windows: " + numberOfWindows + ", effective number of windows: " + effectiveNumberOfWindows);
+        logger.println("Number of windows: " + numberOfWindows +
+                ", effective number of windows: " + effectiveNumberOfWindows);
         logger.println("Chunk of reads size: " + numReadsInBunch);
         logger.println("Number of threads: " + threadNumber);
         bamStats.setSourceFile(bamFile);
