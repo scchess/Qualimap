@@ -172,10 +172,10 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
             //System.out.println("From ProcessReadTask: computed alignment for read" + read.getHeader().toString());
 
             // insert size
-            long insertSize = -1;
+
             try {
                 if(computeInsertSize && read.getProperPairFlag()){
-                    insertSize = read.getInferredInsertSize();
+                    long insertSize = read.getInferredInsertSize();
                     currentWindow.acumInsertSize(insertSize);
                 }
             } catch(IllegalStateException ise){
@@ -472,7 +472,6 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
                 break;
             } else {
 
-                // TODO: check on every iteration? -> we can do it better! :)
                 if (analyzeRegions) {
                     boolean insideOfRegion = window.getSelectedRegions().get((int)relative);
                     if (insideOfRegion) {

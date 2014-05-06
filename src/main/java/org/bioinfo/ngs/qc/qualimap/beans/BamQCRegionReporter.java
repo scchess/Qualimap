@@ -67,14 +67,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
     private boolean paintChromosomeLimits;
 
-	/** Variable that contains the input files names */
-	private String bamFileName, referenceFileName;
-
-	private Integer numWindows;
-
-	private Long referenceSize, contigsNumber, aNumber, cNumber, gNumber,
-	tNumber, nNumber, numReads, numMappedReads, numMappedBases, numSequencedBases,
-	numAlignedBases, numBasesInsideRegions;
+	private Long referenceSize, aNumber, cNumber, gNumber,
+	tNumber, nNumber, numReads, numMappedReads,
+    /*numMappedBases, numSequencedBases, numAlignedBases,*/
+    numBasesInsideRegions;
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
 	gcPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
@@ -248,9 +244,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 	 */
 	public void loadReportData(BamStats bamStats) {
 
-        this.bamFileName = bamStats.getSourceFile();
-		this.referenceSize = bamStats.getReferenceSize();
-		this.contigsNumber = bamStats.getNumberOfReferenceContigs();
+        this.referenceSize = bamStats.getReferenceSize();
 
 		if(bamStats.isReferenceAvailable()) {
 			/*this.referenceFileName = bamStats.getReferenceFile();
@@ -268,13 +262,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		}
 
 		// globals
-		this.numWindows = bamStats.getNumberOfWindows();
 		this.numReads = bamStats.getNumberOfReads();
 		this.numMappedReads = bamStats.getNumberOfMappedReads();
 		this.percentMappedReads = bamStats.getPercentageOfMappedReads();
-		this.numMappedBases = bamStats.getNumberOfMappedBases();
+		/*this.numMappedBases = bamStats.getNumberOfMappedBases();
 		this.numSequencedBases = bamStats.getNumberOfSequencedBases();
-		this.numAlignedBases = bamStats.getNumberOfAlignedBases();
+		this.numAlignedBases = bamStats.getNumberOfAlignedBases();*/
         this.duplicationRate = bamStats.getDuplicationRate();
 
         // paired reads
@@ -492,7 +485,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         if (bamStats.getNumberOfMappedBases() == 0) {
             // It doesn't make sense to draw any other graphs
-            // tODO: show user a message?
+            // TODO: show user a message?
             return;
         }
 
