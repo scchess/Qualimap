@@ -145,8 +145,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of bases = " + formatLong(bamStats.getReferenceSize()) + " bp");
 		report.println("     number of contigs = " + bamStats.getNumberOfReferenceContigs());
 		report.println("");
-		if(bamStats.isReferenceAvailable()) {
-			/*
+		/*if(bamStats.isReferenceAvailable()) {
+
 			report.println("     reference file = " + bamStats.getReferenceFile());
 			report.println("");			
 			report.println("     number of A's = " + formatLong(bamStats.getNumberOfAsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanARelativeContentPerWindowInReference()) + ")");
@@ -157,12 +157,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 			report.println("");
 			report.println("     GC percentage = " + formatPercentage(bamStats.getMeanGcRelativeContentPerWindowInReference()));
 			report.println("     AT percentage = " + formatPercentage(bamStats.getMeanAtRelativeContentPerWindowInReference()));
-			*/
+
 		} else {
 			report.println("");
 			report.println("     (reference file is not available)");
 			report.println("");
-		}
+		}*/
 		report.println("");
 		report.println("");
 
@@ -246,8 +246,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         this.referenceSize = bamStats.getReferenceSize();
 
-		if(bamStats.isReferenceAvailable()) {
-			/*this.referenceFileName = bamStats.getReferenceFile();
+		/*if(bamStats.isReferenceAvailable()) {
+			this.referenceFileName = bamStats.getReferenceFile();
 			this.aReferenceNumber = bamStats.getNumberOfAsInReference();
 			this.aReferencePercent = bamStats.getMeanARelativeContentPerWindowInReference();
 			this.cReferenceNumber = bamStats.getNumberOfCsInReference();
@@ -258,8 +258,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 			this.gReferencePercent = bamStats.getMeanGRelativeContentPerWindowInReference();
 			this.nReferenceNumber = bamStats.getNumberOfNsInReference();
 			this.nReferencePercent = bamStats.getMeanNRelativeContentPerWindowInReference();
-    		this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();*/
-		}
+    		this.gcPercent = bamStats.getMeanGcRelativeContentPerWindowInReference();
+		}*/
 
 		// globals
 		this.numReads = bamStats.getNumberOfReads();

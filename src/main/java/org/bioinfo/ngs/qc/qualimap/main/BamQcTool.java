@@ -45,6 +45,7 @@ public class BamQcTool extends NgsSmartTool{
     private boolean paintChromosomeLimits;
 	private boolean computeOutsideStats;
     private String genomeToCompare;
+    private String coverageReportFile;
     private LibraryProtocol protocol;
 
     static final String OPTION_NAME_BAM_FILE = "bam";
@@ -57,12 +58,14 @@ public class BamQcTool extends NgsSmartTool{
     static final String OPTION_OUTSIDE_STATS = "os";
     static final String OPTION_LIBRARY_PROTOCOL = "p";
     static final String OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
+    static final String OPTION_COVERAGE_REPORT_FILE = "outcov";
 
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
         protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
         genomeToCompare = "";
+        coverageReportFile = "";
     }
 
 	@Override
@@ -82,9 +85,13 @@ public class BamQcTool extends NgsSmartTool{
          options.addOption(OPTION_MIN_HOMOPOLYMER_SIZE, true,
                 "minimum size for a homopolymer to be considered in indel analysis (default is "
                         + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
-
-		options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false, "paint chromosome limits inside charts");
-		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false, "compute region outside stats (works only with -gff option)");
+        options.addOption(OPTION_COVERAGE_REPORT_FILE,  true,
+                "output file to save per base non-zero coverage. Warning: for large genomes" +
+                "large file size is expected");
+        options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
+                "paint chromosome limits inside charts");
+		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false,
+                "compute region outside stats (works only with -gff option)");
         options.addOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
                 "(possible values: HUMAN or MOUSE)");
 
@@ -149,6 +156,10 @@ public class BamQcTool extends NgsSmartTool{
             }
         }
 
+        if (commandLine.hasOption(OPTION_COVERAGE_REPORT_FILE)) {
+            coverageReportFile = commandLine.getOptionValue(OPTION_COVERAGE_REPORT_FILE);
+        }
+
 
 		paintChromosomeLimits =  commandLine.hasOption(OPTION_PAINT_CHROMOSOMES);
 
@@ -183,7 +194,9 @@ public class BamQcTool extends NgsSmartTool{
 
 		// reporting
 		bamQC.activeReporting(outdir);
-		//if(saveCoverage) bamQC.ctiveCoverageReporting();
+        if (coverageReportFile.length() > 0) {
+            bamQC.setPathToCoverageReport(coverageReportFile);
+        }
 
 		logger.println("Starting bam qc....");
 

@@ -23,8 +23,6 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 import java.io.*;
 import java.util.*;
 
-import net.sf.picard.util.MathUtil;
-import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
@@ -35,7 +33,7 @@ import org.bioinfo.ngs.qc.qualimap.common.ReadStartsHistogram;
 public class BamStats implements Serializable {
 	private String name;
 	private String sourceFile;
-	private String referenceFile;
+	//private String referenceFile;
 	
 	// globals
 	private long numberOfMappedBases;
@@ -72,7 +70,6 @@ public class BamStats implements Serializable {
 
     private long inRegionReferenceSize;
     private int numSelectedRegions;
-	private boolean referenceAvailable;
 
     /*
  	  // A content
@@ -293,10 +290,8 @@ public class BamStats implements Serializable {
 	
 	// reporting
 	private boolean activeWindowReporting;
-	private String windowReportFile;
 	transient private PrintWriter windowReport;
 	private boolean activeCoverageReporting;
-	private String coverageReportFile;
 	transient private PrintWriter coverageReport;
     private long sumCoverageSquared;
     private final int CACHE_SIZE = 2000;
@@ -449,7 +444,6 @@ public class BamStats implements Serializable {
 	 * 
 	 */
 	public void activateWindowReporting(String windowReportFile) throws FileNotFoundException{
-		this.windowReportFile = windowReportFile;
 		this.windowReport = new PrintWriter(new File(windowReportFile));
 		this.activeWindowReporting = true;
 		reportWindowHeader();
@@ -475,7 +469,6 @@ public class BamStats implements Serializable {
 	
 	
 	public void activateCoverageReporting(String coverageReportFile, boolean nonZeroCoverageOnly) throws FileNotFoundException{
-		this.coverageReportFile = coverageReportFile;
 		this.coverageReport = new PrintWriter(new File(coverageReportFile));
 		this.activeCoverageReporting = true;
         this.reportNonZeroCoverageOnly = nonZeroCoverageOnly;
@@ -487,12 +480,10 @@ public class BamStats implements Serializable {
 	}
 	
 	public void reportCoverageHeader(){
-//		coverageReport.println("#position\tcoverageData\tAs\tCs\tTs\tGs");
-		coverageReport.println("#chr\tposition\tcoverageData");
+		coverageReport.println("#chr\tpos\tcoverage");
 	}
 	
 	public void reportCoverage(BamDetailedGenomeWindow window){
-		//coverageReport.println("# window " + window.getName());
         ContigRecord rec = locator.getContigCoordinates(window.getStart());
 		for(int i=0; i<window.getCoverageAcrossReference().length; i++){
             int coverage = window.getCoverageAcrossReference()[i];
@@ -502,11 +493,6 @@ public class BamStats implements Serializable {
             coverageReport.print(rec.getName() + "\t");
             coverageReport.print((rec.getRelative() + i) + "\t");
 			coverageReport.print(window.getCoverageAcrossReference()[i]);
-//			coverageReport.print(window.getaContentAcrossReference()[i] + "\t");
-//			coverageReport.print(window.getcContentAcrossReference()[i] + "\t");
-//			coverageReport.print(window.gettContentAcrossReference()[i] + "\t");
-//			coverageReport.print(window.getgContentAcrossReference()[i] + "\t");
-//			coverageReport.print(window.getnContentAcrossReference()[i] + "\t");
 			coverageReport.println();
 		}
         coverageReport.flush();
@@ -1150,11 +1136,7 @@ public class BamStats implements Serializable {
 	public String getWindowName(int index){
 		return windowNames[index];
 	}
-	
-	public long getWindowSize(int index){
-		return windowSizes[index];
-	}
-	
+
 	public long getWindowStart(int index){
 		return windowStarts[index];
 	}
@@ -1194,13 +1176,6 @@ public class BamStats implements Serializable {
 	 */
 	public void setSourceFile(String sourceFile) {
 		this.sourceFile = sourceFile;
-	}
-
-	/**
-	 * @return the referenceFile
-	 */
-	public String getReferenceFile() {
-		return referenceFile;
 	}
 
 	/**
@@ -1287,21 +1262,6 @@ public class BamStats implements Serializable {
 	public void setNumberOfReferenceContigs(long numberOfReferenceContigs) {
 		this.numberOfReferenceContigs = numberOfReferenceContigs;
 	}
-
-	/**
-	 * @return the referenceAvailable
-	 */
-	public boolean isReferenceAvailable() {
-		return referenceAvailable;
-	}
-
-	/**
-	 * @param referenceAvailable the referenceAvailable to set
-	 */
-	public void setReferenceAvailable(boolean referenceAvailable) {
-		this.referenceAvailable = referenceAvailable;
-	}
-
 
 	/**
 	 * @return the coverageAcrossReference
@@ -1473,34 +1433,6 @@ public class BamStats implements Serializable {
     public double getStdCoverage() {
         return stdCoverage;
     }
-
-	/**
-	 * @return the activeCoverageReporting
-	 */
-	public boolean isActiveCoverageReporting() {
-		return activeCoverageReporting;
-	}
-
-	/**
-	 * @param activeCoverageReporting the activeCoverageReporting to set
-	 */
-	public void setActiveCoverageReporting(boolean activeCoverageReporting) {
-		this.activeCoverageReporting = activeCoverageReporting;
-	}
-
-	/**
-	 * @return the coverageReportFile
-	 */
-	public String getCoverageReportFile() {
-		return coverageReportFile;
-	}
-
-	/**
-	 * @param coverageReportFile the coverageReportFile to set
-	 */
-	public void setCoverageReportFile(String coverageReportFile) {
-		this.coverageReportFile = coverageReportFile;
-	}
 
 
 	/**

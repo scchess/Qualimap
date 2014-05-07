@@ -125,6 +125,9 @@ public class BamStatsAnalysis {
 	// reporting
 	private boolean activeReporting;
 	private boolean saveCoverage, nonZeroCoverageOnly;
+    private String pathToCoverageReport;
+
+    // analysis
 	private boolean isPairedData;
     List<Future<ProcessBunchOfReadsTask.Result>> results;
     Future<Integer> finalizeWindowResult;
@@ -162,8 +165,7 @@ public class BamStatsAnalysis {
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.outdir = ".";
-        // TODO: make this a parameter!
-        this.saveCoverage = true;
+        this.saveCoverage = false;
         this.nonZeroCoverageOnly = true;
         protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
         pgProgram = "";
@@ -230,7 +232,7 @@ public class BamStatsAnalysis {
         openWindows = new ConcurrentHashMap<Long,BamGenomeWindow>();
 
         if (saveCoverage) {
-            bamStats.activateCoverageReporting(outdir + File.separator + "coverage.txt", nonZeroCoverageOnly);
+            bamStats.activateCoverageReporting(pathToCoverageReport, nonZeroCoverageOnly);
         }
 
         //regions
@@ -1071,5 +1073,10 @@ public class BamStatsAnalysis {
 
     public void setMinHomopolymerSize(int size) {
         minHomopolymerSize = size;
+    }
+
+    public void setPathToCoverageReport(String pathToCoverageReport) {
+        this.saveCoverage = true;
+        this.pathToCoverageReport = pathToCoverageReport;
     }
 }
