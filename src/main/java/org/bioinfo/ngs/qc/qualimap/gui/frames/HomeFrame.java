@@ -247,6 +247,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     private ArrayList<String> getMissingPackages() throws Exception {
 
         String path = getQualimapFolder() + File.separator;
+        final StringBuffer buf = new StringBuffer();
         final ArrayList<String> missingPackages = new ArrayList<String>();
 
         String pathToRScript = AppSettings.getGlobalSettings().getPathToRScript();
@@ -256,6 +257,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             String line;
             try {
                 while ((line = outputReader.readLine()) != null) {
+                    buf.append(line);
                     if (line.contains("ERROR!")) {
                         String packageName = line.split(":")[1].trim();
                         System.out.println(packageName);
@@ -271,7 +273,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         outputReadingThread.join();
 
         if (res != 0) {
-            throw new RuntimeException("R process finished with non-zero exit code");
+            System.err.print("Rscript output:\n" + buf.toString() );
+            throw new RuntimeException("R process finished with non-zero exit code.");
         }
 
         return missingPackages;
