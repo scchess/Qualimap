@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditEpigeneticsInputDataDialog;
@@ -61,11 +62,6 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     JProgressBar  progressBar;
     JTextArea logArea;
     SampleDataTableModel sampleTableModel;
-
-    static final String COMMAND_ADD_ITEM = "add_item";
-    static final String COMMAND_REMOVE_ITEM = "delete_item";
-    static final String COMMAND_EDIT_ITEM = "edit_item";
-    static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
 
     static final boolean DEBUG = false;
@@ -200,15 +196,15 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         buttonPanel.setLayout(new MigLayout("insets 0"));
 
         addSampleButton = new JButton("Add");
-        addSampleButton.setActionCommand(COMMAND_ADD_ITEM);
+        addSampleButton.setActionCommand(Constants.COMMAND_ADD_ITEM);
         addSampleButton.addActionListener(this);
         buttonPanel.add(addSampleButton, "");
         editSampleButton = new JButton("Edit");
-        editSampleButton.setActionCommand(COMMAND_EDIT_ITEM);
+        editSampleButton.setActionCommand(Constants.COMMAND_EDIT_ITEM);
         editSampleButton.addActionListener(this);
         buttonPanel.add(editSampleButton, "");
         removeSampleButton = new JButton("Remove");
-        removeSampleButton.setActionCommand(COMMAND_REMOVE_ITEM);
+        removeSampleButton.setActionCommand(Constants.COMMAND_REMOVE_ITEM);
         removeSampleButton.addActionListener(this);
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
@@ -279,7 +275,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
         startAnalysisButton = new JButton();
         startAnalysisButton.setText(">>> Run Analysis");
-        startAnalysisButton.setActionCommand(COMMAND_RUN_ANALYSIS);
+        startAnalysisButton.setActionCommand(Constants.COMMAND_RUN_ANALYSIS);
         startAnalysisButton.addActionListener(this);
         add(startAnalysisButton, "align right, span, wrap");
 
@@ -326,17 +322,17 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     public void actionPerformed(ActionEvent actionEvent) {
         String actionCommand = actionEvent.getActionCommand();
 
-        if ( actionCommand.equals(COMMAND_ADD_ITEM) ) {
+        if ( actionCommand.equals(Constants.COMMAND_ADD_ITEM) ) {
             EditEpigeneticsInputDataDialog dlg = new EditEpigeneticsInputDataDialog(this);
             dlg.setModal(true);
             dlg.setLocationRelativeTo(this);
             dlg.setVisible(true);
-        } else if ( actionCommand.equals(COMMAND_REMOVE_ITEM) ) {
+        } else if ( actionCommand.equals(Constants.COMMAND_REMOVE_ITEM) ) {
             int index = inputDataTable.getSelectedRow();
             if (index != -1 ) {
                 removeDataItem(index);
             }
-        } else if ( actionCommand.equals(COMMAND_EDIT_ITEM) ) {
+        } else if ( actionCommand.equals(Constants.COMMAND_EDIT_ITEM) ) {
             int index = inputDataTable.getSelectedRow();
             if (index != -1) {
                 EditEpigeneticsInputDataDialog dlg = new EditEpigeneticsInputDataDialog(this, index);
@@ -344,7 +340,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
                 dlg.setLocationRelativeTo(this);
                 dlg.setVisible(true);
             }
-        } else if ( actionCommand.equals(COMMAND_RUN_ANALYSIS) ) {
+        } else if ( actionCommand.equals(Constants.COMMAND_RUN_ANALYSIS) ) {
 
             String errMsg = validateInput();
             if (errMsg.isEmpty()) {

@@ -1,11 +1,6 @@
 #!/usr/bin/env Rscript
 
-
-if(!require("optparse")) 
-{ 
-    install.packages("optparse", repos = "http://cran.r-project.org") 
-}
-suppressPackageStartupMessages(library("optparse"))
+suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(NOISeq))
 
 option_list <- list(
@@ -184,6 +179,7 @@ init.png(paste(opt$dirOut, "GlobalFeaturesWithLowCount.png", sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "barplot")
 dev.off()
 
+# TODO: should we include also global estimators for selected groups?
 
 
 ###############################################################################

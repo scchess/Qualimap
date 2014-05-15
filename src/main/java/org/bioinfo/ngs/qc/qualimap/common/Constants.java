@@ -205,6 +205,10 @@ public final class Constants {
 
     public static final String OK_COMMAND = "ok";
     public static final String CANCEL_COMMAND = "cancel";
+    public static final String COMMAND_ADD_ITEM = "add_item";
+    public static final String COMMAND_REMOVE_ITEM = "delete_item";
+    public static final String COMMAND_EDIT_ITEM = "edit_item";
+    public static final String COMMAND_RUN_ANALYSIS = "run_analysis";
 
     public static final String VIZ_TYPE_HEATMAP = "heatmap";
     public static final String VIZ_TYPE_LINE = "line";

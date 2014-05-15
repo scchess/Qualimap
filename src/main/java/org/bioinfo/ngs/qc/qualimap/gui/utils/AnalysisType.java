@@ -25,13 +25,17 @@ package org.bioinfo.ngs.qc.qualimap.gui.utils;
  * Date: 6/22/12
  * Time: 4:05 PM
  */
+
+//TODO: move this class to common
+
 public enum AnalysisType {
 
-    BAM_QC, RNA_SEQ_QC, COUNTS_QC, CLUSTERING;
+    BAM_QC, RNA_SEQ_QC, COUNTS_QC,MULTISAMPLE_COUNTS_QC, CLUSTERING;
 
     static final String NAME_BAM_QC = "BAM QC";
     static final String NAME_RNA_SEQ_QC = "RNA Seq QC";
     static final String NAME_COUNTS_QC = "Counts QC";
+    static final String NAME_MULTISAMPLE_COUNTS_QC = "Multisample Counts QC";
     static final String NAME_CLUSTERING = "Clustering";
     static final String UNKNOWN = "Unknown analysis";
 
@@ -42,6 +46,8 @@ public enum AnalysisType {
             return NAME_RNA_SEQ_QC;
         } else if (this == COUNTS_QC) {
             return NAME_COUNTS_QC;
+        } else if (this == MULTISAMPLE_COUNTS_QC) {
+            return NAME_MULTISAMPLE_COUNTS_QC;
         } else if (this == CLUSTERING ) {
             return NAME_CLUSTERING;
         } else {

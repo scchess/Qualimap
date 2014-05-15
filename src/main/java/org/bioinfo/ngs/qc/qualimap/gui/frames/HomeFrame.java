@@ -78,6 +78,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public static final String WM_COMMAND_BAMQC = "bamqc";
     public static final String WM_COMMAND_RNASEQQC = "rnaseqqc";
     public static final String WM_COMMAND_COUNTSQC = "counts";
+    public static final String WM_COMMAND_COUNTSQC_MS = "counts-multi";
     public static final String WM_COMMAND_CLUSTERING = "clustering";
     public static final String WM_COMMAND_CALC_COUNTS = "calc-counts";
 
@@ -403,15 +404,24 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                 "chart_curve_add.png", "ctrl pressed G"));
         analysisMenu.add(addMenuItem(AnalysisType.RNA_SEQ_QC.toString(), WM_COMMAND_RNASEQQC,
                 "chart_curve_add.png", "ctrl pressed R"));
-        JMenuItem analyzeCountsItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(), WM_COMMAND_COUNTSQC, "chart_curve_add.png", "ctrl pressed C");
+        JMenuItem analyzeCountsItem =   addMenuItem(AnalysisType.COUNTS_QC.toString(),
+                WM_COMMAND_COUNTSQC, "chart_curve_add.png", "ctrl pressed C");
         analyzeCountsItem.setEnabled(countsQCPackagesAvailable);
         analysisMenu.add(analyzeCountsItem);
+
+        if (System.getenv("QUALIMAP_DEVEL") != null) {
+            JMenuItem countsQcItem =   addMenuItem(AnalysisType.MULTISAMPLE_COUNTS_QC.toString(),
+                WM_COMMAND_COUNTSQC_MS, "chart_curve_add.png", "");
+            countsQcItem.setEnabled(countsQCPackagesAvailable);
+            analysisMenu.add(countsQcItem);
+        }
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, "", "ctrl pressed A");
         windowsMenu.add(closeAllTabsItem);
 
         toolsMenu.add(addMenuItem("Compute counts", WM_COMMAND_CALC_COUNTS, "calculator_edit.png", "ctrl pressed T"));
-        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), WM_COMMAND_CLUSTERING, "chart_curve_add.png", "ctrl pressed E");
+        JMenuItem epiMenuItem =  addMenuItem(AnalysisType.CLUSTERING.toString(), WM_COMMAND_CLUSTERING,
+                "chart_curve_add.png", "ctrl pressed E");
         epiMenuItem.setEnabled(clusteringPacakgesAvailble);
         toolsMenu.add(epiMenuItem);
 
@@ -637,6 +647,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    	runRnaSeqQC();
         }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC)){
 	        runCountsAnalysis();
+        }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC_MS)){
+	        runMultisampleCountsQc();
 	    }else if(e.getActionCommand().equals(WM_COMMAND_CLUSTERING)) {
             runClusteringAnalysis();
         } else if (e.getActionCommand().equals(WM_COMMAND_CALC_COUNTS)) {
@@ -683,34 +695,33 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     }
 
-    private void runBamQC(){
 
-        popUpDialog = new BamAnalysisDialog(this);
+    private void showPopUpDialog() {
         popUpDialog.setModal(true);
         popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         popUpDialog.setLocationRelativeTo(this);
         popUpDialog.setVisible(true);
+    }
 
+    private void runBamQC(){
+        popUpDialog = new BamAnalysisDialog(this);
+        showPopUpDialog();
 	}
 
     private void runRnaSeqQC(){
+        popUpDialog = new RNASeqQCDialog(this);
+        showPopUpDialog();
+    }
 
-            popUpDialog = new RNASeqQCDialog(this);
-            popUpDialog.setModal(true);
-            popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            popUpDialog.setLocationRelativeTo(this);
-            popUpDialog.setVisible(true);
+    private void runCountsAnalysis(){
+        popUpDialog = new CountsAnalysisDialog(this);
+        showPopUpDialog();
     }
 
 
-
-    private void runCountsAnalysis(){
-
-        popUpDialog = new CountsAnalysisDialog(this);
-        popUpDialog.setModal(true);
-        popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        popUpDialog.setLocationRelativeTo(this);
-        popUpDialog.setVisible(true);
+    private void runMultisampleCountsQc() {
+        popUpDialog = new CountsQcDialog(this);
+        showPopUpDialog();
     }
 
     static public void showCountReadsDialog(HomeFrame parent) {
@@ -724,10 +735,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     private void runClusteringAnalysis(){
         popUpDialog = new EpigeneticAnalysisDialog(this);
-        popUpDialog.setModal(true);
-        popUpDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        popUpDialog.setLocationRelativeTo(this);
-        popUpDialog.setVisible(true);
+        showPopUpDialog();
     }
 
     private void exportToPdf() {
