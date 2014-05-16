@@ -39,9 +39,11 @@ public class StatsReporter {
     protected StatsKeeper inputDataKeeper;
     protected StatsKeeper summaryStatsKeeper;
     protected StatsKeeper chromosomeStatsKeeper;
+    protected String name;
 
 
     public StatsReporter() {
+        name = "Results";
         namePostfix = "";
         fileName = "qualimapReport";
         inputDataKeeper = new StatsKeeper();
@@ -201,6 +203,14 @@ public class StatsReporter {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getName() {
+        return  name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getNamePostfix() {

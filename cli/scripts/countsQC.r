@@ -11,6 +11,9 @@ option_list <- list(
     make_option(c("--data"), type="character", action="store",
                 help="REQUIRED. File with counts.",default=NULL,
                 metavar="file_counts"),
+    make_option(c("--input"), type="character", action="store",
+                help="REQUIRED. File describing the input samples.",default=NULL,
+                metavar="input_desc"),
     make_option(c("--info"), type="character", action="store",
                 help="Optional. Table summarizing gene annotations. 
                 Table must include the following: gene name, biotype, length, 
@@ -23,18 +26,18 @@ option_list <- list(
     make_option(c("-o", "--dirOut"), type="character", action="store",
                 help="Optional. Output folder.",default="./counts_qc",
                 metavar="folder_output"),
-    make_option("--homesrc", type="character", action="store",
+    make_option("--homedir", type="character", action="store",
                 help="DEVELOPMENTAL. NOT TO BE USED IN THIS VERSION", default="./",
                 metavar="home_src folder")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
-HOMESRC <- opt$homesrc
+HOMESRC <- opt$homedir
 source(file.path(HOMESRC, "qualimapRfunctions.r"))
 
-data <- opt$data
-if(is.null(data)){
-    stop("--data is a REQUIRED argument")
+input.desc <- opt$input
+if(is.null(input.desc)){
+    stop("--input is a REQUIRED argument")
 }
 
 
@@ -63,13 +66,15 @@ init.png <- function(path) {
 
 # LOAD DATA
 
-cat("Reading input data from", opt$data, "\n")
-counts <- read.table(data, sep = "\t")
+cat("Reading input data using input description from", input.desc, "\n")
+counts <- load.counts.data(input.desc)
 
 num_samples <- ncol(counts)
 cat("Num samples:", num_samples, "\n")
 
-expr.factors <- data.frame(Conditions = gl(2, num_samples/2, labels = c("C1","C2") ))
+expr.factors <- data.frame(Conditions = attr(counts, "factors"))
+
+#expr.factors <- data.frame(Conditions = gl(2, num_samples/2, labels = c("C1","C2") ))
 #factors <- data.frame(Tissue = c("Kidney", "Liver", "Kidney", "Liver","Kidney", "Liver","Kidney", "Liver","Kidney", "Liver"))
 cat("Conditions:\n")
 expr.factors
@@ -91,7 +96,7 @@ if (!is.null(opt$info)){
     gene.biotypes <- ann.data[1]
     gene.length <- ann.data[2]
     gene.gc <- ann.data[3]
-    gene.loc <- ann.data[c(4,5,6)]
+    #gene.loc <- ann.data[c(4,5,6)]
     info.available <- TRUE
     
 } else  {
@@ -112,7 +117,8 @@ if (info.available) {
         cat(length(intersection),"out of",length(gene.names),"annotations from counts file found in annotations file\n")
     }
 }
-
+str(counts)
+dim(counts)
 cat("Init NOISeq data...\n")
 ns.data <- readData(data = counts, length = gene.length, gc = gene.gc, biotype = gene.biotypes,
                     chromosome = gene.loc, factors = expr.factors )
@@ -215,7 +221,7 @@ for (i in 1:num_samples) {
     if (info.available) {
         
         init.png(paste(sample.outDir, "bio_detection.png", sep="/"))
-        explo.plot(bio.detection, sampes = i)
+        explo.plot(bio.detection, samples = i)
         dev.off()
         
         init.png(paste(sample.outDir, "counts_per_biotype.png",sep="/"))

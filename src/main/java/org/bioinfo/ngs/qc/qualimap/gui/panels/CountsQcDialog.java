@@ -5,6 +5,9 @@ import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditCountsSampleInfoDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsQCAnalysisThread;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.CountsSampleInfo;
 
 import javax.swing.*;
@@ -22,7 +25,7 @@ import java.util.List;
  */
 public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
-    //TODO: these are common in many dialogs, make them inherited
+    //TODO: these are common in many dialogs, move them to parent class
     private JProgressBar progressBar;
     private JLabel progressStream;
     private JTextArea logArea;
@@ -109,6 +112,24 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
         sampleTableModel = new SampleDataTableModel();
         inputDataTable = new JTable(sampleTableModel);
+
+        // Default data  for testing
+        {
+            CountsSampleInfo i1 = new CountsSampleInfo();
+            i1.name = "Infected1";
+            i1.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
+            i1.conditionIndex = 1;
+            sampleTableModel.addItem(i1);
+
+
+            CountsSampleInfo i2 = new CountsSampleInfo();
+            i2.name = "Infected2";
+            i2.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
+            i2.conditionIndex = 1;
+            i2.columnNum = 3;
+            sampleTableModel.addItem(i2);
+        }
+
         JScrollPane scroller = new JScrollPane(inputDataTable);
         scroller.setPreferredSize(new Dimension(700, 100));
         add(scroller, "span, wrap");
@@ -153,7 +174,8 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         add(progressBar, "grow, wrap 30px");
 
         startAnalysisButton = new JButton();
-        //startAnalysisButton.addActionListener(getActionListenerRunAnalysis());
+        startAnalysisButton.addActionListener(this);
+        startAnalysisButton.setActionCommand(Constants.COMMAND_RUN_ANALYSIS);
         startAnalysisButton.setText(">>> Run Analysis");
 
         add(startAnalysisButton, "span2, align right, wrap");
@@ -190,6 +212,10 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         updateState();
     }
 
+    public List<CountsSampleInfo> getDataItems() {
+            return sampleTableModel.getItems();
+    }
+
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         String actionCommand = actionEvent.getActionCommand();
@@ -214,19 +240,28 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             }
         } else if ( actionCommand.equals(Constants.COMMAND_RUN_ANALYSIS) ) {
 
-            /*String errMsg = validateInput();
+            String errMsg = validateInput();
             if (errMsg.isEmpty()) {
-                TabPageController tabController = new TabPageController(AnalysisType.CLUSTERING);
-                EpigeneticsAnalysisThread t = new EpigeneticsAnalysisThread(this, tabController );
+                TabPageController tabController = new TabPageController(AnalysisType.MULTISAMPLE_COUNTS_QC);
+                CountsQCAnalysisThread t = new CountsQCAnalysisThread(this, tabController );
                 t.start();
             } else {
                 JOptionPane.showMessageDialog(this, errMsg, "Validate Input", JOptionPane.ERROR_MESSAGE);
-            }*/
+            }
         } else  {
             updateState();
         }
     }
 
+
+    String validateInput() {
+
+        if (sampleTableModel.getRowCount() == 0) {
+            return "No input data is provided!";
+        }
+
+        return "";
+    }
 
     void updateState() {
         int numRows = inputDataTable.getRowCount();
@@ -250,6 +285,26 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         progressStream.setEnabled(true);
 
     }
+
+
+    public JProgressBar getProgressBar() {
+        return progressBar;
+    }
+
+    public JLabel getProgressStream() {
+        return progressStream;
+    }
+
+    public Map<Integer,String> getConditionsMap() {
+        Map<Integer,String> cMap = new HashMap<Integer, String>();
+
+        cMap.put(1, "Condition 1");
+        cMap.put(2, "Condition 2");
+
+        return cMap;
+
+    }
+
 
 
 

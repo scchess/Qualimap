@@ -10,12 +10,16 @@ import java.io.*;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.CountsQcDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
+import org.bioinfo.ngs.qc.qualimap.process.MultisampleCountsAnalysis;
+
+import javax.swing.*;
 
 /**
  * Class to manage a thread that performs the analysis from counts of the input files
  *
  * @author kokonech
  */
+
 public class CountsQCAnalysisThread extends Thread {
 
 
@@ -28,10 +32,8 @@ public class CountsQCAnalysisThread extends Thread {
 	/** Variables that contains the tab properties loaded in the thread */
 	TabPageController tabProperties;
 
-    String infoFilePath;
-
-	public CountsQCAnalysisThread(String str, CountsQcDialog countsQcDialog, TabPageController tabProperties) {
-		super(str);
+	public CountsQCAnalysisThread(CountsQcDialog countsQcDialog, TabPageController tabProperties) {
+		super("MultisampleCountsQcThread");
 		this.settingsDlg = countsQcDialog;
         this.tabProperties = tabProperties;
 		logger = new Logger(this.getClass().getName());
@@ -47,18 +49,12 @@ public class CountsQCAnalysisThread extends Thread {
 
         String homePath = settingsDlg.getHomeFrame().getQualimapFolder() + File.separator;
 
-        /*CountsAnalysis countsAnalysis = new CountsAnalysis(tabProperties, homePath);
+        MultisampleCountsAnalysis countsAnalysis = new MultisampleCountsAnalysis(tabProperties, homePath,
+                settingsDlg.getDataItems());
 
-        countsAnalysis.setSample1Name( settingsDlg.getName1() );
-        countsAnalysis.setFirstSampleDataPath( settingsDlg.getFirstSampleDataPath() );
+        countsAnalysis.setConditionNames(  settingsDlg.getConditionsMap() );
 
-        if (settingsDlg.secondSampleIsProvided()) {
-            countsAnalysis.setSecondSampleIsProvided(true);
-            countsAnalysis.setSample2Name( settingsDlg.getName2() );
-            countsAnalysis.setSecondSampleDataPath( settingsDlg.getSecondSampleDataPath() );
-        }
-
-        countsAnalysis.setThreshold( settingsDlg.getThreshold() );
+        /*countsAnalysis.setThreshold( settingsDlg.getThreshold() );
 
         boolean  includeInfoFile = settingsDlg.includeInfoFile();
         if (includeInfoFile) {
@@ -69,9 +65,8 @@ public class CountsQCAnalysisThread extends Thread {
                         File.separator + settingsDlg.getSelectedSpecies();
             }
             countsAnalysis.setInfoFilePath(infoFilePath);
-        }
+        }*/
 
-        countsAnalysis.setProgressControls(settingsDlg.getProgressBar(), settingsDlg.getProgressStream());
 
         try {
             countsAnalysis.run();
@@ -79,12 +74,12 @@ public class CountsQCAnalysisThread extends Thread {
             JOptionPane.showMessageDialog(settingsDlg, "Failed to analyze counts data. " + e.getMessage(),
                     settingsDlg.getTitle(), JOptionPane.ERROR_MESSAGE);
             settingsDlg.setUiEnabled(true);
-            settingsDlg.resetUi();
+            //settingsDlg.resetUi();
             return;
         }
 
-        String inputFileName = settingsDlg.getInputDataName();
-        settingsDlg.getHomeFrame().addNewPane(inputFileName, tabProperties);*/
+        String paneTitle = "" + settingsDlg.getItemCount();
+        settingsDlg.getHomeFrame().addNewPane(paneTitle, tabProperties);
 	}
 
 

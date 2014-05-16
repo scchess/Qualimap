@@ -2,9 +2,46 @@
 ###################      Qualimap R Functions   ####################
 ####################################################################
 
-# By Sonia Tarazona
-# Last modified: June-2012
+# By Sonia Tarazona, Fernando Garcia-Alcalde and Konstantin Okonechnikov
 #
+
+
+
+# This function creates input data based on the description file
+
+load.counts.data <- function(input.desc) {
+    
+    input.data <- read.table(input.desc, sep= "\t", stringsAsFactors=FALSE)
+    
+    sample.names <- character()
+    conditions <- character()
+    counts <- data.frame()
+    gene.names <- NULL
+    for (i in 1:nrow(input.data)) {
+        sample.names <- c(sample.names, input.data[i,1])
+        conditions <- c(conditions, input.data[i,2])
+        path <- input.data[i,3]
+        data.column <- as.numeric(input.data[i,4])
+        sample.counts <- read.table(path, sep = "\t")
+        if (is.null(gene.names)) {
+            gene.names <- as.character(sample.counts[,1])
+            head(gene.names)
+            counts <- sample.counts[data.column]
+        } else {
+            counts <- cbind(counts, sample.counts[,data.column])
+        }
+    }
+    head(counts)
+    head(gene.names)
+    rownames(counts) <- gene.names
+    colnames(counts) <- sample.names
+    
+    attr(counts, "factors") <- as.factor(conditions)
+
+    counts
+    
+    
+}
 
 
 #****************************************************************************#

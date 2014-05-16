@@ -218,7 +218,7 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
         int idx = 0;
         for (StatsReporter reporter : reporters) {
-            String sectionName = "Results" + reporter.getNamePostfix();
+            String sectionName = reporter.getName() + reporter.getNamePostfix();
             JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
             leftPanel.add(checkFirstSection);
 
