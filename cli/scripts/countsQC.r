@@ -159,7 +159,7 @@ for (i in 1:num_samples) {
 }
 
 legend("right", title="Samples", fill=1:num_samples, legend=colnames(counts))
-dev.off()
+garbage <- dev.off()
 
 # Global saturation
 
@@ -168,7 +168,7 @@ saturation <- dat(ns.data, k =0, ndepth = 8, type = "saturation")
 
 init.png(paste(opt$dirOut, "02_Saturation.png", sep = "/") )
 explo.plot(saturation, toplot = 1, samples = NULL)
-dev.off()
+garbage <- dev.off()
 
 # Global feature distribution plot
     
@@ -177,13 +177,13 @@ counts.bio <- dat(ns.data, factor = NULL, type = "countsbio")
 
 init.png(paste(opt$dirOut, "03_Counts_Distribution.png",sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "boxplot")
-dev.off()
+garbage <- dev.off()
 
 # Global features with low count
 cat("Compute features with low count")
 init.png(paste(opt$dirOut, "04_Features_With_Low_Counts.png", sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "barplot")
-dev.off()
+garbage <- dev.off()
 
 # TODO: should we include also global estimators for selected groups?
 
@@ -216,25 +216,25 @@ for (i in 1:num_samples) {
     
     init.png(paste(sample.outDir,"01_Saturation.png",sep="/"))
     explo.plot(saturation, toplot = 1, samples = i)
-    dev.off()
+    garbage <- dev.off()
     
     if (info.available) {
         
         init.png(paste(sample.outDir, "02_Bio_Detection.png", sep="/"))
         explo.plot(bio.detection, samples = i)
-        dev.off()
+        garbage <- dev.off()
         
         init.png(paste(sample.outDir, "03_Counts_Per_Biotype.png",sep="/"))
         explo.plot(counts.bio, toplot=1, samples = i, plottype = "boxplot")
-        dev.off()
+        garbage <- dev.off()
         
         init.png(paste(sample.outDir, "04_Length_Bias.png", sep="/"))
         explo.plot(length.bias, samples = i, toplot = 1)
-        dev.off()
+        garbage <- dev.off()
         
         init.png(paste(sample.outDir, "05_GC_Bias.png", sep="/"))
         explo.plot(gc.bias, samples = i, toplot = 1)
-        dev.off()
+        garbage <- dev.off()
         
     }
     
@@ -262,7 +262,7 @@ for (i in 1:num_samples) {
 # }
 # 
 
-
+cat("CountsQC is successfully finished!\n")
 
 
 

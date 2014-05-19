@@ -5,7 +5,6 @@ import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsQCAnalysisThread;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -168,7 +167,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         commandString += " --homedir " + homePath + File.separator + "scripts";
         commandString += " --input " + inputFilePath;
         if (!infoFilePath.isEmpty()) {
-            commandString += " --info " + inputFilePath;
+            commandString += " --info " + infoFilePath;
         }
         commandString += " -o " + workDir;
 
@@ -177,7 +176,6 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
     @Override
     protected void prepareInputDescription(StatsReporter reporter) {
-        HashMap<String,String> selectionParams = new HashMap<String, String>();
 
         /*HashMap<String,String> locationParams = new HashMap<String, String>();
         locationParams.put("Upstream offset (bp): ", Integer.toString(cfg.leftOffset) );
@@ -213,5 +211,9 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
     public void setOutputParsingThread(LoggerThread outputParsingThread) {
         this.outputParsingThread = outputParsingThread;
+    }
+
+    public void setInfoFilePath(String infoFilePath) {
+        this.infoFilePath = infoFilePath;
     }
 }

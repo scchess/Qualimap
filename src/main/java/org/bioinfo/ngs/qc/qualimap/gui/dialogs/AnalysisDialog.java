@@ -28,6 +28,7 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 
 /**
  * Created by kokonech
@@ -120,5 +121,16 @@ public class AnalysisDialog extends JDialog implements ContainerListener, KeyLis
         return homeFrame;
     }
 
+    static public boolean validateInputFile(String filePath) {
+
+        if ( filePath.isEmpty() ) {
+            return false;
+        }
+
+        File inputFile = new File(filePath);
+        return inputFile.exists();
+
+
+    }
 
  }

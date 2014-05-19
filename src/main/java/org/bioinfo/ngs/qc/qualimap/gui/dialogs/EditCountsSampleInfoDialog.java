@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 
 /**
@@ -15,7 +17,7 @@ import java.io.File;
  * Date: 5/15/14
  * Time: 4:40 PM
  */
-public class EditCountsSampleInfoDialog extends JDialog {
+public class EditCountsSampleInfoDialog extends JDialog implements KeyListener{
     CountsQcDialog parentDlg;
     JTextField sampleName, pathField;
     JButton okButton, cancelButton, browseCountsDataButton;
@@ -33,7 +35,9 @@ public class EditCountsSampleInfoDialog extends JDialog {
 
         int sampleIndex = parent.getItemCount() + 1;
         sampleName.setText("Sample " + sampleIndex);
-        //pathField.setText(itemToModify.path);
+        for (Component c : getContentPane().getComponents()) {
+            c.addKeyListener(this);
+        }
 
     }
 
@@ -123,6 +127,24 @@ public class EditCountsSampleInfoDialog extends JDialog {
         setTitle("Counts sample data");
         setResizable(false);
 
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // DO NOTHING
+    }
+
+    @Override
+    public void keyPressed(KeyEvent keyEvent) {
+         int code = keyEvent.getKeyCode();
+         if(code == KeyEvent.VK_ESCAPE){
+             setVisible(false);
+         }
+     }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // DO NOTHING.
     }
 
     String validateInputData() {

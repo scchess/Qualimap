@@ -80,10 +80,11 @@ public class CountsQCAnalysisThread extends Thread {
 
         countsAnalysis.setConditionNames(  settingsDlg.getConditionsMap() );
 
-        /*countsAnalysis.setThreshold( settingsDlg.getThreshold() );
+        //countsAnalysis.setThreshold( settingsDlg.getThreshold() );
 
-        boolean  includeInfoFile = settingsDlg.includeInfoFile();
+        boolean  includeInfoFile = settingsDlg.annotationIsProvided();
         if (includeInfoFile) {
+            String infoFilePath;
             if (settingsDlg.infoFileIsProvided())  {
                 infoFilePath = settingsDlg.getInfoFilePath();
             } else {
@@ -91,7 +92,7 @@ public class CountsQCAnalysisThread extends Thread {
                         File.separator + settingsDlg.getSelectedSpecies();
             }
             countsAnalysis.setInfoFilePath(infoFilePath);
-        }*/
+        }
 
         OutputParsingThread outputParsingThread= new OutputParsingThread( settingsDlg ) ;
         countsAnalysis.setOutputParsingThread(outputParsingThread);

@@ -3,6 +3,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import net.miginfocom.swing.MigLayout;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditCountsSampleInfoDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsQCAnalysisThread;
@@ -35,6 +36,11 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     private JTable inputDataTable;
     private JPanel buttonPanel;
     private JButton addSampleButton, editSampleButton, removeSampleButton;
+    private JCheckBox provideInfoFileCheckBox;
+    private JRadioButton infoFileButton, speciesButton;
+    private JTextField infoFileEdit;
+    private JButton browseInfoFileButton;
+    private JComboBox speciesCombo;
 
     static class SampleDataTableModel extends AbstractTableModel {
 
@@ -113,23 +119,6 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         sampleTableModel = new SampleDataTableModel();
         inputDataTable = new JTable(sampleTableModel);
 
-        // Default data  for testing
-        {
-            CountsSampleInfo i1 = new CountsSampleInfo();
-            i1.name = "Infected1";
-            i1.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
-            i1.conditionIndex = 1;
-            sampleTableModel.addItem(i1);
-
-
-            CountsSampleInfo i2 = new CountsSampleInfo();
-            i2.name = "Infected2";
-            i2.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
-            i2.conditionIndex = 1;
-            i2.columnNum = 3;
-            sampleTableModel.addItem(i2);
-        }
-
         JScrollPane scroller = new JScrollPane(inputDataTable);
         scroller.setPreferredSize(new Dimension(700, 100));
         add(scroller, "span, wrap");
@@ -150,8 +139,45 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
+        provideInfoFileCheckBox = new JCheckBox("Include feature classification");
+        provideInfoFileCheckBox.addActionListener(this);
+        add(provideInfoFileCheckBox, "wrap");
+
+        infoFileButton = new JRadioButton("Info file:");
+        infoFileButton.addActionListener(this);
+        infoFileButton.setSelected(true);
+        //infoFileButton.setToolTipText(INFO_FILE_TOOLTIP);
+        add(infoFileButton, "");
+
+        infoFileEdit = new JTextField(30);
+        //infoFileEdit.setToolTipText(INFO_FILE_TOOLTIP);
+        add(infoFileEdit, "grow");
+
+        browseInfoFileButton = new JButton("...");
+        browseInfoFileButton.addActionListener( new BrowseButtonActionListener(homeFrame,
+                        infoFileEdit, "Species files", "txt"));
+
+        add(browseInfoFileButton, "align center, wrap");
+
+        speciesButton = new JRadioButton("Species: ");
+        speciesButton.setSelected(false);
+        speciesButton.addActionListener(this);
+        //speciesButton.setToolTipText(SPECIES_ITEM_TOOLTIP);
+        add(speciesButton);
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(infoFileButton);
+        group.add(speciesButton);
+
+        String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN, Constants.TYPE_COMBO_SPECIES_MOUSE };
+        speciesCombo = new JComboBox<String>(speicesComboItems);
+        //speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
+        speciesCombo.setEnabled(false);
+        add(speciesCombo, "grow, wrap 30px");
+
+
         add(new JLabel("Log"), "wrap");
-        logArea = new JTextArea(5,40);
+        logArea = new JTextArea(10,40);
         logArea.setEditable(false);
 
         JScrollPane scrollPane = new JScrollPane();
@@ -178,12 +204,33 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         startAnalysisButton.setActionCommand(Constants.COMMAND_RUN_ANALYSIS);
         startAnalysisButton.setText(">>> Run Analysis");
 
-        add(startAnalysisButton, "span2, align right, wrap");
+        add(startAnalysisButton, "span, align right, wrap");
 
         pack();
 
+        // Default data  for testing
+        {
+            CountsSampleInfo i1 = new CountsSampleInfo();
+            i1.name = "Infected1";
+            i1.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
+            i1.conditionIndex = 1;
+            sampleTableModel.addItem(i1);
+
+
+            CountsSampleInfo i2 = new CountsSampleInfo();
+            i2.name = "Infected2";
+            i2.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
+            i2.conditionIndex = 1;
+            i2.columnNum = 3;
+            sampleTableModel.addItem(i2);
+
+            infoFileEdit.setText("/home/kokonech/sample_data/counts/human.ens68.txt");
+
+        }
+
         updateState();
         setResizable(false);
+
 
 
 
@@ -260,6 +307,19 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             return "No input data is provided!";
         }
 
+        if (provideInfoFileCheckBox.isSelected()) {
+            // Validation for info file
+            if (infoFileButton.isSelected() ) {
+                String infoFilePath = infoFileEdit.getText();
+                if (infoFilePath.isEmpty()) {
+                    return "Info file path is empty!";
+                } else if (!validateInputFile(infoFilePath)) {
+                    return "Info file does not exist!";
+                }
+
+            }
+        }
+
         return "";
     }
 
@@ -267,6 +327,15 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         int numRows = inputDataTable.getRowCount();
         removeSampleButton.setEnabled(numRows > 0);
         editSampleButton.setEnabled(numRows > 0);
+
+        boolean provideInfoFile = provideInfoFileCheckBox.isSelected();
+
+        infoFileButton.setEnabled(provideInfoFile);
+        speciesButton.setEnabled(provideInfoFile);
+        infoFileEdit.setEnabled(infoFileButton.isSelected() && provideInfoFile);
+        browseInfoFileButton.setEnabled(infoFileButton.isSelected() && provideInfoFile);
+        speciesCombo.setEnabled(speciesButton.isSelected() && provideInfoFile);
+
     }
 
     // TODO: should be a protected method?
@@ -308,6 +377,34 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         return cMap;
 
     }
+
+    public boolean infoFileIsProvided() {
+        return infoFileButton.isSelected();
+    }
+
+    public String getInfoFilePath() {
+        return infoFileEdit.getText();
+    }
+
+    public String getSelectedSpecies() {
+
+        String speciesName = speciesCombo.getSelectedItem().toString();
+
+        if (speciesName.equals(Constants.TYPE_COMBO_SPECIES_HUMAN)) {
+            return Constants.FILE_SPECIES_INFO_HUMAN;
+        } else if (speciesName.equals(Constants.TYPE_COMBO_SPECIES_MOUSE)) {
+            return Constants.FILE_SPECIES_INFO_MOUSE;
+        } else {
+            return "";
+        }
+    }
+
+    public boolean annotationIsProvided() {
+        return provideInfoFileCheckBox.isSelected();
+    }
+
+
+
 
 
 
