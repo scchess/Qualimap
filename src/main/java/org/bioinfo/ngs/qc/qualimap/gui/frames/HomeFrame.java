@@ -58,7 +58,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	public static final String outputpath =File.separator+"tmp"+File.separator + "qualimap";
 	
 	public static Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
-	public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
+	//public static Font smallFont = new Font(Font.DIALOG, Font.PLAIN, 10);
 	public static Font defaultFontItalic = new Font(Font.DIALOG, Font.ITALIC, 12);
 	private static final int FRAME_WIDTH = 1000;
 	private static final int FRAME_HEIGHT = 600;
@@ -167,6 +167,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	}
 	
 	private void copyFilesFromResourcesToFolder() {
+
+        //TODO: is this ever tested?
 		String outputpath = new File("").getAbsolutePath()+File.separator+".qualimap"+File.separator;
 		this.setQualimapFolder(outputpath);
 		

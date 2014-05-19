@@ -143,9 +143,19 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         provideInfoFileCheckBox.addActionListener(this);
         add(provideInfoFileCheckBox, "wrap");
 
+        speciesButton = new JRadioButton("Species: ");
+        speciesButton.setSelected(true);
+        speciesButton.addActionListener(this);
+        //speciesButton.setToolTipText(SPECIES_ITEM_TOOLTIP);
+        add(speciesButton);
+
+        String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN/*, Constants.TYPE_COMBO_SPECIES_MOUSE*/ };
+        speciesCombo = new JComboBox<String>(speicesComboItems);
+        //speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
+        add(speciesCombo, "grow, wrap");
+
         infoFileButton = new JRadioButton("Info file:");
         infoFileButton.addActionListener(this);
-        infoFileButton.setSelected(true);
         //infoFileButton.setToolTipText(INFO_FILE_TOOLTIP);
         add(infoFileButton, "");
 
@@ -157,23 +167,11 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         browseInfoFileButton.addActionListener( new BrowseButtonActionListener(homeFrame,
                         infoFileEdit, "Species files", "txt"));
 
-        add(browseInfoFileButton, "align center, wrap");
-
-        speciesButton = new JRadioButton("Species: ");
-        speciesButton.setSelected(false);
-        speciesButton.addActionListener(this);
-        //speciesButton.setToolTipText(SPECIES_ITEM_TOOLTIP);
-        add(speciesButton);
+        add(browseInfoFileButton, "align center, wrap 30px");
 
         ButtonGroup group = new ButtonGroup();
         group.add(infoFileButton);
         group.add(speciesButton);
-
-        String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN, Constants.TYPE_COMBO_SPECIES_MOUSE };
-        speciesCombo = new JComboBox<String>(speicesComboItems);
-        //speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
-        speciesCombo.setEnabled(false);
-        add(speciesCombo, "grow, wrap 30px");
 
 
         add(new JLabel("Log"), "wrap");
@@ -391,9 +389,9 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         String speciesName = speciesCombo.getSelectedItem().toString();
 
         if (speciesName.equals(Constants.TYPE_COMBO_SPECIES_HUMAN)) {
-            return Constants.FILE_SPECIES_INFO_HUMAN;
+            return Constants.FILE_SPECIES_INFO_HUMAN_ENS68;
         } else if (speciesName.equals(Constants.TYPE_COMBO_SPECIES_MOUSE)) {
-            return Constants.FILE_SPECIES_INFO_MOUSE;
+            return Constants.FILE_SPECIES_INFO_MOUSE_ENS68;
         } else {
             return "";
         }

@@ -88,8 +88,7 @@ public class CountsQCAnalysisThread extends Thread {
             if (settingsDlg.infoFileIsProvided())  {
                 infoFilePath = settingsDlg.getInfoFilePath();
             } else {
-                infoFilePath =  homePath + "species" +
-                        File.separator + settingsDlg.getSelectedSpecies();
+                infoFilePath =  homePath + "species" + File.separator + settingsDlg.getSelectedSpecies();
             }
             countsAnalysis.setInfoFilePath(infoFilePath);
         }

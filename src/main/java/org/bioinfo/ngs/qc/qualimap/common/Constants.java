@@ -26,8 +26,6 @@ import java.util.Map;
 public final class Constants {
 	public static final int DEFAULT_NUMBER_OF_WINDOWS = 400;
 	public static final int DEFAULT_CHUNK_SIZE = 1000;
-    public static final int REPORT_INPUT_BAM_FILE = 0;
-	public static final int REPORT_OUTSIDE_BAM_FILE = 2;
     public static final int DEFAULT_HOMOPOLYMER_SIZE = 3;
 
 	public static final int GRAPHIC_TO_SAVE_WIDTH = 1024;
@@ -180,8 +178,6 @@ public final class Constants {
 	public static final String GRAPHIC_NAME_RNA_COUNTS_PER_CLASS = "counts_boxplot.png";
     public static final String GRAPHIC_NAME_RNA_SAMPLE_CORRELATION = "correlation_plot.png";
 
-
-	
 	//******************************************************************************************
 	//********************************* NAMES OF DATA RAW FILES ********************************
 	//******************************************************************************************
@@ -202,6 +198,9 @@ public final class Constants {
 	public static final String FILE_SPECIES_GROUPS_HUMAN = "human.biotypes.groups.txt";
 	public static final String FILE_SPECIES_INFO_MOUSE = "mouse.64.genes.biotypes.txt";
 	public static final String FILE_SPECIES_GROUPS_MOUSE = "mouse.biotypes.groups.txt";
+    public static final String FILE_SPECIES_INFO_HUMAN_ENS68 = "human.ens68.txt";
+    public static final String FILE_SPECIES_INFO_MOUSE_ENS68 = "mouse.ens68.txt";
+
 
     public static final String OK_COMMAND = "ok";
     public static final String CANCEL_COMMAND = "cancel";
