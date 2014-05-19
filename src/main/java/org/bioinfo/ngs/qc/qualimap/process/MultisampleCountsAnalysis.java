@@ -4,13 +4,13 @@ import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
+import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.CountsQCAnalysisThread;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by kokonech
@@ -22,7 +22,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     List<CountsSampleInfo> samples;
     Map<Integer,String> conditionNames;
     boolean  reportProgress;
-    String inputFilePath;
+    String inputFilePath,  infoFilePath;
     ProgressReporter progressReporter;
     int numSamples;
 
@@ -34,6 +34,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         this.samples = samples;
         this.reportProgress = false;
         this.inputFilePath = "";
+        this.infoFilePath = "";
         this.numSamples = samples.size();
     }
 
@@ -101,25 +102,24 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         StatsReporter statsReporter = new StatsReporter();
         statsReporter.setName("Global");
         if (!loadBufferedImages(statsReporter, workDir) ) {
-            throw new RuntimeException("No images generated.");
+            throw new RuntimeException("No plots for global analysis generated.");
         }
 
         prepareInputDescription(statsReporter);
         tabProperties.addReporter(statsReporter);
 
 
-        File dir = new File(workDir);
-        if (dir.exists() && dir.isDirectory())  {
-            for (File child : dir.listFiles()) {
-                if (child.isDirectory()) {
-                     StatsReporter reporter = new StatsReporter();
-                     reporter.setName(child.getName());
-                     if (!loadBufferedImages(reporter, child.getAbsolutePath()) ) {
-                        throw new RuntimeException("No images generated.");
-                     }
-                     tabProperties.addReporter(reporter);
-                }
+        for (CountsSampleInfo sampleInfo : samples) {
+
+            String sampleDirPath = workDir + File.separator + sampleInfo.name;
+            StatsReporter reporter = new StatsReporter();
+            reporter.setName(sampleInfo.name);
+            if (!loadBufferedImages(reporter, sampleDirPath) ) {
+                throw new RuntimeException("No images generated for sample " + sampleInfo.name);
             }
+            tabProperties.addReporter(reporter);
+
+
         }
 
 
@@ -136,10 +136,14 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         if (!dir.exists() || !dir.isDirectory())  {
             return false;
         }
-        for (File child : dir.listFiles()) {
+
+        File[] children = dir.listFiles();
+        Arrays.sort(children);
+
+        for (File child : children ) {
             String fileName = child.getName();
             if (fileName.endsWith(".png")) {
-                String imageName = fileName.subSequence(0,  fileName.length() - 4).toString();
+                String imageName = fileName.subSequence(3,  fileName.length() - 4).toString().replace('_',' ');
                 BufferedImage image = ImageIO.read(new FileInputStream(child));
                 chartList.add(new QChart(imageName, imageName, image) );
                 imageCount++;
@@ -163,15 +167,32 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
         commandString += " --homedir " + homePath + File.separator + "scripts";
         commandString += " --input " + inputFilePath;
+        if (!infoFilePath.isEmpty()) {
+            commandString += " --info " + inputFilePath;
+        }
         commandString += " -o " + workDir;
-
 
         return commandString;
     }
 
     @Override
     protected void prepareInputDescription(StatsReporter reporter) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        HashMap<String,String> selectionParams = new HashMap<String, String>();
+
+        /*HashMap<String,String> locationParams = new HashMap<String, String>();
+        locationParams.put("Upstream offset (bp): ", Integer.toString(cfg.leftOffset) );
+        locationParams.put("Downstream offset (bp): ", Integer.toString( cfg.rightOffset) );
+        locationParams.put("Bin size: ", Integer.toString( cfg.binSize ));
+        reporter.addInputDataSection("Location: ",  locationParams);*/
+
+
+        HashMap<String,String> sampleParams = new HashMap<String, String>();
+        for ( CountsSampleInfo info : samples ) {
+            sampleParams.put(info.name , info.path );
+        }
+        reporter.addInputDataSection("Samples", sampleParams);
+
+
     }
 
     @Override
@@ -188,5 +209,9 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
     public void setConditionNames(Map<Integer,String> cMap) {
         conditionNames = cMap;
+    }
+
+    public void setOutputParsingThread(LoggerThread outputParsingThread) {
+        this.outputParsingThread = outputParsingThread;
     }
 }

@@ -143,7 +143,7 @@ cat("\nDraw global plots...\n")
 #legend("right", inset=c(0,0), title="Samples", fill=1:4, legend=colnames(e))
 
 
-init.png( paste(opt$dirOut, "GlobalCountsDensity.png",sep="/") )
+init.png( paste(opt$dirOut, "01_Counts_Density.png",sep="/") )
     
 par(mar=c(5, 4, 4, 8) + 0.1, xpd=TRUE)
 
@@ -166,7 +166,7 @@ dev.off()
 cat("Compute saturation..\n")
 saturation <- dat(ns.data, k =0, ndepth = 8, type = "saturation")
 
-init.png(paste(opt$dirOut, "GlobalSaturation.png", sep = "/") )
+init.png(paste(opt$dirOut, "02_Saturation.png", sep = "/") )
 explo.plot(saturation, toplot = 1, samples = NULL)
 dev.off()
 
@@ -175,13 +175,13 @@ dev.off()
 cat("Compute counts per biotype..\n")
 counts.bio <- dat(ns.data, factor = NULL, type = "countsbio")
 
-init.png(paste(opt$dirOut, "GlobalCountsDistribution.png",sep="/"))
+init.png(paste(opt$dirOut, "03_Counts_Distribution.png",sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "boxplot")
 dev.off()
 
 # Global features with low count
-
-init.png(paste(opt$dirOut, "GlobalFeaturesWithLowCount.png", sep="/"))
+cat("Compute features with low count")
+init.png(paste(opt$dirOut, "04_Features_With_Low_Counts.png", sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "barplot")
 dev.off()
 
@@ -214,25 +214,25 @@ for (i in 1:num_samples) {
 
     # Saturation
     
-    init.png(paste(sample.outDir,"saturation.png",sep="/"))
+    init.png(paste(sample.outDir,"01_Saturation.png",sep="/"))
     explo.plot(saturation, toplot = 1, samples = i)
     dev.off()
     
     if (info.available) {
         
-        init.png(paste(sample.outDir, "bio_detection.png", sep="/"))
+        init.png(paste(sample.outDir, "02_Bio_Detection.png", sep="/"))
         explo.plot(bio.detection, samples = i)
         dev.off()
         
-        init.png(paste(sample.outDir, "counts_per_biotype.png",sep="/"))
+        init.png(paste(sample.outDir, "03_Counts_Per_Biotype.png",sep="/"))
         explo.plot(counts.bio, toplot=1, samples = i, plottype = "boxplot")
         dev.off()
         
-        init.png(paste(sample.outDir, "length_bias.png", sep="/"))
+        init.png(paste(sample.outDir, "04_Length_Bias.png", sep="/"))
         explo.plot(length.bias, samples = i, toplot = 1)
         dev.off()
         
-        init.png(paste(sample.outDir, "gc_bias.png", sep="/"))
+        init.png(paste(sample.outDir, "05_GC_Bias.png", sep="/"))
         explo.plot(gc.bias, samples = i, toplot = 1)
         dev.off()
         

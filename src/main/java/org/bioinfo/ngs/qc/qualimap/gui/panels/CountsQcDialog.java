@@ -295,6 +295,10 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         return progressStream;
     }
 
+    public JTextArea getLogArea() {
+        return logArea;
+    }
+
     public Map<Integer,String> getConditionsMap() {
         Map<Integer,String> cMap = new HashMap<Integer, String>();
 

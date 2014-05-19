@@ -129,7 +129,7 @@ public class StatsReporter {
 
 
         if (inputDataKeeper.getSections().isEmpty()) {
-            return "No input description is available";
+            return null;
         }
 
         StringBuilder inputDesc = new StringBuilder();
@@ -217,4 +217,7 @@ public class StatsReporter {
         return namePostfix;
     }
 
+    public boolean hasInputDescription() {
+        return inputDataKeeper.getSections().size() > 0;
+    }
 }

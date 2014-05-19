@@ -229,10 +229,12 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                 initialLabel = j1_0;
             }
 
-            JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", idx);
-		    j1_0_1.setToolTipText("Input data description");
-            j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-            leftPanel.add(j1_0_1);
+            if (reporter.hasInputDescription()) {
+                JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", idx);
+                j1_0_1.setToolTipText("Input data description");
+                j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+                leftPanel.add(j1_0_1);
+            }
 
             List<QChart> charts = reporter.getCharts();
 
@@ -503,19 +505,22 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 	}
 
     private void prepareHtmlInputDescription(StatsReporter reporter) {
-        HtmlJPanel htmlPanel = new HtmlJPanel();
-		htmlPanel.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
-		htmlPanel.setFont(HomeFrame.defaultFont);
         int width = rightScrollPane.getWidth() - 100;
+        String inputDescText = reporter.getInputDescription(width);
 
-        StringBuilder inputDesc = new StringBuilder();
-        inputDesc.append( HtmlJPanel.getHeader() );
-        inputDesc.append( reporter.getInputDescription(width) );
-        inputDesc.append( HtmlJPanel.getHeadFooter() );
+        if (inputDescText != null) {
+            HtmlJPanel htmlPanel = new HtmlJPanel();
+            htmlPanel.setSize(rightScrollPane.getWidth(), rightScrollPane.getHeight());
+            htmlPanel.setFont(HomeFrame.defaultFont);
 
-        htmlPanel.setHtmlPage(inputDesc.toString());
+            StringBuilder inputDesc = new StringBuilder();
+            inputDesc.append( HtmlJPanel.getHeader() );
+            inputDesc.append( inputDescText );
+            inputDesc.append( HtmlJPanel.getHeadFooter() );
+            htmlPanel.setHtmlPage(inputDesc.toString());
 
-        rightScrollPane.setViewportView(htmlPanel);
+            rightScrollPane.setViewportView(htmlPanel);
+        }
     }
 
 	/**
