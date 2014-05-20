@@ -30,10 +30,10 @@ import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.SavePanel;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
+import com.lowagie.text.Font;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -119,8 +119,7 @@ public class ExportPdfThread extends Thread {
 
             document.open();
 
-            curChapterNum = 1;
-			numSavedItems = 0;
+            numSavedItems = 0;
 
 			setGuiVisible(true);
             initDocument(document);
@@ -137,6 +136,7 @@ public class ExportPdfThread extends Thread {
 
 	    	percentLoad = (100.0/numItemsToSave);
 
+            curChapterNum = 1;
 
             for (StatsReporter reporter : reporters ) {
                 addReporterData(document, reporter);
@@ -163,19 +163,21 @@ public class ExportPdfThread extends Thread {
 
 
     private void addReporterData(Document document, StatsReporter reporter) throws Exception{
+
+        //addReporterHeader(document, reporter);
         if (bamQCAnalysis) {
-                addSummary( document, reporter );
-            }
+            addSummary( document, reporter );
+        }
+        if (reporter.hasInputDescription()) {
             addInputDesc( document, reporter );
-            addPlots( document, reporter );
+        }
+        addPlots( document, reporter );
     }
 
 
     private void initDocument(Document document) throws  Exception{
-// *********************************************
-    	// Add the header of the PDF document
-    	// *********************************************
-    	com.lowagie.text.Image bioInfoLogo =
+
+        com.lowagie.text.Image bioInfoLogo =
     		com.lowagie.text.Image.getInstance(
     				getClass().getResource(Constants.pathImages + "logo.png"));
     	bioInfoLogo.scaleAbsolute(
@@ -217,7 +219,7 @@ public class ExportPdfThread extends Thread {
         // *********************************************
     	// Create the first page in the PDF report
     	// *********************************************
-    	com.lowagie.text.Font font = new com.lowagie.text.Font(com.lowagie.text.Font.COURIER, 36, com.lowagie.text.Font.BOLD);
+    	Font font = new Font(Font.COURIER, 36, Font.BOLD);
     	font.setColor(new Color(85, 107, 47));
     	Paragraph title = new Paragraph("");
     	title.setAlignment(Element.ALIGN_CENTER);
@@ -267,7 +269,11 @@ public class ExportPdfThread extends Thread {
                         Constants.GRAPHIC_TO_SAVE_HEIGHT);
            }
 
-            Paragraph chartsTitle = createChapterTitle(chartTitle + reporter.getNamePostfix());
+           String reporterName = reporter.getName();
+           if (reporterName.length() > 0) {
+               reporterName += " : ";
+           }
+            Paragraph chartsTitle = createChapterTitle(reporterName + chartTitle + reporter.getNamePostfix());
             Chapter chapter = new Chapter(chartsTitle, curChapterNum);
 
 
@@ -301,8 +307,13 @@ public class ExportPdfThread extends Thread {
 
     private void addInputDesc(Document doc, StatsReporter reporter) throws Exception {
 
+        String reporterName = reporter.getName();
+        if (reporterName.length() > 0) {
+            reporterName += " : ";
+        }
 
-        Paragraph chapterTitle = createChapterTitle("Input data & parameters" + reporter.getNamePostfix());
+        Paragraph chapterTitle = createChapterTitle(reporterName + "Input data & parameters"
+                + reporter.getNamePostfix());
 
         Chapter inputChapter = new Chapter(chapterTitle, curChapterNum);
 
@@ -330,6 +341,18 @@ public class ExportPdfThread extends Thread {
 
     }
 
+
+    /*private void addReporterHeader(Document doc, StatsReporter reporter) throws Exception {
+        Paragraph chapterTitle = new Paragraph();
+            // We add one empty line
+        //addEmptyLine(chapterTitle, 1);
+        com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.COURIER, 24,
+                com.lowagie.text.Font.BOLD);
+        chapterTitle.add(new Paragraph(reporter.getName(), titleFont));
+        doc.add(chapterTitle);
+
+
+    }*/
 
 
     private void addSummary(Document doc, StatsReporter reporter) throws Exception {
