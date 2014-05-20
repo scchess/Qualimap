@@ -226,6 +226,7 @@ public final class Constants {
 
     public static final String TOOL_NAME_BAMQC = "bamqc";
     public static final String TOOL_NAME_COUNTS_QC = "counts";
+    public static final String TOOL_NAME_MULTISAMPLE_COUNTS_QC = "mcounts";
     public static final String TOOL_NAME_RNASEQ_QC = "rnaseq";
     public static final String TOOL_NAME_CLUSTERING = "clustering";
     public static final String TOOL_NAME_COMPUTE_COUNTS = "comp-counts";

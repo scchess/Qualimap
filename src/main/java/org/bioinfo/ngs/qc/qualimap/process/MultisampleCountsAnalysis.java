@@ -216,4 +216,46 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     public void setInfoFilePath(String infoFilePath) {
         this.infoFilePath = infoFilePath;
     }
+
+    public static List<CountsSampleInfo> parseInputFile(String inputFilePath,
+                                                        ArrayList<String> conditionsList) throws IOException {
+
+        ArrayList<CountsSampleInfo> res = new ArrayList<CountsSampleInfo>();
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFilePath));
+        String line;
+        while ( (line = bufferedReader.readLine()) != null) {
+            if (line.startsWith("#") || line.isEmpty()) {
+                continue;
+            }
+            String[] items = line.split("\t");
+            if (items.length < 4) {
+                throw new IOException("Failed to parse input file " + inputFilePath+
+                        " not enough fields in line " + line);
+            }
+
+            CountsSampleInfo info = new CountsSampleInfo();
+            info.name = items[0];
+            String conditionName = items[1];
+            if (!conditionsList.contains(conditionName)) {
+                conditionsList.add(conditionName);
+            }
+            info.conditionIndex = conditionsList.indexOf(conditionName) + 1;
+            if (info.conditionIndex > 2) {
+                throw new IOException("More than 2 conditions detected in the input file!");
+            }
+
+            info.path = items[2];
+            if (! (new File(info.path)).exists() ) {
+                throw new IOException("Sample " + info.name + ": file " + info.path + "doesn't exist!");
+            }
+
+            info.columnNum = Integer.parseInt( items[3] );
+            res.add( info );
+
+        }
+
+        return res;
+
+    }
 }

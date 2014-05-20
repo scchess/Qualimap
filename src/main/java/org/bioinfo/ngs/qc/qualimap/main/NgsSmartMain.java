@@ -51,8 +51,8 @@ public class NgsSmartMain {
 			String toolName = args[0];
 
 			// TODO: use factories map to create tools
-			// tools
-			if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_BAMQC)){
+
+            if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_BAMQC)){
 				tool = new BamQcTool();
 			}
 
@@ -78,6 +78,10 @@ public class NgsSmartMain {
 
             if (toolName.equals(Constants.TOOL_NAME_INDEL_COUNT)) {
                 tool = new IndelCountTool();
+            }
+
+            if (toolName.equals(Constants.TOOL_NAME_MULTISAMPLE_COUNTS_QC)) {
+                tool = new MultisampleCountsQcTool();
             }
 
             if (toolName.equalsIgnoreCase("run-tests")) {

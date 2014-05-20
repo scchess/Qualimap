@@ -69,6 +69,8 @@ public class RnaSeqQcTool extends NgsSmartTool {
     @Override
     protected void checkOptions() throws ParseException {
 
+        //TODO: add to the help
+
         bamFile = commandLine.getOptionValue(OPTION_BAM);
         if (!exists(bamFile))
             throw new ParseException("input mapping file not found");

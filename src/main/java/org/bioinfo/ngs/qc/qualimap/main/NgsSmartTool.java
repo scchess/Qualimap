@@ -91,7 +91,7 @@ public abstract class NgsSmartTool {
 		// arguments
 		options = new Options();
 		parser = new PosixParser();
-		outdir = "";
+		outdir = ".";
         reportFileName = "";
         outputType = Constants.REPORT_TYPE_HTML;
 
