@@ -265,13 +265,19 @@ public class ExportHtmlThread extends Thread{
                                     Constants.GRAPHIC_TO_SAVE_HEIGHT);
             }
 
-            String chartName = chart.getName();
-            String imagePath = dirPath + "/" + chartName;
-            String extension = chartName.substring(chartName.lastIndexOf(".") + 1);
-            if (!extension.equalsIgnoreCase("png")) {
-                imagePath += ".png";
-            }
+            String imagePath = HtmlReportGenerator.getImagePath(reporter, chart.getName());
+            imagePath = dirPath + File.separator + imagePath;
+
+
+
             File imageFile = new File(imagePath);
+            if (!imageFile.getParentFile().exists()) {
+                boolean ok = imageFile.getParentFile().mkdirs();
+                if (!ok) {
+                    return false;
+                }
+            }
+
             success = ImageIO.write(bufImage, "PNG", imageFile);
 
             increaseProgressBar(chart.getTitle());

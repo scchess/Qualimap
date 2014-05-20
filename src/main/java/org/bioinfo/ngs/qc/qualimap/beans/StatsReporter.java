@@ -193,16 +193,16 @@ public class StatsReporter {
         return summaryStatsKeeper;
     }
 
-    public StatsKeeper getInputStatsKeeper() {
-        return inputDataKeeper;
-    }
-
     public StatsKeeper getChromosomeStats() {
         return chromosomeStatsKeeper;
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getName() {

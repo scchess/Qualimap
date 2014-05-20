@@ -100,6 +100,8 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         reportProgress("Loading images...");
         StatsReporter statsReporter = new StatsReporter();
         statsReporter.setName("Global");
+        statsReporter.setFileName( "GlobalReport" );
+
         if (!loadBufferedImages(statsReporter, workDir) ) {
             throw new RuntimeException("No plots for global analysis generated.");
         }
@@ -113,6 +115,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
             String sampleDirPath = workDir + File.separator + sampleInfo.name;
             StatsReporter reporter = new StatsReporter();
             reporter.setName(sampleInfo.name);
+            reporter.setFileName( sampleInfo.name.replaceAll("\\s+","") + "Report");
             if (!loadBufferedImages(reporter, sampleDirPath) ) {
                 throw new RuntimeException("No images generated for sample " + sampleInfo.name);
             }

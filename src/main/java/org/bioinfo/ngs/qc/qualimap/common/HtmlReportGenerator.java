@@ -27,6 +27,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -120,7 +121,9 @@ public class HtmlReportGenerator {
             appendSummary();
         }
 
-        appendInputData();
+        if (reporter.hasInputDescription()) {
+            appendInputData();
+        }
 
         appendGraphs();
 
@@ -226,7 +229,7 @@ public class HtmlReportGenerator {
         htmlReport.append("\n\n");
         for (QChart chart : reporter.getCharts()) {
 
-            String imagePath = getImagePath(chart.getName());
+            String imagePath = getImagePath(reporter,chart.getName());
 
             plotNames.add(chart.getTitle());
             plotLinks.add(chart.getName());
@@ -243,8 +246,8 @@ public class HtmlReportGenerator {
 
     }
 
-    String getImagePath(String imageName) {
-        String imagePath = imageName;
+    public static String getImagePath(StatsReporter reporter, String imageName) {
+        String imagePath = "images_" + reporter.getFileName() + File.separator + imageName;
         String extension = imageName.substring(imageName.lastIndexOf(".") + 1);
         if (!extension.equalsIgnoreCase("png")) {
             imagePath += ".png";
@@ -260,7 +263,9 @@ public class HtmlReportGenerator {
             append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#summary\">Summary</a></li>");
         }
 
-        append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#input\">Input data & parameters</a></li>");
+        if (reporter.hasInputDescription()) {
+            append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#input\">Input data & parameters</a></li>");
+        }
 
         int sz = plotNames.size();
 
