@@ -83,7 +83,7 @@ cat("\n")
 cat("Compare conditions ", compare.conditions, "\n")
 if ( compare.conditions == TRUE) {
     if (num_samples < 2) {
-        stop("ERROR! Need at least 2 samples to compare conditions")
+        stop("Need at least 2 samples to compare conditions")
     }
     
     if (nlevels(expr.factors[,1]) != 2)  {
@@ -180,20 +180,22 @@ init.png(paste(opt$dirOut, "02_Saturation.png", sep = "/") )
 explo.plot(saturation, toplot = 1, samples = NULL)
 garbage <- dev.off()
 
-# Global feature distribution plot
-    
 cat("Compute counts per biotype..\n")
 counts.bio <- dat(ns.data, factor = NULL, type = "countsbio")
 
+if (num_samples > 1) { # Workaround for 1-sample bug
+
+# Global feature distribution plot
 init.png(paste(opt$dirOut, "03_Counts_Distribution.png",sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "boxplot")
 garbage <- dev.off()
 
 # Global features with low count
-cat("Compute features with low count\n")
 init.png(paste(opt$dirOut, "04_Features_With_Low_Counts.png", sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "barplot")
 garbage <- dev.off()
+
+}
 
 # TODO: should we include also global estimators for selected groups?
 
@@ -233,9 +235,11 @@ for (i in 1:num_samples) {
         explo.plot(bio.detection, samples = i)
         garbage <- dev.off()
         
-        init.png(paste(sample.outDir, "03_Counts_Per_Biotype.png",sep="/"))
-        explo.plot(counts.bio, toplot=1, samples = i, plottype = "boxplot")
-        garbage <- dev.off()
+        if (num_samples > 1) { # workaround form 1-sample bug
+            init.png(paste(sample.outDir, "03_Counts_Per_Biotype.png",sep="/"))
+            explo.plot(counts.bio, toplot=1, samples = i, plottype = "boxplot")
+            garbage <- dev.off()
+        }
         
         init.png(paste(sample.outDir, "04_Length_Bias.png", sep="/"))
         explo.plot(length.bias, samples = i, toplot = 1)

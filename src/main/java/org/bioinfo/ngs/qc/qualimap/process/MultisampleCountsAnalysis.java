@@ -22,7 +22,6 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     Map<Integer,String> conditionNames;
     boolean  reportProgress, compareConditions;
     String inputFilePath,  infoFilePath;
-    ProgressReporter progressReporter;
     int numSamples;
 
     static final String COMPARISON_ANALYSIS = "Comparison";
@@ -70,30 +69,30 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
         String workDir = tabProperties.createDirectory().toString();
 
-        reportProgress("Generating configuration file...");
+        //reportProgress("Generating configuration file...");
         if (inputFilePath.isEmpty()) {
             setupInputDataDescription(workDir);
         }
 
         String commandString = createCommand(workDir);
-        if (outputParsingThread != null) {
-            outputParsingThread.logLine(commandString);
+        if (loggerThread != null) {
+            loggerThread.logLine(commandString);
         }
 
-        reportProgress("Running R script");
+        //reportProgress("Running R script");
         Process p = Runtime.getRuntime().exec(commandString);
 
-        if (outputParsingThread != null) {
+        if (loggerThread != null) {
             BufferedReader outputReader = new BufferedReader( new InputStreamReader(
                                 new SequenceInputStream( p.getInputStream(), p.getErrorStream() )
                     ) );
-            outputParsingThread.start(outputReader);
+            loggerThread.start(outputReader);
         }
 
         int res = p.waitFor();
 
-        if (outputParsingThread != null) {
-            outputParsingThread.join();
+        if (loggerThread != null) {
+            loggerThread.join();
         }
 
         if (res != 0) {
@@ -101,7 +100,6 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
                     " Check log for details.");
         }
 
-        reportProgress("Loading images...");
         StatsReporter statsReporter = new StatsReporter();
         statsReporter.setName("Global");
         statsReporter.setFileName( "GlobalReport" );
@@ -197,7 +195,6 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         return commandString;
     }
 
-    @Override
     protected void prepareInputDescription(StatsReporter reporter) {
 
         /*HashMap<String,String> locationParams = new HashMap<String, String>();
@@ -209,23 +206,18 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
         HashMap<String,String> sampleParams = new HashMap<String, String>();
         for ( CountsSampleInfo info : samples ) {
-            sampleParams.put(info.name , info.path );
+            String conditionName = conditionNames.get(info.conditionIndex);
+            sampleParams.put(info.name + " " + conditionName , info.path );
         }
         reporter.addInputDataSection("Samples", sampleParams);
 
+        HashMap<String,String> otherParams = new HashMap<String, String>();
+        otherParams.put("Species info: ", infoFilePath);
+        otherParams.put("Counts threshold: ", "" + countsThreshold );
+        reporter.addInputDataSection("Options", otherParams);
 
-    }
 
-    @Override
-    protected void reportProgress(String msg) {
-        if (reportProgress) {
-            progressReporter.reportStatus(msg);
-        }
-    }
 
-    public void setProgressReporter(ProgressReporter reporter) {
-        reportProgress = true;
-        this.progressReporter = reporter;
     }
 
     public void setConditionNames(Map<Integer,String> cMap) {
@@ -233,7 +225,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     }
 
     public void setOutputParsingThread(LoggerThread outputParsingThread) {
-        this.outputParsingThread = outputParsingThread;
+        this.loggerThread = outputParsingThread;
     }
 
     public void setInfoFilePath(String infoFilePath) {

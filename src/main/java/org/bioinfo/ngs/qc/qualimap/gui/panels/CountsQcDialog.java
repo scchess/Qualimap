@@ -24,6 +24,7 @@ import java.util.List;
  * Date: 5/15/14
  * Time: 3:36 PM
  */
+
 public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
     //TODO: these are common in many dialogs, move them to parent class
@@ -229,6 +230,7 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             i1.name = "Infected1";
             i1.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
             i1.conditionIndex = 1;
+            i1.columnNum = 2;
             sampleTableModel.addItem(i1);
 
 
@@ -238,6 +240,20 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             i2.conditionIndex = 1;
             i2.columnNum = 3;
             sampleTableModel.addItem(i2);
+
+            CountsSampleInfo u1 = new CountsSampleInfo();
+            u1.name = "Uninfected1";
+            u1.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
+            u1.conditionIndex = 2;
+            u1.columnNum = 5;
+            sampleTableModel.addItem(u1);
+
+            CountsSampleInfo u2 = new CountsSampleInfo();
+            u2.name = "Uninfected2";
+            u2.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
+            u2.conditionIndex = 2;
+            u2.columnNum = 6;
+            sampleTableModel.addItem(u2);
 
         }
 
@@ -322,6 +338,10 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         }
 
         if (compartativeAnalysisCheckBox.isSelected()) {
+
+            if (sampleTableModel.getRowCount() == 0) {
+                return "Need at least 2 samples to compare conditions";
+            }
             if (condition1NameEdit.getText().length() == 0) {
                 return "Condition 1 name is empty!";
             }
