@@ -1,1 +1,13 @@
-target*
+.idea
+build
+*.settings
+*.project
+*.user*
+*.swp
+*.swo
+*.obj
+target/*
+*~
+*.ebwt
+*.bt2
+*.log
