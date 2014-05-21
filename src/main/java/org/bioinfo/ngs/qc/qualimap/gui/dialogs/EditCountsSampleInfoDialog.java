@@ -34,7 +34,7 @@ public class EditCountsSampleInfoDialog extends JDialog implements KeyListener{
         initComponents();
 
         int sampleIndex = parent.getItemCount() + 1;
-        sampleName.setText("Sample " + sampleIndex);
+        sampleName.setText("Sample" + sampleIndex);
         for (Component c : getContentPane().getComponents()) {
             c.addKeyListener(this);
         }

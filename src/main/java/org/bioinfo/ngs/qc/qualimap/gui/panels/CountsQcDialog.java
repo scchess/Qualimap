@@ -207,7 +207,7 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         pack();
 
         // Default data  for testing
-        {
+        if (System.getenv("QUALIMAP_DEBUG") != null)  {
             CountsSampleInfo i1 = new CountsSampleInfo();
             i1.name = "Infected1";
             i1.path = "/home/kokonech/sample_data/counts/mb141.counts.txt";
@@ -221,8 +221,6 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             i2.conditionIndex = 1;
             i2.columnNum = 3;
             sampleTableModel.addItem(i2);
-
-            infoFileEdit.setText("/home/kokonech/sample_data/counts/human.ens68.txt");
 
         }
 

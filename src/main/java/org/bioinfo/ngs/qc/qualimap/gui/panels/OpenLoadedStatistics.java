@@ -223,17 +223,19 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             leftPanel.add(checkFirstSection);
 
             if (reporter.hasSummary() ) {
-                JLabel j1_0 = createSummaryLinkLabel("Summary", idx);
-                j1_0.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
-	            leftPanel.add(j1_0);
-                initialLabel = j1_0;
+                JLabel summaryLabel = createSummaryLinkLabel("Summary", idx);
+                summaryLabel.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
+	            leftPanel.add(summaryLabel);
+                if (initialLabel == null) {
+                    initialLabel = summaryLabel;
+                }
             }
 
             if (reporter.hasInputDescription()) {
-                JLabel j1_0_1 = createInputDescriptionLinkLabel("Input", idx);
-                j1_0_1.setToolTipText("Input data description");
-                j1_0_1.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-                leftPanel.add(j1_0_1);
+                JLabel inputLabel = createInputDescriptionLinkLabel("Input", idx);
+                inputLabel.setToolTipText("Input data description");
+                inputLabel.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+                leftPanel.add(inputLabel);
             }
 
             List<QChart> charts = reporter.getCharts();
@@ -250,11 +252,16 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
 
     public void showInitialPage()
     {
-        if(AnalysisType.BAM_QC ==  tabPageController.getTypeAnalysis()){
+        if(AnalysisType.BAM_QC ==  tabPageController.getTypeAnalysis() && initialLabel != null){
 			showLeftSideSummaryInformation(0, initialLabel);
-		}else if (AnalysisType.COUNTS_QC ==  tabPageController.getTypeAnalysis() ){
-			showLeftSideInformation(Constants.GRAPHIC_NAME_RNA_GLOBAL_SATURATION, initialLabel,0);
-		}
+		} else {
+
+            JPanel centerPanel = new JPanel();
+            centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER,0, 50));
+            centerPanel.add(new JLabel("To start browsing statistics please select an item" +
+                    " from the list to the left."));
+            rightScrollPane.setViewportView( centerPanel);
+        }
 
     }
 

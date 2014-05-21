@@ -180,7 +180,7 @@ explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "boxplot")
 garbage <- dev.off()
 
 # Global features with low count
-cat("Compute features with low count")
+cat("Compute features with low count\n")
 init.png(paste(opt$dirOut, "04_Features_With_Low_Counts.png", sep="/"))
 explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "barplot")
 garbage <- dev.off()
