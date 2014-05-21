@@ -20,11 +20,13 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
     List<CountsSampleInfo> samples;
     Map<Integer,String> conditionNames;
-    boolean  reportProgress;
+    boolean  reportProgress, compareConditions;
     String inputFilePath,  infoFilePath;
     ProgressReporter progressReporter;
     int numSamples;
 
+    static final String COMPARISON_ANALYSIS = "Comparison";
+    private int countsThreshold;
 
     public MultisampleCountsAnalysis(AnalysisResultManager tabProperties,
                                      String homePath,
@@ -32,8 +34,10 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         super(tabProperties, homePath);
         this.samples = samples;
         this.reportProgress = false;
+        this.compareConditions = false;
         this.inputFilePath = "";
         this.infoFilePath = "";
+        this.countsThreshold = 0;
         this.numSamples = samples.size();
     }
 
@@ -41,7 +45,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     private void setupInputDataDescription(String workDir) throws IOException {
 
         if (conditionNames.isEmpty()) {
-            throw new IOException("The condition names are not set");
+            throw new IOException("The condition names are not set! Can not setup input data description");
         }
 
         inputFilePath = workDir + File.separator +  "input.txt";
@@ -110,6 +114,18 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         tabProperties.addReporter(statsReporter);
 
 
+        if (compareConditions) {
+            String compareDirPath = workDir + File.separator + COMPARISON_ANALYSIS;
+            StatsReporter reporter = new StatsReporter();
+            reporter.setName(COMPARISON_ANALYSIS);
+            reporter.setFileName( COMPARISON_ANALYSIS + "Report");
+            if (!loadBufferedImages(reporter, compareDirPath) ) {
+                 throw new RuntimeException("No images generated for comparison of conditions!");
+            }
+            tabProperties.addReporter(reporter);
+        }
+
+
         for (CountsSampleInfo sampleInfo : samples) {
 
             String sampleDirPath = workDir + File.separator + sampleInfo.name;
@@ -120,7 +136,6 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
                 throw new RuntimeException("No images generated for sample " + sampleInfo.name);
             }
             tabProperties.addReporter(reporter);
-
 
         }
 
@@ -169,8 +184,13 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
         commandString += " --homedir " + homePath + File.separator + "scripts";
         commandString += " --input " + inputFilePath;
+        commandString += " -k " + countsThreshold;
         if (!infoFilePath.isEmpty()) {
             commandString += " --info " + infoFilePath;
+        }
+
+        if (compareConditions) {
+            commandString += " --compare";
         }
         commandString += " -o " + workDir;
 
@@ -260,5 +280,17 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
         return res;
 
+    }
+
+    public void activateComparison() {
+        this.compareConditions = true;
+    }
+
+    public void setInputFilePath(String filePath) {
+        this.inputFilePath = filePath;
+    }
+
+    public void setThreshold(int k) {
+        this.countsThreshold = k;
     }
 }

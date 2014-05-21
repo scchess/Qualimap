@@ -28,7 +28,7 @@ The built jar can be found in target/install subdir of sources folder.
 
 4) Develop Qualimap
 
-One can use your favorite Java IDE to work on Qualimap.
+You can use your favorite Java IDE to work on Qualimap.
 However, we recommend (and use) IntelliJ IdeA Community Edition.
 
 5) Troubleshouting

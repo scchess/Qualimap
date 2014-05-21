@@ -80,6 +80,10 @@ public class CountsQCAnalysisThread extends Thread {
 
         countsAnalysis.setConditionNames(  settingsDlg.getConditionsMap() );
 
+        if (settingsDlg.performComparison()) {
+            countsAnalysis.activateComparison();
+        }
+
         //countsAnalysis.setThreshold( settingsDlg.getThreshold() );
 
         boolean  includeInfoFile = settingsDlg.annotationIsProvided();

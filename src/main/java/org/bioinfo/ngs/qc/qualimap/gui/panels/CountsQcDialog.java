@@ -36,9 +36,10 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     private JTable inputDataTable;
     private JPanel buttonPanel;
     private JButton addSampleButton, editSampleButton, removeSampleButton;
-    private JCheckBox provideInfoFileCheckBox;
+    private JCheckBox compartativeAnalysisCheckBox, provideInfoFileCheckBox;
     private JRadioButton infoFileButton, speciesButton;
-    private JTextField infoFileEdit;
+    private JTextField infoFileEdit, condition1NameEdit, condition2NameEdit;
+    private JLabel condition1Label, condition2Label;
     private JButton browseInfoFileButton;
     private JComboBox speciesCombo;
 
@@ -138,6 +139,22 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         removeSampleButton.addActionListener(this);
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
+
+        compartativeAnalysisCheckBox = new JCheckBox("Compare conditions");
+        compartativeAnalysisCheckBox.addActionListener(this);
+        add(compartativeAnalysisCheckBox, "wrap");
+
+        condition1Label = new JLabel("Condition 1 name:");
+        add(condition1Label);
+        condition1NameEdit = new JTextField(20);
+        condition1NameEdit.setText("Condition1");
+        add(condition1NameEdit, "wrap");
+
+        condition2Label = new JLabel("Condition 2 name:");
+        add(condition2Label);
+        condition2NameEdit = new JTextField(20);
+        condition2NameEdit.setText("Condition2");
+        add(condition2NameEdit, "wrap");
 
         provideInfoFileCheckBox = new JCheckBox("Include feature classification");
         provideInfoFileCheckBox.addActionListener(this);
@@ -285,6 +302,7 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
             String errMsg = validateInput();
             if (errMsg.isEmpty()) {
+                resetProgress();
                 TabPageController tabController = new TabPageController(AnalysisType.MULTISAMPLE_COUNTS_QC);
                 CountsQCAnalysisThread t = new CountsQCAnalysisThread(this, tabController );
                 t.start();
@@ -301,6 +319,15 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
         if (sampleTableModel.getRowCount() == 0) {
             return "No input data is provided!";
+        }
+
+        if (compartativeAnalysisCheckBox.isSelected()) {
+            if (condition1NameEdit.getText().length() == 0) {
+                return "Condition 1 name is empty!";
+            }
+            if (condition2NameEdit.getText().length() == 0) {
+                return "Condition 2 name is empty!";
+            }
         }
 
         if (provideInfoFileCheckBox.isSelected()) {
@@ -332,6 +359,12 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         browseInfoFileButton.setEnabled(infoFileButton.isSelected() && provideInfoFile);
         speciesCombo.setEnabled(speciesButton.isSelected() && provideInfoFile);
 
+        boolean performComparison = compartativeAnalysisCheckBox.isSelected();
+        condition1NameEdit.setEnabled(performComparison);
+        condition1Label.setEnabled(performComparison);
+        condition2NameEdit.setEnabled(performComparison);
+        condition2Label.setEnabled(performComparison);
+
     }
 
     // TODO: should be a protected method?
@@ -345,19 +378,16 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             c.setEnabled(enabled);
         }
 
-        // No matter happends these guys stay enabled:
+        // No matter happens these guys stay enabled
         progressBar.setEnabled(true);
         progressStream.setEnabled(true);
 
     }
 
-
-    public JProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    public JLabel getProgressStream() {
-        return progressStream;
+    void resetProgress() {
+        progressBar.setValue(0);
+        progressStream.setText("Status");
+        logArea.setText("");
     }
 
     public JTextArea getLogArea() {
@@ -367,8 +397,8 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     public Map<Integer,String> getConditionsMap() {
         Map<Integer,String> cMap = new HashMap<Integer, String>();
 
-        cMap.put(1, "Condition 1");
-        cMap.put(2, "Condition 2");
+        cMap.put(1, condition1NameEdit.getText() );
+        cMap.put(2, condition2NameEdit.getText() );
 
         return cMap;
 
@@ -399,6 +429,9 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         return provideInfoFileCheckBox.isSelected();
     }
 
+    public boolean performComparison() {
+        return compartativeAnalysisCheckBox.isSelected();
+    }
 
 
 

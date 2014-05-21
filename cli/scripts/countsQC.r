@@ -4,13 +4,8 @@ suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(NOISeq))
 
 option_list <- list(
-    make_option(c("-v", "--verbose"), action="store_true", default=TRUE,
-                help="Print extra output [default]"),
-    make_option(c("-q", "--quietly"), action="store_false",
-                dest="verbose", help="Print little output"),
-    make_option(c("--data"), type="character", action="store",
-                help="REQUIRED. File with counts.",default=NULL,
-                metavar="file_counts"),
+    make_option(c("-c", "--compare"), action="store_true",
+                dest="compare", help="Compare conditions"),
     make_option(c("--input"), type="character", action="store",
                 help="REQUIRED. File describing the input samples.",default=NULL,
                 metavar="input_desc"),
@@ -18,8 +13,8 @@ option_list <- list(
                 help="Optional. Table summarizing gene annotations. 
                 Table must include the following: gene name, biotype, length, 
                 gc, chromosome, start pos, end pos",default=NULL, metavar="file_info"),
-    make_option(c("--groups"), type="character", action="store",
-                help="Optional. File with groups for the --info file." , default=NULL, metavar="file_groups"),
+    #make_option(c("--groups"), type="character", action="store",
+    #            help="Optional. File with groups for the --info file." , default=NULL, metavar="file_groups"),
     make_option(c("-k", "--threshold"), type="integer", action="store",
                 help="Optional. Threshold for the number of counts.",default=0,
                 metavar="counts_threshold"),
@@ -48,6 +43,12 @@ if(!file.exists(opt$dirOut)){
 # cutoff for the number of counts to consider a biological feature as detected
 k <- opt$threshold 
 
+if (is.null(opt$compare)) {
+    compare.conditions <- FALSE
+} else {
+    compare.conditions <- opt$compare
+}
+
 cm <- 1.5   # cex.main
 cl <- 1.2   # cex.lab
 ca <- 1     # cex.axis
@@ -57,9 +58,8 @@ image.width <- 3*480
 image.height <- 3*480
 point.size <- 3*12
 
-init.png <- function(path) {
-    png(path, width = image.width, 
-        height = image.height, 
+init.png <- function(path, width = image.width, height = image.height) {
+    png(path, width, height, 
         pointsize = point.size,
         type="cairo")
 }
@@ -80,6 +80,16 @@ cat("Conditions:\n")
 expr.factors
 cat("\n")
 
+cat("Compare conditions ", compare.conditions, "\n")
+if ( compare.conditions == TRUE) {
+    if (num_samples < 2) {
+        stop("ERROR! Need at least 2 samples to compare conditions")
+    }
+    
+    if (nlevels(expr.factors[,1]) != 2)  {
+        stop("Comparison can be performed only for 2 different conditions.")
+    }
+}  
 
 # LOAD ANNOTATIONS
 
@@ -164,7 +174,7 @@ garbage <- dev.off()
 # Global saturation
 
 cat("Compute saturation..\n")
-saturation <- dat(ns.data, k =0, ndepth = 8, type = "saturation")
+saturation <- dat(ns.data, k = k, ndepth = 8, type = "saturation")
 
 init.png(paste(opt$dirOut, "02_Saturation.png", sep = "/") )
 explo.plot(saturation, toplot = 1, samples = NULL)
@@ -187,7 +197,6 @@ garbage <- dev.off()
 
 # TODO: should we include also global estimators for selected groups?
 
-
 ###############################################################################
 #### PER SAMPLE ANALYSIS
 
@@ -195,7 +204,7 @@ cat("Draw per sample plots...\n\n")
 
 if (info.available) {
     cat("Compute bio detection per sample ...\n")
-    bio.detection <- dat(ns.data, k = 0, type = "biodetection", factor = NULL)
+    bio.detection <- dat(ns.data, k = k, type = "biodetection", factor = NULL)
     cat("Compute length bias per sample ...\n")
     length.bias <- dat(ns.data, factor = NULL, type = "lengthbias")
     cat("Compute GC bias per sample ...\n")
@@ -245,6 +254,57 @@ for (i in 1:num_samples) {
 
 #### PER CONDITION ANALYSIS
 
+
+if (compare.conditions == TRUE) {
+    
+    cat ("\nPerforming comparison for conditions\n")
+    
+    cmp.outDir <- paste(opt$dirOut, "Comparison", sep = "/")
+    if(!file.exists(cmp.outDir)){
+        dir.create(cmp.outDir, recursive=TRUE)
+    }
+    
+    cat("Compute counts per biotype for conditions..\n")
+    counts.bio <- dat(ns.data, factor = "Conditions", type = "countsbio")
+
+    init.png(paste(cmp.outDir, "01_Counts_Distribution.png",sep="/"))
+    explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "boxplot")
+    garbage <- dev.off()
+        
+    init.png(paste(cmp.outDir, "02_Features_With_Low_Counts.png", sep="/"))
+    explo.plot(counts.bio, toplot=1, samples = NULL, plottype = "barplot")
+    garbage <- dev.off()
+    
+    if (info.available) {
+        
+        cat("Compute bio detection for conditions ...\n")
+        bio.detection <- dat(ns.data, k = k, type = "biodetection", factor = "Conditions")
+        
+        init.png(paste(cmp.outDir, "03_Bio_Detection.png", sep="/"), width = 2*image.width)
+        par(mfrow = c(1,2))
+        explo.plot(bio.detection, samples = c(1,2))
+        garbage <- dev.off()
+        
+        #init.png(paste(sample.outDir, "03_Counts_Per_Biotype.png",sep="/"))
+        #explo.plot(counts.bio, toplot=1, samples = i, plottype = "boxplot")
+        #garbage <- dev.off()
+        
+        cat("Compute length bias for conditions ...\n")
+        length.bias <- dat(ns.data, factor = "Conditions", type = "lengthbias")
+        
+        init.png(paste(cmp.outDir, "04_Length_Bias.png", sep="/"), width = 2*image.width)
+        explo.plot(length.bias, samples = NULL, toplot = 1)
+        garbage <- dev.off()
+        
+        cat("Compute GC bias for conditions ...\n")
+        gc.bias <- dat(ns.data, factor = "Conditions", type = "GCbias")    
+        init.png(paste(cmp.outDir, "05_GC_Bias.png", sep="/"), width = 2*image.width)
+        explo.plot(gc.bias, samples = NULL, toplot = 1)
+        garbage <- dev.off()
+        
+    }
+    
+    
 # #### CORRELATION PLOT
 # 
 # 
@@ -262,6 +322,8 @@ for (i in 1:num_samples) {
 # }
 # 
 
+}
+    
 cat("CountsQC is successfully finished!\n")
 
 

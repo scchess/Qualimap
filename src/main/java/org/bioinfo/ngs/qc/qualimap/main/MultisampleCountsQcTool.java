@@ -55,14 +55,12 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
         options.addOption("i", "info", true, "info file");
         options.addOption("s", "species", true, "use default file for the given species [human | mouse]");
         options.addOption("k", "threshold", true, "threshold for the number of counts");
+        options.addOption("c", "compare", false, "activate comparison of 2 conditions. currently 2 maximum is possible");
+
     }
 
     @Override
     protected void checkOptions() throws ParseException {
-        // check outdir
-        /*if(!commandLine.hasOption(OPTION_NAME_OUTDIR)){
-            throw new ParseException("output folder required");
-        }*/
 
         // input
         if(!commandLine.hasOption("data")){
@@ -94,6 +92,10 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
             }
         }
 
+        if (commandLine.hasOption("c")) {
+            compareConditions = true;
+        }
+
 
         // threshold for the number of counts
         if(commandLine.hasOption("k")) {
@@ -121,13 +123,19 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
                 new MultisampleCountsAnalysis(resultManager, homePath, samples);
 
 
+        countsAnalysis.setInputFilePath(inputFile);
+
         Map<Integer,String> cMap = new HashMap<Integer, String>();
         for (int i = 0; i < conditionNames.size(); ++i) {
             cMap.put(i + 1, conditionNames.get(i));
         }
         countsAnalysis.setConditionNames(cMap);
 
-        //countsAnalysis.setThreshold( k );
+        countsAnalysis.setThreshold( k );
+
+        if (compareConditions) {
+            countsAnalysis.activateComparison();
+        }
 
         if (!infoFile.isEmpty()) {
             countsAnalysis.setInfoFilePath(infoFile);
