@@ -56,7 +56,7 @@ public class BamQCTest {
 
         for (TestConfig test : tests) {
 
-            System.err.println("Running test " + test.getPath());
+            System.err.println("\nRunning test " + test.getPath() + "\n");
 
 
             BamStatsAnalysis bamQc = new BamStatsAnalysis(test.getPathToBamFile()) ;

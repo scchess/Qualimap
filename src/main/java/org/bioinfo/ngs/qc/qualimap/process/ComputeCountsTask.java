@@ -60,6 +60,10 @@ public class ComputeCountsTask  {
     String pathToBamFile, pathToGffFile;
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
+    long readCount, seqNotFoundCount;
+
+    String curChrName;
+    GenomicRegionSet curRegionSet;
 
     public static final String GENE_ID_ATTR = "gene_id";
     public static final String EXON_TYPE_ATTR = "exon";
@@ -79,6 +83,9 @@ public class ComputeCountsTask  {
         outputCoverage = true;
         pairedEndAnalysis = false;
         sortingRequired = false;
+
+        readCount = 0;
+        seqNotFoundCount = 0;
 
         logger = new LoggerThread() {
             @Override
@@ -115,7 +122,57 @@ public class ComputeCountsTask  {
         return path;
     }
 
+    boolean checkRead(SAMRecord read) {
+
+        if (read == null || read.getReadUnmappedFlag()) {
+            notAligned++;
+            return false;
+        }
+
+        curChrName = read.getReferenceName();
+        curRegionSet = chromosomeRegionSetMap.get(curChrName);
+
+        if (curRegionSet == null ) {
+            seqNotFoundCount++;
+            System.err.println("Chromosome " + curChrName + " from read is not found in annotations.");
+            return false;
+        }
+
+        readCount++;
+
+        return true;
+
+    }
+
+    List<Interval> getReadIntervals(SAMRecord read, boolean pairedRead) {
+        Cigar cigar = read.getCigar();
+        List<CigarElement> cigarElements = cigar.getCigarElements();
+        List<Interval> intervals = new ArrayList<Interval>();
+        int offset = read.getAlignmentStart();
+        boolean strand = read.getReadNegativeStrandFlag();
+        if (pairedRead) {
+            boolean firstOfPair = read.getFirstOfPairFlag();
+            if ( (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
+                    (protocol.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
+                strand = !strand;
+            }
+        }
+
+        for (CigarElement cigarElement : cigarElements) {
+            int length = cigarElement.getLength();
+
+            if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
+                intervals.add(new Interval(curChrName, offset, offset + length - 1, strand, "" ));
+            }
+            offset += length;
+        }
+
+        return intervals;
+    }
+
+
     public void run() throws Exception {
+
 
         initRegions();
 
@@ -123,7 +180,7 @@ public class ComputeCountsTask  {
 
         if (pairedEndAnalysis) {
             if (sortingRequired) {
-                // sort alignment by name!
+                logger.logLine("Sorting BAM file by name...\n");
                 pathToBamFile = sortSamByName(pathToBamFile);
             }
         }
@@ -134,23 +191,16 @@ public class ComputeCountsTask  {
 
         boolean strandSpecificAnalysis = !protocol.equals(LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC);
 
-        int readCount = 0;
-        int seqNotFoundCount = 0;
-
         while (iter.hasNext()) {
 
             SAMRecord read = iter.next();
 
-            if (read == null || read.getReadUnmappedFlag()) {
-                notAligned++;
+            if (!checkRead(read)) {
                 continue;
             }
 
             if (pairedEndAnalysis) {
-                // get next segment
             }
-
-            readCount++;
 
             double readWeight = 1.0;
             int nh = 1;
@@ -168,16 +218,7 @@ public class ComputeCountsTask  {
                 }
             }
 
-            String chrName = read.getReferenceName();
-            boolean pairedRead = read.getReadPairedFlag();
 
-            GenomicRegionSet regionSet = chromosomeRegionSetMap.get(chrName);
-
-            if (regionSet == null ) {
-                seqNotFoundCount++;
-                System.err.println("Chromosome " + chrName + " from read is not found in annotations.");
-                continue;
-            }
 
             //Debugging  purposes
             //System.out.print("ReadName: "+read.getReadName() );
@@ -187,28 +228,8 @@ public class ComputeCountsTask  {
             }*/
 
             // Create intervals for read
-            Cigar cigar = read.getCigar();
-            List<CigarElement> cigarElements = cigar.getCigarElements();
-            List<Interval> intervals = new ArrayList<Interval>();
-            int offset = read.getAlignmentStart();
-            boolean strand = read.getReadNegativeStrandFlag();
-            if (pairedRead) {
-                boolean firstOfPair = read.getFirstOfPairFlag();
-                if ( (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
-                        (protocol.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
-                    strand = !strand;
-                }
-            }
-
-            for (CigarElement cigarElement : cigarElements) {
-                int length = cigarElement.getLength();
-
-                if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
-                    intervals.add(new Interval(chrName, offset, offset + length - 1, strand, "" ));
-                }
-                offset += length;
-            }
-
+            boolean pairedRead = read.getReadPairedFlag();
+            List<Interval> intervals = getReadIntervals(read, pairedRead);
 
             //Find intersections
 
@@ -217,7 +238,7 @@ public class ComputeCountsTask  {
 
             for (Interval alignmentInterval : intervals) {
                 Iterator<IntervalTree.Node<Set<GenomicRegionSet.Feature>>> overlapIter
-                        = regionSet.overlappers(alignmentInterval.getStart(), alignmentInterval.getEnd() );
+                        = curRegionSet.overlappers(alignmentInterval.getStart(), alignmentInterval.getEnd() );
                 while (overlapIter.hasNext()) {
                     IntervalTree.Node<Set<GenomicRegionSet.Feature>> node = overlapIter.next();
 
