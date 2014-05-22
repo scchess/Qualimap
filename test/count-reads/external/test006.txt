@@ -3,5 +3,5 @@
 bamfile=/home/kokonech/sample_data/accepted_hits.bam
 regions=/home/kokonech/sample_data/mus_musculus.gtf
 result=/home/kokonech/sample_data/test006.result
-strand=Forward-stranded
+strand=strand-specific-forward
 

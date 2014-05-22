@@ -1,0 +1,8 @@
+ref1	protein_coding	exon	100	200	.	+	.	 gene_id "geneA"; transcript_id "tA1"; exon_number "1"; gene_name "A"; transcript_name "A1"; gene_biotype "protein_coding";
+ref1	protein_coding	exon	400	500	.	+	.	 gene_id "geneA"; transcript_id "tA1"; exon_number "2"; gene_name "A"; transcript_name "A1"; gene_biotype "protein_coding";
+ref1	protein_coding	exon	600	700	.	+	.	 gene_id "geneA"; transcript_id "tA1"; exon_number "2"; gene_name "A"; transcript_name "A1"; gene_biotype "protein_coding";
+ref1	protein_coding	exon	600	750	.	+	.	 gene_id "geneB"; transcript_id "tB1"; exon_number "1"; gene_name "B"; transcript_name "B1"; gene_biotype "protein_coding";
+ref1	protein_coding	exon	800	1000	.	+	.	 gene_id "geneB"; transcript_id "tB1"; exon_number "2"; gene_name "B"; transcript_name "B1"; gene_biotype "protein_coding";
+ref2	protein_coding	exon	1201	1400	.	-	.	 gene_id "geneC"; transcript_id "tC2"; exon_number "1"; gene_name "C"; transcript_name "C2"; gene_biotype "protein_coding";
+ref2	protein_coding	exon	1051	1100	.	-	.	 gene_id "geneC"; transcript_id "tC2"; exon_number "2"; gene_name "C"; transcript_name "C2"; gene_biotype "protein_coding";
+ref2	protein_coding	exon	1021	1030	.	-	.	 gene_id "geneC"; transcript_id "tC2"; exon_number "3"; gene_name "C"; transcript_name "C2"; gene_biotype "protein_coding";

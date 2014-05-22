@@ -36,7 +36,9 @@ import java.util.*;
  */
 public class ReadCountsTest {
 
-    ArrayList<TestConfig> tests = new ArrayList<TestConfig>();
+    ArrayList<TestConfig> externalTests = new ArrayList<TestConfig>();
+    ArrayList<TestConfig> internalTests = new ArrayList<TestConfig>();
+
     Map<String,Long> expectedCounts;
     long noFeatureExpected, ambigExpected, lowQualExpected, notAlignedExpected, notUniqueExpected;
 
@@ -46,12 +48,17 @@ public class ReadCountsTest {
 
         Environment testEnv = new Environment();
 
-        tests.add(new TestConfig("count-reads/test001.txt", testEnv) );
-        tests.add(new TestConfig("count-reads/test002.txt", testEnv) );
-        tests.add(new TestConfig("count-reads/test003.txt", testEnv) );
-        tests.add(new TestConfig("count-reads/test004.txt", testEnv) );
-        tests.add(new TestConfig("count-reads/test005.txt", testEnv) );
-        tests.add(new TestConfig("count-reads/test006.txt", testEnv) );
+        internalTests.add(new TestConfig("count-reads/test001.txt", testEnv) );
+
+
+        /* External tests use external data */
+        externalTests.add(new TestConfig("count-reads/external/test001.txt", testEnv) );
+        externalTests.add(new TestConfig("count-reads/external/test002.txt", testEnv) );
+        externalTests.add(new TestConfig("count-reads/external/test003.txt", testEnv) );
+        externalTests.add(new TestConfig("count-reads/external/test004.txt", testEnv) );
+        externalTests.add(new TestConfig("count-reads/external/test005.txt", testEnv) );
+        externalTests.add(new TestConfig("count-reads/external/test006.txt", testEnv) );
+
 
     }
 
@@ -64,10 +71,22 @@ public class ReadCountsTest {
 
 
     @Test
-    public void testStats() {
+    public void externalTests() {
+        runTests(externalTests);
+    }
+
+    @Test
+    public void internalTests() {
+        runTests(internalTests);
+    }
+
+
+    public void runTests(ArrayList<TestConfig> tests) {
 
 
         for (TestConfig test : tests) {
+
+            System.err.println("Running test " + test.getPath());
 
             String pathToBamFile = test.getPathToBamFile();
             if (pathToBamFile.isEmpty()) {
@@ -93,7 +112,15 @@ public class ReadCountsTest {
 
             String strandType = test.getSpecificAttribute("strand");
             if (strandType != null) {
+                assertTrue(ComputeCountsTask.supportedLibraryProtocol(strandType));
                 computeCountsTask.setProtocol(strandType);
+            }
+
+            String pairedAnalysis = test.getSpecificAttribute("paired");
+            if (pairedAnalysis != null) {
+                if (pairedAnalysis.equalsIgnoreCase("yes")) {
+                    computeCountsTask.setPairedEndAnalysis();
+                }
             }
 
             try {
@@ -113,6 +140,14 @@ public class ReadCountsTest {
 
 
                 loadExpectedResults(pathToExpectedResults) ;
+
+                assertTrue("Number of \"ambiguous\" reads is wrong!",
+                        ambigExpected == computeCountsTask.getAmbiguousNumber());
+
+                assertTrue("Number of \"no feature\" reads is wrong!",
+                        noFeatureExpected == computeCountsTask.getNoFeatureNumber());
+
+
 
                 for (Map.Entry<String,Double> entry: readCounts.entrySet()) {
 

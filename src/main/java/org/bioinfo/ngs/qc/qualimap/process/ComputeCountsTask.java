@@ -55,6 +55,7 @@ public class ComputeCountsTask  {
     boolean calcCoverageBias;
     boolean loadGenericRegions;
     boolean outputCoverage;
+    boolean pairedEndAnalysis, sortingRequired;
 
     String pathToBamFile, pathToGffFile;
 
@@ -76,6 +77,8 @@ public class ComputeCountsTask  {
         calcCoverageBias = false;
         loadGenericRegions = false;
         outputCoverage = true;
+        pairedEndAnalysis = false;
+        sortingRequired = false;
 
         logger = new LoggerThread() {
             @Override
@@ -107,12 +110,23 @@ public class ComputeCountsTask  {
                 ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL;
     }
 
+    String sortSamByName(String path) {
+        // sort by name
+        return path;
+    }
 
     public void run() throws Exception {
 
         initRegions();
 
         logger.logLine("Starting BAM file analysis\n");
+
+        if (pairedEndAnalysis) {
+            if (sortingRequired) {
+                // sort alignment by name!
+                pathToBamFile = sortSamByName(pathToBamFile);
+            }
+        }
 
         SAMFileReader reader = new SAMFileReader(new File(pathToBamFile));
 
@@ -130,6 +144,10 @@ public class ComputeCountsTask  {
             if (read == null || read.getReadUnmappedFlag()) {
                 notAligned++;
                 continue;
+            }
+
+            if (pairedEndAnalysis) {
+                // get next segment
             }
 
             readCount++;
@@ -502,4 +520,16 @@ public class ComputeCountsTask  {
     public TranscriptDataHandler getTranscriptDataHandler() {
         return transcriptDataHandler;
     }
+
+    public void setPairedEndAnalysis() {
+        pairedEndAnalysis = true;
+    }
+
+    public static boolean supportedLibraryProtocol(String protocolName) {
+        return (protocolName.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) ||
+                protocolName.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) ||
+                protocolName.equals(LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC) );
+    }
+
+
 }
