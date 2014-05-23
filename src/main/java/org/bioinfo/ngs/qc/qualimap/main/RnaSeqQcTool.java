@@ -127,7 +127,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
         initOutputDir();
 
         ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamFile, gffFile);
-        computeCountsTask.setProtocol(protocol);
+        computeCountsTask.setProtocol(LibraryProtocol.getProtocolByName(protocol));
         computeCountsTask.setCountingAlgorithm(alg);
         computeCountsTask.setCalcCoverageBias(true);
 

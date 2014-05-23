@@ -140,7 +140,7 @@ public class CountReadsTool extends NgsSmartTool {
     protected void execute() throws Exception {
 
         ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamFile, gffFile);
-        computeCountsTask.setProtocol(protocol);
+        computeCountsTask.setProtocol(LibraryProtocol.getProtocolByName(protocol));
         computeCountsTask.setCountingAlgorithm(alg);
         computeCountsTask.setAttrName(attrName);
         computeCountsTask.addSupportedFeatureType(featureType);

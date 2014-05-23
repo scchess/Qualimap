@@ -167,7 +167,7 @@ public class BamStatsAnalysis {
         this.outdir = ".";
         this.saveCoverage = false;
         this.nonZeroCoverageOnly = true;
-        protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
+        protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
         pgProgram = "";
         pgCommandString = "";
 		logger = new Logger();
@@ -943,7 +943,7 @@ public class BamStatsAnalysis {
 
 
 
-        if (protocol == LibraryProtocol.STRAND_NON_SPECIFIC) {
+        if (protocol == LibraryProtocol.NON_STRAND_SPECIFIC) {
             return regionOverlapLookupTable.overlaps(read.getAlignmentStart(),
                             read.getAlignmentEnd(), read.getReferenceName());
         } else {

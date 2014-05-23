@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import org.bioinfo.commons.log.Logger;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.RNASeqQCDialog;
 
@@ -66,7 +67,8 @@ public class RNASeqQCAnalysisThread extends  Thread {
         String gffPath = settingsDlg.getGtfFilePath();
 
         ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamPath, gffPath);
-        computeCountsTask.setProtocol(settingsDlg.getProtocol());
+        LibraryProtocol p = LibraryProtocol.getProtocolByName(settingsDlg.getProtocol());
+        computeCountsTask.setProtocol(p);
         computeCountsTask.setCountingAlgorithm(settingsDlg.getCountingAlgorithm());
         computeCountsTask.addSupportedFeatureType(ComputeCountsTask.EXON_TYPE_ATTR);
         computeCountsTask.setAttrName(ComputeCountsTask.GENE_ID_ATTR);

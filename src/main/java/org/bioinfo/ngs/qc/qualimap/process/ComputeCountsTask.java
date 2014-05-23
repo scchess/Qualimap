@@ -50,7 +50,7 @@ public class ComputeCountsTask  {
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
     TranscriptDataHandler transcriptDataHandler;
-    String protocol;
+    LibraryProtocol protocol;
     String countingAlgorithm;
     String attrName;
     LoggerThread logger;
@@ -75,7 +75,7 @@ public class ComputeCountsTask  {
         this.pathToGffFile = pathToGffFile;
         this.attrName = GENE_ID_ATTR;
 
-        protocol = LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
+        protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
         countingAlgorithm = COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
@@ -102,7 +102,7 @@ public class ComputeCountsTask  {
         allowedFeatureList.add(featureName);
     }
 
-    public void setProtocol(String protocol) {
+    public void setProtocol(LibraryProtocol protocol) {
         this.protocol =  protocol;
     }
 
@@ -185,8 +185,8 @@ public class ComputeCountsTask  {
         boolean strand = read.getReadNegativeStrandFlag();
         if (pairedRead) {
             boolean firstOfPair = read.getFirstOfPairFlag();
-            if ( (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
-                    (protocol.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
+            if ( (protocol  == LibraryProtocol.STRAND_SPECIFIC_FORWARD && !firstOfPair) ||
+                    (protocol == LibraryProtocol.STRAND_SPECIFIC_REVERSE && firstOfPair) ) {
                 strand = !strand;
             }
         }
@@ -371,7 +371,7 @@ public class ComputeCountsTask  {
         SAMFileReader reader = new SAMFileReader(new File(pathToBamFile));
 
         SAMRecordIterator iter = reader.iterator();
-        strandSpecificAnalysis = !protocol.equals(LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC);
+        strandSpecificAnalysis = protocol != LibraryProtocol.NON_STRAND_SPECIFIC;
 
         ArrayList<SAMRecord> fragmentReads = new ArrayList<SAMRecord>();
 

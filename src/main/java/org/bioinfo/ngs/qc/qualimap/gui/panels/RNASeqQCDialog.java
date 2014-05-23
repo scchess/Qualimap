@@ -29,16 +29,12 @@ import org.bioinfo.ngs.qc.qualimap.gui.threads.RNASeqQCAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
-import org.bioinfo.ngs.qc.qualimap.process.RNASeqQCAnalysis;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -48,7 +44,7 @@ import java.util.*;
  */
 public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
-    JTextField bamPathEdit, gffPathEdit, outputPathField;
+    JTextField bamPathEdit, gffPathEdit;
     JTextArea logArea;
     JButton browseBamButton, browseGffButton, startAnalysisButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
@@ -141,7 +137,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
         add(new JLabel("Protocol:"));
         String[] protocolComboItems = LibraryProtocol.getProtocolNames();
-        strandTypeCombo = new JComboBox(protocolComboItems);
+        strandTypeCombo = new JComboBox<String>(protocolComboItems);
         strandTypeCombo.setToolTipText("Select the corresponding sequencing protocol");
         strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
@@ -156,7 +152,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         String[] algoComboItems = {ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED,
                 ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL
                 };
-        countingAlgoCombo = new JComboBox(algoComboItems);
+        countingAlgoCombo = new JComboBox<String>(algoComboItems);
         countingAlgoCombo.addActionListener(this);
         add(countingAlgoCombo, "wrap");
 

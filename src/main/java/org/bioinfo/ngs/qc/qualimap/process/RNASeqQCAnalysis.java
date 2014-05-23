@@ -115,7 +115,7 @@ public class RNASeqQCAnalysis  {
         inputParams.put("Analysis date: ", date.toString());
         inputParams.put("BAM file: ", computeCountsTask.pathToBamFile);
         inputParams.put("GTF file: ", computeCountsTask.pathToGffFile);
-        inputParams.put("Protocol: ", computeCountsTask.protocol);
+        inputParams.put("Protocol: ", computeCountsTask.protocol.toString());
 
         reporter.addInputDataSection("Input", inputParams);
 

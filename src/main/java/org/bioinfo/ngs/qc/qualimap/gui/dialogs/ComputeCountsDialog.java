@@ -50,8 +50,8 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     JTextField bamPathEdit, gffPathEdit, outputPathField, featureNameField, featureTypeField;
     JTextArea logArea;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
-    JComboBox strandTypeCombo, countingAlgoCombo;
-    JComboBox availableFeatureTypesCombo, availableFeatureNamesCombo;
+    JComboBox<String> strandTypeCombo, countingAlgoCombo;
+    JComboBox<String> availableFeatureTypesCombo, availableFeatureNamesCombo;
     JCheckBox saveStatsBox,advancedOptions, calcCoverageBias;
     JLabel countingMethodLabel;
     JPanel ftPanel, fnPanel;
@@ -198,7 +198,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         add(new JLabel("Protocol:"));
         String[] protocolComboItems = LibraryProtocol.getProtocolNames();
-        strandTypeCombo = new JComboBox(protocolComboItems);
+        strandTypeCombo = new JComboBox<String>(protocolComboItems);
         strandTypeCombo.setToolTipText("Select the corresponding sequencing protocol");
         strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
@@ -216,7 +216,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                     "will be aggregated as part of the same feature. Default: gene_id</html>");
         fnPanel.add(featureNameField, "");
         fnPanel.add(new JLabel("Available feature IDs:"));
-        availableFeatureNamesCombo = new JComboBox();
+        availableFeatureNamesCombo = new JComboBox<String>();
         availableFeatureNamesCombo.setToolTipText("These feature IDS were found in first 1000 of the GTF file");
         availableFeatureNamesCombo.addActionListener(
                 new FeatureComboBoxListener(availableFeatureNamesCombo, featureNameField));
@@ -234,7 +234,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         featureTypeField.setText(ComputeCountsTask.EXON_TYPE_ATTR);
         ftPanel.add(featureTypeField, "");
         ftPanel.add(new JLabel("Available feature types:"));
-        availableFeatureTypesCombo = new JComboBox();
+        availableFeatureTypesCombo = new JComboBox<String>();
         availableFeatureTypesCombo.addItem("");
         availableFeatureTypesCombo.setToolTipText("These types of features were found in first 1000 of the GFF file");
         availableFeatureTypesCombo.addActionListener(
@@ -259,7 +259,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         String[] algoComboItems = {ComputeCountsTask.COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED,
                 ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL
                 };
-        countingAlgoCombo = new JComboBox(algoComboItems);
+        countingAlgoCombo = new JComboBox<String>(algoComboItems);
         countingAlgoCombo.addActionListener(this);
         add(countingAlgoCombo, "wrap");
 
@@ -334,7 +334,8 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                     String gffPath = gffPathEdit.getText();
                     String featureType = featureTypeField.getText();
                     ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamPath, gffPath);
-                    computeCountsTask.setProtocol(strandTypeCombo.getSelectedItem().toString());
+                    String pName = strandTypeCombo.getSelectedItem().toString();
+                    computeCountsTask.setProtocol(LibraryProtocol.getProtocolByName(pName));
                     computeCountsTask.setCountingAlgorithm(countingAlgoCombo.getSelectedItem().toString());
                     computeCountsTask.addSupportedFeatureType(featureType);
                     computeCountsTask.setAttrName(featureNameField.getText());
@@ -484,7 +485,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
             int itemCount = availableFeatureNamesCombo.getItemCount();
             ArrayList<String> items = new ArrayList<String>();
             for (int i = 0; i < itemCount; ++i) {
-                items.add( availableFeatureNamesCombo.getItemAt(i).toString() );
+                items.add( availableFeatureNamesCombo.getItemAt(i) );
             }
 
 

@@ -63,7 +63,7 @@ public class BamQcTool extends NgsSmartTool{
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
-        protocol = LibraryProtocol.STRAND_NON_SPECIFIC;
+        protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
         genomeToCompare = "";
         coverageReportFile = "";
     }

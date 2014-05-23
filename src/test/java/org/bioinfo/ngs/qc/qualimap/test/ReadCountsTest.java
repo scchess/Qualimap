@@ -20,6 +20,7 @@
  */
 package org.bioinfo.ngs.qc.qualimap.test;
 
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -66,12 +67,12 @@ public class ReadCountsTest {
 
     }
 
-    public static
+    /*public static
     <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
       List<T> list = new ArrayList<T>(c);
       java.util.Collections.sort(list);
       return list;
-    }
+    } */
 
 
     @Test
@@ -114,10 +115,10 @@ public class ReadCountsTest {
 
             ComputeCountsTask computeCountsTask = new ComputeCountsTask(pathToBamFile, pathToRegionFile);
 
-            String strandType = test.getSpecificAttribute("strand");
-            if (strandType != null) {
-                assertTrue(ComputeCountsTask.supportedLibraryProtocol(strandType));
-                computeCountsTask.setProtocol(strandType);
+            String libraryType = test.getSpecificAttribute("strand");
+            if (libraryType != null) {
+                assertTrue(ComputeCountsTask.supportedLibraryProtocol(libraryType));
+                computeCountsTask.setProtocol(LibraryProtocol.getProtocolByName(libraryType));
             }
 
             String pairedAnalysis = test.getSpecificAttribute("paired");
