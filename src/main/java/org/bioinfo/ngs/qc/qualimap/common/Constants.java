@@ -214,6 +214,7 @@ public final class Constants {
 
     // This is a SAM record custom field, has to be 2 characters
     public static final String READ_IN_REGION = "XX";
+    public static final String READ_WEIGHT_ATTR = "XW";
 
     public static final String ANALYSIS_NAME_BAMQC = "BAM QC";
     public static final String ANALYSIS_NAME_COUNTS_QC = "Counts QC";

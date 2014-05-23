@@ -49,6 +49,7 @@ public class ReadCountsTest {
         Environment testEnv = new Environment();
 
         internalTests.add(new TestConfig("count-reads/test001.txt", testEnv) );
+        internalTests.add(new TestConfig("count-reads/test002.txt", testEnv) );
 
 
         /* External tests use external data */
