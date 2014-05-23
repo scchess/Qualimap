@@ -65,7 +65,7 @@ public class NgsSmartMain {
 			}
 
             if (toolName.equals(Constants.TOOL_NAME_COMPUTE_COUNTS)) {
-                tool = new CountReadsTool();
+                tool = new ComputeCountsTool();
             }
 
             if (toolName.equals(Constants.TOOL_NAME_CLUSTERING)) {

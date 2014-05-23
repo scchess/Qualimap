@@ -52,14 +52,10 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
     JComboBox<String> strandTypeCombo, countingAlgoCombo;
     JComboBox<String> availableFeatureTypesCombo, availableFeatureNamesCombo;
-    JCheckBox saveStatsBox,advancedOptions, calcCoverageBias;
+    JCheckBox saveStatsBox,advancedOptions, pairedAnalysisBox, alreadySortedBox;
     JLabel countingMethodLabel;
     JPanel ftPanel, fnPanel;
     Thread countReadsThread;
-
-    static final String covBiasTooltip = "<html>For calculating 5' and 3' bias feature ID must be \"gene_id\" " +
-            "and feature type must be <b>\"exon\"</b>. <br>Each GTF record must include \"transcript_id\" attribute.";
-
 
     static class BrowseGffButtonListener extends BrowseButtonActionListener {
 
@@ -140,7 +136,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
             c.setEnabled(enabled);
         }
 
-        calcCoverageBias.setEnabled(enabled);
     }
 
     static class FeatureComboBoxListener implements ActionListener {
@@ -243,9 +238,17 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         add(ftPanel, "span, wrap");
 
-        calcCoverageBias = new JCheckBox("Calculate 5' and 3' coverage bias");
-        calcCoverageBias.setToolTipText(covBiasTooltip);
-        add(calcCoverageBias, "wrap");
+        pairedAnalysisBox = new JCheckBox("Paired-end analysis");
+        pairedAnalysisBox.setToolTipText("<html>This option activates counting of fragments instead of counting of reads. " +
+                "<br>Only valid for paired-end sequencing experiments.</html>");
+        pairedAnalysisBox.addActionListener(this);
+        add(pairedAnalysisBox);
+
+        alreadySortedBox = new JCheckBox("Alignment is sorted by name");
+        alreadySortedBox.setToolTipText("<html>The paired-end analysis requires the BAM file to be sorted by name. " +
+                "<br>Check this box if it is the case, otherwise temporary BAM sorted by name" +
+                "<br>will be created.</html>");
+        add(alreadySortedBox, "wrap");
 
         setGtfSpecificOptionsEnabled(false);
 
@@ -283,7 +286,8 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         add(browseOutputPathButton, "wrap");
 
         saveStatsBox = new JCheckBox("Save computation summary");
-        saveStatsBox.setToolTipText("<html>This option controls whether to save overall computation statistics.</html>");
+        saveStatsBox.setToolTipText("<html>This option controls whether to save " +
+                "overall computation statistics.</html>");
         add(saveStatsBox, "span 2, wrap");
 
         add(new JLabel("Log:"), "wrap");
@@ -339,7 +343,12 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                     computeCountsTask.setCountingAlgorithm(countingAlgoCombo.getSelectedItem().toString());
                     computeCountsTask.addSupportedFeatureType(featureType);
                     computeCountsTask.setAttrName(featureNameField.getText());
-                    computeCountsTask.setCalcCoverageBias(calcCoverageBias.isSelected());
+                    if (pairedAnalysisBox.isSelected()) {
+                        computeCountsTask.setPairedEndAnalysis();
+                        if (!alreadySortedBox.isSelected()) {
+                            computeCountsTask.setSortingRequired();
+                        }
+                    }
 
                     final JTextArea loggerDestArea = logArea;
 
@@ -408,6 +417,8 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
     }
 
     private void updateState() {
+        alreadySortedBox.setEnabled(pairedAnalysisBox.isSelected());
+
         countingAlgoCombo.setEnabled(advancedOptions.isSelected());
         countingMethodLabel.setEnabled(advancedOptions.isSelected());
 
@@ -478,22 +489,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         }
         if (!outputFile.delete()) {
             return "Output path is not valid! Deleting probing directory failed.";
-        }
-
-        if (calcCoverageBias.isSelected()) {
-
-            int itemCount = availableFeatureNamesCombo.getItemCount();
-            ArrayList<String> items = new ArrayList<String>();
-            for (int i = 0; i < itemCount; ++i) {
-                items.add( availableFeatureNamesCombo.getItemAt(i) );
-            }
-
-
-            if ( !featureNameField.getText().equals(ComputeCountsTask.GENE_ID_ATTR)  ||
-            !featureTypeField.getText().equals(ComputeCountsTask.EXON_TYPE_ATTR) ||
-                    !items.contains(TranscriptDataHandler.ATTR_NAME_TRANSCRIPT_ID)) {
-                return covBiasTooltip;
-            }
         }
 
 
