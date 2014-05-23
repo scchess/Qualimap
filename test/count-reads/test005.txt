@@ -1,0 +1,10 @@
+# This test is the same as test004, but requires sorting
+# Use the following command to create file sored by coord:
+# samtools view -Sb reads_001.sam | samtools sort - reads_001.coord_sort
+
+bamfile=$TEST_ROOT_DIR/count-reads/reads_001.coord_sort.bam
+regions=$COMMON_DATA_DIR/transcripts.gtf
+result=$TEST_ROOT_DIR/count-reads/results/test004.result
+strand=strand-specific-reverse
+paired=yes
+sorting=yes

@@ -1,4 +1,7 @@
 #testing read counts in region, paired, reverse-stranded
+# checked with htseq v0.5.3:
+# htseq-count -m intersection-strict -s reverse -o ~/tmp/test.sam reads_001.sam ../common_data/transcripts.gtf
+
 
 bamfile=$TEST_ROOT_DIR/count-reads/reads_001.sam
 regions=$COMMON_DATA_DIR/transcripts.gtf
