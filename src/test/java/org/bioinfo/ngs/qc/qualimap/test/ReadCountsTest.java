@@ -50,6 +50,8 @@ public class ReadCountsTest {
 
         internalTests.add(new TestConfig("count-reads/test001.txt", testEnv) );
         internalTests.add(new TestConfig("count-reads/test002.txt", testEnv) );
+        internalTests.add(new TestConfig("count-reads/test003.txt", testEnv) );
+        internalTests.add(new TestConfig("count-reads/test004.txt", testEnv) );
 
 
         /* External tests use external data */

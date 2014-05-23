@@ -1,0 +1,7 @@
+#testing read counts in region, paired, reverse-stranded
+
+bamfile=$TEST_ROOT_DIR/count-reads/reads_001.sam
+regions=$COMMON_DATA_DIR/transcripts.gtf
+result=$TEST_ROOT_DIR/count-reads/results/test004.result
+strand=strand-specific-reverse
+paired=yes

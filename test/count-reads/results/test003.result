@@ -1,7 +1,7 @@
-geneA	2
-geneB	1
-geneC	1
-no_feature	0
+geneA	1
+geneB	0
+geneC	0
+no_feature	3
 ambiguous	0
 too_low_aQual	0
 not_aligned	0

@@ -60,10 +60,8 @@ public class ComputeCountsTask  {
     String pathToBamFile, pathToGffFile;
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
-    long readCount, seqNotFoundCount, onlyOneReadInPair;
-
-    String curChrName;
-    GenomicRegionSet curRegionSet;
+    long readCount, fragmentCount, seqNotFoundCount, onlyOneReadInPair;
+    long protocolCorrectlyMapped;
 
     public static final String GENE_ID_ATTR = "gene_id";
     public static final String EXON_TYPE_ATTR = "exon";
@@ -130,12 +128,12 @@ public class ComputeCountsTask  {
             return false;
         }
 
-        curChrName = read.getReferenceName();
-        curRegionSet = chromosomeRegionSetMap.get(curChrName);
+        String chrName = read.getReferenceName();
+        GenomicRegionSet regionSet = chromosomeRegionSetMap.get(chrName);
 
-        if (curRegionSet == null ) {
+        if (regionSet == null ) {
             seqNotFoundCount++;
-            System.err.println("Chromosome " + curChrName + " from read is not found in annotations.");
+            System.err.println("Chromosome " + chrName + " from read is not found in annotations.");
             return false;
         }
 
@@ -145,34 +143,31 @@ public class ComputeCountsTask  {
 
     }
 
-    List<Interval> getReadIntervals(List<SAMRecord> reads) {
+    ArrayList<Interval> getReadIntervals(SAMRecord read) {
 
-        List<Interval> intervals = new ArrayList<Interval>();
+        ArrayList<Interval> intervals = new ArrayList<Interval>();
 
-
-        for (SAMRecord read : reads) {
-            boolean pairedRead = read.getReadPairedFlag();
-            Cigar cigar = read.getCigar();
-            List<CigarElement> cigarElements = cigar.getCigarElements();
-            int offset = read.getAlignmentStart();
-            boolean strand = read.getReadNegativeStrandFlag();
-            if (pairedRead) {
-                boolean firstOfPair = read.getFirstOfPairFlag();
-                if ( (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
-                        (protocol.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
-                    strand = !strand;
-                }
+        String chrName = read.getReferenceName();
+        boolean pairedRead = read.getReadPairedFlag();
+        Cigar cigar = read.getCigar();
+        List<CigarElement> cigarElements = cigar.getCigarElements();
+        int offset = read.getAlignmentStart();
+        boolean strand = read.getReadNegativeStrandFlag();
+        if (pairedRead) {
+            boolean firstOfPair = read.getFirstOfPairFlag();
+            if ( (protocol.equals(LibraryProtocol.PROTOCOL_FORWARD_STRAND) && !firstOfPair) ||
+                    (protocol.equals(LibraryProtocol.PROTOCOL_REVERSE_STRAND) && firstOfPair) ) {
+                strand = !strand;
             }
+        }
 
-            for (CigarElement cigarElement : cigarElements) {
-                int length = cigarElement.getLength();
+        for (CigarElement cigarElement : cigarElements) {
+            int length = cigarElement.getLength();
 
-                if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
-                    intervals.add(new Interval(curChrName, offset, offset + length - 1, strand, "" ));
-                }
-                offset += length;
+            if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
+                intervals.add(new Interval(chrName, offset, offset + length - 1, strand, "" ));
             }
-
+            offset += length;
         }
 
         return intervals;
@@ -183,9 +178,11 @@ public class ComputeCountsTask  {
         HashMap<String,BitSet> featureIntervalMap = new HashMap<String, BitSet>();
         int intIndex = 0;
 
+
         for (Interval alignmentInterval : intervals) {
+            GenomicRegionSet regionSet = chromosomeRegionSetMap.get(alignmentInterval.getSequence());
             Iterator<IntervalTree.Node<Set<GenomicRegionSet.Feature>>> overlapIter
-                    = curRegionSet.overlappers(alignmentInterval.getStart(), alignmentInterval.getEnd() );
+                    = regionSet.overlappers(alignmentInterval.getStart(), alignmentInterval.getEnd() );
             while (overlapIter.hasNext()) {
                 IntervalTree.Node<Set<GenomicRegionSet.Feature>> node = overlapIter.next();
 
@@ -227,41 +224,45 @@ public class ComputeCountsTask  {
         return featureIntervalMap;
     }
 
-
-    float getFragmentWeight(List<SAMRecord> reads) {
-        float w = 0;
-
-        if (reads.size() == 0) {
-            return w;
+    private void processFragment(ArrayList<SAMRecord> fragmentReads) {
+        int numReads = fragmentReads.size();
+        if (numReads == 0) {
+            return;
+        } else if (numReads == 1) {
+            String readName = fragmentReads.get(0).getReadName();
+            System.err.println("WARNING: The fragment " + readName + " has only 1 alignments," +
+                    " however multiple segments are assumed!");
+            return;
+        } else if (numReads > 2) {
+            String readName = fragmentReads.get(0).getReadName();
+            System.err.println("WARNING: The fragment " + readName + " has more than 2 alignments!");
+            return;
         }
 
-        for (SAMRecord read : reads) {
-            w += read.getFloatAttribute(Constants.READ_WEIGHT_ATTR );
-        }
+        fragmentCount++;
 
-        return w / reads.size();
+        ArrayList<Interval> intervals = new ArrayList<Interval>();
+        float fragmentWeight = 0;
+        for (SAMRecord read : fragmentReads) {
+            intervals.addAll(  getReadIntervals(read) );
+            fragmentWeight += read.getFloatAttribute(Constants.READ_WEIGHT_ATTR);
+        }
+        fragmentWeight /= numReads;
+        processAlignmentIntervals(intervals, fragmentWeight);
+
+
     }
 
-    private void createAndProcessFragments(ArrayList<SAMRecord> fragmentReads) {
-        if (pairedEndAnalysis) {
-            if (fragmentReads.size() == 0) {
-                onlyOneReadInPair++;
-                return;
-            } else if (fragmentReads.size() > 2) {
-                String readName = fragmentReads.get(0).getReadName();
-                System.err.println("WARNING: The fragment " + readName + " has more than 2 alignments!");
-                return;
-            }
 
-        }
-        processFragmentReads(fragmentReads);
+    void processRead(SAMRecord read) {
+        List<Interval> intervals = getReadIntervals(read);
+        float readWeight = read.getFloatAttribute(Constants.READ_WEIGHT_ATTR);
+        fragmentCount++;
+        processAlignmentIntervals(intervals, readWeight);
     }
 
 
-    void processFragmentReads(List<SAMRecord> reads) {
-        // Create intervals for read
-
-        List<Interval> intervals = getReadIntervals(reads);
+    void processAlignmentIntervals(List<Interval> intervals, float alnWeight) {
 
         //Find intersections
         Map<String,BitSet> featureIntervalMap = findIntersectingFeatures(intervals);
@@ -287,10 +288,13 @@ public class ComputeCountsTask  {
             //}
             String geneName = features.iterator().next();
             double count = readCounts.get(geneName);
-            double readWeight = getFragmentWeight(reads);
-            readCounts.put(geneName, count  + readWeight);
+            readCounts.put(geneName, count  + alnWeight);
         }   else {
             ambiguous++;
+        }
+
+        if (features.size() > 0 && strandSpecificAnalysis) {
+            protocolCorrectlyMapped++;
         }
 
         if (readCount % 500000 == 0) {
@@ -340,10 +344,6 @@ public class ComputeCountsTask  {
         strandSpecificAnalysis = !protocol.equals(LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC);
 
         ArrayList<SAMRecord> fragmentReads = new ArrayList<SAMRecord>();
-        if (!pairedEndAnalysis) {
-            // adding empty element
-            fragmentReads.add(null);
-        }
 
         String curReadName = null;
 
@@ -359,25 +359,28 @@ public class ComputeCountsTask  {
                 continue;
             }
 
-            if (pairedEndAnalysis) {
+            if (pairedEndAnalysis && read.getReadPairedFlag() && read.getProperPairFlag()) {
                 String readName = read.getReadName();
                 if (curReadName == null || readName.equals( curReadName ) ) {
                     fragmentReads.add(read);
                 } else {
-                    createAndProcessFragments(fragmentReads);
+                    processFragment(fragmentReads);
                     fragmentReads.clear();
                     fragmentReads.add(read);
                 }
                 curReadName = readName;
             } else {
-                fragmentReads.set(0, read);
-                processFragmentReads(fragmentReads);
+                processRead(read);
+            }
+
+            if (read.getReadPairedFlag() && !read.getProperPairFlag()) {
+                onlyOneReadInPair++;
             }
 
         }
 
         if (pairedEndAnalysis && fragmentReads.size() > 0) {
-            processFragmentReads(fragmentReads);
+            processFragment(fragmentReads);
         }
 
         if (readCount == 0) {
