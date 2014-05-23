@@ -21,12 +21,14 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 
+import net.sf.picard.io.IoUtil;
 import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CoordMath;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
+import org.apache.commons.io.FileUtils;
 import org.bioinfo.formats.exception.FileFormatException;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.common.*;
@@ -55,7 +57,7 @@ public class ComputeCountsTask  {
     boolean calcCoverageBias;
     boolean loadGenericRegions;
     boolean outputCoverage;
-    boolean strandSpecificAnalysis, pairedEndAnalysis, sortingRequired;
+    boolean strandSpecificAnalysis, pairedEndAnalysis, sortingRequired, cleanupRequired;
 
     String pathToBamFile, pathToGffFile;
 
@@ -82,6 +84,7 @@ public class ComputeCountsTask  {
         outputCoverage = true;
         pairedEndAnalysis = false;
         sortingRequired = false;
+        cleanupRequired = false;
 
         readCount = 0;
         seqNotFoundCount = 0;
@@ -116,9 +119,36 @@ public class ComputeCountsTask  {
                 ComputeCountsTask.COUNTING_ALGORITHM_PROPORTIONAL;
     }
 
-    String sortSamByName(String path) {
-        // sort by name
-        return path;
+    String sortSamByName(String inputPath) throws IOException {
+
+        // bam file by name
+
+        long n = 0;
+        File targetFile = File.createTempFile("" + UniqueID.get(), ".bam");
+        String targetPath = targetFile.getAbsolutePath();
+
+        SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(new File(inputPath)));
+        reader.getFileHeader().setSortOrder(SAMFileHeader.SortOrder.queryname);
+        final SAMFileWriter writer = new SAMFileWriterFactory().makeSAMOrBAMWriter(reader.getFileHeader(),
+                false,
+                targetFile);
+
+        for (SAMRecord record : reader) {
+            writer.addAlignment(record);
+            if (++n % 10000000 == 0) {
+                logger.logLine("Read " + n + " records.");
+            }
+        }
+
+        logger.logLine("Finished reading inputs, merging and writing to output now.");
+
+        reader.close();
+        writer.close();
+
+        logger.logLine("Sorting by name finished.");
+        cleanupRequired = true;
+
+        return targetPath;
     }
 
     boolean checkRead(SAMRecord read) {
@@ -398,6 +428,12 @@ public class ComputeCountsTask  {
         }
 
         logger.logLine("\nProcessed " + readCount + " reads in total");
+
+        if (cleanupRequired) {
+            logger.logLine("\nCleanup of temporary files");
+            FileUtils.deleteQuietly(new File(pathToBamFile));
+        }
+
         logger.logLine("\nBAM file analysis finished");
 
 
@@ -623,4 +659,7 @@ public class ComputeCountsTask  {
     }
 
 
+    public void setSortingRequired() {
+        sortingRequired = true;
+    }
 }

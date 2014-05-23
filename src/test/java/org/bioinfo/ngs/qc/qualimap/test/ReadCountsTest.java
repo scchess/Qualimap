@@ -52,6 +52,7 @@ public class ReadCountsTest {
         internalTests.add(new TestConfig("count-reads/test002.txt", testEnv) );
         internalTests.add(new TestConfig("count-reads/test003.txt", testEnv) );
         internalTests.add(new TestConfig("count-reads/test004.txt", testEnv) );
+        internalTests.add(new TestConfig("count-reads/test005.txt", testEnv) );
 
 
         /* External tests use external data */
@@ -125,6 +126,14 @@ public class ReadCountsTest {
                     computeCountsTask.setPairedEndAnalysis();
                 }
             }
+
+            String sortingReauried = test.getSpecificAttribute("sorting");
+            if (sortingReauried != null) {
+                if (sortingReauried.equalsIgnoreCase("yes")) {
+                    computeCountsTask.setSortingRequired();
+                }
+            }
+
 
             try {
                 computeCountsTask.run();
