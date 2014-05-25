@@ -46,10 +46,14 @@ public class RNASeqQCAnalysis  {
     ComputeCountsTask computeCountsTask;
     private AnalysisResultManager resultManager;
 
+    boolean outputCounts;
+
     public RNASeqQCAnalysis(AnalysisResultManager resultManager, ComputeCountsTask task) {
         this.resultManager = resultManager;
         this.computeCountsTask = task;
         computeCountsTask.setCalcCoverageBias(true);
+
+        outputCounts = false;
 
     }
 
@@ -95,6 +99,26 @@ public class RNASeqQCAnalysis  {
         readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
 
         summaryKeeper.addSection(readsAlignment);
+
+
+        //TODO: fix this in case of SE reads
+        /*if (computeCountsTask.getLibraryProtocol() != LibraryProtocol.NON_STRAND_SPECIFIC) {
+            StatsKeeper.Section libraryProtocol = new StatsKeeper.Section("Library protocol");
+            double correctlyMappedPercentage =
+                    (100.*computeCountsTask.getProtocolCorrectlyMapped()) / computeCountsTask.getTotalFragmentCount() ;
+            libraryProtocol.addRow("Concordant fragments: ",
+                    sdf.formatLong(computeCountsTask.getProtocolCorrectlyMapped()) + " / " +
+                    sdf.formatPercentage(correctlyMappedPercentage));
+        }*/
+
+        readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        readsAlignment.addRow("Non-unique alignment:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
+        readsAlignment.addRow("Ambiguous alignment:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
+        readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
+        readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
+
+        summaryKeeper.addSection(readsAlignment);
+
 
         TranscriptDataHandler transcriptDataHandler = computeCountsTask.getTranscriptDataHandler();
         StatsKeeper.Section transcriptCoverage = new StatsKeeper.Section("Transcript coverage");

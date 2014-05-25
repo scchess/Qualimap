@@ -662,4 +662,16 @@ public class ComputeCountsTask  {
     public void setSortingRequired() {
         sortingRequired = true;
     }
+
+    public LibraryProtocol getLibraryProtocol() {
+        return protocol;
+    }
+
+    public long getTotalFragmentCount() {
+        return fragmentCount;
+    }
+
+    public long getProtocolCorrectlyMapped() {
+        return protocolCorrectlyMapped;
+    }
 }
