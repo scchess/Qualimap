@@ -10,7 +10,7 @@ Each analysis type presented in QualiMap GUI is also available as command line t
 
     qualimap <tool_name> <tool_options>
 
-:guilabel:`<tool_name>` is the name of the desired analysis. This could be: :ref:`bamqc<cmdline-bamqc>`, :ref:`countsqc<cmdline-countsqc>`, :ref:`clustering<cmdline-clustering>` or :ref:`counts<cmdline-counts>`. 
+:guilabel:`<tool_name>` is the name of the desired analysis. This could be: :ref:`bamqc<cmdline-bamqc>`, :ref:`rnaseq<cmdline-rnaseqqc>`,  :ref:`counts<cmdline-countsqc>`, :ref:`clustering<cmdline-clustering>` or :ref:`comp-counts<cmdline-counts>`. 
 
 :guilabel:`<tool_options>` are specific to each type analysis. If not option is provided for the specific tool a full list of available options will be shown
 
@@ -65,12 +65,38 @@ Example (data available :ref:`here<bam-samples>`)::
 
 
 
+.. _cmdline-rnaseqqc:
+
+RNA-seq QC
+----------
+
+To perform RNA-seq QC analysis use the following command::
+
+    usage: qualimap rnaseq [-algorithm <arg>] -bam <arg> [-counts <arg>] -gtf <arg>
+       [-outdir <arg>] [-outfile <arg>] [-outformat <arg>] [-protocol <arg>] [-rscriptpath <arg>]
+    -algorithm <arg>     Counting algorithm: uniquely-mapped-reads(default) or proportional
+    -bam <arg>           Mapping file in BAM format
+    -counts <arg>        Path to output computed counts 
+    -gtf <arg>           Annotations file in Ensembl GTF format.
+    -outdir <arg>        Output folder
+    -outfile <arg>       Output file for PDF report (default value is report.pdf)
+    -outformat <arg>     Output report format (PDF or HTML, default is HTML)
+    -protocol <arg>      Library protocol: strand-specific-forward,strand-specific-reverse or non-strand-specific (default)
+
+
+| Detailed explanation of available options can be found :ref:`here<rnaseqqc>`.
+
+Example (data available :ref:`here<annotation-files>`)::
+
+    qualimap rnaseq -bam kidney.bam -gtf human.64.gtf -outdir rnaseq_qc_results
+
+
 .. _cmdline-countsqc:
 
 Counts QC
 ---------
 
-To perform counts QC analysis (evaluation of RNA-seq data) use the following command::
+To perform counts QC analysis use the following command::
 
     usage: qualimap counts -d1 <arg> [-d2 <arg>] [-i <arg>] [-k <arg>] [-n1 <arg>]
            [-n2 <arg>] [-outdir <arg>] [-outformat <arg>] [-s <arg>]

@@ -83,27 +83,34 @@ Output
 :guilabel:`Summary` 
 
   **Basic information** and statistics for the alignment data. The following sections are available:
-    * *Globals*
+  
+    *Globals* 
+  
     This section contains information about the total number of reads, number of mapped reads, paired-end mapping performance, read length distribution, number of clipped reads and duplication rate (estimated from the start positions of read alignments).
     
-    * *ACGT Content* 
-    Nucleotide content and GC percentage in the mapped reads. 
+    *ACGT Content* 
+  
+    Nucleotide content and GC percentage in the mapped reads.
+     
+    *Coverage* 
+   
+    Mean and standard deviation of the coverage depth.    
     
-    * *Coverage* 
-    Mean and standard deviation of the coverage depth.
+    *Mapping quality* 
     
-    * *Mapping quality* 
     Mean mapping quality of the mapped reads.
-
-    * *Insert size* 
-    Mean, standard deviation and percentiles of the insert size distribution if applicable. The features are computed based on the TLEN field of the SAM file.
     
-    * *Mismatches and indels* 
+    *Insert size* 
+
+    Mean, standard deviation and percentiles of the insert size distribution if applicable. The features are computed based on the TLEN field of the SAM file.    
+    
+    *Mismatches and indels* 
+
     The section reports general alignment error rate (computed as a ratio of total collected edit distance to the number of mapped bases), total number of mismatches and total number of indels (computed from the CIGAR values). Additionally fraction of the homopolymer indels among total indels is provided. Note, the error rate and mismatches metrics are based on optional fields of a SAM record (**NM** for edit distance, **MD** for mismatches). The features are not reported if these fields are missing in the SAM file.
+    
+    *Chromosome stats* 
 
-    * *Chromosome stats* 
     Number of mapped bases, mean and standard deviation of the coverage depth for each chromosome as defined by the header of the SAM file.
-
   
   For region-based analysis the information is given inside of regions, including some additional information like, for example, number of correct strand reads.
 
@@ -160,6 +167,72 @@ Output
 :guilabel:`Mapping Quality Histogram` 
 
   Histogram of the number of **genomic locations** having a given **mapping quality**. According to Specification of the `SAM format <http://samtools.sourceforge.net/SAM1.pdf>`_ the range for the mapping quality is [0-255].
+
+.. _rnaseqqc:
+
+RNA-seq QC
+----------
+
+RNA-seq QC reports quality control metrics and bias estimations which are specific for whole transcriptome sequencing, such as for example transcript coverage and 5'-3' bias. This analysis could be applied as complementary tool together with :ref:`BAM QC<bamqc>` and additionally to produce gene counts for further analysis with :ref:`Counts QC <countsqc>`.
+
+To start a new RNA-seq QC analysis activate main menu item :menuselection:`File --> New Analysis --> RNA-seq QC`.
+
+Examples
+^^^^^^^^
+
+TODO: Marioni BAM and GTF
+
+- `RNA-seq QC report <http://qualimap.bioinfo.cipf.es/samples/rnaseqqc_results/qualimapReport.html>`_. This report was produced using the RNA-seq alignment of *Homo sapiens* kidney sample [Marioni]_ and Ensembl v.64 GTF file.
+- These data can be downloaded from :ref:`here <annotation-files>`.
+
+Input parameters
+^^^^^^^^^^^^^^^^
+ 
+
+:guilabel:`BAM file`
+  Path to the sequence alignment file in **BAM** format, produced by a splicing-aware aligner similar to `Tophat <http://tophat.cbcb.umd.edu>`_. 
+
+:guilabel:`GTF file`
+  Genomic annotations in Ensembl **GTF** format. The corresponding annotations can be downloaded from the `Ensembl website <www.ensembl.org/downloads.html>`_.
+
+.. note:: Only annotations in GTF format are supported for this analysis mode. GTF annotations allow to reconstruct the exon structure of transcripts to compute the coverage. For simple region-based analysis please use BAM QC. 
+
+:guilabel:`Library protocol`
+  The strand-specficity of the sequencing library. By default non-strand specific library is assumed.
+
+:guilabel:`Output counts`
+  If checked, the gene counts will be saved to a specified file. 
+
+:guilabel:`Path to counts`
+  Path to the output file with the computed counts.
+
+
+
+
+Output
+^^^^^^
+
+:guilabel:`Summary`
+
+  The summary contains the following sections:
+
+    *Read counts* 
+
+    The assignment of read counts per-category: mapped to genes, ambiguous, without any feature etc.   
+   
+    *5'-3' bias* 
+
+    The ratios between mean coverage at the 5' region, 3' region and whole transcript.
+   
+:guilabel:`Input`
+
+  Here one can check the **input data*** and the **parameters*** used for the analysis.
+
+:guilabel:`Transcript coverage`
+
+  The plot shows mean coverage profile of the transcripts.
+
+
 
 .. _countsqc:
 

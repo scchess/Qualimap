@@ -5,9 +5,10 @@ To launch GUI leave <tool> empty.
 
 Available tools:
 
-    bamqc            Evaluates NGS mapping to a reference genome
-    counts           Counts data analysis (RNA-seq data evaluation)
-    clustering       Clustering epigenomic signals
+    bamqc            Evaluate NGS mapping to a reference genome
+    rnaseq           Evaluate RNA-seq alignment data
+    counts           Counts data analysis (further RNA-seq data evaluation)
+    clustering       Cluster epigenomic signals
     comp-counts      Compute feature counts
 
 

@@ -20,6 +20,7 @@ Alignments
 Annotations
 ***********
 
+.. _annotation-files:
 
 - `human.64.gtf <http://qualimap.bioinfo.cipf.es/samples/annotations/human.64.gtf>`_ 
     Human genome annotations from Ensembl database (v. 64).
