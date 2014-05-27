@@ -167,7 +167,7 @@ public class BamQcTool extends NgsSmartTool{
 
     @Override
     protected void initOutputDir() {
-        if (outdir.isEmpty()) {
+        if (outdir.equals(".")) {
             outdir = FilenameUtils.removeExtension(new File(bamFile).getAbsolutePath()) + "_stats";
         }
         super.initOutputDir();

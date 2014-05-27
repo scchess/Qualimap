@@ -116,7 +116,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
 
     @Override
     protected void initOutputDir() {
-        if (outdir.isEmpty()) {
+        if (outdir.equals(".")) {
             outdir = FilenameUtils.removeExtension(new File(bamFile).getAbsolutePath()) + "_rnaseq_qc";
         }
         super.initOutputDir();
