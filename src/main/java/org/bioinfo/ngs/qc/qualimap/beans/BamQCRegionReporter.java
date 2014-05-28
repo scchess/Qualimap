@@ -29,6 +29,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.ngs.qc.qualimap.beans.BamStats.ChromosomeInfo;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
@@ -209,6 +210,19 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("");
 		for(int i=0; i<bamStats.getCoverageQuotes().getSize(); i++){
 			report.println("     There is a " + StringUtils.decimalFormat(bamStats.getCoverageQuotes().get(i).getY(),"#0.##") + "% of reference with a coverageData >= " + (1+(int)bamStats.getCoverageQuotes().get(i).getX()) + "X");
+		}
+		report.println("");
+		report.println("");
+		
+		
+		// coverage per chromosome data
+		report.println(">>>>>>> Coverage per contig");
+		report.println("");
+		ChromosomeInfo[] chromosomeStats = bamStats.getChromosomeStats();
+		for (int i = 0; i < chromosomeStats.length; i++) {
+			report.println("\t" + chromosomeStats[i].getName() + "\t" +
+		chromosomeStats[i].getLength() + "\t" + chromosomeStats[i].getNumBases() + "\t" + 
+		chromosomeStats[i].getCovMean() + "\t" + chromosomeStats[i].getCovStd());
 		}
 		report.println("");
 		report.println("");

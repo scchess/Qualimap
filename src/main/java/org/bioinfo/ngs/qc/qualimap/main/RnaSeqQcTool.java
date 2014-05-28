@@ -58,10 +58,12 @@ public class RnaSeqQcTool extends NgsSmartTool {
     @Override
     protected void initOptions() {
         options.addOption( requiredOption(OPTION_BAM, true, "Mapping file in BAM format") );
-        options.addOption(requiredOption(OPTION_ANNOTATION, true, "Region file in Ensembl GTF format.") );
-        options.addOption(new Option(OPTION_COUNTS_FILE, true, "Path to counts (only if counts are required)") );
-        options.addOption(new Option(OPTION_PROTOCOL, true, LibraryProtocol.getProtocolNamesString()) );
-        options.addOption(new Option(OPTION_ALGORITHM, true, ComputeCountsTask.getAlgorithmTypes() ));
+        options.addOption(requiredOption(OPTION_ANNOTATION, true, "Annotations file in Ensembl GTF format.") );
+        options.addOption(new Option(OPTION_COUNTS_FILE, true, "Path to output computed counts") );
+        options.addOption(new Option(OPTION_PROTOCOL, true, "Library protocol: " +
+                LibraryProtocol.getProtocolNamesString() + " (default)")  );
+        options.addOption(new Option(OPTION_ALGORITHM, true, "Counting algorithm: " +
+                ComputeCountsTask.getAlgorithmTypes() ));
 
 
     }
@@ -114,7 +116,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
 
     @Override
     protected void initOutputDir() {
-        if (outdir.isEmpty()) {
+        if (outdir.equals(".")) {
             outdir = FilenameUtils.removeExtension(new File(bamFile).getAbsolutePath()) + "_rnaseq_qc";
         }
         super.initOutputDir();
