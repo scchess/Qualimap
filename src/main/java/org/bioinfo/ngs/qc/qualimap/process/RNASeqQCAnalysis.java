@@ -24,15 +24,14 @@ package org.bioinfo.ngs.qc.qualimap.process;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
+import org.bioinfo.ngs.qc.qualimap.common.JunctionInfo;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.common.TranscriptDataHandler;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by kokonech
@@ -54,7 +53,7 @@ public class RNASeqQCAnalysis  {
         this.resultManager = resultManager;
         this.computeCountsTask = task;
         this.loggerThread = task.getLogger();
-        computeCountsTask.setCalcCoverageBias(true);
+        computeCountsTask.setCollectRnaSeqStats(true);
 
         outputCounts = false;
 
@@ -94,6 +93,7 @@ public class RNASeqQCAnalysis  {
 
         StatsKeeper summaryKeeper = reporter.getSummaryStatsKeeper();
         StringUtilsSwing sdf = new StringUtilsSwing();
+        TranscriptDataHandler th = computeCountsTask.getTranscriptDataHandler();
 
         StatsKeeper.Section readsAlignment = new StatsKeeper.Section("Reads alignment");
 
@@ -124,6 +124,23 @@ public class RNASeqQCAnalysis  {
         transcriptCoverage.addRow("5'-3' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianFiveToThreeBias()));
 
         summaryKeeper.addSection(transcriptCoverage);
+
+        StatsKeeper.Section junctionAnalysisSection = new StatsKeeper.Section("Junction analysis");
+        long numReadsWithJunctions = th.getNumReadsWithJunctions();
+        junctionAnalysisSection.addRow("Reads with junctions:", sdf.formatLong(numReadsWithJunctions));
+        if (numReadsWithJunctions > 0) {
+            List<JunctionInfo> junctionList = th.computeSortedJunctionsMap();
+
+            int count = 0;
+            for(int i = junctionList.size() -1; i >= 0 && count <= 10; i--){
+                JunctionInfo info = junctionList.get(i);
+                junctionAnalysisSection.addRow(info.getJunctionString(), sdf.formatPercentage(info.getPercentage()));
+                count += 1;
+            }
+
+        }
+        summaryKeeper.addSection(junctionAnalysisSection);
+
 
 
 

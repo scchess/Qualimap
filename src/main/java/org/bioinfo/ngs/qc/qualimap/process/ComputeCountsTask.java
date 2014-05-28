@@ -54,7 +54,7 @@ public class ComputeCountsTask  {
     String countingAlgorithm;
     String attrName;
     LoggerThread logger;
-    boolean calcCoverageBias;
+    boolean collectRnaSeqStats;
     boolean loadGenericRegions;
     boolean outputCoverage;
     boolean strandSpecificAnalysis, pairedEndAnalysis, sortingRequired, cleanupRequired;
@@ -79,7 +79,7 @@ public class ComputeCountsTask  {
         countingAlgorithm = COUNTING_ALGORITHM_ONLY_UNIQUELY_MAPPED;
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
-        calcCoverageBias = false;
+        collectRnaSeqStats = false;
         loadGenericRegions = false;
         outputCoverage = true;
         pairedEndAnalysis = false;
@@ -112,8 +112,8 @@ public class ComputeCountsTask  {
         this.logger = thread;
     }
 
-    public void setCalcCoverageBias(boolean calcCoverageBias) {
-        this.calcCoverageBias = calcCoverageBias;
+    public void setCollectRnaSeqStats(boolean collectRnaSeqStats) {
+        this.collectRnaSeqStats = collectRnaSeqStats;
     }
 
     public static String getAlgorithmTypes() {
@@ -193,12 +193,26 @@ public class ComputeCountsTask  {
             }
         }
 
+        int posInRead = 0;
         for (CigarElement cigarElement : cigarElements) {
             int length = cigarElement.getLength();
 
             if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
                 intervals.add(new Interval(chrName, offset, offset + length - 1, strand, "" ));
+                posInRead += length;
             }
+
+            if (cigarElement.getOperator().equals(CigarOperator.I) ||
+                    cigarElement.getOperator().equals(CigarOperator.EQ) ||
+                    cigarElement.getOperator().equals(CigarOperator.S)) {
+                posInRead += length;
+            }
+
+            if (cigarElement.getOperator().equals(CigarOperator.N) && collectRnaSeqStats) {
+                transcriptDataHandler.collectJunctionInfo(read, posInRead);
+
+            }
+
             offset += length;
         }
 
@@ -239,7 +253,7 @@ public class ComputeCountsTask  {
 
                         intervalBits.set(intIndex, includeInterval);
                     }
-                    if (calcCoverageBias) {
+                    if (collectRnaSeqStats) {
                         for (GenomicRegionSet.Feature feature : features) {
                             transcriptDataHandler.addCoverage(feature.getName(),
                                     alignmentInterval.getStart(), alignmentInterval.getEnd() );
@@ -425,7 +439,7 @@ public class ComputeCountsTask  {
         }
 
 
-        if (calcCoverageBias) {
+        if (collectRnaSeqStats) {
             transcriptDataHandler.calculateCoverageBias();
         }
 
@@ -464,7 +478,7 @@ public class ComputeCountsTask  {
         logger.logLine("Detected non-GTF annotations file. The counting will " +
                 "be performed based only on feature name");
 
-         if (calcCoverageBias) {
+         if (collectRnaSeqStats) {
             throw new RuntimeException("Calculating coverage bias is only available for GTF files. " +
                     "Please change your annotations file.");
          }
@@ -511,7 +525,7 @@ public class ComputeCountsTask  {
         chromosomeRegionSetMap =  new HashMap<String, GenomicRegionSet>();
         readCounts = new HashMap<String, Double>();
 
-        if (calcCoverageBias) {
+        if (collectRnaSeqStats) {
             transcriptDataHandler = new TranscriptDataHandler();
             transcriptDataHandler.validateAttributes(attrName, allowedFeatureList);
         }
@@ -529,7 +543,7 @@ public class ComputeCountsTask  {
                     addRegionToIntervalMap(record, true);
                     // init results map
                     readCounts.put(record.getAttribute(attrName), 0.0);
-                    if (calcCoverageBias) {
+                    if (collectRnaSeqStats) {
                         transcriptDataHandler.addExonFeature(record);
                     }
                     break;
@@ -542,7 +556,7 @@ public class ComputeCountsTask  {
             throw new RuntimeException("Unable to load any regions from file.");
         }
 
-        if (calcCoverageBias) {
+        if (collectRnaSeqStats) {
             transcriptDataHandler.constructTranscriptsMap();
         }
 
@@ -611,7 +625,7 @@ public class ComputeCountsTask  {
             message.append("NOTE: features were computed based on feature name\n");
         }
 
-        if (calcCoverageBias) {
+        if (collectRnaSeqStats) {
             message.append("Median 5' bias: ").append( transcriptDataHandler.getMedianFivePrimeBias() ).append("\n");
             message.append("Median 3' bias: ").append( transcriptDataHandler.getMedianThreePrimeBias() ).append("\n");
             message.append("Median 5' to 3' bias: ").append(transcriptDataHandler.getMedianFiveToThreeBias());

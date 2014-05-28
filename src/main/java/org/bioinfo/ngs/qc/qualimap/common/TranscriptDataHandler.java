@@ -22,8 +22,10 @@ package org.bioinfo.ngs.qc.qualimap.common;
 
 import net.sf.picard.annotation.Gene;
 import net.sf.picard.util.MathUtil;
+import net.sf.samtools.SAMRecord;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 
@@ -50,6 +52,7 @@ public class TranscriptDataHandler {
     MultiMap<String, GenomicFeature> featureCache;
     HashMap<String, Gene> geneMap;
     HashMap<Gene.Transcript, int[]> transcriptCoverage;
+    HashMap<String, Integer> junctionMap;
 
     public double getMedianFivePrimeBias() {
         return medianFivePrimeBias;
@@ -65,6 +68,7 @@ public class TranscriptDataHandler {
 
 
     double medianFivePrimeBias, medianThreePrimeBias, medianFiveToThreeBias;
+    long numReadsWithJunction;
 
     int[] meanTranscriptCovHistogram;
 
@@ -96,6 +100,7 @@ public class TranscriptDataHandler {
         featureCache = new MultiHashMap<String, GenomicFeature>();
         geneMap = new HashMap<String, Gene>();
         transcriptCoverage = new HashMap<Gene.Transcript, int[]>();
+        junctionMap = new HashMap<String, Integer>();
 
     }
 
@@ -446,5 +451,54 @@ public class TranscriptDataHandler {
 
         return charts;
 
+    }
+
+    public void collectJunctionInfo(SAMRecord read, int posInRead) {
+        byte[] seq = read.getReadBases();
+
+        if (seq != null && posInRead - 2 > 0 && posInRead + 1 < seq.length) {
+            char[] junction = new char[4];
+            junction[0] =  (char) seq[posInRead - 2];
+            junction[1] =  (char) seq[posInRead - 1];
+            junction[2] =  (char) seq[posInRead];
+            junction[3] =  (char) seq[posInRead + 1 ];
+            String junctionStr = new String(junction);
+
+
+            Integer count = junctionMap.get(junctionStr);
+            if (count == null) {
+                junctionMap.put(junctionStr, 1);
+            } else {
+                junctionMap.put(junctionStr, count + 1);
+            }
+        }
+
+        numReadsWithJunction += 1;
+
+    }
+
+
+
+    public List<JunctionInfo> computeSortedJunctionsMap() {
+
+        List<JunctionInfo> junctionList = new ArrayList<JunctionInfo>();
+
+        if (numReadsWithJunction == 0) {
+            return junctionList;
+        }
+
+        for (Map.Entry<String, Integer> entry : junctionMap.entrySet()) {
+
+            double percentage = (entry.getValue() * 100.) / numReadsWithJunction;
+            junctionList.add( new JunctionInfo(entry.getKey(), percentage));
+        }
+
+        Collections.sort(junctionList);
+
+        return junctionList;
+    }
+
+    public long getNumReadsWithJunctions() {
+        return numReadsWithJunction;
     }
 }
