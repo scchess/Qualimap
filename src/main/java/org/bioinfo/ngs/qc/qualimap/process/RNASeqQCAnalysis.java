@@ -24,12 +24,12 @@ package org.bioinfo.ngs.qc.qualimap.process;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
-import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.common.TranscriptDataHandler;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -45,12 +45,15 @@ public class RNASeqQCAnalysis  {
 
     ComputeCountsTask computeCountsTask;
     private AnalysisResultManager resultManager;
+    LoggerThread loggerThread;
+
 
     boolean outputCounts;
 
     public RNASeqQCAnalysis(AnalysisResultManager resultManager, ComputeCountsTask task) {
         this.resultManager = resultManager;
         this.computeCountsTask = task;
+        this.loggerThread = task.getLogger();
         computeCountsTask.setCalcCoverageBias(true);
 
         outputCounts = false;
@@ -63,7 +66,7 @@ public class RNASeqQCAnalysis  {
         createResultReport();
     }
 
-    private void createResultReport() {
+    private void createResultReport() throws IOException {
         StatsReporter reporter = new StatsReporter();
         prepareHtmlSummary(reporter);
         prepareInputDescription(reporter);
@@ -75,10 +78,12 @@ public class RNASeqQCAnalysis  {
 
     }
 
-    private void createCharts(StatsReporter reporter) {
+    private void createCharts(StatsReporter reporter) throws IOException {
 
         TranscriptDataHandler th = computeCountsTask.getTranscriptDataHandler();
-        List<QChart> plots = th.createPlots();
+
+        loggerThread.logLine("Creating plots");
+        List<QChart> plots = th.createPlots(computeCountsTask.getSampleName());
 
         reporter.setChartList(plots);
 
@@ -111,17 +116,9 @@ public class RNASeqQCAnalysis  {
                     sdf.formatPercentage(correctlyMappedPercentage));
         }*/
 
-        readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalReadCounts()));
-        readsAlignment.addRow("Non-unique alignment:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
-        readsAlignment.addRow("Ambiguous alignment:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
-        readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
-        readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
-
-        summaryKeeper.addSection(readsAlignment);
-
 
         TranscriptDataHandler transcriptDataHandler = computeCountsTask.getTranscriptDataHandler();
-        StatsKeeper.Section transcriptCoverage = new StatsKeeper.Section("Transcript coverage");
+        StatsKeeper.Section transcriptCoverage = new StatsKeeper.Section("Transcript coverage profile");
         transcriptCoverage.addRow("5' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianFivePrimeBias()));
         transcriptCoverage.addRow("3' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianThreePrimeBias()));
         transcriptCoverage.addRow("5'-3' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianFiveToThreeBias()));

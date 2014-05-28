@@ -66,6 +66,8 @@ public class TranscriptDataHandler {
 
     double medianFivePrimeBias, medianThreePrimeBias, medianFiveToThreeBias;
 
+    int[] meanTranscriptCovHistogram;
+
     static int min(int[] data) {
         int res = data[0];
 
@@ -291,7 +293,46 @@ public class TranscriptDataHandler {
         return retval;
     }
 
-    public double[] computeTranscriptCoverageHist() {
+
+    public void computeMeanTranscriptCoverageHist() {
+
+        final int NUM_BINS = 50;
+
+        meanTranscriptCovHistogram = new int[NUM_BINS];
+
+        Collection<Gene> genes = geneMap.values();
+
+        for (final Gene gene : genes) {
+
+            for (final Gene.Transcript tx : gene) {
+
+                if (tx.length() == 0) {
+                    continue;
+                }
+
+                final int[] cov = transcriptCoverage.get(tx);
+
+                int sum = 0;
+                if (cov != null) {
+                    for (int c : cov) {
+                        sum += c;
+                    }
+                }
+
+                int meanCovLevel = sum / tx.length();
+
+                if (meanCovLevel >= NUM_BINS) {
+                    meanCovLevel = NUM_BINS - 1;
+                }
+
+                meanTranscriptCovHistogram[meanCovLevel] += 1;
+
+            }
+        }
+
+    }
+
+    public double[] computePerBaseTranscriptCoverageHist() {
 
         final int NUM_BINS = 100;
 
@@ -318,9 +359,10 @@ public class TranscriptDataHandler {
 
     }
 
+
     public void outputTranscriptsCoverage(String fileName) throws IOException {
 
-        double[] coverageHist = computeTranscriptCoverageHist();
+        double[] coverageHist = computePerBaseTranscriptCoverageHist();
 
         XYVector coverageData = new XYVector();
 
@@ -350,30 +392,57 @@ public class TranscriptDataHandler {
     }
 
 
-    public List<QChart> createPlots() {
+    public List<QChart> createPlots(String sampleName) throws IOException {
+
 
         ArrayList<QChart> charts = new ArrayList<QChart>();
 
+        {
+            double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist();
 
-        double[] coverageHist = computeTranscriptCoverageHist();
+            XYVector coverageData = new XYVector();
 
-        XYVector coverageData = new XYVector();
+            for (int i = 0; i < perBaseTranscriptCoverage.length; ++i) {
+                coverageData.addItem( new XYItem(i,perBaseTranscriptCoverage[i]));
+            }
 
-        for (int i = 0; i < coverageHist.length; ++i) {
-            coverageData.addItem( new XYItem(i,coverageHist[i]));
+
+            BamQCChart geneCoverage = new BamQCChart("Coverage Profile",
+                    sampleName, "Transcript position", " Counts ");
+            geneCoverage.addSeries("Transcript coverage profile", coverageData, new Color(255, 0, 0, 255));
+            geneCoverage.setAdjustDomainAxisLimits(false);
+            geneCoverage.setDomainAxisIntegerTicks(true);
+            geneCoverage.setShowLegend(false);
+            geneCoverage.render();
+            QChart chart = new QChart("Transcript per-base coverage", geneCoverage.getChart(), geneCoverage);
+
+            charts.add(chart);
         }
 
 
-        BamQCChart geneCoverage = new BamQCChart("Transcript coverage",
-                "Sample", "Transcript position", " Counts ");
-        geneCoverage.addSeries("Transcript coverage profile", coverageData, new Color(255, 0, 0, 255));
-        geneCoverage.setAdjustDomainAxisLimits(false);
-        geneCoverage.setDomainAxisIntegerTicks(true);
-        geneCoverage.setShowLegend(false);
-        geneCoverage.render();
-        QChart chart = new QChart("Transcript coverage", geneCoverage.getChart(), geneCoverage);
+        {
+            computeMeanTranscriptCoverageHist();
 
-        charts.add(chart);
+            XYVector covHist = new XYVector();
+
+            for (int i = 0; i < meanTranscriptCovHistogram.length; ++i) {
+                covHist.addItem(new XYItem(i, meanTranscriptCovHistogram[i]));
+            }
+
+            BamQCXYHistogramChart coverageHistogram =
+                            new BamQCXYHistogramChart(Constants.PLOT_TITLE_COVERAGE_HISTOGRAM_0_50,
+                                    sampleName, "Coverage (X)", "Number of transcripts");
+                    coverageHistogram.addHistogram("coverageData", covHist, Color.blue);
+                    coverageHistogram.setNumberOfBins(50);
+                    //coverageHistogram.zoom(maxValue);
+                    coverageHistogram.setDomainAxisIntegerTicks(true);
+                    coverageHistogram.setDomainAxisTickUnitSize(1.0);
+                    coverageHistogram.render();
+
+                    charts.add( new QChart("Transcript coverage histogram",
+                            coverageHistogram.getChart() ) );
+
+        }
 
         return charts;
 

@@ -198,6 +198,13 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
         //add(startAnalysisButton, "span2, align right, wrap");
 
+        if (System.getenv("QUALIMAP_DEBUG") != null) {
+            bamPathEdit.setText("/home/kokonech/sample_data/paired_rna_seq/pe_nssp_hg19.chr20.bam");
+            gffPathEdit.setText("/data/annotations/Homo_sapiens.GRCh37.68.chr20.gtf");
+
+        }
+
+
         pack();
         updateState();
 

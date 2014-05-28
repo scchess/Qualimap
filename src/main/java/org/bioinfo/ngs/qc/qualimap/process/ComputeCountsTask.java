@@ -59,7 +59,7 @@ public class ComputeCountsTask  {
     boolean outputCoverage;
     boolean strandSpecificAnalysis, pairedEndAnalysis, sortingRequired, cleanupRequired;
 
-    String pathToBamFile, pathToGffFile;
+    String pathToBamFile, pathToGffFile, sampleName;
 
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
     long readCount, fragmentCount, seqNotFoundCount, onlyOneReadInPair;
@@ -95,6 +95,8 @@ public class ComputeCountsTask  {
                 System.out.println(msg);
             }
         };
+
+        sampleName = (new File(this.pathToBamFile)).getName();
 
     }
 
@@ -673,5 +675,13 @@ public class ComputeCountsTask  {
 
     public long getProtocolCorrectlyMapped() {
         return protocolCorrectlyMapped;
+    }
+
+    public String getSampleName() {
+        return sampleName;
+    }
+
+    public LoggerThread getLogger() {
+        return logger;
     }
 }
