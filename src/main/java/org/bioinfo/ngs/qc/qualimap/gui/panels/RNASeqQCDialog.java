@@ -44,13 +44,12 @@ import java.util.*;
  */
 public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
-    JTextField bamPathEdit, gffPathEdit;
+    JTextField bamPathEdit, gffPathEdit, countsPathEdit;
     JTextArea logArea;
-    JButton browseBamButton, browseGffButton, startAnalysisButton;
+    JButton browseBamButton, browseGffButton, browseCountsFileButton, startAnalysisButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
-    JCheckBox advancedOptions;
-    JLabel countingMethodLabel;
-
+    JCheckBox advancedOptions, outputCountsBox;
+    JLabel countingMethodLabel, countsPathLabel;
 
     static class BrowseGffButtonListener extends BrowseButtonActionListener {
 
@@ -142,6 +141,22 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
 
+        outputCountsBox = new JCheckBox("Output gene counts");
+        outputCountsBox.addActionListener(this);
+        add(outputCountsBox, "wrap");
+
+
+        countsPathLabel = new JLabel("Path:");
+        add( countsPathLabel );
+
+        countsPathEdit = new JTextField(40);
+        countsPathEdit.setToolTipText("Path to the file which will contain output gene counts");
+        add(countsPathEdit, "grow");
+        browseCountsFileButton = new JButton("...");
+        browseCountsFileButton.addActionListener(new BrowseButtonActionListener(this,
+                countsPathEdit, "Counts file"));
+        add(browseCountsFileButton, "align center, wrap");
+
         advancedOptions = new JCheckBox("Advanced options:");
         advancedOptions.addActionListener(this);
         add(advancedOptions, "wrap");
@@ -157,23 +172,6 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         add(countingAlgoCombo, "wrap");
 
 
-        /*add(new JLabel("Output:"), "");
-        outputPathField = new JTextField(40);
-        outputPathField.setToolTipText("Path to the file which will contain output");
-        bamPathEdit.addCaretListener( new CaretListener() {
-            @Override
-            public void caretUpdate(CaretEvent caretEvent) {
-                if (!bamPathEdit.getText().isEmpty()) {
-                    outputPathField.setText(bamPathEdit.getText() + ".counts");
-                }
-            }
-        });
-        add(outputPathField, "grow");
-
-        JButton browseOutputPathButton = new JButton("...");
-        browseOutputPathButton.addActionListener(new BrowseButtonActionListener(this,
-                outputPathField, "Counts file") );
-        add(browseOutputPathButton, "wrap");*/
 
         add(new JLabel("Log:"), "wrap");
         logArea = new JTextArea(5,40);
@@ -192,18 +190,14 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         startAnalysisButton.addActionListener(this);
         startAnalysisButton.setText(">>> Run Analysis");
 
-
         add(new JLabel(""), "span 2");
         add(startAnalysisButton, "wrap");
-
-        //add(startAnalysisButton, "span2, align right, wrap");
 
         if (System.getenv("QUALIMAP_DEBUG") != null) {
             bamPathEdit.setText("/home/kokonech/sample_data/paired_rna_seq/pe_nssp_hg19.chr20.bam");
             gffPathEdit.setText("/data/annotations/Homo_sapiens.GRCh37.68.chr20.gtf");
 
         }
-
 
         pack();
         updateState();
@@ -262,6 +256,13 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         }
 
 
+        boolean countsEnabled = outputCountsBox.isSelected();
+
+        countsPathLabel.setEnabled(countsEnabled);
+        countsPathEdit.setEnabled(countsEnabled);
+        browseCountsFileButton.setEnabled(countsEnabled);
+
+
     }
 
 
@@ -315,19 +316,23 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
             return "Annotations file is not found!";
         }
 
-        /*File outputFile = new File(outputPathField.getText());
-        try {
-           if (!outputFile.exists() && !outputFile.createNewFile()) {
-               throw new IOException();
-           }
-        } catch (IOException e) {
-            return "Output file path is not valid!";
+        if (outputCountsBox.isSelected()) {
+            if (countsPathEdit.getText().isEmpty()) {
+                return "Path to counts file is not set!";
+            }
         }
-        if (!outputFile.delete()) {
-            return "Output path is not valid! Deleting probing directory failed.";
-        }*/
-
 
         return "";
     }
+
+    public boolean outputCounts() {
+        return outputCountsBox.isSelected();
+    }
+
+    public String getCountsOutputPath() {
+        return countsPathEdit.getText();
+    }
+
+
+
 }

@@ -86,6 +86,11 @@ public class RNASeqQCAnalysisThread extends  Thread {
 
         RNASeqQCAnalysis rnaSeqQCAnalysis = new RNASeqQCAnalysis(resultManager, computeCountsTask );
 
+        if (settingsDlg.outputCounts()) {
+            String countsPath = settingsDlg.getCountsOutputPath();
+            rnaSeqQCAnalysis.setCountsFilePath(countsPath);
+        }
+
         try {
             rnaSeqQCAnalysis.run();
         } catch (Exception e) {

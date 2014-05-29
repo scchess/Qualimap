@@ -30,7 +30,9 @@ import org.bioinfo.ngs.qc.qualimap.common.TranscriptDataHandler;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -45,6 +47,7 @@ public class RNASeqQCAnalysis  {
     ComputeCountsTask computeCountsTask;
     private AnalysisResultManager resultManager;
     LoggerThread loggerThread;
+    String countsFilePath;
 
 
     boolean outputCounts;
@@ -54,6 +57,7 @@ public class RNASeqQCAnalysis  {
         this.computeCountsTask = task;
         this.loggerThread = task.getLogger();
         computeCountsTask.setCollectRnaSeqStats(true);
+        countsFilePath = "";
 
         outputCounts = false;
 
@@ -63,6 +67,22 @@ public class RNASeqQCAnalysis  {
         computeCountsTask.run();
 
         createResultReport();
+
+        if (countsFilePath.length() > 0) {
+            writeGeneCounts();
+        }
+
+    }
+
+    private void writeGeneCounts() throws IOException {
+        PrintWriter outWriter =  new PrintWriter(new FileWriter(countsFilePath));
+        Map<String,Double> counts = computeCountsTask.getReadCounts();
+        for (Map.Entry<String,Double> entry: counts.entrySet()) {
+            long roundedValue = entry.getValue().longValue();
+            String str = entry.getKey() + "\t" + roundedValue;
+            outWriter.println(str);
+        }
+        outWriter.flush();
     }
 
     private void createResultReport() throws IOException {
@@ -157,6 +177,11 @@ public class RNASeqQCAnalysis  {
 
         reporter.addInputDataSection("Input", inputParams);
 
+    }
+
+
+    public void setCountsFilePath(String path) {
+        countsFilePath = path;
     }
 
 

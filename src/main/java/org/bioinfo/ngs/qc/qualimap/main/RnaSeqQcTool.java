@@ -29,11 +29,7 @@ import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 import org.bioinfo.ngs.qc.qualimap.process.RNASeqQCAnalysis;
-
 import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.Map;
 
 /**
  * Created by kokonech
@@ -136,22 +132,13 @@ public class RnaSeqQcTool extends NgsSmartTool {
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.RNA_SEQ_QC);
 
         RNASeqQCAnalysis rnaSeqQCAnalysis = new RNASeqQCAnalysis(resultManager, computeCountsTask);
+        if (countsFile.length() > 0) {
+            rnaSeqQCAnalysis.setCountsFilePath(countsFile);
+        }
 
         try {
 
             rnaSeqQCAnalysis.run();
-
-            if (countsFile.length() > 0) {
-                PrintWriter outWriter =  new PrintWriter(new FileWriter(countsFile));
-                Map<String,Double> counts = computeCountsTask.getReadCounts();
-                for (Map.Entry<String,Double> entry: counts.entrySet()) {
-                    long roundedValue = entry.getValue().longValue();
-                    String str = entry.getKey() + "\t" + roundedValue;
-                    outWriter.println(str);
-                }
-                outWriter.flush();
-            }
-
 
         } catch (Exception e) {
             System.err.println("Error while calculating counts! " + e.getMessage());
