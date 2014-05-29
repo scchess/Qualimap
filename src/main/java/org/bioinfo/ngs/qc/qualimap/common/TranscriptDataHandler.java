@@ -25,7 +25,6 @@ import net.sf.picard.util.MathUtil;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 
