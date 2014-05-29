@@ -1,6 +1,18 @@
 Version Release History
 =======================
 
+Version 1.0 - May 29, 2014
+--------------------------
+
+    * BAM QC: add computation of mismatches and error rate
+    * BAM QC: add new metrics for insert size
+    * BAM QC: contig coverage added to text report (patch from Johan Dahlberg)
+    * BAM QC: add option to output per-base coverage
+    * Compute counts: add full support for paired-end reads
+    * RNA-seq QC: add new plots and statistics
+    * Updated documentation
+
+
 Version 0.8.1 - May 5, 2014 
 ---------------------------
         

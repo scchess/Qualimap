@@ -180,9 +180,7 @@ To start a new RNA-seq QC analysis activate main menu item :menuselection:`File 
 Examples
 ^^^^^^^^
 
-TODO: Marioni BAM and GTF
-
-- `RNA-seq QC report <http://qualimap.bioinfo.cipf.es/samples/rnaseqqc_results/qualimapReport.html>`_. This report was produced using the RNA-seq alignment of *Homo sapiens* kidney sample [Marioni]_ and Ensembl v.64 GTF file.
+- `RNA-seq QC report <http://qualimap.bioinfo.cipf.es/samples/kidney_rnaseq_qc/qualimapReport.html>`_. This report was produced using the RNA-seq alignment of *Homo sapiens* kidney sample [Marioni]_ and Ensembl v.64 GTF file.
 - These data can be downloaded from :ref:`here <annotation-files>`.
 
 Input parameters
@@ -216,22 +214,29 @@ Output
 
   The summary contains the following sections:
 
-    *Read counts* 
+    *Reads alignment* 
 
     The assignment of read counts per-category: mapped to genes, ambiguous, without any feature etc.   
    
-    *5'-3' bias* 
+    *Transcript coverage profile* 
 
     The ratios between mean coverage at the 5' region, 3' region and whole transcript.
+
+    *Junction analysis*
+
+    Total number of reads with splice junctions and 10 most frequest junctions rate.
    
 :guilabel:`Input`
 
   Here one can check the **input data*** and the **parameters*** used for the analysis.
 
-:guilabel:`Transcript coverage`
+:guilabel:`Coverage Profile`
 
   The plot shows mean coverage profile of the transcripts.
 
+:guilabel:`Coverage Histogram (0-50x)`
+
+  Coverage of transcripts from 0 to 50X
 
 
 .. _countsqc:
