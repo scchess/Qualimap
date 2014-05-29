@@ -259,7 +259,7 @@ public class HtmlReportGenerator {
         append("\n<div class=\"sidebar\">");
         append("<h3>Contents</h3>");
 
-        if (analysisType.isBamQC()) {
+        if (reporter.hasSummary()) {
             append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#summary\">Summary</a></li>");
         }
 
