@@ -57,7 +57,6 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
     JButton browseInfoFileButton, calcCountsButton;
     JRadioButton infoFileButton, speciesButton;
     StringBuilder stringValidation;
-    JTextArea logArea;
 
     static final String INPUT_FILE_TOOLTIP = "To compute feature counts from BAM file and GFF file " +
             "use menu item Tools->Compute Counts or button below.";
@@ -400,14 +399,6 @@ public class CountsAnalysisDialog extends AnalysisDialog implements ActionListen
 		}
 
 		return validate;
-    }
-
-    public void setUiEnabled(boolean enabled) {
-
-        Component[] components = getContentPane().getComponents();
-        for (Component component : components) {
-            component.setEnabled(enabled);
-        }
     }
 
     public void resetUi() {

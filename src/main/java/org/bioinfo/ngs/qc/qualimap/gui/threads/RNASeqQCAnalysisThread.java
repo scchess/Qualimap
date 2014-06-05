@@ -73,7 +73,7 @@ public class RNASeqQCAnalysisThread extends  Thread {
         computeCountsTask.addSupportedFeatureType(ComputeCountsTask.EXON_TYPE_ATTR);
         computeCountsTask.setAttrName(ComputeCountsTask.GENE_ID_ATTR);
 
-        final JTextArea logArea = settingsDlg.getLogTextArea();
+        final JTextArea logArea = settingsDlg.getLogArea();
         logArea.setText("");
 
         computeCountsTask.setLogger( new LoggerThread() {

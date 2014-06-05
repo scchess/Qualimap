@@ -48,7 +48,6 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
 
     JTextField bamPathEdit, gffPathEdit, outputPathField, featureNameField, featureTypeField;
-    JTextArea logArea;
     JButton browseBamButton, browseGffButton, okButton, cancelButton;
     JComboBox<String> strandTypeCombo, countingAlgoCombo;
     JComboBox<String> availableFeatureTypesCombo, availableFeatureNamesCombo;
@@ -291,13 +290,9 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         add(saveStatsBox, "span 2, wrap");
 
         add(new JLabel("Log:"), "wrap");
-        logArea = new JTextArea(5,40);
-        logArea.setEditable(false);
 
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setViewportView(logArea);
-        add(scrollPane, "span, grow, wrap 30px");
+        setupLogArea();
+        add(logAreaScrollPane, "span, grow, wrap 30px");
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 20"));
@@ -312,6 +307,12 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
         buttonPanel.add(cancelButton);
 
         add(buttonPanel, "span, align right, wrap");
+
+        if (System.getenv("QUALIMAP_DEBUG") != null) {
+            bamPathEdit.setText("/home/kokonech/sample_data/paired_rna_seq/pe_nssp_hg19.chr20.bam");
+            gffPathEdit.setText("/data/annotations/Homo_sapiens.GRCh37.68.chr20.gtf");
+
+        }
 
         pack();
         updateState();
@@ -450,9 +451,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
 
     public void setUiEnabled(boolean  enabled) {
-        for( Component c : getContentPane().getComponents()) {
-            c.setEnabled(enabled);
-        }
+        super.setUiEnabled(enabled);
 
         if (enabled) {
             boolean gtfSpecific =
@@ -462,8 +461,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
             setGtfSpecificOptionsEnabled(false);
         }
 
-        okButton.setEnabled(enabled);
-        cancelButton.setEnabled(enabled);
+
     }
 
 

@@ -56,11 +56,8 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
     JButton startAnalysisButton, addSampleButton, removeSampleButton, editSampleButton;
     JTextField experimentName;
     JComboBox vizTypeBox;
-    JLabel progressStream;
     JTable inputDataTable;
     JPanel buttonPanel, locationPanel;
-    JProgressBar  progressBar;
-    JTextArea logArea;
     SampleDataTableModel sampleTableModel;
 
 
@@ -99,13 +96,6 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         return experimentName.getText();
     }
 
-    public JTextArea getLogArea() {
-        return logArea;
-    }
-
-    public JLabel getProgressStream() {
-        return progressStream;
-    }
 
     static class SampleDataTableModel extends AbstractTableModel {
 
@@ -253,24 +243,10 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
         add(vizTypeBox, "wrap");
 
         add(new JLabel("Log"), "wrap");
-        logArea = new JTextArea(5,40);
-        logArea.setEditable(false);
+        setupLogArea();
+        add(logAreaScrollPane, "span, grow, wrap 30px");
 
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setViewportView(logArea);
-        add(scrollPane, "span, grow, wrap 30px");
-
-        UIManager.put("ProgressBar.selectionBackground", Color.black);
-        UIManager.put("ProgressBar.selectionForeground", Color.black);
-
-        progressStream = new JLabel("Status");
-        add(progressStream, "align center");
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setVisible(true);
-        progressBar.setStringPainted(true);
-        progressBar.setBorderPainted(true);
-        progressBar.setForeground(new Color(244, 200, 120));
+        setupProgressBar();
         add(progressBar, "grow, wrap 30px");
 
         startAnalysisButton = new JButton();
@@ -373,26 +349,6 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
     public EpiAnalysis.ReplicateItem getDataItem(int index) {
         return sampleTableModel.getItem(index);
-    }
-
-    public void setUiEnabled(boolean enabled) {
-
-        for (Component c : getContentPane().getComponents()) {
-            c.setEnabled(enabled);
-        }
-
-        for (Component c : buttonPanel.getComponents()) {
-            c.setEnabled(enabled);
-        }
-
-        for (Component c : locationPanel.getComponents())  {
-            c.setEnabled(enabled);
-        }
-
-        // No matter happends these guys stay enabled:
-        progressBar.setEnabled(true);
-        progressStream.setEnabled(true);
-
     }
 
     public HomeFrame getHomeFrame() {

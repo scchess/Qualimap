@@ -40,6 +40,12 @@ public class AnalysisDialog extends JDialog implements ContainerListener, KeyLis
 
     protected HomeFrame homeFrame;
 
+    protected JButton startAnalysisButton;
+    protected JProgressBar progressBar;
+    protected JLabel progressStream;
+    protected JTextArea logArea;
+    protected JScrollPane logAreaScrollPane;
+
     public AnalysisDialog(HomeFrame parent, String title) {
         super(parent,title);
         this.homeFrame = parent;
@@ -121,6 +127,31 @@ public class AnalysisDialog extends JDialog implements ContainerListener, KeyLis
         return homeFrame;
     }
 
+    protected void setupProgressBar() {
+        UIManager.put("ProgressBar.selectionBackground", Color.black);
+        UIManager.put("ProgressBar.selectionForeground", Color.black);
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setVisible(true);
+        progressBar.setStringPainted(true);
+        progressBar.setBorderPainted(true);
+        progressBar.setForeground(new Color(244, 200, 120));
+    }
+
+    protected void setupProgressStream() {
+        progressStream = new JLabel();
+        progressStream.setVisible(true);
+        progressStream.setText("Status");
+    }
+
+    protected void setupLogArea() {
+        logArea = new JTextArea(10,40);
+        logArea.setEditable(false);
+
+        logAreaScrollPane = new JScrollPane();
+        logAreaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        logAreaScrollPane.setViewportView(logArea);
+    }
+
     static public boolean validateInputFile(String filePath) {
 
         if ( filePath.isEmpty() ) {
@@ -132,5 +163,54 @@ public class AnalysisDialog extends JDialog implements ContainerListener, KeyLis
 
 
     }
+
+    public JProgressBar getProgressBar() {
+        return progressBar;
+    }
+
+    public JLabel getProgressStream() {
+        return progressStream;
+    }
+
+    public JTextArea getLogArea() {
+        return logArea;
+    }
+
+    public void resetProgress() {
+        if (progressBar != null) {
+            progressBar.setValue(0);
+        }
+        if (progressStream != null) {
+            progressStream.setText("Status");
+        }
+        if (logArea != null) {
+            logArea.setText("");
+        }
+    }
+
+    public void setUiEnabled(boolean enabled) {
+
+        for (Component c : getContentPane().getComponents()) {
+            c.setEnabled(enabled);
+            if (c instanceof JComponent) {
+                JComponent panel = (JComponent) c;
+                for (Component subComponent : panel.getComponents()) {
+                    subComponent.setEnabled(enabled);
+                }
+            }
+        }
+
+        // No matter happens these guys stay enabled
+        if (progressBar != null) {
+            progressBar.setEnabled(true);
+        }
+        if (progressStream != null) {
+            progressStream.setEnabled(true);
+        }
+
+    }
+
+
+
 
  }

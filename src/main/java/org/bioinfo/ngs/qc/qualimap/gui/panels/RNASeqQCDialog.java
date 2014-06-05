@@ -31,7 +31,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -45,8 +44,7 @@ import java.util.*;
 public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
     JTextField bamPathEdit, gffPathEdit, countsPathEdit;
-    JTextArea logArea;
-    JButton browseBamButton, browseGffButton, browseCountsFileButton, startAnalysisButton;
+    JButton browseBamButton, browseGffButton, browseCountsFileButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
     JCheckBox advancedOptions, outputCountsBox;
     JLabel countingMethodLabel, countsPathLabel;
@@ -174,13 +172,8 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
 
         add(new JLabel("Log:"), "wrap");
-        logArea = new JTextArea(5,40);
-        logArea.setEditable(false);
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setViewportView(logArea);
-        add(scrollPane, "span, grow, wrap 30px");
+        setupLogArea();
+        add(logAreaScrollPane, "span, grow, wrap 30px");
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 20"));
@@ -265,24 +258,6 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
     }
 
-
-    public void setUiEnabled(boolean  enabled) {
-        for( Component c : getContentPane().getComponents()) {
-            c.setEnabled(enabled);
-        }
-
-        /*if (enabled) {
-            //boolean gtfSpecific =
-                    DocumentUtils.guessFeaturesFileFormat(gffPathEdit.getText()) == FeatureFileFormat.GTF;
-            //setGtfSpecificOptionsEnabled( gtfSpecific );
-        } else {
-            setGtfSpecificOptionsEnabled(false);
-        }*/
-
-        startAnalysisButton.setEnabled(enabled);
-    }
-
-
     public String getBamFilePath() {
         return bamPathEdit.getText();
     }
@@ -297,10 +272,6 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
     public String getCountingAlgorithm() {
         return countingAlgoCombo.getSelectedItem().toString();
-    }
-
-    public JTextArea getLogTextArea() {
-        return logArea;
     }
 
 

@@ -47,12 +47,6 @@ import java.util.List;
 
 public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
-    //TODO: these are common in many dialogs, move them to parent class
-    private JProgressBar progressBar;
-    private JLabel progressStream;
-    private JTextArea logArea;
-    private JButton startAnalysisButton;
-
     private SampleDataTableModel sampleTableModel;
     private JTable inputDataTable;
     private JPanel buttonPanel;
@@ -213,26 +207,14 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
 
         add(new JLabel("Log"), "wrap");
-        logArea = new JTextArea(10,40);
-        logArea.setEditable(false);
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setViewportView(logArea);
-        add(scrollPane, "span, grow, wrap 30px");
+        setupLogArea();
+        add(logAreaScrollPane, "span, grow, wrap 30px");
 
         // Action done while the statistics graphics are loaded
-        progressStream = new JLabel();
-        progressStream.setVisible(true);
-        progressStream.setText("Status");
+        setupProgressStream();
         add(progressStream, "align center");
 
-        UIManager.put("ProgressBar.selectionForeground", Color.black);
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setVisible(true);
-        progressBar.setStringPainted(true);
-        progressBar.setBorderPainted(true);
-        progressBar.setForeground(new Color(244, 200, 120));
+        setupProgressBar();
         add(progressBar, "grow, wrap 30px");
 
         startAnalysisButton = new JButton();
@@ -405,33 +387,6 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         condition2NameEdit.setEnabled(performComparison);
         condition2Label.setEnabled(performComparison);
 
-    }
-
-    // TODO: should be a protected method?
-    public void setUiEnabled(boolean enabled) {
-
-        for (Component c : getContentPane().getComponents()) {
-            c.setEnabled(enabled);
-        }
-
-        for (Component c : buttonPanel.getComponents()) {
-            c.setEnabled(enabled);
-        }
-
-        // No matter happens these guys stay enabled
-        progressBar.setEnabled(true);
-        progressStream.setEnabled(true);
-
-    }
-
-    void resetProgress() {
-        progressBar.setValue(0);
-        progressStream.setText("Status");
-        logArea.setText("");
-    }
-
-    public JTextArea getLogArea() {
-        return logArea;
     }
 
     public Map<Integer,String> getConditionsMap() {

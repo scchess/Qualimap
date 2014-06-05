@@ -27,7 +27,6 @@ import java.util.Timer;
 
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
@@ -50,7 +49,7 @@ public class BamAnalysisThread extends Thread {
 	private BamAnalysisDialog bamDialog;
 
 	/** Variables that contains the tab properties loaded in the thread */
-    // TODO: make this AnalysisResultManager insted of page controller
+    // TODO: make this AnalysisResultManager instead of page controller
 	TabPageController resultManager;
 
     private static class UpdateProgressTask extends TimerTask {
@@ -172,7 +171,7 @@ public class BamAnalysisThread extends Thread {
 				resultManager.addReporter(outsideReporter);
             }
 
-			// Increment the pogress bar
+			// Increment the progress bar
 			bamDialog.getProgressStream().setText("OK");
 			bamDialog.getProgressBar().setValue(100);
 

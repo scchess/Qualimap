@@ -49,14 +49,13 @@ import java.util.*;
  */
 public class BamAnalysisDialog extends AnalysisDialog implements ActionListener {
 
-    JButton startAnalysisButton, pathDataFileButton, pathGffFileButton;
+    JButton pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
     JSpinner numThreadsSpinner,numReadsPerBunchSpinner, minHmSizeSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
     JComboBox genomeGcContentCombo, protocolCombo;
-    JProgressBar progressBar;
-    JLabel progressStream, labelPathDataFile, labelPathAditionalDataFile, labelNw,
+    JLabel labelPathDataFile, labelPathAditionalDataFile, labelNw,
             labelNumThreads, labelNumReadsPerBunch, protocolLabel, minHmSizeLabel;
     File inputFile, regionFile;
 
@@ -171,19 +170,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         advancedInfoCheckBox.addActionListener(this);
 
         // Action done while the statistics graphics are loaded
-        progressStream = new JLabel();
-        progressStream.setVisible(true);
-        progressStream.setText("Status");
+        setupProgressStream();
         add(progressStream, "align center");
 
-        // Progress Bar to show while the statistics graphics are loaded
-        UIManager.put("ProgressBar.selectionBackground", Color.black);
-        UIManager.put("ProgressBar.selectionForeground", Color.black);
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setVisible(true);
-        progressBar.setStringPainted(true);
-        progressBar.setBorderPainted(true);
-        progressBar.setForeground(new Color(244, 200, 120));
+        setupProgressBar();
         add(progressBar, "grow, wrap 30px");
 
         startAnalysisButton = new JButton();
@@ -405,14 +395,6 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 		t.start();
 	}
 
-    public JProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    public JLabel getProgressStream() {
-        return progressStream;
-    }
-
     public int getNumberOfWindows() {
         try {
          return Integer.parseInt(valueNw.getText());
@@ -439,22 +421,6 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public int getNumThreads() {
         return ((SpinnerNumberModel)numThreadsSpinner.getModel()).getNumber().intValue();
-    }
-
-    public void setUiEnabled(boolean  enabled ) {
-
-        Component[] components = getContentPane().getComponents();
-
-        for (Component c : components)  {
-            c.setEnabled(enabled);
-        }
-
-        progressBar.setEnabled(true);
-        progressBar.setValue(0);
-
-        progressStream.setEnabled(true);
-        progressStream.setText("Status");
-
     }
 
     public void addNewPane(TabPageController tabProperties) {
