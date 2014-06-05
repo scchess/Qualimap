@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.bioinfo.ngs.qc.qualimap.gui.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 /**
  * Created by kokonech
@@ -26,16 +26,15 @@ package org.bioinfo.ngs.qc.qualimap.gui.utils;
  * Time: 4:05 PM
  */
 
-//TODO: move this class to common
-
 public enum AnalysisType {
 
-    BAM_QC, RNA_SEQ_QC, COUNTS_QC,MULTISAMPLE_COUNTS_QC, CLUSTERING;
+    BAM_QC, RNA_SEQ_QC, COUNTS_QC,MULTISAMPLE_COUNTS_QC, MULTISAMPLE_BAM_QC, CLUSTERING;
 
     static final String NAME_BAM_QC = "BAM QC";
     static final String NAME_RNA_SEQ_QC = "RNA Seq QC";
     static final String NAME_COUNTS_QC = "Counts QC";
     static final String NAME_MULTISAMPLE_COUNTS_QC = "Multisample Counts QC";
+    static final String NAME_MULTISAMPLE_BAM_QC = "Multisample Bam QC";
     static final String NAME_CLUSTERING = "Clustering";
     static final String UNKNOWN = "Unknown analysis";
 
@@ -48,6 +47,8 @@ public enum AnalysisType {
             return NAME_COUNTS_QC;
         } else if (this == MULTISAMPLE_COUNTS_QC) {
             return NAME_MULTISAMPLE_COUNTS_QC;
+        } else if (this == MULTISAMPLE_BAM_QC) {
+            return NAME_MULTISAMPLE_BAM_QC;
         } else if (this == CLUSTERING ) {
             return NAME_CLUSTERING;
         } else {

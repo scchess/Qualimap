@@ -21,9 +21,9 @@
 package org.bioinfo.ngs.qc.qualimap.beans;
 
 import org.bioinfo.commons.io.utils.FileUtils;
+import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.UniqueID;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 
 import java.io.IOException;
 import java.util.ArrayList;

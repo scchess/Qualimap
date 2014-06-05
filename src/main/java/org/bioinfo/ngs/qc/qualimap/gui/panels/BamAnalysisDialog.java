@@ -23,6 +23,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.panels;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.commons.io.utils.FileUtils;
+import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
@@ -54,7 +55,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     JSpinner numThreadsSpinner,numReadsPerBunchSpinner, minHmSizeSpinner;
     JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
-    JComboBox genomeGcContentCombo, protocolCombo;
+    JComboBox<String> genomeGcContentCombo, protocolCombo;
     JLabel labelPathDataFile, labelPathAditionalDataFile, labelNw,
             labelNumThreads, labelNumReadsPerBunch, protocolLabel, minHmSizeLabel;
     File inputFile, regionFile;
@@ -102,7 +103,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         protocolLabel = new JLabel("Library strand specificity:");
         add(protocolLabel);
         String[] names = LibraryProtocol.getProtocolNames();
-        protocolCombo = new JComboBox( names );
+        protocolCombo = new JComboBox<String>( names );
         add(protocolCombo, "wrap");
 
         computeOutsideStats = new JCheckBox("Analyze outside regions");
@@ -124,10 +125,11 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         add(compareGcContentDistr, "span 2, wrap");
 
         Map<String,String> gcFileMap = BamStatsAnalysis.getGcContentFileMap();
-        Object[] genomes =  gcFileMap.keySet().toArray();
+        String[] genomes = new String[gcFileMap.size()];
+        gcFileMap.keySet().toArray(genomes);
         // small trick for human genome to be first
         Arrays.sort(genomes);
-        genomeGcContentCombo = new JComboBox( genomes );
+        genomeGcContentCombo = new JComboBox<String>( genomes );
         add( genomeGcContentCombo, "gapleft 20, span 2, wrap" );
 
         // Input Line of information (check to show the advance info)

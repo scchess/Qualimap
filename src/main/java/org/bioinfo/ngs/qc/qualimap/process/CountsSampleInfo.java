@@ -25,10 +25,8 @@ package org.bioinfo.ngs.qc.qualimap.process;
 * Date: 5/15/14
 * Time: 4:25 PM
 */
-public class CountsSampleInfo {
+public class CountsSampleInfo extends SampleInfo {
 
-    public String name;
-    public String path;
     public int columnNum;
     public int conditionIndex;
 

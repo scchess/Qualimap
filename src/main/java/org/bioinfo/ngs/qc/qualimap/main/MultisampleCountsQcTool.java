@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
+import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 
 import java.io.File;
@@ -31,7 +32,6 @@ import java.util.Map;
 
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.process.CountsSampleInfo;
 import org.bioinfo.ngs.qc.qualimap.process.MultisampleCountsAnalysis;
 

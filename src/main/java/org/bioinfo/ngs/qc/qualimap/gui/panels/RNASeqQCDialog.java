@@ -26,7 +26,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.BrowseButtonActionListener;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.RNASeqQCAnalysisThread;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
+import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 

@@ -22,6 +22,7 @@ package org.bioinfo.ngs.qc.qualimap.gui.utils;
 
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
+import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 
 import javax.swing.*;
 

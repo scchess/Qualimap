@@ -22,7 +22,6 @@ package org.bioinfo.ngs.qc.qualimap.common;
 
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper.Section;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
@@ -146,7 +145,6 @@ public class HtmlReportGenerator {
 
         List<Section> summarySections = reporter.getSummaryDataSections();
         appendTableFromStats(summarySections);
-
 
 		if (analysisType.isBamQC()) {
 			appendChromosomeStats();

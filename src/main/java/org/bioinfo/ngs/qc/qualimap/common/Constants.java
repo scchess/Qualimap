@@ -76,7 +76,11 @@ public final class Constants {
 	
 	// Extension for the PDF File
 	public static final String FILE_EXTENSION_PDF_FILE = "PDF";
-	
+
+    //******************************************************************************************
+	//******************************* GRAPHICS NAMES CONSTANTS *********************************
+	//******************************************************************************************
+
     public static final String PLOT_TITLE_COVERAGE_ACROSS_REFERENCE = "Coverage Across Reference";
     public static final String PLOT_TITLE_COVERAGE_HISTOGRAM = "Coverage Histogram";
     public static final String PLOT_TITLE_COVERAGE_HISTOGRAM_0_50 = "Coverage Histogram (0-50X)";
@@ -91,84 +95,6 @@ public final class Constants {
     public static final String PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM = "Duplication Rate Histogram";
     public static final String PLOT_TITLE_HOMOPOLYMER_INDELS = "Homopolymer Indels";
 
-
-	//******************************************************************************************
-	//******************************* GRAPHICS NAMES CONSTANTS *********************************
-	//******************************************************************************************
-
-	// Name of the graphic for the Coverage Across Reference
-	public static final String GRAPHIC_NAME_GENOME_COVERAGE_ACROSS_REFERENCE = "genome_coverage_across_reference.png";
-	
-	// Name of the graphic for the Coverage Histogram
-	public static final String GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM = "genome_coverage_histogram.png";
-	
-	// Name of the graphic for the Coverage Histogram (0-50x)
-	public static final String GRAPHIC_NAME_GENOME_COVERAGE_HISTOGRAM_0_50 = "genome_coverage_0to50_histogram.png";
-
-	// Name of the graphic for the Coverage Quotes
-	public static final String GRAPHIC_NAME_GENOME_COVERAGE_QUOTA = "genome_coverage_quotes.png";
-
-    public static final String GRAPHIC_NAME_GENOME_UNIQUE_READ_COUNTS = "genome_uniq_read_starts_histogram.png";
-
-    public static final String GRAPHIC_NAME_GENOME_OUTSIDE_UNIQUE_READ_COUNTS = "outside_uniq_read_starts_histogram.png";
-
-    public static final String GRAPHIC_NAME_GENOME_GC_CONTENT_PER_WINDOW = "genome_gc_content_per_window.png";
-
-    public static final String GRAPHIC_NAME_OUTSIDE_GC_CONTENT_PER_WINDOW = "outside_gc_content_per_window.png";
-
-    public static final String GRAPHIC_NAME_GENOME_READS_CONTENT = "genome_reads_content_per_read_position.png";
-
-    public static final String GRAPHIC_NAME_OUTSIDE_READS_CONTENT = "outside_reads_content_per_read_position.png";
-
-	// Name of the graphic for the Nucleotide Relative Content
-	public static final String GRAPHIC_NAME_GENOME_NUCLEOTIDE_RELATIVE_CONTENT = "genome_actg_across_reference.png";
-	
-	// Name of the graphic for the GC/AT Relative Content
-	public static final String GRAPHIC_NAME_GENOME_GC_AT_RELATIVE_CONTENT = "genome_gc_across_reference.png";
-	
-	// Name of the graphic for the Mapping_Quality_Acorss_Reference
-	public static final String GRAPHIC_NAME_GENOME_MAPPING_QUALITY_ACROSS_REFERENCE = "genome_mapping_quality_across_reference.png";
-	
-	// Name of the graphic for the Mapping_Quality_Histogram
-	public static final String GRAPHIC_NAME_GENOME_MAPPING_QUALITY_HISTOGRAM = "genome_mapping_quality_histogram.png";
-
-	// Name of the graphic for the Outside Mapping_Quality_Acorss_Reference
-	public static final String GRAPHIC_NAME_GENOME_INSERT_SIZE_ACROSS_REFERENCE = "genome_insert_size_across_reference.png";
-	
-	// Name of the graphic for the Outside Mapping_Quality_Histogram
-	public static final String GRAPHIC_NAME_GENOME_INSERT_SIZE_HISTOGRAM = "genome_insert_size_histogram.png";
-
-	// Name of the graphic for the Outside Coverage Across Reference
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_ACROSS_REFERENCE = "outside_coverage_across_reference.png";
-	
-	// Name of the graphic for the Outside Coverage Histogram
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM = "outside_coverage_histogram.png";
-	
-	// Name of the graphic for the Outside Coverage Histogram (0-50x)
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_HISTOGRAM_0_50 = "outside_coverage_0to50_histogram.png";
-
-	// Name of the graphic for the Outside Coverage Quotes
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_COVERAGE_QUOTA = "outside_coverage_quotes.png";
-	
-	// Name of the graphic for the Outside Nucleotide Relative Content
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_NUCLEOTIDE_RELATIVE_CONTENT = "outside_actg_across_reference.png";
-	
-	// Name of the graphic for the Outside GC/AT Relative Content
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_GC_AT_RELATIVE_CONTENT = "outside_gc_across_reference.png";
-	
-	// Name of the graphic for the Outside Mapping_Quality_Acorss_Reference
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_ACROSS_REFERENCE = "outside_insert_size_across_reference.png";
-	
-	// Name of the graphic for the Outside Mapping_Quality_Histogram
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_INSERT_SIZE_HISTOGRAM = "outside_insert_size_histogram.png";
-	
-	// Name of the graphic for the Outside Mapping_Quality_Acorss_Reference
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_ACROSS_REFERENCE = "outside_mapping_quality_across_reference.png";
-	
-	// Name of the graphic for the Outside Mapping_Quality_Histogram
-	public static final String GRAPHIC_NAME_GENOME_OUTSIDE_MAPPING_QUALITY_HISTOGRAM = "outside_mapping_quality_histogram.png";
-	
-	
 	//******************************************************************************************
 	//***************************** GRAPHICS NAMES RNA CONSTANTS *******************************
 	//******************************************************************************************
@@ -181,7 +107,8 @@ public final class Constants {
 	//******************************************************************************************
 	//********************************* NAMES OF DATA RAW FILES ********************************
 	//******************************************************************************************
-	public static final String NAME_OF_FILE_CHROMOSOMES = "chromosomes.txt";
+
+    public static final String NAME_OF_FILE_CHROMOSOMES = "chromosomes.txt";
 
     public static final String NAME_OF_FILE_CHROMOSOMES_OUTSIDE = "outside_chromosomes.txt";
 
@@ -216,9 +143,6 @@ public final class Constants {
     public static final String READ_IN_REGION = "XX";
     public static final String READ_WEIGHT_ATTR = "XW";
 
-    public static final String ANALYSIS_NAME_BAMQC = "BAM QC";
-    public static final String ANALYSIS_NAME_COUNTS_QC = "Counts QC";
-    public static final String ANALYSIS_NAME_CLUSTERING = "Clustering";
 
     public static final String REPORT_TYPE_HTML = "HTML";
     public static final String REPORT_TYPE_PDF = "PDF";
@@ -228,10 +152,10 @@ public final class Constants {
     public static final String TOOL_NAME_BAMQC = "bamqc";
     public static final String TOOL_NAME_COUNTS_QC = "counts";
     public static final String TOOL_NAME_MULTISAMPLE_COUNTS_QC = "mcounts";
+    public static final String TOOL_NAME_MULTISAMPLE_BAM_QC = "multi-bamqc";
     public static final String TOOL_NAME_RNASEQ_QC = "rnaseq";
     public static final String TOOL_NAME_CLUSTERING = "clustering";
     public static final String TOOL_NAME_COMPUTE_COUNTS = "comp-counts";
     public static final String TOOL_NAME_GC_CONTENT = "gc-content";
     public static final String TOOL_NAME_INDEL_COUNT = "indel-count";
-    public static final String TOOL_NAME_GENE_COVERAGE = "gene-cov";
 }
