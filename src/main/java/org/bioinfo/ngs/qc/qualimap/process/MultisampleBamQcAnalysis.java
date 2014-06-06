@@ -1,5 +1,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.jfree.chart.ChartColor;
@@ -48,7 +49,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
     }
 
-    XYVector loadHistogramData(String inputFilePath, double minX, double maxX) throws IOException {
+    XYVector loadColumnData(String inputFilePath, double minX, double maxX) throws IOException {
         XYVector data = new XYVector();
 
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFilePath));
@@ -87,7 +88,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         int i = 0;
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = bamQcResult.path + File.separator + rawDataDir + File.separator + dataPath;
-            XYVector histData = loadHistogramData(path,1,51);
+            XYVector histData = loadColumnData(path, 0, Double.MAX_VALUE);
             baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
             ++i;
         }
@@ -97,16 +98,97 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         return new QChart(chartName, baseChart.getChart());
     }
 
+
+    XYVector scaleXAxis(XYVector raw) {
+        XYVector scaled = new XYVector();
+
+
+        double scaleFactor = 1./raw.getSize();
+
+        for (int i = 0; i < raw.getSize(); ++i) {
+            XYItem item = raw.get(i);
+            XYItem newItem = new XYItem(scaleFactor*i, item.getY());
+            scaled.addItem(newItem);
+        }
+
+        return scaled;
+
+    }
+
+
+    QChart createCoverageAcrossReferenceChart() throws IOException {
+        BamQCChart baseChart = new BamQCChart("Coverage across reference",
+                            "Multi-sample BAM QC", "Position in reference (relative)", "Coverage");
+
+        DescriptiveStatistics stats = new DescriptiveStatistics();
+        int k = 0;
+        for (SampleInfo bamQcResult : bamQCResults) {
+            String path = bamQcResult.path + File.separator + rawDataDir + File.separator + "coverage_across_reference.txt";
+            XYVector rawData = loadColumnData(path, 0, Double.MAX_VALUE);
+            XYVector scaledData = scaleXAxis(rawData);
+            for (int i = 0; i < scaledData.getSize(); ++i) {
+                stats.addValue( scaledData.get(i).getY() );
+            }
+
+            baseChart.addSeries(bamQcResult.name, scaledData, getSampleColor(k) );
+            ++k;
+        }
+        baseChart.setDomainAxisIntegerTicks(false);
+
+        baseChart.render();
+        double p75 = stats.getPercentile(75);
+        if (p75 > 0) {
+            baseChart.getChart().getXYPlot().getRangeAxis().setRange(0, 2*p75);
+        }
+        stats.clear();
+
+        return new QChart("Coverage across reference", baseChart.getChart());
+    }
+
+    QChart createCoverageProfileChart(String chartName, String dataPath, String xTitle, String yTitle) throws IOException {
+        BamQCChart baseChart = new BamQCChart(chartName,
+                            "Multi-sample BAM QC", xTitle, yTitle);
+
+        int i = 0;
+        for (SampleInfo bamQcResult : bamQCResults) {
+            String path = bamQcResult.path + File.separator + rawDataDir + File.separator + dataPath;
+            XYVector histData = loadColumnData(path, 1, 51);
+            baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
+            ++i;
+        }
+
+        baseChart.render();
+
+        return new QChart(chartName, baseChart.getChart());
+    }
+
+
     private void createCharts(StatsReporter reporter) throws Exception {
         ArrayList<QChart> charts = new ArrayList<QChart>();
 
-        QChart coverageChart = createHistogramBasedChart("Coverage", "coverage_histogram.txt",
-                "Coverage", "Number of positions");
+        QChart coverageAcrossRefChart = createCoverageAcrossReferenceChart();
+        charts.add(coverageAcrossRefChart);
+
+        QChart coverageChart = createCoverageProfileChart("Coverage Profile (1-50X)", "coverage_histogram.txt",
+                "Coverage", "Number of loci");
         charts.add(coverageChart);
+
+        QChart genomeFractionCoverage = createHistogramBasedChart("Reference Fraction Coverage",
+                "genome_fraction_coverage.txt", "Coverage", "Fraction of reference (%)");
+        charts.add(genomeFractionCoverage);
+
+        QChart duplicationRate = createHistogramBasedChart("Duplication Rate",
+                "duplication_rate_histogram.txt", "Duplication rate", "Number of loci");
+        charts.add(duplicationRate);
+
+        QChart readsGCContentDistr = createHistogramBasedChart("Mapped reads GC content",
+                        "mapped_reads_gc-content_distribution.txt", "GC Content (%)", "Fraction of reads");
+        charts.add(readsGCContentDistr);
 
         reporter.setChartList(charts);
 
     }
+
 
     private void prepareInputDescription(StatsReporter reporter) {
         HashMap<String,String> sampleParams = new HashMap<String, String>();
