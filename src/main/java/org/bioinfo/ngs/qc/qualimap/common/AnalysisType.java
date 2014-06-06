@@ -33,8 +33,8 @@ public enum AnalysisType {
     static final String NAME_BAM_QC = "BAM QC";
     static final String NAME_RNA_SEQ_QC = "RNA Seq QC";
     static final String NAME_COUNTS_QC = "Counts QC";
-    static final String NAME_MULTISAMPLE_COUNTS_QC = "Multisample Counts QC";
-    static final String NAME_MULTISAMPLE_BAM_QC = "Multisample Bam QC";
+    static final String NAME_MULTISAMPLE_COUNTS_QC = "Multi-sample Counts QC";
+    static final String NAME_MULTISAMPLE_BAM_QC = "Multi-sample BAM QC";
     static final String NAME_CLUSTERING = "Clustering";
     static final String UNKNOWN = "Unknown analysis";
 

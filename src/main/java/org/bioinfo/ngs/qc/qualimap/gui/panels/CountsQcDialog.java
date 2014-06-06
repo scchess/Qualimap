@@ -125,9 +125,8 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         }
     }
 
-
     public CountsQcDialog(HomeFrame homeFrame) {
-        super(homeFrame, "Multisample Counts QC");
+        super(homeFrame, "Counts QC");
         getContentPane().setLayout(new MigLayout("insets 20"));
 
         add(new JLabel("Samples:"), "span 2, wrap");
@@ -427,10 +426,5 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     public boolean performComparison() {
         return compartativeAnalysisCheckBox.isSelected();
     }
-
-
-
-
-
 
 }

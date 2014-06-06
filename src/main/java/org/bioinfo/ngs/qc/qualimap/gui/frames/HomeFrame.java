@@ -80,6 +80,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public static final String WM_COMMAND_RNASEQQC = "rnaseqqc";
     public static final String WM_COMMAND_COUNTSQC = "counts";
     public static final String WM_COMMAND_COUNTSQC_MS = "counts-multi";
+    public static final String WM_COMMAND_BAMQC_MS = "bamqc-multi";
     public static final String WM_COMMAND_CLUSTERING = "clustering";
     public static final String WM_COMMAND_CALC_COUNTS = "calc-counts";
 
@@ -417,6 +418,11 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                 WM_COMMAND_COUNTSQC_MS, "chart_curve_add.png", "");
             countsQcItem.setEnabled(countsQCPackagesAvailable);
             analysisMenu.add(countsQcItem);
+
+            JMenuItem multiBamQcItem =   addMenuItem(AnalysisType.MULTISAMPLE_BAM_QC.toString(),
+                WM_COMMAND_BAMQC_MS, "chart_curve_add.png", "");
+            analysisMenu.add(multiBamQcItem);
+
         }
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, "", "ctrl pressed A");
@@ -652,6 +658,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	        runCountsAnalysis();
         }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC_MS)){
 	        runMultisampleCountsQc();
+	    }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_BAMQC_MS)){
+	        runMultisampleBamQc();
 	    }else if(e.getActionCommand().equals(WM_COMMAND_CLUSTERING)) {
             runClusteringAnalysis();
         } else if (e.getActionCommand().equals(WM_COMMAND_CALC_COUNTS)) {
@@ -662,6 +670,7 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
             openUserManual();
         }
     }
+
 
     private void openUserManual() {
         File manualFile = new File(qualimapFolder + File.separator + "QualimapManual.pdf");
@@ -726,6 +735,13 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         popUpDialog = new CountsQcDialog(this);
         showPopUpDialog();
     }
+
+    private void runMultisampleBamQc() {
+        popUpDialog = new MultisampleBamQcDialog(this);
+        showPopUpDialog();
+
+    }
+
 
     static public void showCountReadsDialog(HomeFrame parent) {
         ComputeCountsDialog dlg = new ComputeCountsDialog(parent);
