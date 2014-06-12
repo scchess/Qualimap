@@ -967,8 +967,8 @@ public class BamStats implements Serializable {
 
         int size = insertSizeArray.size();
         int medianIndex =  size / 2;
-        int percentile25Index = size /4;
-        int percentile75Index = size * 3/ 4;
+        int percentile25Index = size / 4;
+        int percentile75Index = percentile25Index*3;
 
         p25InsertSize = insertSizeArray.get(percentile25Index);
         medianInsertSize = insertSizeArray.get(medianIndex);
@@ -977,7 +977,7 @@ public class BamStats implements Serializable {
         meanInsertSize = MathUtils.mean( insertData );
         stdInsertSize = MathUtils.standardDeviation( insertData );
 
-        double border = insertSizeArray.get(percentile75Index)*2;
+        double border = insertSizeArray.get(percentile75Index)*2.;
 
         for (int val : insertSizeArray) {
             if (val <= border) {
