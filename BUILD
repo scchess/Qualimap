@@ -13,6 +13,9 @@ mvn install:install-file -DgroupId=net.sf.picard -DartifactId=picard -Dversion=1
 
 mvn install:install-file -DgroupId=net.sf.samtools -DartifactId=samtools -Dversion=1.70 -Dpackaging=jar -Dfile=/path/to/picard-tools-1.70/sam-1.70.jar
 
+mvn install:install-file -DgroupId=org.ejml -DartifactId=ejml -Dversion=0.24 -Dpackaging=jar -Dfile=ejml-0.24.jar
+
+
 2) Build Qualimap
 
 Use maven2 command:

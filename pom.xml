@@ -66,6 +66,11 @@
            	<artifactId>miglayout</artifactId>
            	<version>3.7.4</version>
        	</dependency>
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml</artifactId>
+            <version>0.24</version>
+        </dependency>
 
 	</dependencies>
 	
