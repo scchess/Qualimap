@@ -209,7 +209,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     std coverageData = " + formatDecimal(bamStats.getStdCoverage()) + "X");
 		report.println("");
 		for(int i=0; i<bamStats.getCoverageQuotes().getSize(); i++){
-			report.println("     There is a " + StringUtils.decimalFormat(bamStats.getCoverageQuotes().get(i).getY(),"#0.##") + "% of reference with a coverageData >= " + (1+(int)bamStats.getCoverageQuotes().get(i).getX()) + "X");
+			report.println("     There is a " +
+                    StringUtils.decimalFormat(bamStats.getCoverageQuotes().get(i).getY(),"#0.##") +
+                    "% of reference with a coverageData >= " + (int)bamStats.getCoverageQuotes().get(i).getX()
+                    + "X");
 		}
 		report.println("");
 		report.println("");
