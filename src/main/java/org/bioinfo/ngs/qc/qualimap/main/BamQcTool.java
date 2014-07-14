@@ -31,6 +31,7 @@ import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
+
 import java.io.File;
 
 public class BamQcTool extends NgsSmartTool{
@@ -48,18 +49,6 @@ public class BamQcTool extends NgsSmartTool{
     private String coverageReportFile;
     private LibraryProtocol protocol;
 
-    static final String OPTION_NAME_BAM_FILE = "bam";
-    static final String OPTION_NAME_GFF_FILE = "gff";
-    static final String OPTION_COMPARE_WITH_GENOME_DISTRIBUTION = "gd";
-    static final String OPTION_PAINT_CHROMOSOMES = "c";
-    static final String OPTION_NUM_WINDOWS = "nw";
-    static final String OPTION_CHUNK_SIZE = "nr";
-    static final String OPTION_NUM_THREADS = "nt";
-    static final String OPTION_OUTSIDE_STATS = "os";
-    static final String OPTION_LIBRARY_PROTOCOL = "p";
-    static final String OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
-    static final String OPTION_COVERAGE_REPORT_FILE = "outcov";
-
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC);
         numThreads = Runtime.getRuntime().availableProcessors();
@@ -71,31 +60,31 @@ public class BamQcTool extends NgsSmartTool{
 	@Override
 	protected void initOptions() {
 
-        Option opt = new Option(OPTION_NAME_BAM_FILE, true, "input mapping file");
+        Option opt = new Option(Constants.BAMQC_OPTION_BAM_FILE, true, "input mapping file");
         opt.setRequired(true);
         options.addOption( opt );
 
-        options.addOption( OPTION_NAME_GFF_FILE,  true, "region file (in GFF/GTF or BED format)");
-        options.addOption(OPTION_NUM_WINDOWS, true,
+        options.addOption(Constants.BAMQC_OPTION_GFF_FILE,  true, "region file (in GFF/GTF or BED format)");
+        options.addOption(Constants.BAMQC_OPTION_NUM_WINDOWS, true,
                 "number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
-        options.addOption(OPTION_NUM_THREADS, true,
+        options.addOption(Constants.BAMQC_OPTION_NUM_THREADS, true,
                 "number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
-        options.addOption(OPTION_CHUNK_SIZE, true,
+        options.addOption(Constants.BAMQC_OPTION_CHUNK_SIZE, true,
                 "number of reads in the chunk" );
-         options.addOption(OPTION_MIN_HOMOPOLYMER_SIZE, true,
+         options.addOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, true,
                 "minimum size for a homopolymer to be considered in indel analysis (default is "
                         + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
-        options.addOption(OPTION_COVERAGE_REPORT_FILE,  true,
+        options.addOption(Constants.BAMQC_OPTION_COVERAGE_REPORT_FILE,  true,
                 "output file to save per base non-zero coverage. Warning: for large genomes" +
                 "large file size is expected");
-        options.addOption(OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
+        options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
                 "paint chromosome limits inside charts");
-		options.addOption(OPTION_OUTSIDE_STATS, "outside-stats", false,
+		options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
                 "compute region outside stats (works only with -gff option)");
-        options.addOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
+        options.addOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
                 "(possible values: HUMAN or MOUSE)");
 
-        options.addOption(OPTION_LIBRARY_PROTOCOL, true,
+        options.addOption(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL, true,
                 "specify protocol to calculate correct strand reads (works only with -gff option, " +
                         "possible values are STRAND-SPECIFIC-FORWARD or STRAND-SPECIFIC-REVERSE, " +
                         "default is NON-STRAND-SPECIFIC) ");
@@ -107,48 +96,48 @@ public class BamQcTool extends NgsSmartTool{
 		
 		// input
 
-        bamFile = commandLine.getOptionValue(OPTION_NAME_BAM_FILE);
+        bamFile = commandLine.getOptionValue(Constants.BAMQC_OPTION_BAM_FILE);
 		if(!exists(bamFile)) throw new ParseException("input mapping file not found");
 
 		// gff
-		if(commandLine.hasOption(OPTION_NAME_GFF_FILE)) {
-			gffFile = commandLine.getOptionValue(OPTION_NAME_GFF_FILE);
+		if(commandLine.hasOption(Constants.BAMQC_OPTION_GFF_FILE)) {
+			gffFile = commandLine.getOptionValue(Constants.BAMQC_OPTION_GFF_FILE);
 			if(!exists(gffFile)) {
                 throw new ParseException("input region gff file not found");
             }
 			selectedRegionsAvailable = true;
-			if(commandLine.hasOption(OPTION_OUTSIDE_STATS)) {
+			if(commandLine.hasOption(Constants.BAMQC_OPTION_OUTSIDE_STATS)) {
 				computeOutsideStats = true;					
 			}
 
-             if (commandLine.hasOption(OPTION_LIBRARY_PROTOCOL)) {
+             if (commandLine.hasOption(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL)) {
                 protocol = LibraryProtocol.getProtocolByName(
-                        commandLine.getOptionValue(OPTION_LIBRARY_PROTOCOL).toLowerCase()
+                        commandLine.getOptionValue(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL).toLowerCase()
                 );
              }
 		}
 
 
-		numberOfWindows =  commandLine.hasOption(OPTION_NUM_WINDOWS) ?
-			Integer.parseInt(commandLine.getOptionValue(OPTION_NUM_WINDOWS))
+		numberOfWindows =  commandLine.hasOption(Constants.BAMQC_OPTION_NUM_WINDOWS) ?
+			Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_NUM_WINDOWS))
                 : Constants.DEFAULT_NUMBER_OF_WINDOWS;
 
-        numThreads = commandLine.hasOption(OPTION_NUM_THREADS) ?
-                Integer.parseInt(commandLine.getOptionValue(OPTION_NUM_THREADS)) : Runtime.getRuntime().availableProcessors();
+        numThreads = commandLine.hasOption(Constants.BAMQC_OPTION_NUM_THREADS) ?
+                Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_NUM_THREADS)) : Runtime.getRuntime().availableProcessors();
 
-        bunchSize = commandLine.hasOption(OPTION_CHUNK_SIZE) ?
-                Integer.parseInt(commandLine.getOptionValue(OPTION_CHUNK_SIZE)) : Constants.DEFAULT_CHUNK_SIZE;
-
-
-        minHomopolymerSize = commandLine.hasOption(OPTION_MIN_HOMOPOLYMER_SIZE) ?
-                Integer.parseInt(commandLine.getOptionValue(OPTION_MIN_HOMOPOLYMER_SIZE)) : Constants.DEFAULT_HOMOPOLYMER_SIZE;
+        bunchSize = commandLine.hasOption(Constants.BAMQC_OPTION_CHUNK_SIZE) ?
+                Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_CHUNK_SIZE)) : Constants.DEFAULT_CHUNK_SIZE;
 
 
-        if (commandLine.hasOption(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
-            String val = commandLine.getOptionValue(OPTION_COMPARE_WITH_GENOME_DISTRIBUTION);
-            if (val.equalsIgnoreCase("human")) {
+        minHomopolymerSize = commandLine.hasOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE) ?
+                Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE)) : Constants.DEFAULT_HOMOPOLYMER_SIZE;
+
+
+        if (commandLine.hasOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
+            String val = commandLine.getOptionValue(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION);
+            if (val.equalsIgnoreCase(BamStatsAnalysis.HUMAN_GENOME_NAME)) {
                 genomeToCompare = BamStatsAnalysis.HUMAN_GENOME_ID;
-            } else if (val.equalsIgnoreCase("mouse")) {
+            } else if (val.equalsIgnoreCase(BamStatsAnalysis.MOUSE_GENOME_NAME)) {
                 genomeToCompare = BamStatsAnalysis.MOUSE_GENOME_ID;
             } else {
                 throw new ParseException("Unknown genome \"" + val+ "\", please use HUMAN or MOUSE");
@@ -156,12 +145,12 @@ public class BamQcTool extends NgsSmartTool{
             }
         }
 
-        if (commandLine.hasOption(OPTION_COVERAGE_REPORT_FILE)) {
-            coverageReportFile = commandLine.getOptionValue(OPTION_COVERAGE_REPORT_FILE);
+        if (commandLine.hasOption(Constants.BAMQC_OPTION_COVERAGE_REPORT_FILE)) {
+            coverageReportFile = commandLine.getOptionValue(Constants.BAMQC_OPTION_COVERAGE_REPORT_FILE);
         }
 
 
-		paintChromosomeLimits =  commandLine.hasOption(OPTION_PAINT_CHROMOSOMES);
+		paintChromosomeLimits =  commandLine.hasOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
 
 	}
 

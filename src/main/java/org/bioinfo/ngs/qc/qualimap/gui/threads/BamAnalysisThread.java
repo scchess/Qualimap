@@ -28,7 +28,10 @@ import java.util.Timer;
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
+import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.CommandLineBuilder;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
@@ -208,8 +211,41 @@ public class BamAnalysisThread extends Thread {
         return yes ? "yes\n" : "no\n";
     }
 
+    public static String getQualimapCmdLine(BamStatsAnalysis bamQC, boolean  drawChromosomeLimits) {
+
+        CommandLineBuilder cmdBuilder = new CommandLineBuilder("qualimap " + Constants.TOOL_NAME_BAMQC);
+
+        cmdBuilder.append(Constants.BAMQC_OPTION_BAM_FILE, bamQC.getBamFile());
+
+        if (bamQC.getFeatureFile() != null) {
+            cmdBuilder.append(Constants.BAMQC_OPTION_GFF_FILE, bamQC.getFeatureFile());
+            if (bamQC.getComputeOutsideStats()) {
+                cmdBuilder.append(Constants.BAMQC_OPTION_OUTSIDE_STATS);
+            }
+        }
+
+        if (drawChromosomeLimits) {
+            cmdBuilder.append(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
+        }
+
+        cmdBuilder.append(Constants.BAMQC_OPTION_NUM_WINDOWS, bamQC.getNumberOfWindows());
+        cmdBuilder.append(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, bamQC.getMinHomopolymerSize());
+
+
+        return cmdBuilder.getCmdLine();
+
+    }
+
     public static void prepareInputDescription(BamQCRegionReporter reporter, BamStatsAnalysis bamQC,
                                          boolean drawChromosomeLimits) {
+
+
+
+        String[] qualimapCommand =  { getQualimapCmdLine(bamQC, drawChromosomeLimits) };
+        StatsKeeper.Section qualCommandSection = new StatsKeeper.Section("QualiMap command line");
+        qualCommandSection.addRow(qualimapCommand);
+        reporter.getInputDescriptionStatsKeeper().addSection(qualCommandSection);
+
 
         HashMap<String,String> alignParams = new HashMap<String, String>();
         alignParams.put("BAM file: ", bamQC.getBamFile());

@@ -1066,4 +1066,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     }
 
 
+    public StatsKeeper getInputDescriptionStatsKeeper() {
+        return inputDataKeeper;
+    }
 }

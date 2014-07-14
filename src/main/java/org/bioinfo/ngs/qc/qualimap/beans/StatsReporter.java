@@ -144,8 +144,14 @@ public class StatsReporter {
             List<String[]> params = section.getRows();
             inputDesc.append(HtmlJPanel.getTableHeader(tableWidth, "FFFFFF"));
             for ( String[] row: params ) {
-                 inputDesc.append(HtmlJPanel.COLSTARTFIX).append(row[0]).
-                         append(HtmlJPanel.COLMID).append( row[1] ).append( HtmlJPanel.COLEND) ;
+                inputDesc.append(HtmlJPanel.COLSTARTFIX);
+                for (int i = 0; i < row.length; ++i) {
+                    inputDesc.append(row[i]);
+                    if (i != row.length - 1) {
+                         inputDesc.append(HtmlJPanel.COLMID);
+                    }
+                }
+                inputDesc.append( HtmlJPanel.COLEND) ;
             }
             inputDesc.append(HtmlJPanel.getTableFooter());
             inputDesc.append(HtmlJPanel.COLEND);

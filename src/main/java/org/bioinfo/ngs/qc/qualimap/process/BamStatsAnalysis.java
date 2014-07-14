@@ -138,6 +138,8 @@ public class BamStatsAnalysis {
 
     public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
     public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
+    public static final String HUMAN_GENOME_NAME = "human";
+    public static final String MOUSE_GENOME_NAME = "mouse";
 
     private static Map<String,String> genomeGcContentMap;
 
@@ -1079,4 +1081,6 @@ public class BamStatsAnalysis {
         this.saveCoverage = true;
         this.pathToCoverageReport = pathToCoverageReport;
     }
+
+
 }
