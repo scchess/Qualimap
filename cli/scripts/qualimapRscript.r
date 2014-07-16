@@ -28,10 +28,13 @@ option_list <- list(
 		 make_option(c("-k", "--threshold"), type="integer", action="store",
                          help="Optional. Threshold for the number of counts.",default=5,
                          metavar="counts_threshold"),
+         make_option("--x11-disabled", action="store_true", 
+                         help="Do not use X11 to output plots",  
+                        dest="x11_disabled"),
 		 make_option(c("-o", "--dirOut"), type="character", action="store",
                          help="Optional. Output folder.",default="./",
                          metavar="folder_output"),
-		make_option("--homesrc", type="character", action="store",
+		 make_option("--homesrc", type="character", action="store",
                          help="DEVELOPMENTAL. NOT TO BE USED IN THIS VERSION", default="./",
                          metavar="home_src folder")
                  )
@@ -67,8 +70,17 @@ cc <- 1.2   # cex
 nom1 <- opt$name1
 nom2 <- opt$name2
 
+plot.png <- function(plot.name, height.factor = 1, width.factor = 1 ) {
+    #if (is.null(opt$x11_disabled)) {
+    #    png(filename = file.path(opt$dirOut, plot.name),
+    #    width = 3*480*width.factor, height = height.factor*3*480, units = "px", pointsize = 3*12)
+    #} else {
+        #cat("Can not plot ", plot.name, "!\nX11 mode is required.\n")
+    bitmap(file = file.path(opt$dirOut, plot.name),type="png16m",bg="white",
+            width = 3*480*width.factor, height = height.factor*3*480, units = "px", pointsize = 3*12)
+    #}        
 
-
+}
 
 if (!is.null(opt$info)){
 #file including features ID in "datos1" and biotypes or other classification
@@ -240,8 +252,6 @@ if (!is.null(opt$info)) {
 
 
 
-
-
 ###########################################################################
 ###########################################################################
 
@@ -282,9 +292,7 @@ if (!is.null(opt$info)) {
                 sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
 
     # Plot (1 sample)
-    png(filename = file.path(opt$dirOut, "DetectionPerGroup.png"),
-        width = 3*480*2, height = 3*480, units = "px", pointsize = 3*12)
-
+    plot.png("DetectionPerGroup.png", width.factor = 2)
     par(mar = c(11, 4, 2, 2), bg = "#e6e6e6")
 
     barplot(biotable[c(1,3),], main = "Detection per group",
@@ -343,8 +351,9 @@ if (!is.null(opt$info)) {
 
     
     # Plot (2 samples)
-    png(filename = file.path(opt$dirOut, "DetectionPerGroup.png"),
-      width = 3*480*2, height = 3*480*2, units = "px", pointsize = 3*12)
+    plot.png("DetectionPerGroup.png", width.factor = 2, height.factor = 2)
+    #png(filename = file.path(opt$dirOut, "DetectionPerGroup.png"),
+    #  width = 3*480*2, height = 3*480*2, units = "px", pointsize = 3*12)
 
     par(mar = c(11, 4, 2, 2), mfrow = c(2,1), bg = "#e6e6e6")
 
@@ -419,8 +428,9 @@ if (!is.null(opt$info)) {
 
 #### SATURATION GLOBAL PLOT
 
-png(filename = paste(opt$dirOut, "GlobalSaturation.png", sep=""),
-    width = 3*480, height = 3*480, units = "px", pointsize = 3*12)
+plot.png("GlobalSaturation.png")
+#png(filename = paste(opt$dirOut, "GlobalSaturation.png", sep=""),
+#    width = 3*480, height = 3*480, units = "px", pointsize = 3*12)
 
 par(mar = c(5,6,4,6), bg = "#e6e6e6") 
 
@@ -459,8 +469,9 @@ if (!is.null(opt$info)) {
     mytable1 <- cbind(mytable1, satbio.mine$cond1[[i]], satbio.mine$newdet1[[i]])    
     mytable2 <- cbind(mytable2, satbio.mine$cond2[[i]], satbio.mine$newdet2[[i]])    
 
-    png(paste(opt$dirOut, names(biotipus)[i],".png", sep = ""),
-        width = 3*480, height = 3*480, pointsize = 3*12)
+    plot.png(paste0(names(biotipus)[i],".png"))
+    #png(paste(opt$dirOut, names(biotipus)[i],".png", sep = ""),
+    #    width = 3*480, height = 3*480, pointsize = 3*12)
 
     par(mar = c(5,6,4,6), bg = "#e6e6e6")
     
@@ -529,8 +540,9 @@ if (!is.null(opt$info)) {
 
   if (is.null(misdatos2)) {
 
-    png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
-        width = 3*480, height = 3*480, pointsize = 3*12)
+    plot.png("counts_boxplot.png")
+    #png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
+    #    width = 3*480, height = 3*480, pointsize = 3*12)
 
     par(mar = c(11,4,6,2), bg = "#e6e6e6")
     
@@ -548,8 +560,9 @@ if (!is.null(opt$info)) {
       
       ysup <- max(ysup, ysup2, na.rm = TRUE)
       
-      png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
-          width = 3*480*2, height = 3*480, pointsize = 3*12)
+    plot.png("counts_boxplot.png", width.factor = 2)  
+    #png(paste(opt$dirOut, "counts_boxplot.png", sep=""),
+    #      width = 3*480*2, height = 3*480, pointsize = 3*12)
       
       par(mar = c(11,4,6,2), mfrow = c(1,2), bg = "#e6e6e6")
       
@@ -648,8 +661,9 @@ if (!is.null(opt$info)) {
                                    function(x) { boxplot(x, plot = FALSE)$n })))
     
 
-    png(paste(opt$dirOut, names(biotipus)[i],"_boxplot.png", sep = ""),
-        width = 3*480, height = 3*480, pointsize = 3*12)
+    plot.png( paste0( names(biotipus)[i],"_boxplot.png" ) )
+    #png(paste(opt$dirOut, names(biotipus)[i],"_boxplot.png", sep = ""),
+    #    width = 3*480, height = 3*480, pointsize = 3*12)
 
     countbio.plot(depth1 = countbio.mine$depth1,
                   depth2 = countbio.mine$depth2,
@@ -696,8 +710,9 @@ if (!is.null(opt$info)) {
 
 if (!is.null(misdatos2)) {
   
-  png(paste(opt$dirOut, "correlation_plot.png", sep = ""),
-      width = 3*480, height = 3*480, pointsize = 3*12)
+  plot.png("correlation_plot.png")
+  #png(paste(opt$dirOut, "correlation_plot.png", sep = ""),
+  #    width = 3*480, height = 3*480, pointsize = 3*12)
   
   cor.plot.2D(misdatos1, misdatos2, noplot = 0.001, log.scale = TRUE, 
               xlab = paste("log2(", nom1, "+1)", sep = ""),
