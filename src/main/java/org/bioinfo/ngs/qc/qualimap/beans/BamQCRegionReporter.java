@@ -146,25 +146,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of bases = " + formatLong(bamStats.getReferenceSize()) + " bp");
 		report.println("     number of contigs = " + bamStats.getNumberOfReferenceContigs());
 		report.println("");
-		/*if(bamStats.isReferenceAvailable()) {
-
-			report.println("     reference file = " + bamStats.getReferenceFile());
-			report.println("");			
-			report.println("     number of A's = " + formatLong(bamStats.getNumberOfAsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanARelativeContentPerWindowInReference()) + ")");
-			report.println("     number of C's = " + formatLong(bamStats.getNumberOfCsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanCRelativeContentPerWindowInReference()) + ")");
-			report.println("     number of T's = " + formatLong(bamStats.getNumberOfTsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanTRelativeContentPerWindowInReference()) + ")");
-			report.println("     number of G's = " + formatLong(bamStats.getNumberOfGsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanGRelativeContentPerWindowInReference()) + ")");
-			report.println("     number of N's = " + formatLong(bamStats.getNumberOfNsInReference()) +  " bp (" + formatPercentage(bamStats.getMeanNRelativeContentPerWindowInReference()) + ")");
-			report.println("");
-			report.println("     GC percentage = " + formatPercentage(bamStats.getMeanGcRelativeContentPerWindowInReference()));
-			report.println("     AT percentage = " + formatPercentage(bamStats.getMeanAtRelativeContentPerWindowInReference()));
-
-		} else {
-			report.println("");
-			report.println("     (reference file is not available)");
-			report.println("");
-		}*/
-		report.println("");
 		report.println("");
 
 		// globals
@@ -173,13 +154,23 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of windows = " + bamStats.getNumberOfWindows());
 		report.println("");
 		report.println("     number of reads = " + formatLong(bamStats.getNumberOfReads()));		
-		report.println("     number of mapped reads = " + formatLong(bamStats.getNumberOfMappedReads()) + " (" + formatPercentage(bamStats.getPercentageOfMappedReads())+ ")");
+		report.println("     number of mapped reads = " + formatLong(bamStats.getNumberOfMappedReads()) +
+                " (" + formatPercentage(bamStats.getPercentageOfMappedReads())+ ")");
 		report.println("");
 		report.println("     number of mapped bases = " + formatLong(bamStats.getNumberOfMappedBases()) + " bp");
 		report.println("     number of sequenced bases = " + formatLong(bamStats.getNumberOfSequencedBases()) + " bp");
 		report.println("     number of aligned bases = " + formatLong(bamStats.getNumberOfAlignedBases()) + " bp");
 		report.println("");
 		report.println("");
+
+        // insert size
+        report.println(">>>>>>> Insert size");
+        report.println("");
+        report.println("     mean insert size = " + bamStats.getMeanInsertSize());
+        report.println("     std insert size = " + bamStats.getStdInsertSize());
+        report.println("     median insert size = " + bamStats.getMedianInsertSize());
+        report.println("");
+        report.println("");
 
 		// mapping quality		
 		report.println(">>>>>>> Mapping quality");
@@ -222,11 +213,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println(">>>>>>> Coverage per contig");
 		report.println("");
 		ChromosomeInfo[] chromosomeStats = bamStats.getChromosomeStats();
-		for (int i = 0; i < chromosomeStats.length; i++) {
-			report.println("\t" + chromosomeStats[i].getName() + "\t" +
-		chromosomeStats[i].getLength() + "\t" + chromosomeStats[i].getNumBases() + "\t" + 
-		chromosomeStats[i].getCovMean() + "\t" + chromosomeStats[i].getCovStd());
-		}
+        for (ChromosomeInfo chromosomeInfo : chromosomeStats) {
+            report.println("\t" + chromosomeInfo.getName() + "\t" +
+                    chromosomeInfo.getLength() + "\t" + chromosomeInfo.getNumBases() + "\t" +
+                    chromosomeInfo.getCovMean() + "\t" + chromosomeInfo.getCovStd());
+        }
 		report.println("");
 		report.println("");
 
