@@ -197,7 +197,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             String errMsg = validateInput();
             if (errMsg.isEmpty()) {
                 resetProgress();
-                TabPageController tabController = new TabPageController(AnalysisType.MULTISAMPLE_COUNTS_QC);
+                TabPageController tabController = new TabPageController(AnalysisType.MULTISAMPLE_BAM_QC);
                 MultisampleBamQcThread t = new MultisampleBamQcThread(this, tabController );
                 t.start();
             } else {

@@ -1746,6 +1746,10 @@ public class BamStats implements Serializable {
         this.meanGcRelativeContent = gcContent;
     }
 
+    public void setMedianInsertSize(int insertSize) {
+        this.medianInsertSize = insertSize;
+    }
+
     public XYVector getBalancedCoverageHistogram() {
         return balancedCoverageHistogram;
     }

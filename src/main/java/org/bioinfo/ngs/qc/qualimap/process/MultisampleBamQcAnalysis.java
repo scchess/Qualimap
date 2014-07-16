@@ -5,9 +5,16 @@ import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.jfree.chart.ChartColor;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,9 +29,12 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
     List<SampleInfo> bamQCResults;
+    List<double[]> sampleData;
     LoggerThread loggerThread;
     Paint[] palette;
     String rawDataDir;
+
+    static final int NUM_FEATURES = 5;
 
     public MultisampleBamQcAnalysis(AnalysisResultManager tabProperties,
                                     String homePath,
@@ -33,6 +43,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         this.bamQCResults = bamQCResults;
         this.palette = ChartColor.createDefaultPaintArray();
         this.rawDataDir = "raw_data_qualimapReport";
+        sampleData = new ArrayList<double[]>();
     }
 
     @Override
@@ -75,7 +86,13 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                 // This is actually in percents already - only should be used in the context of Multiple BAM QC
                 double gcPercentage = Double.parseDouble(line.split("=")[1].trim().replace("%", ""));
                 bamStats.setMeanGcContent(gcPercentage);
+            } else if (line.contains("median insert size =")) {
+                int insertSize = Integer.parseInt(line.split("=")[1].trim());
+                bamStats.setMedianInsertSize(insertSize);
             }
+
+
+
 
         }
 
@@ -110,13 +127,20 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             String[] row = new String[header.length];
             row[0] = bamQcResult.name;
             row[1] = Double.toString( stats.getMeanCoverage() );
-            row[1] = Double.toString( stats.getMeanCoverage() );
             row[2] = Double.toString( stats.getStdCoverage() );
             row[3] = Double.toString( stats.getMeanGcRelativeContent() );
             row[4] = Double.toString( stats.getMeanMappingQualityPerWindow() );
             row[5] = Double.toString( stats.getMeanInsertSize() );
-
             dataSection.addRow(row);
+
+            double[] sample = new double[NUM_FEATURES];
+            sample[0] = stats.getMeanCoverage();
+            sample[1] = stats.getStdCoverage();
+            sample[2] = stats.getMeanGcRelativeContent();
+            sample[3] = stats.getMeanMappingQualityPerWindow();
+            sample[4] = stats.getMeanInsertSize();
+            sampleData.add(sample);
+
 
         }
         tableDataKeeper.addSection(dataSection);
@@ -193,6 +217,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     }
 
 
+
     QChart createCoverageAcrossReferenceChart() throws IOException {
         BamQCChart baseChart = new BamQCChart("Coverage across reference",
                             "Multi-sample BAM QC", "Position in reference (relative)", "Coverage");
@@ -239,9 +264,38 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         return new QChart(chartName, baseChart.getChart());
     }
 
+    private QChart createPCABiPlot() {
+
+        PrincipleComponentAnalysis pca = new PrincipleComponentAnalysis();
+        pca.setup(bamQCResults.size(), NUM_FEATURES);
+
+        for (double[] sample : sampleData) {
+            pca.addSample( sample );
+        }
+
+        pca.computeBasis(2);
+
+        String chartName =  "PCA biplot";
+
+        BamQCPointChart baseChart = new BamQCPointChart(chartName,
+                                    "Multi-sample BAM QC", "PC1", "PC2");
+
+        for (int i = 0; i < sampleData.size(); ++i) {
+            double[] transformedSample = pca.sampleToEigenSpace(sampleData.get(i));
+            baseChart.addPoint(bamQCResults.get(i).name, transformedSample[0],transformedSample[1], getSampleColor(i) );
+        }
+
+        baseChart.render();
+
+        return new QChart(chartName, baseChart.getChart());
+    }
+
 
     private void createCharts(StatsReporter reporter) throws Exception {
         ArrayList<QChart> charts = new ArrayList<QChart>();
+
+        QChart pcaBiPlot = createPCABiPlot();
+        charts.add(pcaBiPlot);
 
         QChart coverageAcrossRefChart = createCoverageAcrossReferenceChart();
         charts.add(coverageAcrossRefChart);

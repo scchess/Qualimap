@@ -166,8 +166,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         // insert size
         report.println(">>>>>>> Insert size");
         report.println("");
-        report.println("     mean insert size = " + bamStats.getMeanInsertSize());
-        report.println("     std insert size = " + bamStats.getStdInsertSize());
+        report.println("     mean insert size = " + formatDecimal(bamStats.getMeanInsertSize()) );
+        report.println("     std insert size = " + formatDecimal(bamStats.getStdInsertSize()) );
         report.println("     median insert size = " + bamStats.getMedianInsertSize());
         report.println("");
         report.println("");

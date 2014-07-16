@@ -120,6 +120,13 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
         addSeries(name,series,color,stroke,renderer);
 	}
 
+    // point rendered series
+    /*public void addPointRenderedSeries(String name, XYVector series, Color color){
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        //renderer.setSeriesLinesVisible(0, false);
+        //renderer.setSeriesVisibleInLegend(0, true);
+        addSeries(name,series,color,new BasicStroke(10f), renderer);
+    }*/
 
 	// bar rendered series
 	public void addBarRenderedSeries(String name, XYVector series, Color color){		
@@ -135,7 +142,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 	}
 	
 	
-	// bar rendered series
+	// interval rendered series
 	public void addIntervalRenderedSeries(String name, XYVector series, Color lineColor, Color deviationColor, float alpha){		
 		addIntervalRenderedSeries(name,series,lineColor,deviationColor,alpha,new BasicStroke(1.5f));		
 	}
