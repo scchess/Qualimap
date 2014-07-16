@@ -146,7 +146,7 @@ public class HtmlReportGenerator {
         List<Section> summarySections = reporter.getSummaryDataSections();
         appendTableFromStats(summarySections);
 
-		if (analysisType.isBamQC()) {
+		if (reporter.hasTableData()) {
 			appendChromosomeStats();
         }
 
@@ -164,8 +164,12 @@ public class HtmlReportGenerator {
             for (String[] row : s.getRows()) {
                 append("<tr onmouseover=\"this.style.backgroundColor='#EEEEEC';\" " +
                         "onmouseout=\"this.style.backgroundColor='#FFFFFF';\">");
-                append("<td class=column1>" + row[0] + "</td>");
-                append("<td class=column2>" + row[1] + "</td>");
+                if (row.length == 1) {
+                    append("<td class=column1>" + row[0] + "</td>");
+                } else {
+                    append("<td class=column1>" + row[0] + "</td>");
+                    append("<td class=column2>" + row[1] + "</td>");
+                }
                 append("</tr>");
             }
             append("</table>");
@@ -176,7 +180,7 @@ public class HtmlReportGenerator {
 
     void appendChromosomeStats() {
 
-        StatsKeeper chrStatsKeeper = reporter.getChromosomeStats();
+        StatsKeeper chrStatsKeeper = reporter.getTableDataStatsKeeper();
         List<Section> sections = chrStatsKeeper.getSections();
 
         append("\n<div class=table-summary>");
@@ -184,7 +188,7 @@ public class HtmlReportGenerator {
         append("<table class=\"summary hovertable\">");
 
         for(Section s : sections) {
-            boolean sectionIsHeader = s.getName().equals(Constants.CHROMOSOME_STATS_HEADER);
+            boolean sectionIsHeader = s.getName().equals(Constants.TABLE_STATS_HEADER);
             for (String[] row : s.getRows()) {
                 append("<tr onmouseover=\"this.style.backgroundColor='#EEEEEC';\" " +
                         "onmouseout=\"this.style.backgroundColor='#FFFFFF';\">");

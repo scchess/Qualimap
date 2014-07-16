@@ -324,13 +324,21 @@ public class ExportPdfThread extends Thread {
             Paragraph title11 = createSectionTitle(s.getName());
 
             Section section = inputChapter.addSection(title11);
-            Table table = new Table(2);
+
+            Table table;
+            if (s.getName().equals(Constants.TABLE_SECTION_QUALIMAP_CMDLINE))   {
+                table = new Table(1);
+            } else {
+                table = new Table(2);
+            }
+
             table.setPadding(2);
             table.setSpacing(2);
 
             for (String[] row : s.getRows()) {
-                table.addCell(row[0]);
-                table.addCell(row[1]);
+                for (String item : row) {
+                    table.addCell(item);
+                }
             }
 
             section.add(table);
@@ -382,7 +390,7 @@ public class ExportPdfThread extends Thread {
         }
 
 
-        StatsKeeper chrStatsKeeper = reporter.getChromosomeStats();
+        StatsKeeper chrStatsKeeper = reporter.getTableDataStatsKeeper();
         List<StatsKeeper.Section> chromosomeSections = chrStatsKeeper.getSections();
         Paragraph chrTitle = createSectionTitle(chrStatsKeeper.getName());
         Section chrSection = summaryChapter.addSection(chrTitle);
@@ -393,7 +401,7 @@ public class ExportPdfThread extends Thread {
 
         for (StatsKeeper.Section s : chromosomeSections) {
 
-            if (s.getName().equals(Constants.CHROMOSOME_STATS_HEADER)) {
+            if (s.getName().equals(Constants.TABLE_STATS_HEADER)) {
 
                 String row[] = s.getRows().get(0);
                 for (String item : row) {
