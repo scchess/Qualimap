@@ -38,7 +38,7 @@ public class StatsReporter {
     protected String namePostfix, fileName;
     protected StatsKeeper inputDataKeeper;
     protected StatsKeeper summaryStatsKeeper;
-    protected StatsKeeper chromosomeStatsKeeper;
+    protected StatsKeeper tableDataStatsKeeper;
     protected String name;
 
 
@@ -48,7 +48,7 @@ public class StatsReporter {
         fileName = "qualimapReport";
         inputDataKeeper = new StatsKeeper();
         summaryStatsKeeper = new StatsKeeper();
-        chromosomeStatsKeeper = new StatsKeeper();
+        tableDataStatsKeeper = new StatsKeeper();
     }
 
     public void addInputDataSection(String name, Map<String,String> paramsMap) {
@@ -83,7 +83,7 @@ public class StatsReporter {
             summaryHtml.append(HtmlJPanel.getTableHeader(width, "FFFFFF"));
 
             for (StatsKeeper.Section s : chromosomeSections ) {
-                boolean  header = s.getName().equals(Constants.CHROMOSOME_STATS_HEADER);
+                boolean  header = s.getName().equals(Constants.TABLE_STATS_HEADER);
                 List<String[]> rows = s.getRows();
                 for (String[] row : rows) {
                     summaryHtml.append("<tr>");
@@ -116,8 +116,8 @@ public class StatsReporter {
             addSummarySection(summaryHtml, s, width);
         }
 
-        if (chromosomeStatsKeeper.getSections().size() > 0) {
-            addChromosomesSections(summaryHtml, width, chromosomeStatsKeeper);
+        if (tableDataStatsKeeper.getSections().size() > 0) {
+            addChromosomesSections(summaryHtml, width, tableDataStatsKeeper);
         }
 
 
@@ -151,7 +151,7 @@ public class StatsReporter {
                          inputDesc.append(HtmlJPanel.COLMID);
                     }
                 }
-                inputDesc.append( HtmlJPanel.COLEND) ;
+                inputDesc.append(HtmlJPanel.COLEND) ;
             }
             inputDesc.append(HtmlJPanel.getTableFooter());
             inputDesc.append(HtmlJPanel.COLEND);
@@ -187,6 +187,10 @@ public class StatsReporter {
         return summaryStatsKeeper.getSections().size() > 0;
     }
 
+    public boolean hasTableData() {
+        return tableDataStatsKeeper.getSections().size() > 0;
+    }
+
     public List<StatsKeeper.Section> getSummaryDataSections() {
         return summaryStatsKeeper.getSections();
     }
@@ -199,8 +203,8 @@ public class StatsReporter {
         return summaryStatsKeeper;
     }
 
-    public StatsKeeper getChromosomeStats() {
-        return chromosomeStatsKeeper;
+    public StatsKeeper getTableDataStatsKeeper() {
+        return tableDataStatsKeeper;
     }
 
     public String getFileName() {

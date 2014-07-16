@@ -128,7 +128,7 @@ public final class Constants {
     public static final String FILE_SPECIES_INFO_HUMAN_ENS68 = "human.ens68.txt";
     public static final String FILE_SPECIES_INFO_MOUSE_ENS68 = "mouse.ens68.txt";
 
-
+    // GUI commands
     public static final String OK_COMMAND = "ok";
     public static final String CANCEL_COMMAND = "cancel";
     public static final String COMMAND_ADD_ITEM = "add_item";
@@ -143,12 +143,14 @@ public final class Constants {
     public static final String READ_IN_REGION = "XX";
     public static final String READ_WEIGHT_ATTR = "XW";
 
-
+    // Reporting
     public static final String REPORT_TYPE_HTML = "HTML";
     public static final String REPORT_TYPE_PDF = "PDF";
-    public static final String CHROMOSOME_STATS_HEADER = "header";
-    public static final String CHROMOSOME_STATS_DATA = "data";
+    public static final String TABLE_STATS_HEADER = "header";
+    public static final String TABLE_STATS_DATA = "data";
+    public static final String TABLE_SECTION_QUALIMAP_CMDLINE = "QualiMap command line";
 
+    // Tool names
     public static final String TOOL_NAME_BAMQC = "bamqc";
     public static final String TOOL_NAME_COUNTS_QC = "counts";
     public static final String TOOL_NAME_MULTISAMPLE_COUNTS_QC = "mcounts";
@@ -159,7 +161,7 @@ public final class Constants {
     public static final String TOOL_NAME_GC_CONTENT = "gc-content";
     public static final String TOOL_NAME_INDEL_COUNT = "indel-count";
 
-    /** BAMQC options*/
+    // BAMQC options
 
     public static final String BAMQC_OPTION_BAM_FILE = "bam";
     public static final String BAMQC_OPTION_GFF_FILE = "gff";

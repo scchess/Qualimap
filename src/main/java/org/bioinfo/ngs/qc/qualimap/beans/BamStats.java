@@ -1730,7 +1730,21 @@ public class BamStats implements Serializable {
 
     }
 
+    public void setCoverageMean(double covMean) {
+        this.meanCoverage = covMean;
+    }
 
+    public void setCoverageStd(double covStd) {
+        this.stdCoverage = covStd;
+    }
+
+    public void setMeanMappingQuality(double mmq) {
+        this.meanMappingQualityPerWindow = mmq;
+    }
+
+    public void setMeanGcContent(double gcContent) {
+        this.meanGcRelativeContent = gcContent;
+    }
 
     public XYVector getBalancedCoverageHistogram() {
         return balancedCoverageHistogram;

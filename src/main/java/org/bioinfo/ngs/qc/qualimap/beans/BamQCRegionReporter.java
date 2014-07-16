@@ -910,17 +910,17 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
     private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
 
-        chromosomeStatsKeeper = new StatsKeeper();
-        chromosomeStatsKeeper.setName("Chromosome stats" + namePostfix );
+        tableDataStatsKeeper = new StatsKeeper();
+        tableDataStatsKeeper.setName("Chromosome stats" + namePostfix );
 
-        StatsKeeper.Section headerSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_HEADER);
+        StatsKeeper.Section headerSection = new StatsKeeper.Section(Constants.TABLE_STATS_HEADER);
         String[] header = {
                 "Name", "Length", "Mapped bases", "Mean coverage", "Standard deviation"
         };
         headerSection.addRow(header);
-        chromosomeStatsKeeper.addSection(headerSection);
+        tableDataStatsKeeper.addSection(headerSection);
 
-        StatsKeeper.Section dataSection = new StatsKeeper.Section(Constants.CHROMOSOME_STATS_DATA);
+        StatsKeeper.Section dataSection = new StatsKeeper.Section(Constants.TABLE_STATS_DATA);
 
         for (BamStats.ChromosomeInfo statsRecord : statsArray) {
             String[] row = new String[5];
@@ -933,7 +933,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             dataSection.addRow(row);
         }
 
-        chromosomeStatsKeeper.addSection(dataSection);
+        tableDataStatsKeeper.addSection(dataSection);
 
     }
 
@@ -1050,7 +1050,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 
         // per reference stats
-        StatsKeeper.Section dataSection = chromosomeStatsKeeper.getSections().get(1);
+        StatsKeeper.Section dataSection = tableDataStatsKeeper.getSections().get(1);
 
         for (String[] row : dataSection.getRows() ) {
             prop.setProperty(row[0], Arrays.toString(ArrayUtils.subarray(row, 1, row.length - 1)) );

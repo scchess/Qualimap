@@ -242,7 +242,7 @@ public class BamAnalysisThread extends Thread {
 
 
         String[] qualimapCommand =  { getQualimapCmdLine(bamQC, drawChromosomeLimits) };
-        StatsKeeper.Section qualCommandSection = new StatsKeeper.Section("QualiMap command line");
+        StatsKeeper.Section qualCommandSection = new StatsKeeper.Section(Constants.TABLE_SECTION_QUALIMAP_CMDLINE);
         qualCommandSection.addRow(qualimapCommand);
         reporter.getInputDescriptionStatsKeeper().addSection(qualCommandSection);
 

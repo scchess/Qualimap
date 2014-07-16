@@ -3,9 +3,11 @@ package org.bioinfo.ngs.qc.qualimap.process;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.jfree.chart.ChartColor;
 
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,12 +44,87 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
         prepareInputDescription(reporter);
+        createSummaryTable(reporter);
         createCharts(reporter);
 
 
         tabProperties.addReporter(reporter);
 
     }
+
+
+    private BamStats loadSummaryStats(String inputFilePath) throws IOException {
+        BamStats bamStats = new BamStats(null,null, 0,0);
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFilePath));
+        String line;
+        while ( (line = bufferedReader.readLine()) != null) {
+            if (line.startsWith("#") || line.isEmpty()) {
+                continue;
+            }
+            if (line.contains("mean coverageData =")) {
+                double meanCoverage = Double.parseDouble( line.split("=")[1].trim().replace("X","") );
+                bamStats.setCoverageMean(meanCoverage);
+            } else if (line.contains("std coverageData =")) {
+                double stdCoverage = Double.parseDouble(line.split("=")[1].trim().replace("X", ""));
+                bamStats.setCoverageStd(stdCoverage);
+            } else if (line.contains("mean mapping quality =")) {
+                double mappingQuality = Double.parseDouble(line.split("=")[1].trim());
+                bamStats.setMeanMappingQuality(mappingQuality);
+            } else if (line.contains("GC percentage =")) {
+                // This is actually in percents already - only should be used in the context of Multiple BAM QC
+                double gcPercentage = Double.parseDouble(line.split("=")[1].trim().replace("%", ""));
+                bamStats.setMeanGcContent(gcPercentage);
+            }
+
+        }
+
+        return bamStats;
+
+    }
+
+
+    private void createSummaryTable(StatsReporter reporter) throws IOException {
+
+
+        StatsKeeper summaryKeeper = reporter.getSummaryStatsKeeper();
+
+        StatsKeeper.Section section = new StatsKeeper.Section("Globals");
+        section.addRow("Number of samples", Integer.toString( bamQCResults.size() ));
+        summaryKeeper.addSection(section);
+
+        StatsKeeper tableDataKeeper = reporter.getTableDataStatsKeeper();
+
+        StatsKeeper.Section headerSection = new StatsKeeper.Section("header");
+        String[] header = {"Sample name", "Coverage mean", "Coverage std",
+                "GC percentage", "Mapping quality mean", "Insert size mean" };
+        headerSection.addRow( header );
+        tableDataKeeper.addSection(headerSection);
+
+        StatsKeeper.Section dataSection = new StatsKeeper.Section("data");
+
+        for (SampleInfo bamQcResult : bamQCResults) {
+            String path = bamQcResult.path + File.separator + "genome_results.txt";
+            BamStats stats = loadSummaryStats(path);
+
+            String[] row = new String[header.length];
+            row[0] = bamQcResult.name;
+            row[1] = Double.toString( stats.getMeanCoverage() );
+            row[1] = Double.toString( stats.getMeanCoverage() );
+            row[2] = Double.toString( stats.getStdCoverage() );
+            row[3] = Double.toString( stats.getMeanGcRelativeContent() );
+            row[4] = Double.toString( stats.getMeanMappingQualityPerWindow() );
+            row[5] = Double.toString( stats.getMeanInsertSize() );
+
+            dataSection.addRow(row);
+
+        }
+        tableDataKeeper.addSection(dataSection);
+
+
+
+    }
+
 
     XYVector loadColumnData(String inputFilePath, double minX, double maxX) throws IOException {
         XYVector data = new XYVector();
