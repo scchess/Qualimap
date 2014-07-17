@@ -1,8 +1,8 @@
 #!/bin/bash
 
+set -o errexit
 
 # This script launches Qualimap on Linux and MacOS
-
 
 # Change default memory settings here
 
