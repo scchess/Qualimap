@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -o errexit
-
 # This script launches Qualimap on Linux and MacOS
 
 # Change default memory settings here
@@ -76,6 +74,8 @@ fi
 
 #echo $QUALIMAP_HOME
 #echo "ARGS are ${ARGS[@]}"
+
+set -o errexit
 
 java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain "${ARGS[@]}"
 
