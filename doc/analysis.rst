@@ -340,6 +340,87 @@ Individual Group Plots
 
   For each group, a plot is generated containing a boxplot with the distribution of counts at each sequencing depth. The *x*-axis shows the increasing sequencing depths of randomly generated samples from the original one till the true sequencing depth is reached. This plot allows the user to see how the increase of sequencing depth is changing the expression level quantification. 
 
+
+.. _multibamqc:
+
+Multisample BAM QC
+------------------
+
+Very often in genomics one has to work with multiple samples, which could represent sequeincing results from either techncal or biological replicates. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
+
+QualiMap provides an automated solution for this task. Basically, the results of selected plots computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to detect aoutliers.
+
+To start a new multisample BAM QC analysis activate main menu item :menuselection:`File --> New Analysis --> Multisample BAM QC`.
+
+Examples
+^^^^^^^^
+
+TODO
+
+.. - `Whole-genome sequencing: HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_. Report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
+ 
+
+.. See the :ref:`Sample data <samples>` section for more details about the data used in the examples.
+
+
+Input Parameters
+^^^^^^^^^^^^^^^^
+
+The summary statistics and plot data produced by BAM QC analysis are used as input data for multisample comparison. Therefore to perform multisample comparison one has to run the :ref:`BAM QC analysis<bamqc>` on each indvidual BAM file. 
+
+TODO: there is a wrapper script which allows to run BAM QC on each sample in a batch and then perform multisample BAM analysis 
+
+The input samples can be added using button :guilabel:`Add`. For each sample one has to provide the following information:
+
+1. **Name** of the sample 
+
+2. **Path to the folder** with which contains results of BAM QC analysis performed on the sample. The folder must include file **genome_results.txt** and subfolder **raw_data_qualimapReport** containing data of BAM QC plots.
+
+.. note::
+
+   In QualiMap version <= 2.0 raw data dir of BAM QC analysis was called **raw_data**. This name is also supported.
+
+Each added sample will be shown in **Samples** table. One can edit samples using button :guilabel:`Edit` and remove them using button :guilabel:`Remove`.
+
+To start the analysis click button :guilabel:`Run analysis`.
+
+
+
+Output
+^^^^^^
+
+:guilabel:`Summary` 
+
+  The summary table contains comparison of selected critical alignment metrics for all samples. The metrics include mean and standard deviation of coverage, mean GC content, mean insert size and mean mapping qualities. 
+
+:guilabel:`Input` 
+
+  Here one can check the **input data** and the **parameters** used for the analysis.
+
+:guilabel:`PCA biplot`
+
+  The alignment features presented in the *Summary* section undergo `Principal Component Analysis <http://en.wikipedia.org/wiki/Principal_component_analysis>`_. Afterwards the `biplot <http://en.wikipedia.org/wiki/Biplot>`_ presenting first and second principal component is constructed. The plot shows how much variability demonstarte the analyzed samples. It allows to detect if any samples group together and if there are any outliers among analyzed samples.
+
+:guilabel:`Coverage Across Reference` 
+
+:guilabel:`Coverage Histogram (0-50X)` 
+
+:guilabel:`Genome Fraction by Coverage` 
+
+:guilabel:`Mapped Reads GC Content Distribution` 
+
+:guilabel:`Mapped Reads Clipping Profile` 
+
+:guilabel:`Mapping Quality Across Reference`
+
+The following plots present the comparison of samples using data from corresponding plots from BAM QC analysis.
+
+Please refer to documentation of :ref:`BAM QC<bamqc>` for detailed information about each plot.
+
+
+  \*\*\*
+
+
 .. [#X] Example for the meaning of *X*: If one genomic region has a coverage of 10X, it means that, on average, 10 different reads are mapped to each nucleotide of the region.
 
 .. [#biomart] Downloaded from `Biomart v.61 <http://feb2011.archive.ensembl.org/biomart/martview>`_. 
