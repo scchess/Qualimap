@@ -5,19 +5,9 @@ import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.jfree.chart.ChartColor;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -32,7 +22,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     List<double[]> sampleData;
     LoggerThread loggerThread;
     Paint[] palette;
-    String rawDataDir;
+    Map<SampleInfo,String> rawDataDirs;
 
     static final int NUM_FEATURES = 5;
 
@@ -42,7 +32,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         super(tabProperties, homePath);
         this.bamQCResults = bamQCResults;
         this.palette = ChartColor.createDefaultPaintArray();
-        this.rawDataDir = "raw_data_qualimapReport";
+        this.rawDataDirs = new HashMap<SampleInfo, String>();
         sampleData = new ArrayList<double[]>();
     }
 
@@ -103,6 +93,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
     private void createSummaryTable(StatsReporter reporter) throws IOException {
 
+        logLine("Creating summary...\n");
 
         StatsKeeper summaryKeeper = reporter.getSummaryStatsKeeper();
 
@@ -188,7 +179,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         int i = 0;
         for (SampleInfo bamQcResult : bamQCResults) {
-            String path = bamQcResult.path + File.separator + rawDataDir + File.separator + dataPath;
+            String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
             XYVector histData = loadColumnData(path, 0, Double.MAX_VALUE);
             baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
             ++i;
@@ -225,7 +216,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         DescriptiveStatistics stats = new DescriptiveStatistics();
         int k = 0;
         for (SampleInfo bamQcResult : bamQCResults) {
-            String path = bamQcResult.path + File.separator + rawDataDir + File.separator + "coverage_across_reference.txt";
+            String path = rawDataDirs.get(bamQcResult) + File.separator + "coverage_across_reference.txt";
             XYVector rawData = loadColumnData(path, 0, Double.MAX_VALUE);
             XYVector scaledData = scaleXAxis(rawData);
             for (int i = 0; i < scaledData.getSize(); ++i) {
@@ -253,7 +244,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         int i = 0;
         for (SampleInfo bamQcResult : bamQCResults) {
-            String path = bamQcResult.path + File.separator + rawDataDir + File.separator + dataPath;
+            String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
             XYVector histData = loadColumnData(path, 1, 51);
             baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
             ++i;
@@ -273,6 +264,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             pca.addSample( sample );
         }
 
+        logLine("Running PCA...\n");
         pca.computeBasis(2);
 
         String chartName =  "PCA biplot";
@@ -292,10 +284,13 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
     private void createCharts(StatsReporter reporter) throws Exception {
+
         ArrayList<QChart> charts = new ArrayList<QChart>();
 
         QChart pcaBiPlot = createPCABiPlot();
         charts.add(pcaBiPlot);
+
+        logLine("Creating charts...\n");
 
         QChart coverageAcrossRefChart = createCoverageAcrossReferenceChart();
         charts.add(coverageAcrossRefChart);
@@ -331,12 +326,41 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
     }
 
+
+    private String findRawDataPath(String targetDir) {
+
+        File dir = new File(targetDir);
+        if (!dir.exists() || !dir.isDirectory())  {
+            return null;
+        }
+
+        File[] children = dir.listFiles();
+        Arrays.sort(children);
+
+        for (File child : children ) {
+            String fileName = child.getName();
+            if (child.isDirectory() && fileName.startsWith("raw_data")) {
+                return child.getAbsolutePath();
+            }
+        }
+
+        return null;
+
+    }
+
+
     private void checkInputPaths() throws RuntimeException {
         for (SampleInfo sampleInfo : bamQCResults) {
-            File dataFolder = new File( sampleInfo.path + File.separator + rawDataDir);
-            if (!dataFolder.exists()) {
-                throw new RuntimeException("The raw data doesn't exist for BAM QC result " + sampleInfo.path);
+
+            String rawDataDir = findRawDataPath(sampleInfo.path);
+
+
+            if (rawDataDir == null) {
+                throw new RuntimeException("The raw data doesn't exist for BAM QC result folder:" + sampleInfo.path +
+                        "\nPlease check raw data directory is present.\n");
             }
+
+            rawDataDirs.put(sampleInfo, rawDataDir);
 
         }
     }
@@ -368,4 +392,5 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         return paths;
 
     }
+
 }

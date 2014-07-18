@@ -43,5 +43,11 @@ public abstract class AnalysisProcess {
 
     public abstract void run() throws Exception;
 
+    void logLine(String line) {
+        if (loggerThread != null) {
+            loggerThread.logLine(line);
+        }
+    }
+
 
 }

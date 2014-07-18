@@ -418,12 +418,12 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
                 WM_COMMAND_COUNTSQC_MS, "chart_curve_add.png", "");
             countsQcItem.setEnabled(countsQCPackagesAvailable);
             analysisMenu.add(countsQcItem);
-
-            JMenuItem multiBamQcItem =   addMenuItem(AnalysisType.MULTISAMPLE_BAM_QC.toString(),
-                WM_COMMAND_BAMQC_MS, "chart_curve_add.png", "");
-            analysisMenu.add(multiBamQcItem);
-
         }
+
+        JMenuItem multiBamQcItem =   addMenuItem(AnalysisType.MULTISAMPLE_BAM_QC.toString(),
+                    WM_COMMAND_BAMQC_MS, "chart_curve_add.png", "");
+                analysisMenu.add(multiBamQcItem);
+
 
 		closeAllTabsItem =  addMenuItem("Close All Tabs", WM_COMMAND_CLOSE_TABS, "", "ctrl pressed A");
         windowsMenu.add(closeAllTabsItem);

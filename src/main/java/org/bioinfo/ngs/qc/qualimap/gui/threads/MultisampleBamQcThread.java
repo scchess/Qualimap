@@ -1,6 +1,5 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.MultisampleBamQcDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.MultisampleBamQcAnalysis;
@@ -15,35 +14,9 @@ import java.io.File;
  */
 public class MultisampleBamQcThread extends Thread {
 
-    /** Variable to manage the panel with the progressbar at the init */
     MultisampleBamQcDialog settingsDlg;
 
-    /** Variables that contains the tab properties loaded in the thread */
     TabPageController tabProperties;
-
-    static class OutputParsingThread extends LoggerThread {
-
-        MultisampleBamQcDialog parentDialog;
-
-
-        OutputParsingThread(MultisampleBamQcDialog parentDialog) {
-            this.parentDialog = parentDialog;
-
-        }
-
-        @Override
-        public void logLine(String msg) {
-            System.out.println(msg);
-            /*if (msg.contains("STATUS:")) {
-                parentDialog.setProgressStatus(msg.split(":")[1]);
-            }*/
-            JTextArea logArea = parentDialog.getLogArea();
-            logArea.append(msg + "\n");
-            logArea.setCaretPosition(logArea.getText().length());
-        }
-
-    }
-
 
 
     public MultisampleBamQcThread(MultisampleBamQcDialog multiBamQcDialog, TabPageController tabProperties) {
@@ -60,15 +33,12 @@ public class MultisampleBamQcThread extends Thread {
     public void run() {
 
         settingsDlg.setUiEnabled(false);
+        settingsDlg.getProgressBar().setValue(0);
 
         String homePath = settingsDlg.getHomeFrame().getQualimapFolder() + File.separator;
 
         MultisampleBamQcAnalysis multiBamQcAnalysis = new MultisampleBamQcAnalysis(tabProperties, homePath,
                 settingsDlg.getDataItems());
-
-
-        OutputParsingThread outputParsingThread= new OutputParsingThread( settingsDlg ) ;
-        multiBamQcAnalysis.setOutputParsingThread(outputParsingThread);
 
         try {
             multiBamQcAnalysis.run();
@@ -79,6 +49,7 @@ public class MultisampleBamQcThread extends Thread {
             //settingsDlg.resetUi();
             return;
         }
+        settingsDlg.getProgressBar().setValue(100);
 
         String paneTitle = "" + settingsDlg.getItemCount();
         settingsDlg.getHomeFrame().addNewPane(paneTitle, tabProperties);

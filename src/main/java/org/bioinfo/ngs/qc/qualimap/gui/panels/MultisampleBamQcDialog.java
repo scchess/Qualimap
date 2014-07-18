@@ -120,10 +120,6 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
-        add(new JLabel("Log"), "wrap");
-        setupLogArea();
-        add(logAreaScrollPane, "span, grow, wrap 30px");
-
         // Action done while the statistics graphics are loaded
         setupProgressStream();
         add(progressStream, "align center");
