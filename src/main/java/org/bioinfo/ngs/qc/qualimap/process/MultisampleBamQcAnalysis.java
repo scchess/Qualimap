@@ -35,6 +35,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         this.palette = ChartColor.createDefaultPaintArray();
         this.rawDataDirs = new HashMap<SampleInfo, String>();
         sampleData = new ArrayList<double[]>();
+
     }
 
     @Override
@@ -226,8 +227,6 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                 ++i;
             }
 
-
-            // TODO: think of empty charts
             baseChart.render();
 
             return new QChart(chartName, baseChart.getChart());
@@ -326,7 +325,6 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         return new QChart(chartName, baseChart.getChart());
     }
 
-
     private void createCharts(StatsReporter reporter) throws Exception {
 
         ArrayList<QChart> charts = new ArrayList<QChart>();
@@ -364,6 +362,14 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         QChart readsGCContentDistr = createHistogramBasedChart("Mapped Reads GC-content Distribution",
                         "mapped_reads_gc-content_distribution.txt", "GC Content (%)", "Fraction of reads");
         charts.add(readsGCContentDistr);
+
+        QChart mappingQualityHist = createHistogramBasedChart("Mapping Quality Histogram",
+                               "mapping_quality_histogram.txt", "Mapping quality", "Number of loci");
+                charts.add(mappingQualityHist);
+
+        QChart insertSizeHist = createHistogramBasedChart("Insert Size Histogram",
+                        "insert_size_histogram.txt", "Insert Size", "Number of reads");
+        charts.add(insertSizeHist);
 
 
 
