@@ -34,6 +34,7 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYBoxAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.labels.XYToolTipGenerator;
@@ -176,7 +177,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
     public void render(){
 		// init chart
 		chart = ChartFactory.createXYLineChart(title,xLabel,yLabel, null, PlotOrientation.VERTICAL, true, true, false);
-		
+
 		// title
 		TextTitle textTitle = new TextTitle(title);
 		textTitle.setFont(new Font(Font.SANS_SERIF,Font.BOLD,18)); 
@@ -201,7 +202,7 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 		Font tickFont = new Font(Font.SANS_SERIF,Font.PLAIN,10);
 		chart.getXYPlot().getDomainAxis().setTickLabelFont(tickFont);
 		chart.getXYPlot().getRangeAxis().setTickLabelFont(tickFont);
-		
+
 		if(aPercentageChart) {
 			chart.getXYPlot().getRangeAxis().setAutoRange(false);
 			chart.getXYPlot().getRangeAxis().setRange(0, 100);
@@ -234,6 +235,21 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 		chart.getXYPlot().setRangeGridlinePaint(new Color(214,139,74));
 		chart.getXYPlot().setDomainMinorGridlinesVisible(true);
 		chart.getXYPlot().setDomainMinorGridlinePaint(Color.red);
+
+
+        if (numberOfSeries == 0) {
+            chart.getXYPlot().setDomainGridlinesVisible(false);
+            chart.getXYPlot().setRangeGridlinesVisible(false);
+            chart.getXYPlot().getDomainAxis().setVisible(false); // X
+            chart.getXYPlot().getRangeAxis().setVisible(false); // Y
+            double middleX = chart.getXYPlot().getRangeAxis().getRange().getLength() / 2;
+            double middleY = chart.getXYPlot().getDomainAxis().getRange().getLength() / 2;
+            final XYTextAnnotation annotation = new XYTextAnnotation("No data available.", middleX, middleY);
+            annotation.setFont(new Font("SansSerif", Font.BOLD, 12));
+            chart.getXYPlot().addAnnotation(annotation);
+            return;
+        }
+
 
 		// prepare legend
 		LegendItemSource lis = new LegendItemSource() {			
