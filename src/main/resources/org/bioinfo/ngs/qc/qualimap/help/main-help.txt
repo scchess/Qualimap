@@ -8,7 +8,7 @@ Available tools:
     bamqc            Evaluate NGS mapping to a reference genome
     rnaseq           Evaluate RNA-seq alignment data
     counts           Counts data analysis (further RNA-seq data evaluation)
-    multi-bamqc      Compare quality metrics from multiple NGS mappings
+    multi-bamqc      Compare QC reports from multiple NGS mappings
     clustering       Cluster epigenomic signals
     comp-counts      Compute feature counts
 

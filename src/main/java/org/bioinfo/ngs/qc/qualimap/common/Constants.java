@@ -173,7 +173,7 @@ public final class Constants {
     public static final String BAMQC_OPTION_OUTSIDE_STATS = "os";
     public static final String BAMQC_OPTION_LIBRARY_PROTOCOL = "p";
     public static final String BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
-    public static final String BAMQC_OPTION_COVERAGE_REPORT_FILE = "outcov";
+    public static final String BAMQC_OPTION_COVERAGE_REPORT_FILE = "oc";
 
 
 

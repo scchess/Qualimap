@@ -36,7 +36,7 @@ import java.io.File;
 public class GCContentTool extends NgsSmartTool  {
 
     GCContentTool() {
-        super(Constants.TOOL_NAME_GC_CONTENT);
+        super(Constants.TOOL_NAME_GC_CONTENT, false);
     }
 
     @Override

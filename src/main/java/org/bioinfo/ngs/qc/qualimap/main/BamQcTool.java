@@ -50,7 +50,7 @@ public class BamQcTool extends NgsSmartTool{
     private LibraryProtocol protocol;
 
     public BamQcTool(){
-        super(Constants.TOOL_NAME_BAMQC);
+        super(Constants.TOOL_NAME_BAMQC,false);
         numThreads = Runtime.getRuntime().availableProcessors();
         protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
         genomeToCompare = "";
@@ -60,35 +60,34 @@ public class BamQcTool extends NgsSmartTool{
 	@Override
 	protected void initOptions() {
 
-        Option opt = new Option(Constants.BAMQC_OPTION_BAM_FILE, true, "input mapping file");
+        Option opt = new Option(Constants.BAMQC_OPTION_BAM_FILE, true, "Input mapping file in BAM format");
         opt.setRequired(true);
         options.addOption( opt );
 
-        options.addOption(Constants.BAMQC_OPTION_GFF_FILE,  true, "region file (in GFF/GTF or BED format)");
+        options.addOption(Constants.BAMQC_OPTION_GFF_FILE, "feature-file", true,
+                "Feature file with regions of interest in GFF/GTF or BED format");
         options.addOption(Constants.BAMQC_OPTION_NUM_WINDOWS, true,
-                "number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
+                "Number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
         options.addOption(Constants.BAMQC_OPTION_NUM_THREADS, true,
-                "number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
+                "Number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
         options.addOption(Constants.BAMQC_OPTION_CHUNK_SIZE, true,
-                "number of reads in the chunk" );
-         options.addOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, true,
-                "minimum size for a homopolymer to be considered in indel analysis (default is "
+                "Number of reads analyzed in a chunk (default is " + Constants.DEFAULT_CHUNK_SIZE + ")" );
+        options.addOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, true,
+                "Minimum size for a homopolymer to be considered in indel analysis (default is "
                         + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
-        options.addOption(Constants.BAMQC_OPTION_COVERAGE_REPORT_FILE,  true,
-                "output file to save per base non-zero coverage. Warning: for large genomes" +
-                "large file size is expected");
+        options.addOption(Constants.BAMQC_OPTION_COVERAGE_REPORT_FILE, "output-genome-coverage",  true,
+                "File to save per base non-zero coverage. Warning: large files" +
+                "are expected for large genomes");
         options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
-                "paint chromosome limits inside charts");
+                "Paint chromosome limits inside charts");
 		options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
-                "compute region outside stats (works only with -gff option)");
-        options.addOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, true, "compare with genome distribution " +
-                "(possible values: HUMAN or MOUSE)");
-
-        options.addOption(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL, true,
-                "specify protocol to calculate correct strand reads (works only with -gff option, " +
-                        "possible values are STRAND-SPECIFIC-FORWARD or STRAND-SPECIFIC-REVERSE, " +
-                        "default is NON-STRAND-SPECIFIC) ");
-
+                "Report information for the regions outside those defined by feature-file " +
+                        " (ignored when -gff option is not set)");
+        options.addOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, "genome-gc-distr",
+                true, "Species to compare with genome GC distribution. " +
+                "Possible values: HUMAN or MOUSE.");
+        options.addOption(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL, "protocol", true,
+                 "Library protocol: " + LibraryProtocol.getProtocolNamesString() + " (default)");
 	}
 
 	@Override

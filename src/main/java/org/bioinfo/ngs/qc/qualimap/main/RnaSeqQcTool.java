@@ -41,33 +41,31 @@ public class RnaSeqQcTool extends NgsSmartTool {
 
     public static String OPTION_ANNOTATION = "gtf";
     public static String OPTION_BAM = "bam";
-    public static String OPTION_PROTOCOL = "protocol";
-    public static String OPTION_COUNTS_FILE = "counts";
-    public static String OPTION_ALGORITHM = "algorithm";
+    public static String OPTION_PROTOCOL = "p";
+    public static String OPTION_COUNTS_FILE = "oc";
+    public static String OPTION_ALGORITHM = "a";
 
     String bamFile, gffFile, countsFile, protocol,alg;
 
     public RnaSeqQcTool() {
-        super(Constants.TOOL_NAME_RNASEQ_QC);
+        super(Constants.TOOL_NAME_RNASEQ_QC, false);
     }
 
     @Override
     protected void initOptions() {
-        options.addOption( requiredOption(OPTION_BAM, true, "Mapping file in BAM format") );
+        options.addOption( requiredOption(OPTION_BAM, true, "Input mapping file in BAM format.") );
         options.addOption(requiredOption(OPTION_ANNOTATION, true, "Annotations file in Ensembl GTF format.") );
-        options.addOption(new Option(OPTION_COUNTS_FILE, true, "Path to output computed counts") );
-        options.addOption(new Option(OPTION_PROTOCOL, true, "Library protocol: " +
-                LibraryProtocol.getProtocolNamesString() + " (default)")  );
-        options.addOption(new Option(OPTION_ALGORITHM, true, "Counting algorithm: " +
-                ComputeCountsTask.getAlgorithmTypes() ));
+        options.addOption(new Option(OPTION_COUNTS_FILE, true, "Path to output computed counts.") );
+        options.addOption(new Option(OPTION_PROTOCOL, "protocol", true, "Library protocol: " +
+                LibraryProtocol.getProtocolNamesString() + " (default).")  );
+        options.addOption(new Option(OPTION_ALGORITHM, "algorithm", true, "Counting algorithm: " +
+                ComputeCountsTask.getAlgorithmTypes()  + ".") );
 
 
     }
 
     @Override
     protected void checkOptions() throws ParseException {
-
-        //TODO: add to the help
 
         bamFile = commandLine.getOptionValue(OPTION_BAM);
         if (!exists(bamFile))

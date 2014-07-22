@@ -56,7 +56,7 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
     private boolean compareConditions;
 
     public MultisampleCountsQcTool(){
-        super(Constants.TOOL_NAME_MULTISAMPLE_COUNTS_QC);
+        super(Constants.TOOL_NAME_MULTISAMPLE_COUNTS_QC, true);
 
         INFO_FILE_HUMAN_68 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator + Constants.FILE_SPECIES_INFO_HUMAN_ENS68;
@@ -71,11 +71,11 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
 
     @Override
     protected void initOptions() {
-        options.addOption(requiredOption("d", "data", true, "file describing the input data"));
-        options.addOption("i", "info", true, "info file");
-        options.addOption("s", "species", true, "use default file for the given species [human | mouse]");
-        options.addOption("k", "threshold", true, "threshold for the number of counts");
-        options.addOption("c", "compare", false, "activate comparison of 2 conditions. currently 2 maximum is possible");
+        options.addOption(requiredOption("d", "data", true, "File describing the input data."));
+        options.addOption("i", "info", true, "Path to info file containing genes GC-content, length and type.");
+        options.addOption("s", "species", true, "Use built-in info file for the given species: HUMAN or MOUSE.");
+        options.addOption("k", "threshold", true, "Threshold for the number of counts");
+        options.addOption("c", "compare", false, "Perform comparison of conditions. Currently 2 maximum is possible.");
 
     }
 

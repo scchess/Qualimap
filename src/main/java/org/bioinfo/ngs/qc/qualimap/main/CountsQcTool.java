@@ -50,7 +50,7 @@ public class CountsQcTool extends NgsSmartTool{
     private boolean secondSampleIsProvided;
 	
 	public CountsQcTool(){
-		super(Constants.TOOL_NAME_COUNTS_QC);
+		super(Constants.TOOL_NAME_COUNTS_QC, false);
 
         CountsQcTool.INFO_FILE_HUMAN_60 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator + Constants.FILE_SPECIES_INFO_HUMAN;

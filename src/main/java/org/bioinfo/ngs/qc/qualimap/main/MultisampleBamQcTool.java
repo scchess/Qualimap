@@ -23,12 +23,12 @@ public class MultisampleBamQcTool extends NgsSmartTool{
     String inputFile;
 
     public MultisampleBamQcTool() {
-        super(Constants.TOOL_NAME_MULTISAMPLE_BAM_QC);
+        super(Constants.TOOL_NAME_MULTISAMPLE_BAM_QC, false);
     }
 
     @Override
     protected void initOptions() {
-        options.addOption(requiredOption("i", "input", true, "file describing the input data"));
+        options.addOption(requiredOption("i", "input", true, "File describing the input data. Format: 2-column table."));
 
     }
 

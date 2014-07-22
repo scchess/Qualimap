@@ -61,14 +61,14 @@ public class IndelCountTool extends NgsSmartTool{
 
 
     IndelCountTool() {
-        super(Constants.TOOL_NAME_INDEL_COUNT);
+        super(Constants.TOOL_NAME_INDEL_COUNT, false);
         homopolymerIndels = new int[5];
     }
 
     @Override
     protected void initOptions() {
-        options.addOption(requiredOption("i", true, "mapping file (bam format)"));
-        options.addOption(requiredOption("r", true, "reference sequence (fasta format)"));
+        options.addOption(requiredOption("i", true, "Mapping file in BAM format."));
+        options.addOption(requiredOption("r", true, "Reference sequence in FASTA format."));
     }
 
     @Override

@@ -42,21 +42,18 @@ public class ComputeCountsTool extends NgsSmartTool {
     public static String OPTION_BAM = "bam";
     public static String OPTION_FEATURE_ID = "id";
     public static String OPTION_FEATURE_TYPE = "type";
-    public static String OPTION_PROTOCOL = "protocol";
+    public static String OPTION_PROTOCOL = "p";
     public static String OPTION_OUT_FILE = "out";
     public static String OPTION_ALGORITHM = "algorithm";
-    public static String OPTION_PAIRED = "paired";
-    public static String OPTION_ALREADY_SORTED = "sorted";
+    public static String OPTION_PAIRED = "pe";
+    public static String OPTION_ALREADY_SORTED = "s";
 
     String bamFile, gffFile, outFile, featureType, attrName, alg;
     LibraryProtocol protocol;
     boolean pairedAnalysis, sortingRequired;
 
-
-
-
     public ComputeCountsTool() {
-        super(Constants.TOOL_NAME_COMPUTE_COUNTS,false,false);
+        super(Constants.TOOL_NAME_COMPUTE_COUNTS,false,false, false);
         this.pairedAnalysis = false;
         this.sortingRequired = false;
         this.protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
@@ -68,16 +65,17 @@ public class ComputeCountsTool extends NgsSmartTool {
         options.addOption( requiredOption(OPTION_BAM, true, "Mapping file in BAM format") );
 		options.addOption(requiredOption(OPTION_ANNOTATION, true, "Region file in GTF, GFF or BED format. " +
                 "If GTF format is provided, counting is based on attributes, otherwise based on feature name") );
-        options.addOption(new Option(OPTION_PROTOCOL, true, "Possible options: " + LibraryProtocol.getProtocolNamesString()) );
+        options.addOption(new Option(OPTION_PROTOCOL, "protocol", true,
+                "Library protocol: " + LibraryProtocol.getProtocolNamesString()) );
         options.addOption(new Option(OPTION_FEATURE_TYPE, true, "GTF-specific. Value of the third column of the GTF considered" +
                 " for counting. Other types will be ignored. Default: exon"));
         options.addOption(new Option(OPTION_FEATURE_ID, true, "GTF-specific. Attribute of the GTF to be used as feature ID. " +
                 "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
-        options.addOption(new Option(OPTION_ALGORITHM, true, "Possible options: " + ComputeCountsTask.getAlgorithmTypes()));
+        options.addOption(new Option(OPTION_ALGORITHM, true, "Counting algorithm: " + ComputeCountsTask.getAlgorithmTypes()));
         options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
-        options.addOption(new Option(OPTION_PAIRED, false, "Setting this flag for paired-end experiments will result " +
+        options.addOption(new Option(OPTION_PAIRED, "paired", false, "Setting this flag for paired-end experiments will result " +
                 "in counting fragments instead of reads") );
-        options.addOption(new Option(OPTION_ALREADY_SORTED, true,
+        options.addOption(new Option(OPTION_ALREADY_SORTED, "sorted", true,
                 "This flag indicates that the input file is already sorted by name. " +
                 "If not set, additional sorting by name will be performed. " +
                 "Only required for paired-end analysis. " ) );

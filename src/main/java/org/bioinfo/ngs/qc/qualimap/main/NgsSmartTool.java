@@ -48,27 +48,28 @@ public abstract class NgsSmartTool {
     protected String reportFileName;
     protected String toolName;
     protected String outputType;
-    protected boolean outDirIsRequired,outFormatIsRequired, homeDirIsRequired;
+    protected boolean outDirIsRequired,outFormatIsRequired, rIsRequired;
 
     static String OPTION_NAME_OUTDIR = "outdir";
     static String OPTION_NAME_OUTFILE = "outfile";
-    static String OPTION_NAME_HOMEDIR = "home";
     static String OPTION_NAME_OUTPUT_TYPE = "outformat";
-    static String OPTION_NAME_PATH_TO_RSCRIPT = "rscriptpath";
+    static String OPTION_NAME_PATH_TO_RSCRIPT = "R";
 
-	public NgsSmartTool(String toolName){
+	public NgsSmartTool(String toolName, boolean rIsRequired){
 
 		this.toolName = toolName;
 		this.outDirIsRequired = true;
         this.outFormatIsRequired = true;
+        this.rIsRequired = rIsRequired;
         init();
     }
 
-    public NgsSmartTool(String toolName, boolean outDirIsRequired, boolean outFormatIsRequired){
+    public NgsSmartTool(String toolName, boolean outDirIsRequired, boolean outFormatIsRequired, boolean rIsRequired){
 
 		this.toolName = toolName;
 		this.outDirIsRequired = outDirIsRequired;
         this.outFormatIsRequired = outFormatIsRequired;
+        this.rIsRequired = rIsRequired;
         init();
     }
 
@@ -102,20 +103,21 @@ public abstract class NgsSmartTool {
     }
 	
 	private void initCommonOptions(){
-		if (homeDirIsRequired) {
-            options.addOption(OPTION_NAME_HOMEDIR, true, "home folder of Qualimap");
-        }
 
         if (outDirIsRequired) {
-            options.addOption( OPTION_NAME_OUTDIR, true, "output folder" );
-            options.addOption( OPTION_NAME_OUTFILE, true, "output file for PDF report (default value is report.pdf)");
+            options.addOption( OPTION_NAME_OUTDIR, true, "Output folder for HTML report and raw data." );
+            options.addOption( OPTION_NAME_OUTFILE, true, "Output file for PDF report (default value is report.pdf).");
         }
         if (outFormatIsRequired) {
-            options.addOption( OPTION_NAME_OUTPUT_TYPE, true, "output report format (PDF or HTML, default is HTML)");
+            options.addOption( OPTION_NAME_OUTPUT_TYPE, true,
+                    "Format of the ouput report (PDF or HTML, default is HTML).");
         }
 
-        options.addOption( OPTION_NAME_PATH_TO_RSCRIPT, true, "path to Rscript executable (by default it is assumed " +
+        if (rIsRequired) {
+            options.addOption( OPTION_NAME_PATH_TO_RSCRIPT, "rscriptpath", true,
+                "Path to Rscript executable (by default it is assumed " +
                 "to be available from system $PATH)" );
+        }
 	}
 	
 	// init options
