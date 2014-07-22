@@ -6,6 +6,7 @@ import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.jfree.chart.ChartColor;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -281,6 +282,33 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         return new QChart("Coverage across reference", baseChart.getChart());
     }
 
+    QChart createAcrossReferenceChart(String chartName, String dataPath, String yTitle) throws IOException {
+        BamQCChart baseChart = new BamQCChart(chartName,
+                            "Multi-sample BAM QC", "Position in reference (relative)", yTitle);
+
+        int k = 0;
+        for (SampleInfo bamQcResult : bamQCResults) {
+            File dataFile = new File( rawDataDirs.get(bamQcResult) + File.separator +  dataPath );
+            if (!dataFile.exists()) {
+                continue;
+            }
+            XYVector rawData = loadColumnData(dataFile, 0, Double.MAX_VALUE, 1);
+            XYVector scaledData = scaleXAxis(rawData);
+
+            baseChart.addSeries(bamQcResult.name, scaledData, getSampleColor(k) );
+            ++k;
+        }
+        baseChart.setDomainAxisIntegerTicks(false);
+
+        baseChart.render();
+
+
+        return new QChart(chartName, baseChart.getChart());
+    }
+
+
+
+
     QChart createCoverageProfileChart(String chartName, String dataPath, String xTitle, String yTitle) throws IOException {
         BamQCChart baseChart = new BamQCChart(chartName,
                             "Multi-sample BAM QC", xTitle, yTitle);
@@ -363,13 +391,22 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                         "mapped_reads_gc-content_distribution.txt", "GC Content (%)", "Fraction of reads");
         charts.add(readsGCContentDistr);
 
+        QChart mappingQualityAcrossRef = createAcrossReferenceChart("Mapping Quality Across Reference",
+                         "mapping_quality_across_reference.txt", "Mapping Quality");
+        charts.add(mappingQualityAcrossRef);
+
         QChart mappingQualityHist = createHistogramBasedChart("Mapping Quality Histogram",
                                "mapping_quality_histogram.txt", "Mapping quality", "Number of loci");
-                charts.add(mappingQualityHist);
+        charts.add(mappingQualityHist);
+
+        QChart insertSizeAcrossRef = createAcrossReferenceChart("Insert Size Across Reference",
+                                 "insert_size_across_reference.txt", "Insert Size");
+        charts.add(insertSizeAcrossRef);
 
         QChart insertSizeHist = createHistogramBasedChart("Insert Size Histogram",
                         "insert_size_histogram.txt", "Insert Size", "Number of reads");
         charts.add(insertSizeHist);
+
 
 
 
