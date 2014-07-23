@@ -49,14 +49,14 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
 
     private int k;
 
-    public static String INFO_FILE_HUMAN_68;
-    public static String INFO_FILE_MOUSE_68;
-    public static int DEFAULT_NUMBER_OF_COUNTS = 5;
+    private static String INFO_FILE_HUMAN_68;
+    private static String INFO_FILE_MOUSE_68;
+    final private static int DEFAULT_NUMBER_OF_COUNTS = 5;
     private static final String SPECIES_FOLDER = "species";
     private boolean compareConditions;
 
     public MultisampleCountsQcTool(){
-        super(Constants.TOOL_NAME_MULTISAMPLE_COUNTS_QC, true);
+        super(Constants.TOOL_NAME_COUNTS_QC, true);
 
         INFO_FILE_HUMAN_68 = homePath + File.separator + SPECIES_FOLDER +
                 File.separator + Constants.FILE_SPECIES_INFO_HUMAN_ENS68;

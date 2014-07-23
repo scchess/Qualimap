@@ -33,7 +33,6 @@ public enum AnalysisType {
     static final String NAME_BAM_QC = "BAM QC";
     static final String NAME_RNA_SEQ_QC = "RNA Seq QC";
     static final String NAME_COUNTS_QC = "Counts QC";
-    static final String NAME_MULTISAMPLE_COUNTS_QC = "Multi-sample Counts QC";
     static final String NAME_MULTISAMPLE_BAM_QC = "Multi-sample BAM QC";
     static final String NAME_CLUSTERING = "Clustering";
     static final String UNKNOWN = "Unknown analysis";
@@ -45,8 +44,6 @@ public enum AnalysisType {
             return NAME_RNA_SEQ_QC;
         } else if (this == COUNTS_QC) {
             return NAME_COUNTS_QC;
-        } else if (this == MULTISAMPLE_COUNTS_QC) {
-            return NAME_MULTISAMPLE_COUNTS_QC;
         } else if (this == MULTISAMPLE_BAM_QC) {
             return NAME_MULTISAMPLE_BAM_QC;
         } else if (this == CLUSTERING ) {

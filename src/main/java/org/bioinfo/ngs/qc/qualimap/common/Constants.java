@@ -96,23 +96,6 @@ public final class Constants {
     public static final String PLOT_TITLE_HOMOPOLYMER_INDELS = "Homopolymer Indels";
 
 	//******************************************************************************************
-	//***************************** GRAPHICS NAMES RNA CONSTANTS *******************************
-	//******************************************************************************************
-
-    public static final String GRAPHIC_NAME_RNA_GLOBAL_SATURATION = "GlobalSaturation.png";
-	public static final String GRAPHIC_NAME_RNA_SATURATION_PER_CLASS = "DetectionPerGroup.png";
-	public static final String GRAPHIC_NAME_RNA_COUNTS_PER_CLASS = "counts_boxplot.png";
-    public static final String GRAPHIC_NAME_RNA_SAMPLE_CORRELATION = "correlation_plot.png";
-
-	//******************************************************************************************
-	//********************************* NAMES OF DATA RAW FILES ********************************
-	//******************************************************************************************
-
-    public static final String NAME_OF_FILE_CHROMOSOMES = "chromosomes.txt";
-
-    public static final String NAME_OF_FILE_CHROMOSOMES_OUTSIDE = "outside_chromosomes.txt";
-
-	//******************************************************************************************
 	//*********************************** TYPES OF SPECIES *************************************
 	//******************************************************************************************
 	public static final String TYPE_COMBO_SPECIES_HUMAN = "HUMAN.ENS68";
@@ -153,7 +136,6 @@ public final class Constants {
     // Tool names
     public static final String TOOL_NAME_BAMQC = "bamqc";
     public static final String TOOL_NAME_COUNTS_QC = "counts";
-    public static final String TOOL_NAME_MULTISAMPLE_COUNTS_QC = "mcounts";
     public static final String TOOL_NAME_MULTISAMPLE_BAM_QC = "multi-bamqc";
     public static final String TOOL_NAME_RNASEQ_QC = "rnaseq";
     public static final String TOOL_NAME_CLUSTERING = "clustering";

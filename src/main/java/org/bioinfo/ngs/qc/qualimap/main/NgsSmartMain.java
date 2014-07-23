@@ -61,8 +61,8 @@ public class NgsSmartMain {
             }
 
             if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_COUNTS_QC)){
-				tool = new CountsQcTool();
-			}
+                tool = new MultisampleCountsQcTool();
+            }
 
             if (toolName.equals(Constants.TOOL_NAME_COMPUTE_COUNTS)) {
                 tool = new ComputeCountsTool();
@@ -78,10 +78,6 @@ public class NgsSmartMain {
 
             if (toolName.equals(Constants.TOOL_NAME_INDEL_COUNT)) {
                 tool = new IndelCountTool();
-            }
-
-            if (toolName.equals(Constants.TOOL_NAME_MULTISAMPLE_COUNTS_QC)) {
-                tool = new MultisampleCountsQcTool();
             }
 
             if (toolName.equals(Constants.TOOL_NAME_MULTISAMPLE_BAM_QC)) {

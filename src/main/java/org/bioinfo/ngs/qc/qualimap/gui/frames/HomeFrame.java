@@ -79,7 +79,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
     public static final String WM_COMMAND_BAMQC = "bamqc";
     public static final String WM_COMMAND_RNASEQQC = "rnaseqqc";
     public static final String WM_COMMAND_COUNTSQC = "counts";
-    public static final String WM_COMMAND_COUNTSQC_MS = "counts-multi";
     public static final String WM_COMMAND_BAMQC_MS = "bamqc-multi";
     public static final String WM_COMMAND_CLUSTERING = "clustering";
     public static final String WM_COMMAND_CALC_COUNTS = "calc-counts";
@@ -413,13 +412,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         analyzeCountsItem.setEnabled(countsQCPackagesAvailable);
         analysisMenu.add(analyzeCountsItem);
 
-        if (System.getenv("QUALIMAP_DEVEL") != null) {
-            JMenuItem countsQcItem =   addMenuItem(AnalysisType.MULTISAMPLE_COUNTS_QC.toString(),
-                WM_COMMAND_COUNTSQC_MS, "chart_curve_add.png", "");
-            countsQcItem.setEnabled(countsQCPackagesAvailable);
-            analysisMenu.add(countsQcItem);
-        }
-
         JMenuItem multiBamQcItem =   addMenuItem(AnalysisType.MULTISAMPLE_BAM_QC.toString(),
                     WM_COMMAND_BAMQC_MS, "chart_curve_add.png", "");
                 analysisMenu.add(multiBamQcItem);
@@ -655,8 +647,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_RNASEQQC)){
 	    	runRnaSeqQC();
         }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC)){
-	        runCountsAnalysis();
-        }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_COUNTSQC_MS)){
 	        runMultisampleCountsQc();
 	    }else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_BAMQC_MS)){
 	        runMultisampleBamQc();
@@ -722,11 +712,6 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
     private void runRnaSeqQC(){
         popUpDialog = new RNASeqQCDialog(this);
-        showPopUpDialog();
-    }
-
-    private void runCountsAnalysis(){
-        popUpDialog = new CountsAnalysisDialog(this);
         showPopUpDialog();
     }
 
