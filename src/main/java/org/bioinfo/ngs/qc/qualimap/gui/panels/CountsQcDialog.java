@@ -54,19 +54,16 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     private JCheckBox compartativeAnalysisCheckBox, provideInfoFileCheckBox;
     private JRadioButton infoFileButton, speciesButton;
     private JTextField infoFileEdit, condition1NameEdit, condition2NameEdit;
-    private JLabel condition1Label, condition2Label;
+    private JLabel condition1Label, condition2Label, thresholdLabel;
+    private JSpinner thresholdSpinner;
     private JButton browseInfoFileButton;
     private JComboBox speciesCombo;
 
-    static final String INPUT_FILE_TOOLTIP = "To compute feature counts from BAM file and GFF file " +
-            "use menu item Tools->Compute Counts or button below.";
+    static final String INFO_FILE_TOOLTIP = "File containing the biological classification, " +
+            "gc content and lengths of features in the count files.";
 
-    static final String INFO_FILE_TOOLTIP = "File containing the biological classification of features " +
-            "in the count files.";
-
-    static final String SPECIES_ITEM_TOOLTIP = "Qualimap provides the Ensemble biotype " +
+    static final String SPECIES_ITEM_TOOLTIP = "Qualimap provides the Ensembl biotype " +
             "classification for selected species";
-
 
     static class SampleDataTableModel extends AbstractTableModel {
 
@@ -164,6 +161,16 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
+        thresholdLabel = new JLabel();
+        thresholdLabel.setText("Counts threshold:");
+        add(thresholdLabel, "");
+
+        thresholdSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 100, 1));
+        thresholdSpinner.setToolTipText("A feature is considered as detected if the corresponding number of counts is " +
+                "greater than this threshold.");
+        thresholdSpinner.setMaximumSize(new Dimension(120,100));
+        add(thresholdSpinner, "grow, wrap");
+
         compartativeAnalysisCheckBox = new JCheckBox("Compare conditions");
         compartativeAnalysisCheckBox.addActionListener(this);
         add(compartativeAnalysisCheckBox, "wrap");
@@ -192,16 +199,16 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
 
         String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN, Constants.TYPE_COMBO_SPECIES_MOUSE };
         speciesCombo = new JComboBox<String>(speicesComboItems);
-        //speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
+        speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
         add(speciesCombo, "grow, wrap");
 
         infoFileButton = new JRadioButton("Info file:");
         infoFileButton.addActionListener(this);
-        //infoFileButton.setToolTipText(INFO_FILE_TOOLTIP);
+        infoFileButton.setToolTipText(INFO_FILE_TOOLTIP);
         add(infoFileButton, "");
 
         infoFileEdit = new JTextField(30);
-        //infoFileEdit.setToolTipText(INFO_FILE_TOOLTIP);
+        infoFileEdit.setToolTipText(INFO_FILE_TOOLTIP);
         add(infoFileEdit, "grow");
 
         browseInfoFileButton = new JButton("...");
@@ -436,5 +443,10 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     public boolean performComparison() {
         return compartativeAnalysisCheckBox.isSelected();
     }
+
+    public int getCountsThreshold() {
+        return ((SpinnerNumberModel) thresholdSpinner.getModel()).getNumber().intValue();
+    }
+
 
 }

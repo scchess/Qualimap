@@ -20,8 +20,6 @@
  */
 package org.bioinfo.ngs.qc.qualimap.process;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
@@ -92,9 +90,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         String workDir = tabProperties.createDirectory().toString();
 
         //reportProgress("Generating configuration file...");
-        //if (inputFilePath.isEmpty()) {
         setupInputDataDescription(workDir);
-        //}
 
         String commandString = createCommand(workDir);
         if (loggerThread != null) {

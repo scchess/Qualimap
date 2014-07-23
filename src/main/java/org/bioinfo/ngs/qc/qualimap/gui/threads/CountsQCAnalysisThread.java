@@ -98,13 +98,12 @@ public class CountsQCAnalysisThread extends Thread {
         MultisampleCountsAnalysis countsAnalysis = new MultisampleCountsAnalysis(tabProperties, homePath,
                 settingsDlg.getDataItems());
 
+        countsAnalysis.setThreshold( settingsDlg.getCountsThreshold() );
         countsAnalysis.setConditionNames(  settingsDlg.getConditionsMap() );
 
         if (settingsDlg.performComparison()) {
             countsAnalysis.activateComparison();
         }
-
-        //countsAnalysis.setThreshold( settingsDlg.getThreshold() );
 
         boolean  includeInfoFile = settingsDlg.annotationIsProvided();
         if (includeInfoFile) {
