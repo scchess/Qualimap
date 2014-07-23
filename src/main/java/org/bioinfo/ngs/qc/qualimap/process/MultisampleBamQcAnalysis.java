@@ -6,7 +6,6 @@ import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.jfree.chart.ChartColor;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -406,9 +405,6 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         QChart insertSizeHist = createHistogramBasedChart("Insert Size Histogram",
                         "insert_size_histogram.txt", "Insert Size", "Number of reads");
         charts.add(insertSizeHist);
-
-
-
 
         reporter.setChartList(charts);
 

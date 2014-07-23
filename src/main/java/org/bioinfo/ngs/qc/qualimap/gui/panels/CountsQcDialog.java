@@ -58,6 +58,16 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
     private JButton browseInfoFileButton;
     private JComboBox speciesCombo;
 
+    static final String INPUT_FILE_TOOLTIP = "To compute feature counts from BAM file and GFF file " +
+            "use menu item Tools->Compute Counts or button below.";
+
+    static final String INFO_FILE_TOOLTIP = "File containing the biological classification of features " +
+            "in the count files.";
+
+    static final String SPECIES_ITEM_TOOLTIP = "Qualimap provides the Ensemble biotype " +
+            "classification for selected species";
+
+
     static class SampleDataTableModel extends AbstractTableModel {
 
         java.util.List<CountsSampleInfo> sampleReplicateList;
@@ -177,10 +187,10 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         speciesButton = new JRadioButton("Species: ");
         speciesButton.setSelected(true);
         speciesButton.addActionListener(this);
-        //speciesButton.setToolTipText(SPECIES_ITEM_TOOLTIP);
+        speciesButton.setToolTipText(SPECIES_ITEM_TOOLTIP);
         add(speciesButton);
 
-        String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN/*, Constants.TYPE_COMBO_SPECIES_MOUSE*/ };
+        String[] speicesComboItems = { Constants.TYPE_COMBO_SPECIES_HUMAN, Constants.TYPE_COMBO_SPECIES_MOUSE };
         speciesCombo = new JComboBox<String>(speicesComboItems);
         //speciesCombo.setToolTipText(SPECIES_ITEM_TOOLTIP);
         add(speciesCombo, "grow, wrap");

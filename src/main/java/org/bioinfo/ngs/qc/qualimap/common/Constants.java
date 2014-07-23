@@ -115,8 +115,8 @@ public final class Constants {
 	//******************************************************************************************
 	//*********************************** TYPES OF SPECIES *************************************
 	//******************************************************************************************
-	public static final String TYPE_COMBO_SPECIES_HUMAN = "HUMAN";
-	public static final String TYPE_COMBO_SPECIES_MOUSE = "MOUSE";
+	public static final String TYPE_COMBO_SPECIES_HUMAN = "HUMAN.ENS68";
+	public static final String TYPE_COMBO_SPECIES_MOUSE = "MOUSE.ENS68";
 	
 	//******************************************************************************************
 	//*********************************** FILES OF SPECIES *************************************

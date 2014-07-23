@@ -20,6 +20,8 @@
  */
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
@@ -90,9 +92,9 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
         String workDir = tabProperties.createDirectory().toString();
 
         //reportProgress("Generating configuration file...");
-        if (inputFilePath.isEmpty()) {
-            setupInputDataDescription(workDir);
-        }
+        //if (inputFilePath.isEmpty()) {
+        setupInputDataDescription(workDir);
+        //}
 
         String commandString = createCommand(workDir);
         if (loggerThread != null) {
@@ -282,7 +284,12 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
             info.path = items[2];
             if (! (new File(info.path)).exists() ) {
-                throw new IOException("Sample " + info.name + ": file " + info.path + "doesn't exist!");
+                String absPath = new File(inputFilePath).getParent() + File.separator + info.path;
+                if (new File(absPath).exists()) {
+                    info.path = absPath;
+                } else {
+                    throw new IOException("Sample " + info.name + ": file " + info.path + " doesn't exist!");
+                }
             }
 
             info.columnNum = Integer.parseInt( items[3] );

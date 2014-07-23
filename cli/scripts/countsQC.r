@@ -35,7 +35,6 @@ if(is.null(input.desc)){
     stop("--input is a REQUIRED argument")
 }
 
-
 if(!file.exists(opt$dirOut)){
     dir.create(opt$dirOut, recursive=TRUE)
 }
@@ -70,6 +69,7 @@ cat("Reading input data using input description from", input.desc, "\n")
 counts <- load.counts.data(input.desc)
 
 num_samples <- ncol(counts)
+cat("Loaded counts for ", nrow(counts), " features\n")
 cat("Num samples:", num_samples, "\n")
 
 expr.factors <- data.frame(Conditions = attr(counts, "factors"))
@@ -129,6 +129,7 @@ if (info.available) {
 }
 str(counts)
 dim(counts)
+
 cat("Init NOISeq data...\n")
 ns.data <- readData(data = counts, length = gene.length, gc = gene.gc, biotype = gene.biotypes,
                     chromosome = gene.loc, factors = expr.factors )

@@ -105,9 +105,9 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
 
             if(species.equalsIgnoreCase("human")){
                 infoFile = INFO_FILE_HUMAN_68;
-            }/*else if(species.equalsIgnoreCase("mouse")){
+            }else if(species.equalsIgnoreCase("mouse")){
                 infoFile = INFO_FILE_MOUSE_68;
-            }*/else{
+            }else{
                 throw new ParseException("species " + species + " not found. Please select [human | mouse]");
             }
         }
@@ -126,6 +126,10 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
 
     @Override
     protected void execute() throws Exception {
+
+        if ( outdir.equals(".") ) {
+            outdir = new File(inputFile).getParent() + File.separator + "countsQC_results";
+        }
         // init output dir
         initOutputDir();
 
