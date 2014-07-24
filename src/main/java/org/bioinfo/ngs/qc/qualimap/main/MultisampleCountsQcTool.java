@@ -133,7 +133,7 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
         // init output dir
         initOutputDir();
 
-        AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.MULTISAMPLE_COUNTS_QC);
+        AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.COUNTS_QC);
 
         ArrayList<String> conditionNames = new ArrayList<String>();
         List<CountsSampleInfo> samples = MultisampleCountsAnalysis.parseInputFile(inputFile,conditionNames);

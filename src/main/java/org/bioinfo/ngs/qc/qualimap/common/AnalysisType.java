@@ -28,7 +28,7 @@ package org.bioinfo.ngs.qc.qualimap.common;
 
 public enum AnalysisType {
 
-    BAM_QC, RNA_SEQ_QC, COUNTS_QC,MULTISAMPLE_COUNTS_QC, MULTISAMPLE_BAM_QC, CLUSTERING;
+    BAM_QC, RNA_SEQ_QC, COUNTS_QC, MULTISAMPLE_BAM_QC, CLUSTERING;
 
     static final String NAME_BAM_QC = "BAM QC";
     static final String NAME_RNA_SEQ_QC = "RNA Seq QC";

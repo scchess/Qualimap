@@ -333,7 +333,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 
             try {
                 ArrayList<String> missingPackages = getMissingPackages();
-                countsQCPackagesAvailable = !missingPackages.contains("optparse");
+                countsQCPackagesAvailable = !missingPackages.contains("optparse") &&
+                        !missingPackages.contains("NOISeq");
                 clusteringPacakgesAvailble = missingPackages.isEmpty();
                 if (!missingPackages.isEmpty()) {
                     String message = reportMissingPackages(missingPackages);

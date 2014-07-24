@@ -337,7 +337,7 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             String errMsg = validateInput();
             if (errMsg.isEmpty()) {
                 resetProgress();
-                TabPageController tabController = new TabPageController(AnalysisType.MULTISAMPLE_COUNTS_QC);
+                TabPageController tabController = new TabPageController(AnalysisType.COUNTS_QC);
                 CountsQCAnalysisThread t = new CountsQCAnalysisThread(this, tabController );
                 t.start();
             } else {
