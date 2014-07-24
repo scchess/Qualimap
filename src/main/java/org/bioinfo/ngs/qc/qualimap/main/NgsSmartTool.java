@@ -27,6 +27,7 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportPdfThread;
 
@@ -214,6 +215,13 @@ public abstract class NgsSmartTool {
         option.setRequired(true);
         return option;
     }
+
+
+    protected static Option getProtocolOption() {
+        return new Option(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL, "sequencing-protocol", true,
+                 "Sequencing library protocol: " + LibraryProtocol.getProtocolNamesString() + " (default)" );
+    }
+
 
 	protected boolean exists(String fileName){
 		return new File(fileName).exists();

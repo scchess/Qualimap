@@ -41,7 +41,6 @@ public class RnaSeqQcTool extends NgsSmartTool {
 
     public static String OPTION_ANNOTATION = "gtf";
     public static String OPTION_BAM = "bam";
-    public static String OPTION_PROTOCOL = "p";
     public static String OPTION_COUNTS_FILE = "oc";
     public static String OPTION_ALGORITHM = "a";
 
@@ -56,8 +55,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
         options.addOption( requiredOption(OPTION_BAM, true, "Input mapping file in BAM format.") );
         options.addOption(requiredOption(OPTION_ANNOTATION, true, "Annotations file in Ensembl GTF format.") );
         options.addOption(new Option(OPTION_COUNTS_FILE, true, "Path to output computed counts.") );
-        options.addOption(new Option(OPTION_PROTOCOL, "protocol", true, "Library protocol: " +
-                LibraryProtocol.getProtocolNamesString() + " (default).")  );
+        options.addOption( getProtocolOption() );
         options.addOption(new Option(OPTION_ALGORITHM, "algorithm", true, "Counting algorithm: " +
                 ComputeCountsTask.getAlgorithmTypes()  + ".") );
 
@@ -75,8 +73,8 @@ public class RnaSeqQcTool extends NgsSmartTool {
         if(!exists(gffFile))
             throw new ParseException("input region gtf file not found");
 
-        if(commandLine.hasOption(OPTION_PROTOCOL)) {
-            protocol = commandLine.getOptionValue(OPTION_PROTOCOL);
+        if(commandLine.hasOption(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL)) {
+            protocol = commandLine.getOptionValue(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL);
             if ( !(protocol.equals( LibraryProtocol.PROTOCOL_FORWARD_STRAND ) ||
                     protocol.equals( LibraryProtocol.PROTOCOL_REVERSE_STRAND ) ||
                     protocol.equals( LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC)) ) {

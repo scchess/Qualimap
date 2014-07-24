@@ -143,7 +143,9 @@ public final class Constants {
     public static final String TOOL_NAME_GC_CONTENT = "gc-content";
     public static final String TOOL_NAME_INDEL_COUNT = "indel-count";
 
-    // BAMQC options
+    // Tool command line options
+
+    public static final String CMDLINE_OPTION_LIBRARY_PROTOCOL = "p";
 
     public static final String BAMQC_OPTION_BAM_FILE = "bam";
     public static final String BAMQC_OPTION_GFF_FILE = "gff";
@@ -153,7 +155,6 @@ public final class Constants {
     public static final String BAMQC_OPTION_CHUNK_SIZE = "nr";
     public static final String BAMQC_OPTION_NUM_THREADS = "nt";
     public static final String BAMQC_OPTION_OUTSIDE_STATS = "os";
-    public static final String BAMQC_OPTION_LIBRARY_PROTOCOL = "p";
     public static final String BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
     public static final String BAMQC_OPTION_COVERAGE_REPORT_FILE = "oc";
 

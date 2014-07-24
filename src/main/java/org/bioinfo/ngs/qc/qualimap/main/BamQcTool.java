@@ -86,8 +86,7 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, "genome-gc-distr",
                 true, "Species to compare with genome GC distribution. " +
                 "Possible values: HUMAN or MOUSE.");
-        options.addOption(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL, "protocol", true,
-                 "Library protocol: " + LibraryProtocol.getProtocolNamesString() + " (default)");
+        options.addOption(getProtocolOption());
 	}
 
 	@Override
@@ -109,9 +108,9 @@ public class BamQcTool extends NgsSmartTool{
 				computeOutsideStats = true;					
 			}
 
-             if (commandLine.hasOption(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL)) {
+             if (commandLine.hasOption(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL)) {
                 protocol = LibraryProtocol.getProtocolByName(
-                        commandLine.getOptionValue(Constants.BAMQC_OPTION_LIBRARY_PROTOCOL).toLowerCase()
+                        commandLine.getOptionValue(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL).toLowerCase()
                 );
              }
 		}

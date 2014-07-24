@@ -42,9 +42,8 @@ public class ComputeCountsTool extends NgsSmartTool {
     public static String OPTION_BAM = "bam";
     public static String OPTION_FEATURE_ID = "id";
     public static String OPTION_FEATURE_TYPE = "type";
-    public static String OPTION_PROTOCOL = "p";
     public static String OPTION_OUT_FILE = "out";
-    public static String OPTION_ALGORITHM = "algorithm";
+    public static String OPTION_ALGORITHM = "a";
     public static String OPTION_PAIRED = "pe";
     public static String OPTION_ALREADY_SORTED = "s";
 
@@ -65,13 +64,13 @@ public class ComputeCountsTool extends NgsSmartTool {
         options.addOption( requiredOption(OPTION_BAM, true, "Mapping file in BAM format") );
 		options.addOption(requiredOption(OPTION_ANNOTATION, true, "Region file in GTF, GFF or BED format. " +
                 "If GTF format is provided, counting is based on attributes, otherwise based on feature name") );
-        options.addOption(new Option(OPTION_PROTOCOL, "protocol", true,
-                "Library protocol: " + LibraryProtocol.getProtocolNamesString()) );
+        options.addOption( getProtocolOption() );
         options.addOption(new Option(OPTION_FEATURE_TYPE, true, "GTF-specific. Value of the third column of the GTF considered" +
                 " for counting. Other types will be ignored. Default: exon"));
         options.addOption(new Option(OPTION_FEATURE_ID, true, "GTF-specific. Attribute of the GTF to be used as feature ID. " +
                 "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
-        options.addOption(new Option(OPTION_ALGORITHM, true, "Counting algorithm: " + ComputeCountsTask.getAlgorithmTypes()));
+        options.addOption(new Option(OPTION_ALGORITHM, "algorithm", true,
+                "Counting algorithm: " + ComputeCountsTask.getAlgorithmTypes()));
         options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
         options.addOption(new Option(OPTION_PAIRED, "paired", false, "Setting this flag for paired-end experiments will result " +
                 "in counting fragments instead of reads") );
@@ -93,8 +92,8 @@ public class ComputeCountsTool extends NgsSmartTool {
 	    if(!exists(gffFile))
             throw new ParseException("input region gtf file not found");
 
-        if(commandLine.hasOption(OPTION_PROTOCOL)) {
-		    String protocolName = commandLine.getOptionValue(OPTION_PROTOCOL);
+        if(commandLine.hasOption(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL)) {
+		    String protocolName = commandLine.getOptionValue(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL);
             if ( !ComputeCountsTask.supportedLibraryProtocol(protocolName) ) {
                 throw  new ParseException("wrong protocol type! supported types: " +
                         LibraryProtocol.getProtocolNamesString());
