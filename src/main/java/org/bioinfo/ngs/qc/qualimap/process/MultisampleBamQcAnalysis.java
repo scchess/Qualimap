@@ -337,7 +337,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         logLine("Running PCA...\n");
         pca.computeBasis(2);
 
-        String chartName =  "PCA biplot";
+        String chartName =  "PCA";
 
         BamQCPointChart baseChart = new BamQCPointChart(chartName,
                                     "Multi-sample BAM QC", "PC1", "PC2");

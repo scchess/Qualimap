@@ -261,7 +261,7 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
             if (line.startsWith("#") || line.isEmpty()) {
                 continue;
             }
-            String[] items = line.split("\t");
+            String[] items = line.split("\\s+");
             if (items.length < 4) {
                 throw new IOException("Failed to parse input file " + inputFilePath+
                         " not enough fields in line " + line);

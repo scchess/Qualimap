@@ -14,6 +14,7 @@ import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.VerticalAlignment;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.util.*;
 import java.util.List;
 
@@ -113,9 +114,12 @@ public class BamQCPointChart {
             LegendItem legendItem = new LegendItem(names.get(i));
 			legendItem.setLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,11));
 			legendItem.setLabelPaint(Color.darkGray);
-			legendItem.setFillPaint(colors.get(i));
+            legendItem.setFillPaint(colors.get(i));
             lis.getLegendItems().add(legendItem);
 
+            double size =   10.0;
+            double delta = size / 2;
+            renderer.setSeriesShape(i, new Ellipse2D.Double(-delta, -delta, size, size));
             renderer.setSeriesPaint(i, colors.get(i));
 
         }
