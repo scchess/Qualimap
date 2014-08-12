@@ -480,7 +480,14 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                 continue;
             }
 
-            paths.add(  new SampleInfo(items[0], items[1] ) );
+            String path = items[1];
+            File sampleFile = new File(path);
+            if (!sampleFile.exists()) {
+                // Try relative path
+                path = new File(inputFilePath).getParent() + File.separator + path;
+            }
+
+            paths.add(  new SampleInfo(items[0], path ) );
 
         }
 
