@@ -68,8 +68,8 @@ public class HtmlJPanel extends JPanel implements HyperlinkListener {
     }
 
 	public static String getHeader() {
-	    return "<HTML>\n<HEAD>\n <link rel=\"stylesheet\" href=\"/home/kokonech/_static/agogo.css\" type=\"text/css\" /> " +
-                "\n<link rel=\"stylesheet\" href=\"/home/kokonech/_static/pygments.css\" type=\"text/css\" />" +
+	    return "<HTML>\n<HEAD>\n <link rel=\"stylesheet\" href=\"css/agogo.css\" type=\"text/css\" /> " +
+                "\n<link rel=\"stylesheet\" href=\"css/pygments.css\" type=\"text/css\" />" +
 
                 "\n<TITLE>Qualimap Report</TITLE>\n</HEAD><BODY BGCOLOR=\"#EEEEEE\">";
     }

@@ -191,7 +191,7 @@ public class ExportHtmlThread extends Thread{
     }
 
     private void prepareCss() throws IOException {
-        String newPath = dirPath + "/_static";
+        String newPath = dirPath + "/css";
         int BUFFER = 2048;
 
         File destinationParent = new File(newPath);

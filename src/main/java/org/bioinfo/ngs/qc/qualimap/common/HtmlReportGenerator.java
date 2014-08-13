@@ -72,8 +72,8 @@ public class HtmlReportGenerator {
         append("<!DOCTYPE HTML>");
         append("<html>");
         append("\t<head>");
-        append("\t\t<link rel=\"stylesheet\" href=\"_static/agogo.css\" type=\"text/css\" />");
-        append("\t\t<link rel=\"stylesheet\" href=\"_static/report.css\" " +
+        append("\t\t<link rel=\"stylesheet\" href=\"css/agogo.css\" type=\"text/css\" />");
+        append("\t\t<link rel=\"stylesheet\" href=\"css/report.css\" " +
                 "type=\"text/css\" />");
         append("\t<title>Qualimap report: " + analysisType.toString() + "</title>\n");
         append("\t</head>");
@@ -85,7 +85,7 @@ public class HtmlReportGenerator {
         append("\t<div class=\"header-wrapper\">");
         append("\t\t<div class=\"header\">");
         append("\t\t<p class=\"logo\"><a href=\"http://qualimap.bioinfo.cipf.es/\">");
-        append("\t\t<img class=\"logo\" src=\"_static/qualimap_logo_small.png\" " +
+        append("\t\t<img class=\"logo\" src=\"css/qualimap_logo_small.png\" " +
                 "alt=\"Logo\"/>");
         append("\t\t</a></p>");
         append("<div class=\"headertitle\">" +
