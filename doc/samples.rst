@@ -37,6 +37,14 @@ Annotations
 Counts
 ******
 
+Mice counts data from a study investigating effects of D-Glucosamine (`GSE54853 <http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54853>`_):
+
+- `mouse_counts_ensembl.txt <http://kokonech.github.io/qualimap/samples/mouse_counts_ensembl.txt>`_
+    Counts table
+
+- `countsqc_input.txt <http://kokonech.github.io/qualimap/samples/countsqc_input.txt>`_
+    Counts QC command line tool input configuration
+
 Human RNA-seq data from the paper of `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_.
 
 - Counts:
@@ -73,10 +81,41 @@ Analysis of the WG-seq data (ERR089819.bam): `QualiMap HTML report <http://quali
 
 Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_.
 
+
+RNA-seq QC
+**********
+
+
+
+Multisample BAM QC
+******************
+
+
+
+
 Counts QC
 *********
 
-Analysis of RNA-seq counts data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/countsqc_result/qualimapReport.html>`_. 
+.. _counts-example-output:
+
+Counts QC HTML report computed from an RNA-seq experiment analyzing influence of D-Glucosamine on mice. The analysis was performed for 6 samples in 2 conditions (GlcN positive and negative): 
+
+- `Global report <http://kokonech.github.io/qualimap/glcn_mice_counts/GlobalReport.html>`_ 
+
+- `Comparison of conditions <http://kokonech.github.io/qualimap/glcn_mice_counts/ComparisonReport.html>`_
+
+- `Sample 01 (GlcN negative) <http://kokonech.github.io/qualimap/glcn_mice_counts/nGlcn01Report.html>`_
+
+- `Sample 02 (GlcN negative) <http://kokonech.github.io/qualimap/glcn_mice_counts/nGlcn02Report.html>`_
+
+- `Sample 03 (GlcN negative) <http://kokonech.github.io/qualimap/glcn_mice_counts/nGlcn03Report.html>`_
+
+- `Sample 04 (GlcN positive) <http://kokonech.github.io/qualimap/glcn_mice_counts/pGlcn01Report.html>`_
+
+- `Sample 05 (GlcN positive) <http://kokonech.github.io/qualimap/glcn_mice_counts/pGlcn02Report.html>`_
+
+- `Sample 06 (GlcN positive) <http://kokonech.github.io/qualimap/glcn_mice_counts/pGlcn03Report.html>`_
+
 
 Clustering
 **********
