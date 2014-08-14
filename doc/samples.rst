@@ -17,6 +17,9 @@ Alignments
 - `HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/alignments/HG00096.chrom20.bam>`_ (278 MB)
    Sequencing of the chromosome 20 from a H. sapiens sample from `1000 Genomes project <http://www.1000genomes.org/>`_. The header of the BAM file was changed in order to contain only chromosome 20. Original file can be found `here <ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/data/HG00096/alignment/HG00096.chrom20.ILLUMINA.bwa.GBR.low_coverage.20101123.bam>`_.
 
+- `kidney.bam <http://qualimap.bioinfo.cipf.es/samples/counts/kidney.bam>`_ (386 MB) and `liver.bam <http://qualimap.bioinfo.cipf.es/samples/counts/liver.bam>`_ (412 MB)
+   Human RNA-seq sequencing data from from the paper of `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_ 
+
 Annotations
 ***********
 
@@ -31,34 +34,32 @@ Annotations
   Gene Annotations of Plasmodium falciparum 3D7 clone , from `Wellcome Trust Sanger Institue <http://www.sanger.ac.uk/resources/downloads/protozoa/plasmodium-falciparum.html>`_.
 
 
+Multisample BAM QC
+******************
+
+- `gh2ax_chip_seq.zip <http://kokonech.github.io/qualimap/samples/gh2ax_chip_seq.zip>`_
+    
+    Example dataset from an unpublished ChiP-seq experiment with 4 condtions, each having 3 replicates (12 sampels in total). The archive contains BAM QC results for each sample and input configuration for command line version of Multisample BAM QC.
+
 
 .. _counts-samples:
 
-Counts
-******
-
-Mice counts data from a study investigating effects of D-Glucosamine (`GSE54853 <http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54853>`_):
+Counts QC
+*********
 
 - `mouse_counts_ensembl.txt <http://kokonech.github.io/qualimap/samples/mouse_counts_ensembl.txt>`_
-    Counts table
+   Mouse counts data from a `study  <http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54853>`_ investigating effects of D-Glucosamine:
 
-- `countsqc_input.txt <http://kokonech.github.io/qualimap/samples/countsqc_input.txt>`_
-    Counts QC command line tool input configuration
+- `GlcN_countsqc_input.txt <http://kokonech.github.io/qualimap/samples/GlcN_countsqc_input.txt>`_
+    Command line input configuration for the counts data above.
 
-Human RNA-seq data from the paper of `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_.
 
-- Counts:
+- `kidney.counts <http://qualimap.bioinfo.cipf.es/samples/counts/kidney.counts>`_ and `liver.counts <http://qualimap.bioinfo.cipf.es/samples/counts/liver.counts>`_
+   Counts data from the paper by `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_.
 
-  `kidney.counts <http://qualimap.bioinfo.cipf.es/samples/counts/kidney.counts>`_ and `liver.counts <http://qualimap.bioinfo.cipf.es/samples/counts/liver.counts>`_
-
-- BAM files used to produce the counts:
-
-  `kidney.bam <http://qualimap.bioinfo.cipf.es/samples/counts/kidney.bam>`_ and `liver.bam <http://qualimap.bioinfo.cipf.es/samples/counts/liver.bam>`_
-
-- Genes Biotypes:
-
-  `human.64.genes.biotypes.txt <http://qualimap.bioinfo.cipf.es/samples/counts/human.64.genes.biotypes.txt>`_
-  
+- `marioini_countsqc_input.txt <http://kokonech.github.io/qualimap/samples/marioni_countsqc_input.txt>`_
+    Command line input configuration for the counts data above.
+ 
 
 .. _clustering-samples:
 
@@ -85,12 +86,13 @@ Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap HTML report <http:/
 RNA-seq QC
 **********
 
+Analysis of RNA-seq data (kidney.bam): `QualiMap HTML report <http://kokonech.github.io/qualimap/kidney_rnaseqqc/qualimapReport.html>`_.
 
 
 Multisample BAM QC
 ******************
 
-
+Multisample analysis of 12 gH2AX ChiP-seq alignments: `Qualimap HTML report <http://kokonech.github.io/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_.
 
 
 Counts QC
@@ -98,7 +100,7 @@ Counts QC
 
 .. _counts-example-output:
 
-Counts QC HTML report computed from an RNA-seq experiment analyzing influence of D-Glucosamine on mice. The analysis was performed for 6 samples in 2 conditions (GlcN positive and negative): 
+Counts QC HTML reports computed from RNA-seq experiment analyzing influence of D-Glucosamine on mice. The analysis was performed for 6 samples in 2 conditions (GlcN positive and negative): 
 
 - `Global report <http://kokonech.github.io/qualimap/glcn_mice_counts/GlobalReport.html>`_ 
 
@@ -115,6 +117,17 @@ Counts QC HTML report computed from an RNA-seq experiment analyzing influence of
 - `Sample 05 (GlcN positive) <http://kokonech.github.io/qualimap/glcn_mice_counts/pGlcn02Report.html>`_
 
 - `Sample 06 (GlcN positive) <http://kokonech.github.io/qualimap/glcn_mice_counts/pGlcn03Report.html>`_
+
+Counts QC HTML reports from human RNA-seq data (study by `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_ ): 
+
+- `Global report <http://kokonech.github.io/qualimap/marioni_counts/GlobalReport.html>`_ 
+
+- `Comparison of conditions <http://kokonech.github.io/qualimap/marioni_counts/ComparisonReport.html>`_
+
+- `Sample 01 (Kidney) <http://kokonech.github.io/qualimap/marioni_counts/KidneyReport.html>`_
+
+- `Sample 02 (Liver) <http://kokonech.github.io/qualimap/marioni_counts/LiverReport.html>`_
+
 
 
 Clustering

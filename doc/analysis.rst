@@ -19,12 +19,9 @@ Examples
 ^^^^^^^^
 
 - `Whole-genome sequencing: HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_. Report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
- 
-.. - Why is it no working?
-
 
  
-- `Whole-genome sequencing: ERRR089819.bam <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000975>`_.
+- `Whole-genome sequencing: ERRR089819.bam <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://www.ebi.ac.uk/ena/data/view/ERP000975>`_.
 
 .. !!FIX!!- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/plasm/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
 .. - `RNA-seq <http://qualimap.bioinfo.cipf.es/samples/plasm_RNASeq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
@@ -180,8 +177,8 @@ To start a new RNA-seq QC analysis activate main menu item :menuselection:`File 
 Examples
 ^^^^^^^^
 
-- `RNA-seq QC report <http://qualimap.bioinfo.cipf.es/samples/kidney_rnaseq_qc/qualimapReport.html>`_. This report was produced using the RNA-seq alignment of *Homo sapiens* kidney sample [Marioni]_ and Ensembl v.64 GTF file.
-- These data can be downloaded from :ref:`here <annotation-files>`.
+- `RNA-seq QC report <http://kokonech.github.io/qualimap/kidney_rnaseqqc/qualimapReport.html>`_. This report was produced using the RNA-seq alignment of *Homo sapiens* kidney sample [Marioni]_ and Ensembl v.64 GTF file.
+- These data can be downloaded from :ref:`here <bam-samples>`.
 
 Input parameters
 ^^^^^^^^^^^^^^^^
@@ -260,9 +257,10 @@ To run this analysis activate from the main menu :menuselection:`File --> New An
 Example
 ^^^^^^^
 
-- RNA-seq counts analysis from an experiment involving 6 samples in 2 conditions can be found :ref:`here <counts-example-output>`
+- RNA-seq counts analysis from 2 experiments can be found :ref:`here <counts-example-output>`
 
-- The counts can be downloaded from :ref:`here <counts-samples>`.
+
+- Sample counts data can be downloaded from :ref:`here <counts-samples>`.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
@@ -317,54 +315,47 @@ Input Parameters
 Output
 ^^^^^^
 
+Many of plots in Counts QC mode are created using `NOISeq package <http://www.bioconductor.org/packages/release/bioc/html/NOISeq.html>`_. The `NOISeq vignette <http://www.bioconductor.org/packages/release/bioc/vignettes/NOISeq/inst/doc/NOISeq.pdf>`_ contains a lot of useful information about the plots and how to interpret them. Here we provide short explanation of the plots.
+
 Global Plots
 """"""""""""
 
-:guilabel:`Global Saturation`
+:guilabel:`Counts Density`
 
-  This plot provides information about the level of saturation in the sample, so it helps the user to decide if more sequencing is needed or if no many more features will detected when increasing the number of reads. These are some tips for the interpretation of the plot: 
+    This plot shows density of counts computed from the histogram of log-transformed counts. In order to avoid infinite values in case of zero counts the transformation *log2(expr + 0.5)* is applied, where *expr* is a number of read counts for a given feature. Only log-transformed counts having value greater than 1 are plotted.
+
+
+:guilabel:`Scatterplot Matrix`
+
+    The panel shows a scatterplot along with smoothed line (lower panel) and Pearson correlation coefficients (upper panel) for each pair of samples. Plots are generated using log-transformed counts.
+
+:guilabel:`Saturation`
+
+  This plot provides information about the level of saturation in the samples, so it helps the user to decide if more sequencing is needed and more features could be detected when increasing the number of reads. These are some tips for the interpretation of the plot: 
   
   * The increasing sequencing depth of the sample is represented at the *x*-axis. The maximum value is the real sequencing depth of the sample(s). Smaller sequencing depths correspond to samples randomly generated from the original sample(s).
-  *  The curves are associated to the left *y*-axis. They represent the number of detected features at each of the sequencing depths in the *x*-axis. By "detected features" we refer to features with more than k counts, where k is the *Count threshold* selected by the user.
+  *  The curves are associated to the left *y*-axis. They represent the number of detected features at each of the sequencing depths in the *x*-axis. By "detected features" we refer to features with more than *k* counts, where *k* is the *Count threshold* selected by the user.
   * The bars are associated to the right *y*-axis. They represent the number of newly detected features when increasing the sequencing depth in one million reads at each sequencing depth value.
   
-  An example for this plot can be seen `here <http://qualimap.bioinfo.cipf.es/samples/counts_result/qualimapReport.html#GlobalSaturation.png>`_. 
+.. An example for this plot can be seen `here <http://qualimap.bioinfo.cipf.es/samples/counts_result/qualimapReport.html#GlobalSaturation.png>`_. 
 
-  When a **Group File** is **provided** by the user or chosen from those supplied by Qualimap, a series of **plots** are **additionally generated**:
 
-:guilabel:`Samples Correlation`
+.. TODO: fix this
 
-  When two samples are provided, this plot determines the **correlation level** between both samples. Due to the often wide range of expression data (counts), a log2-transformation is applied in order to improve the graphical representation. Features not detected in any of the two samples are removed for this analysis. To avoid infinite values in the case of genes with 0 counts in one of the samples, log2(expression + 1) is used.  Thus, sample 1 is depicted in X-axis and sample 2 in Y-axis.
+.. :guilabel:`Samples Correlation`
+
+..   When two samples are provided, this plot determines the **correlation level** between both samples. Due to the often wide range of expression data (counts), a log2-transformation is applied in order to improve the graphical representation. Features not detected in any of the two samples are removed for this analysis. To avoid infinite values in the case of genes with 0 counts in one of the samples, log2(expression + 1) is used.  Thus, sample 1 is depicted in X-axis and sample 2 in Y-axis.
   The colors of the plot should be interpreted as a map. The blue color is the level of the sea and the white color the top of the mountain. Hence, the higher you are over the sea level, the more genes you have in that range of X-Y values.
   In addition, the title of the plot includes the **Pearson's correlation coefficient**, which indicates if both samples present a linear relationship.
 
-  
-
-:guilabel:`Detection Per Class`
-
-  This barplot allows the user to know which kind of features are being detected his sample(s). The *x*-axis shows all the groups included in the :guilabel:`Group File` (or the biotypes supplied by Qualimap). The grey bars are the percentage of features of each group within the reference genome (or transcriptome, etc.). The striped color bars are the percentages of features of each group detected in the sample with regard to the genome. The solid color bars are the percentages that each group represents in the total detected features in the sample.
-
-:guilabel:`Counts Per Class`
-
-  A boxplot per each group describes the counts distribution for the detected features in that group.
-
-Comparison Plots
-""""""""""""""""
 
 :guilabel:`Counts Distribution`
 
+    This box plot shows the global distribution of counts in each sample.
 
 :guilabel:`Features With Low Counts`
 
-
-:guilabel:`Bio Detection`
-
-
-:guilabel:`Length Bias`
-
-
-:guilabel:`GC Bias`
-
+    This plot shows the proportion of features with low counts in the samples. Such features are usually less reliable and could be filtered out. In this plot, the bars show the percentage of features within each sample having more than 0 counts per million (CPM), or more than 1, 2, 5 and 10 CPM.
 
 
 Individual Sample Plots
@@ -374,15 +365,49 @@ Individual Sample Plots
     
     For each sample, a saturation plot is generated like the one described in :guilabel:`Global Saturation`.
 
-Additionally if the info file is provided the followin plots are computed:
+When a **Info File** is provided by the user or annotations are chosen from those supplied by Qualimap, additional series of plots are generated:
 
 :guilabel:`Bio Detection`
 
+  This barplot allows the user to know which kind of features are being detected his sample(s). The *x*-axis shows all the groups included in the annotations file. The grey bars are the percentage of features of each group within the reference genome (or transcriptome, etc.). The striped color bars are the percentages of features of each group detected in the sample with regard to the genome. The solid color bars are the percentages that each group represents in the total detected features in the sample.
+
 :guilabel:`Counts Per Biotype`
+
+  A boxplot per each group describes the counts distribution in the given biotype.
 
 :guilabel:`Length Bias`
 
+    The plot describes the relationship between the length of the features and the expression values. The length is divided into bins. Mean expression of features falling into a particular length interval is computed and plotted. A cubic spline regression model is fitted to explain the relation between length and expression. `Coefficient of determination R^2 <http://en.wikipedia.org/wiki/Coefficient_of_determination>`_ and p-value are shown together with regression curve.
+
 :guilabel:`GC Bias`
+
+    The plot describes the relantionship between the GC-content of the features and the expression values. The data for the plot is generated similar to :guilabel:`Length Bias` plot. The GC content divided into beans and then mean expressiof features corresponding to given GC interval are computed. The relation between GC-content and expression is investigated using cubic spline regression model.
+
+
+Comparison Plots
+""""""""""""""""
+
+When **Compare condtions** option is selected, additional plots comparing data in groups of samples having the same biological condition or treatment are available.
+
+:guilabel:`Counts Distribution`
+
+    The plot is similar to the one in :guilabel:`Global` report. It compares ditributions of **mean** counts across conditions.
+
+:guilabel:`Features With Low Counts`
+
+    The plot is similar to the one in :guilabel:`Global` report. It compares proportions of features with low counts using **mean** counts across conditions.
+
+:guilabel:`Bio Detection`
+
+    The plot is similar to the one in :guilabel:`Indvidual Sample Plots` report. It compares distribution of the detected features for the given biotype for **mean** counts across conditions.
+
+:guilabel:`Length Bias`
+
+    The plot is similar to the one in :guilabel:`Individual Sample Plots` report. It analyzes relation between feature length and expression across conditions.
+
+:guilabel:`GC Bias`
+
+    The plot is similar to the one in :guilabel:`Individual Sample Plots` report. It analyzes realtion between GC-content and expression across conditions.
 
 
 .. _multibamqc:
@@ -401,7 +426,7 @@ Examples
 
 - `gH2AX Chip-seq data: 4 conditions, 3 replicates per condition <http://kokonech.github.io/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_. Example report for a ChIP-seq experiment having 12 samples.
  
-See the :ref:`Sample data <samples>` section for more details about the data used in the examples.
+- See the :ref:`Sample data <samples>` section for more details about the data used in the example.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
@@ -412,13 +437,13 @@ The summary statistics and plot data produced by BAM QC analysis are used as inp
 
 The input samples can be added using button :guilabel:`Add`. For each sample one has to provide the following information:
 
-1. **Name** of the sample 
+1. **Name** of the sample as it will be used in legend.
 
-2. **Path to the folder** with which contains results of BAM QC analysis performed on the sample. The folder must include file **genome_results.txt** and subfolder **raw_data_qualimapReport** containing data of BAM QC plots.
+2. **Path** to the folder with which contains results of BAM QC analysis performed on the sample. The folder must include file **genome_results.txt** and subfolder **raw_data_qualimapReport** containing data of BAM QC plots.
 
 .. note::
 
-   In QualiMap version <= 2.0 raw data dir of BAM QC analysis was called **raw_data**. This name is also supported.
+   In QualiMap version <= 2.0 directory with raw data of BAM QC analysis was called **raw_data**. This name is also supported.
 
 Each added sample will be shown in **Samples** table. One can edit samples using button :guilabel:`Edit` and remove them using button :guilabel:`Remove`.
 
@@ -437,33 +462,13 @@ Output
 
   Here one can check the **input data** and the **parameters** used for the analysis.
 
-:guilabel:`PCA biplot`
+:guilabel:`PCA`
 
   The alignment features presented in the *Summary* section undergo `Principal Component Analysis <http://en.wikipedia.org/wiki/Principal_component_analysis>`_. Afterwards the `biplot <http://en.wikipedia.org/wiki/Biplot>`_ presenting first and second principal component is constructed. The plot shows how much variability demonstarte the analyzed samples. It allows to detect if any samples group together and if there are any outliers among analyzed samples.
 
-:guilabel:`Coverage Across Reference` 
+:guilabel:`Coverage Across Reference`, :guilabel:`Coverage Histogram (0-50X)` , :guilabel:`Genome Fraction Coverage`, :guilabel:`Duplication Rate Histogram`, :guilabel:`Mapped Reads GC Content`, :guilabel:`Mapped Reads GC Content Distribution`, :guilabel:`Mapped Reads Clipping Profile`, :guilabel:`Mapping Quality Across Reference`, :guilabel:`Mapping Quality Histogram`, :guilabel:`Insert Size Across Reference`, :guilabel:`Insert Size Histogram`
 
-:guilabel:`Coverage Histogram (0-50X)` 
-
-:guilabel:`Genome Fraction Coverage` 
-
-:guilabel:`Duplication Rate Histogram`
-
-:guilabel:`Mapped Reads GC Content`
-
-:guilabel:`Mapped Reads GC Content Distribution` 
-
-:guilabel:`Mapped Reads Clipping Profile` 
-
-:guilabel:`Mapping Quality Across Reference`
-
-:guilabel:`Mapping Quality Histogram`
-
-:guilabel:`Insert Size Across Reference`
-
-:guilabel:`Insert Size Histogram`
-
-The following plots demonstrate the comparison of samples using data from corresponding plots from BAM QC analysis. Each curve on a plot represents a single sample.
+The following plots demonstrate the comparison of samples using data from corresponding plots computed during BAM QC analysis. Each curve on a plot represents a single sample.
 
 Please refer to documentation of :ref:`BAM QC<bamqc>` for detailed information about the plots.
 

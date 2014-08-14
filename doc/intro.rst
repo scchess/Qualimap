@@ -16,7 +16,9 @@ The main features offered by Qualimap are:
 * fast analysis across the reference genome of mapping coverage and nucleotide distribution; 
 * easy-to-interpret summary of the main properties of the alignment data; 
 * analysis of the reads mapped inside/outside of the regions defined in an annotation reference; 
+* computation and analysis of read counts obtained from intersting of read alignments with genomic features;
 * analysis of the adequacy of the sequencing depth in RNA-seq experiments;
+* support for multi-sample comparison for alignment data and counts data;
 * clustering of epigenomic profiles.
 
 Installation
@@ -56,7 +58,7 @@ Several Qualimap features are implemented in R, using a number of external packa
 Currently Qualimap requires the following R-packages:
  
 * optparse (available from `CRAN <http://cran.r-project.org>`_)
-* Repitools, Rsamtools, GenomicFeatures, rtracklayer (available from `Bioconductor <http://bioconductor.org>`_) 
+* NOISeq, Repitools, Rsamtools, GenomicFeatures, rtracklayer (available from `Bioconductor <http://bioconductor.org>`_) 
 
 One can install these packages `manually <http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages>`_ or by executing the script found in the installation folder:
 
