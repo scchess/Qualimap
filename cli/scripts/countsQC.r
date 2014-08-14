@@ -63,6 +63,19 @@ init.png <- function(path, width = image.width, height = image.height) {
         type="cairo")
 }
 
+# took it from http://gettinggeneticsdone.blogspot.de/2011/07/scatterplot-matrices-in-r.html
+
+panel.cor <- function(x, y, digits=2, prefix="", cex.cor, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(0, 1, 0, 1))
+    r <- abs(cor(x, y))
+    txt <- format(c(r, 0.123456789), digits=digits)[1]
+    txt <- paste(prefix, txt, sep="")
+    if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
+    text(0.5, 0.5, txt, cex = cex.cor * r)
+}
+
 # LOAD DATA
 
 cat("Reading input data using input description from", input.desc, "\n")
@@ -145,16 +158,9 @@ cat("\nDraw global plots...\n")
 
 # Counts Density
 
-#plot.new()
-#plot.window(xlim=c(0,max(transformed.e)), ylim=c(0,0.5))
-#axis(1)
-#axis(2)
-#title(main=)
-#plot(density((transformed.e[idx,1])), type='l', col = 1 , xlab="Log2(Counts)", ylab="Density")
-#legend("right", inset=c(0,0), title="Samples", fill=1:4, legend=colnames(e))
+cat("Compute counts density...\n")
 
-
-init.png( paste(opt$dirOut, "01_Counts_Density.png",sep="/") )
+init.png( paste(opt$dirOut, "00_Counts_Density.png",sep="/") )
     
 par(mar=c(5, 4, 4, 8) + 0.1, xpd=TRUE)
 
@@ -186,6 +192,19 @@ for (i in 1:num_samples) {
 
 legend("right", title="Samples", fill=1:num_samples, legend=colnames(counts))
 garbage <- dev.off()
+
+# Correlation matrix
+
+cat("Compute scatterplots..\n")
+
+init.png( paste(opt$dirOut, "01_Scatterplot_Matrix.png",sep="/") )
+
+s <- sample(1:nrow(transformed.counts), 5000,  replace=FALSE)
+counts.sample <- transformed.counts[s,]
+pairs(counts.sample, lower.panel = panel.smooth, upper.panel = panel.cor, main = "Scatterplot Matrix")
+
+garbage <- dev.off()
+
 
 # Global saturation
 
