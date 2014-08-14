@@ -160,12 +160,27 @@ par(mar=c(5, 4, 4, 8) + 0.1, xpd=TRUE)
 
 transformed.counts <- log2(counts + 0.5)
 
+d.max <- 0
+dens_data <- vector("list", num_samples)
+
 for (i in 1:num_samples) {
-    idx <- transformed.counts[,i] > 1
+    idx <- transformed.counts[,i] >= 1
+    d <- density((transformed.counts[idx,i]))
+    y.max <- max(d$y)
+    if (y.max > d.max) {
+        d.max <- y.max
+    }
+    dens_data[[i]] <- d
+}
+
+
+for (i in 1:num_samples) {
+    d <- dens_data[[i]]
     if (i == 1) {
-        plot(density((transformed.counts[idx,i])), type='l', col = i, lwd=2, main="Counts density", xlab="Log2(Counts)", ylab="Density")    
+        plot( d , type='l', col = i, lwd=2, ylim=c(0,d.max),
+              main="Counts density", xlab="Log2(Counts)", ylab="Density")    
     } else {
-        lines(density((transformed.counts[idx,i])), type='l', col = i, lwd=2)
+        lines(d, type='l', col = i, lwd=2)
     }
 }
 
