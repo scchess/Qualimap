@@ -82,7 +82,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
                         LibraryProtocol.getProtocolNamesString());
             }
         } else {
-            protocol = LibraryProtocol.PROTOCOL_FORWARD_STRAND;
+            protocol = LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
         }
 
         if (commandLine.hasOption(OPTION_COUNTS_FILE)) {
