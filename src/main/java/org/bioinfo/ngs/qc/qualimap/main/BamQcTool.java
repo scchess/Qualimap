@@ -76,7 +76,7 @@ public class BamQcTool extends NgsSmartTool{
                 "Minimum size for a homopolymer to be considered in indel analysis (default is "
                         + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
         options.addOption(Constants.BAMQC_OPTION_COVERAGE_REPORT_FILE, "output-genome-coverage",  true,
-                "File to save per base non-zero coverage. Warning: large files" +
+                "File to save per base non-zero coverage. Warning: large files " +
                 "are expected for large genomes");
         options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
                 "Paint chromosome limits inside charts");

@@ -11,7 +11,7 @@ cp -v doc/_build/latex/QualimapManual.pdf $QUALIMAP_DIR
 
 tar -cf $QUALIMAP_DIR.tar $QUALIMAP_DIR 
 gzip -f $QUALIMAP_DIR.tar
-scp $QUALIMAP_DIR.tar.gz genome:/data/qualimapLatestBuild/
+#scp $QUALIMAP_DIR.tar.gz genome:/data/qualimapLatestBuild/
 
 #cleanup
 rm -rf $QUALIMAP_DIR

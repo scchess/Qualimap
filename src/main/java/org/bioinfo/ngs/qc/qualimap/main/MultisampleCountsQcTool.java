@@ -71,7 +71,9 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
 
     @Override
     protected void initOptions() {
-        options.addOption(requiredOption("d", "data", true, "File describing the input data."));
+        options.addOption(requiredOption("d", "data", true, "File describing the input data. " +
+                "Format of the file is a 4-column tab-delimited table.\nColumn 1: sample name\nColumn 2: condition of the sample" +
+                "\nColumn 3: path to the counts data for the sample\nColumn 4: index of the column with counts"));
         options.addOption("i", "info", true, "Path to info file containing genes GC-content, length and type.");
         options.addOption("s", "species", true, "Use built-in info file for the given species: HUMAN or MOUSE.");
         options.addOption("k", "threshold", true, "Threshold for the number of counts");

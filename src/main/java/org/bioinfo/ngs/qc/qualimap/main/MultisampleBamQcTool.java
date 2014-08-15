@@ -28,7 +28,9 @@ public class MultisampleBamQcTool extends NgsSmartTool{
 
     @Override
     protected void initOptions() {
-        options.addOption(requiredOption("i", "input", true, "File describing the input data. Format: 2-column table."));
+        options.addOption(requiredOption("d", "data", true,
+                "File describing the input data. Format of the file is a 2-column tab-delimited table." +
+                "\nColumn 1: sample name \nColumn 2: path to the BAM QC result for the sample"));
 
     }
 
@@ -36,7 +38,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
     protected void checkOptions() throws ParseException {
         inputFile = commandLine.getOptionValue("input");
         if(!exists(inputFile)) {
-            throw new ParseException("input description file (--input) " + inputFile + " is not found");
+            throw new ParseException("input data description file (--data) " + inputFile + " is not found");
         }
     }
 
