@@ -71,10 +71,6 @@ public class BrowseButtonActionListener implements ActionListener {
     }
 
 
-    public void setAllowDirectories(boolean allowDirs) {
-        this.allowDirectories = allowDirs;
-    }
-
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
 

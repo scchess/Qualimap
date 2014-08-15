@@ -72,6 +72,9 @@ public class EditCountsSampleInfoDialog extends JDialog implements KeyListener{
         CountsSampleInfo itemToModify = parentDlg.getDataItem(itemIndex);
         sampleName.setText(itemToModify.name);
         pathField.setText(itemToModify.path);
+        dataColumnSpinner.setValue(itemToModify.columnNum);
+        conditionIndexSpinner.setValue(itemToModify.conditionIndex);
+
 
 
     }

@@ -366,6 +366,25 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
             if (condition2NameEdit.getText().length() == 0) {
                 return "Condition 2 name is empty!";
             }
+
+            List<CountsSampleInfo> items = sampleTableModel.getItems();
+            int idx = items.get(0).conditionIndex;
+            boolean allSamplesSameIndex = true;
+            for (int i = 1; i < items.size(); ++i) {
+                if (items.get(i).conditionIndex != idx) {
+                    allSamplesSameIndex = false;
+                    break;
+                }
+            }
+
+            if (allSamplesSameIndex) {
+                return "All samples have the same condition!\n" +
+                        "To perform comparison different conditions are required.";
+            }
+
+
+
+
         }
 
         if (provideInfoFileCheckBox.isSelected()) {
