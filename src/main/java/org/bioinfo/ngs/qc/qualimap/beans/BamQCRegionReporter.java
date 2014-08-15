@@ -531,18 +531,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                     coverageRangedHistogram.getChart() ) );
         }
 
-        /////////////////////////////// Duplication Rate Histogram ///////////////////////////////
-		BamQCXYHistogramChart uniqueReadStartsHistogram =
-                new BamQCXYHistogramChart(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
-                subTitle, "Duplication rate", "Number of loci");
-		uniqueReadStartsHistogram.addHistogram("Coverage", bamStats.getUniqueReadStartsHistogram(), Color.GREEN);
-		uniqueReadStartsHistogram.setDomainAxisIntegerTicks(true);
-		uniqueReadStartsHistogram.setDomainAxisTickUnitSize(1.0);
-        uniqueReadStartsHistogram.render();
-
-        charts.add(new QChart( bamStats.getName() + "_uniq_read_starts_histogram.png",
-                uniqueReadStartsHistogram.getChart(), uniqueReadStartsHistogram )  );
-
 
 		//////////////////////////////// Genome Fraction Coverage /////////////////////////////////
         BamQCChart coverageQuota = new BamQCChart(Constants.PLOT_TITLE_GENOME_FRACTION_COVERAGE, subTitle,
@@ -554,6 +542,19 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         coverageQuota.render();
 		charts.add( new QChart(bamStats.getName() + "_coverage_quotes.png", coverageQuota.getChart(),
                 coverageQuota) );
+
+        /////////////////////////////// Duplication Rate Histogram ///////////////////////////////
+        BamQCXYHistogramChart uniqueReadStartsHistogram =
+                new BamQCXYHistogramChart(Constants.PLOT_TITLE_DUPLICATION_RATE_HISTOGRAM,
+                subTitle, "Duplication rate", "Number of loci");
+        uniqueReadStartsHistogram.addHistogram("Coverage", bamStats.getUniqueReadStartsHistogram(), Color.GREEN);
+        uniqueReadStartsHistogram.setDomainAxisIntegerTicks(true);
+        uniqueReadStartsHistogram.setDomainAxisTickUnitSize(1.0);
+        uniqueReadStartsHistogram.render();
+
+        charts.add(new QChart( bamStats.getName() + "_uniq_read_starts_histogram.png",
+                uniqueReadStartsHistogram.getChart(), uniqueReadStartsHistogram )  );
+
 
 
         ////////////////////////////// Reads nucleotide content ////////////////////////////////////
@@ -573,22 +574,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                     readsContentChart.getChart(), readsContentChart));
         }
 
-        if (bamStats.clippingIsPresent()) {
-            BamQCChart clippingProfile = new BamQCChart(Constants.PLOT_TITLE_READS_CLIPPING_PROFILE,
-                    subTitle, "Read position (bp)", " Clipped bases (%)");
-            clippingProfile.addSeries("Clipping profile", bamStats.getReadsClippingProfileHistogram(), new Color(255, 0, 0, 255));
-            clippingProfile.setAdjustDomainAxisLimits(false);
-            clippingProfile.setDomainAxisIntegerTicks(true);
-            clippingProfile.setPercentageChart(true);
-            clippingProfile.setShowLegend(false);
-            clippingProfile.render();
-            charts.add(new QChart(bamStats.getName() + "_reads_clipping_profile.png",
-                    clippingProfile.getChart(), clippingProfile));
-
-        }
-
 
         /////////////////////////////// Reads GC Content histogram ///////////////////////////////////
+
         BamQCChart gcContentHistChart = new BamQCChart(Constants.PLOT_TITLE_READS_GC_CONTENT, subTitle,
                 "GC Content (%)", "Fraction of reads");
 		gcContentHistChart.addSeries("Sample", bamStats.getGcContentHistogram(), new Color(20, 10, 255, 255));
@@ -605,6 +593,24 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		charts.add(new QChart(bamStats.getName() + "_gc_content_per_window.png", gcContentHistChart.getChart(),
                 gcContentHistChart ));
 
+        ///////////////// Clipping profile ///////////////
+
+
+        if (bamStats.clippingIsPresent()) {
+            BamQCChart clippingProfile = new BamQCChart(Constants.PLOT_TITLE_READS_CLIPPING_PROFILE,
+                    subTitle, "Read position (bp)", " Clipped bases (%)");
+            clippingProfile.addSeries("Clipping profile", bamStats.getReadsClippingProfileHistogram(), new Color(255, 0, 0, 255));
+            clippingProfile.setAdjustDomainAxisLimits(false);
+            clippingProfile.setDomainAxisIntegerTicks(true);
+            clippingProfile.setPercentageChart(true);
+            clippingProfile.setShowLegend(false);
+            clippingProfile.render();
+            charts.add(new QChart(bamStats.getName() + "_reads_clipping_profile.png",
+                    clippingProfile.getChart(), clippingProfile));
+
+        }
+
+        ///////////////// Homopolymer indels ///////////////
 
         if (bamStats.getNumIndels() > 0 ) {
             BamQCBarChart homopolymerIndels = new BamQCBarChart( Constants.PLOT_TITLE_HOMOPOLYMER_INDELS,
@@ -612,6 +618,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             homopolymerIndels.render();
             charts.add( new QChart(bamStats.getName() + "_homopolymer_indels", homopolymerIndels.getChart(), homopolymerIndels ));
         }
+
 
 		///////////////// mapping quality charts ///////////////
 
