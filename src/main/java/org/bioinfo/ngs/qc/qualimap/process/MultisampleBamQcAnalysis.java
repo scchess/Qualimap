@@ -425,6 +425,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     private String findRawDataPath(String targetDir) {
 
         File dir = new File(targetDir);
+
         if (!dir.exists() || !dir.isDirectory())  {
             return null;
         }
@@ -447,11 +448,15 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     private void checkInputPaths() throws RuntimeException {
         for (SampleInfo sampleInfo : bamQCResults) {
 
+            if (! new File(sampleInfo.path).isDirectory()) {
+                sampleInfo.path = (new File(sampleInfo.path).getParent() );
+            }
             String rawDataDir = findRawDataPath(sampleInfo.path);
 
 
             if (rawDataDir == null) {
-                throw new RuntimeException("The raw data doesn't exist for BAM QC result folder:" + sampleInfo.path +
+                throw new RuntimeException("The raw data doesn't exist for " + sampleInfo.name +
+                        "\nFolder path:" + sampleInfo.path +
                         "\nPlease check raw data directory is present.\n");
             }
 

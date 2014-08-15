@@ -281,7 +281,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
         JButton browseOutputPathButton = new JButton("...");
         browseOutputPathButton.addActionListener(new BrowseButtonActionListener(this,
-                outputPathField, "Counts file") );
+                outputPathField, "Counts file", false) );
         add(browseOutputPathButton, "wrap");
 
         saveStatsBox = new JCheckBox("Save computation summary");

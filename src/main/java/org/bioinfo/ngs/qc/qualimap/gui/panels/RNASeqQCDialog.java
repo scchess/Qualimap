@@ -152,7 +152,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         add(countsPathEdit, "grow");
         browseCountsFileButton = new JButton("...");
         browseCountsFileButton.addActionListener(new BrowseButtonActionListener(this,
-                countsPathEdit, "Counts file"));
+                countsPathEdit, "Counts file", false));
         add(browseCountsFileButton, "align center, wrap");
 
         advancedOptions = new JCheckBox("Advanced options:");

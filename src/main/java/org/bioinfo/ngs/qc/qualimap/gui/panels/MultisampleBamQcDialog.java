@@ -213,6 +213,8 @@ String validateInput() {
 
         if (sampleTableModel.getRowCount() == 0) {
             return "No input data is provided!";
+        } else if (sampleTableModel.getRowCount() == 1) {
+            return "Only one sample is provided! Please include more samples.";
         }
 
         return "";

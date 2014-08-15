@@ -68,7 +68,7 @@ public class ExportGeneListDialog extends JDialog implements ActionListener {
 
         JButton browseOutputPathButton = new JButton("...");
         browseOutputPathButton.addActionListener(new BrowseButtonActionListener(this,
-                outputPathField, "Counts file") );
+                outputPathField, "Counts file", false) );
         add(browseOutputPathButton, "wrap");
 
         add(new JLabel("Preview"), "wrap");

@@ -68,7 +68,8 @@ public class EditSampleInfoDialog extends JDialog implements KeyListener {
         pathField = new JTextField(30);
         add(pathField);
         browseSampleButton = new JButton("...");
-        browseSampleButton.addActionListener(new BrowseButtonActionListener(this, pathField, "Qualimap BAM QC result"));
+        browseSampleButton.addActionListener(
+                new BrowseButtonActionListener(this, pathField, "Qualimap BAM QC result", true) );
         add(browseSampleButton, "wrap");
 
         JPanel buttonPanel = new JPanel();

@@ -89,7 +89,7 @@ public class EditCountsSampleInfoDialog extends JDialog implements KeyListener{
         pathField = new JTextField(30);
         add(pathField);
         browseCountsDataButton = new JButton("...");
-        browseCountsDataButton.addActionListener(new BrowseButtonActionListener(this, pathField, "Counts data"));
+        browseCountsDataButton.addActionListener(new BrowseButtonActionListener(this, pathField, "Counts data",false));
         add(browseCountsDataButton, "wrap");
 
         JLabel colLabel = new JLabel("Data column index:");

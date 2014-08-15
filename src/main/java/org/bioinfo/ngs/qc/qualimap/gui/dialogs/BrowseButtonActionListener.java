@@ -41,19 +41,22 @@ public class BrowseButtonActionListener implements ActionListener {
     protected Component parent;
     protected String description;
     protected String[] extentions;
+    boolean allowDirectories;
 
-    public BrowseButtonActionListener(Component parent, JTextField field, String description) {
+    public BrowseButtonActionListener(Component parent, JTextField field, String description, boolean allowDirs) {
         this.parent = parent;
         this.pathEdit = field;
         this.description = description;
         this.extentions = null;
+        this.allowDirectories = allowDirs;
+
     }
 
     public BrowseButtonActionListener(Component parent, JTextField field, String description, String ext) {
         this.parent = parent;
         this.pathEdit = field;
         this.description = description;
-
+        this.allowDirectories = false;
         this.extentions = new String[1];
         extentions[0] = ext;
     }
@@ -64,13 +67,21 @@ public class BrowseButtonActionListener implements ActionListener {
         this.pathEdit = field;
         this.description = description;
         this.extentions = extentions;
+        this.allowDirectories = false;
     }
 
+
+    public void setAllowDirectories(boolean allowDirs) {
+        this.allowDirectories = allowDirs;
+    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
 
         JFileChooser fileOpenChooser = HomeFrame.getFileChooser();
+        if (allowDirectories) {
+            fileOpenChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        }
 
         FileFilter filter = new FileFilter() {
             public boolean accept(File fileShown) {
