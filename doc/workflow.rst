@@ -3,6 +3,8 @@
 Workflow
 ========
 
+This chapter describes how to perform QC analysis of alignment data with graphical user interface of Qualimap. To run analysis with command line interface please refer to the :ref:`corresponding chapter <command-line>`.
+
 Starting a new analysis
 -----------------------
 

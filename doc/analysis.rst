@@ -127,23 +127,30 @@ Output
 
    Histogram of the number of **genomic locations** having a given **coverage rate**. In this graph genome locations with a coverage greater than **50X** are grouped into the last bin. By doing so a higher resolution of the most common values for the coverage rate is obtained.
 
-:guilabel:`Genome Fraction by Coverage`
+
+:guilabel:`Genome Fraction Coverage`
 
   Provides a visual way of knowing how much **reference** has been **sequenced** with **at least** a given **coverage rate**. This graph should be interpreted as in this example:
 
   If one aims a coverage rate of **at least 25X** (*x*-axis), how much of reference (*y*-axis) will be considered? The answer to this question in the case of the whole-genome sequencing `provided example <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html#genome_coverage_quotes.png>`_ is **~83%**.
 
+:guilabel:`Duplication Rate Histogram` 
+
+  This plot shows the **distribution** of **duplicated** read **starts**. Due to several factors (e.g. amount of starting material, sample preparation, etc) it is possible that the same **fragments** are **sequenced several times**. For some experiments where enrichment is used (e.g. ChIP-seq ) this is expected at some *low* rate. If most of the reads share the exact same genomic positions there is very likely an associated bias.  
+
+
 :guilabel:`Mapped Reads Nucleotide Content` 
 
   This plot shows the **nucleotide content per position** of the **mapped reads**.
+
+:guilabel:`Mapped Reads GC Content Distribution` 
+
+  This graph shows the distribution of **GC content** per **mapped read**. If compared with a precomputed :ref:`genome distribution <input-gc-content>`, this plot allows to check if there is a shift in the GC content. 
 
 :guilabel:`Mapped Reads Clipping Profile`
 
   Represents the percentage of clipped bases across the reads. The clipping is detected via SAM format CIGAR codes ‘H’ (hard clipping) and ‘S’ (soft clipping). In addition, the total number of clipped reads can be found in the report Summary. The plot is not shown if there are no clipped-reads are found. Total number of clipped reads can be found in :guilabel:`Summary`. `Example <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html#genome_reads_clipping_profile.png>`_.
 
-:guilabel:`Mapped Reads GC Content Distribution` 
-
-  This graph shows the distribution of **GC content** per **mapped read**. If compared with a precomputed :ref:`genome distribution <input-gc-content>`, this plot allows to check if there is a shift in the GC content. 
 
 :guilabel:`Homopolymer Indels`
 
@@ -153,10 +160,6 @@ Output
   This chart is not shown if the sample doesn't contain any indels.
 
 
-:guilabel:`Duplication Rate Histogram` 
-
-  This plot shows the **distribution** of **duplicated** read **starts**. Due to several factors (e.g. amount of starting material, sample preparation, etc) it is possible that the same **fragments** are **sequenced several times**. For some experiments where enrichment is used (e.g. ChIP-seq ) this is expected at some *low* rate. If most of the reads share the exact same genomic positions there is very likely an associated bias.  
-
 :guilabel:`Mapping Quality Across Reference` 
 
   This plot provides the **mapping quality** distribution **across the reference**.
@@ -164,6 +167,16 @@ Output
 :guilabel:`Mapping Quality Histogram` 
 
   Histogram of the number of **genomic locations** having a given **mapping quality**. According to Specification of the `SAM format <http://samtools.sourceforge.net/SAM1.pdf>`_ the range for the mapping quality is [0-255].
+
+
+:guilabel:`Insert Size Across Reference`
+
+  This plot provides the **insert size** distribution **across the reference**. Insert size is collected from the SAM alignment field TLEN. Only positive values are taken into account.
+
+:guilabel:`Insert Size Histogram`
+
+  Histogram of **insert size** distribution.
+
 
 .. _rnaseqqc:
 
@@ -225,7 +238,7 @@ Output
    
 :guilabel:`Input`
 
-  Here one can check the **input data*** and the **parameters*** used for the analysis.
+  Here one can check the **input data** and the **parameters** used for the analysis.
 
 :guilabel:`Coverage Profile`
 
@@ -297,7 +310,7 @@ Input Parameters
 
 :guilabel:`Include feature classification`
     
-    **Optional**. Activate this option to analyze the distirbution of counts based on the annotation of the features. This option enables analysis of distribution of counts among feature groups; GC-content and length bias estimation.
+    **Optional**. This option enables analysis of distribution of counts among feature groups defined by the biotype. In addition GC-content and length bias will be estimated.
 
 :guilabel:`Species`
 
@@ -306,10 +319,10 @@ Input Parameters
 
 :guilabel:`Info File`
 
-    File containing annotations of the features of the count files. It must be a **four columns** **tab-delimited** text file, with the features names or IDs in the first column, the group (e.g. the biotype from Ensembl database) in the second column, feature GC content in the third column and feature length in the last column. (see `human.64.genes.biotypes <http://qualimap.bioinfo.cipf.es/samples/counts/human.64.genes.biotypes>`_ for an example). Again, the file must not contain any header or column names. If this file is provided, specific plots for each defined group are generated. Please, make sure that the **features IDs** on this file are the same in the **count files**.
+    File containing annotations of the features of the count files. It must be a **four-column** **tab-delimited** text file, with the features names or IDs in the first column, the group (e.g. the biotype from Ensembl database) in the second column, feature GC content in the third column and feature length in the last column (see `human.ens68.txt <http://kokonech.github.io/qualimap/samples/human.ens68.txt>`_ for an example). Please, make sure that the **features IDs** on this file are the same in the **count files**.
 
 .. note::
-    To generate info file based on GTF annotations and genome FASTA file one can use the following `Python script <https://bitbucket.org/kokonech/qualimap/src/master/util/createQualimapInfoFile.py?at=master>`_ available from Qualimap repo.
+    To generate info file based on an arbitrary GTF annotations and genome FASTA file, one can use the following `Python script <https://bitbucket.org/kokonech/qualimap/src/master/util/createQualimapInfoFile.py?at=master>`_ available from Qualimap repo.
 
 
 Output
@@ -319,6 +332,8 @@ Many of plots in Counts QC mode are created using `NOISeq package <http://www.bi
 
 Global Plots
 """"""""""""
+
+Plots from this report present a global overview of the counts data and include all the samples.
 
 :guilabel:`Counts Density`
 
@@ -360,6 +375,8 @@ Global Plots
 
 Individual Sample Plots
 """""""""""""""""""""""
+
+Apart from global overview there are plots generated individually for each sample. 
 
 :guilabel:`Saturation`
     
@@ -415,9 +432,9 @@ When **Compare condtions** option is selected, additional plots comparing data i
 Multi-sample BAM QC
 -------------------
 
-Very often in genomics one has to work with multiple samples, which could represent sequeincing results from either techncal or biological replicates. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
+Very often in genomics one has to work with multiple samples, which could represent sequeincing results from either biological replicates or different conditions. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
 
-QualiMap provides an automated solution for this task. Basically, the results of selected plots computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to detect aoutliers.
+QualiMap provides an automated solution for this task. Basically, the results of selected plots computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers.
 
 To start a new multi-sample BAM QC analysis activate main menu item :menuselection:`File --> New Analysis --> Multisample BAM QC`.
 
@@ -448,7 +465,6 @@ The input samples can be added using button :guilabel:`Add`. For each sample one
 Each added sample will be shown in **Samples** table. One can edit samples using button :guilabel:`Edit` and remove them using button :guilabel:`Remove`.
 
 To start the analysis click button :guilabel:`Run analysis`.
-
 
 
 Output

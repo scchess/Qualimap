@@ -33,6 +33,7 @@ Annotations
 .. `Plasmodium-falciparum-3D7.gff <http://qualimap.bioinfo.cipf.es/samples/annotations/Plasmodium-falciparum-3D7.gff>`_ 
   Gene Annotations of Plasmodium falciparum 3D7 clone , from `Wellcome Trust Sanger Institue <http://www.sanger.ac.uk/resources/downloads/protozoa/plasmodium-falciparum.html>`_.
 
+.. _multibamqc-samples:
 
 Multisample BAM QC
 ******************
@@ -86,7 +87,7 @@ Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap HTML report <http:/
 RNA-seq QC
 **********
 
-Analysis of RNA-seq data (kidney.bam): `QualiMap HTML report <http://kokonech.github.io/qualimap/kidney_rnaseqqc/qualimapReport.html>`_.
+Analysis of RNA-seq data (kidney.bam, human.64.gtf): `QualiMap HTML report <http://kokonech.github.io/qualimap/kidney_rnaseqqc/qualimapReport.html>`_.
 
 
 Multisample BAM QC
@@ -100,7 +101,7 @@ Counts QC
 
 .. _counts-example-output:
 
-Counts QC HTML reports computed from RNA-seq experiment analyzing influence of D-Glucosamine on mice. The analysis was performed for 6 samples in 2 conditions (GlcN positive and negative): 
+Counts QC HTML reports computed from RNA-seq experiment analyzing influence of D-Glucosamine on mice. The analysis was performed for 6 samples in 2 conditions - GlcN positive and negative (mouse_counts_ensembl.txt): 
 
 - `Global report <http://kokonech.github.io/qualimap/glcn_mice_counts/GlobalReport.html>`_ 
 
@@ -118,7 +119,7 @@ Counts QC HTML reports computed from RNA-seq experiment analyzing influence of D
 
 - `Sample 06 (GlcN positive) <http://kokonech.github.io/qualimap/glcn_mice_counts/pGlcn03Report.html>`_
 
-Counts QC HTML reports from human RNA-seq data (study by `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_ ): 
+Counts QC HTML reports from human RNA-seq data from study by `Marioni JC et al <http://genome.cshlp.org/content/18/9/1509.abstract>`_ (kidney.counts, liver.counts): 
 
 - `Global report <http://kokonech.github.io/qualimap/marioni_counts/GlobalReport.html>`_ 
 

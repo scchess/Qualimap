@@ -10,7 +10,7 @@ Each analysis type presented in QualiMap GUI is also available as command line t
 
     qualimap <tool_name> <tool_options>
 
-:guilabel:`<tool_name>` is the name of the desired analysis. This could be: :ref:`bamqc<cmdline-bamqc>`, :ref:`rnaseq<cmdline-rnaseqqc>`,  :ref:`counts<cmdline-countsqc>`, :ref:`clustering<cmdline-clustering>` or :ref:`comp-counts<cmdline-counts>`. 
+:guilabel:`<tool_name>` is the name of the desired analysis. This could be: :ref:`bamqc<cmdline-bamqc>`, :ref:`rnaseq<cmdline-rnaseqqc>`, :ref:`multi-bamqc <cmdline-multibamqc>`,  :ref:`counts<cmdline-countsqc>`, :ref:`clustering<cmdline-clustering>` or :ref:`comp-counts<cmdline-counts>`. 
 
 :guilabel:`<tool_options>` are specific to each type analysis. If not option is provided for the specific tool a full list of available options will be shown
 
@@ -27,31 +27,42 @@ BAM QC
 ------
 
 
-
 The following command allows to perform BAM QC analysis::
 
-    usage: qualimap bamqc -bam <arg> [-c] [-gd <arg>] [-gff <arg>] [-nr <arg>] [-nt
-           <arg>] [-nw <arg>] [-os] [-outdir <arg>] [-outformat <arg>]
-     -bam <arg>                     input mapping file
-     -c,--paint-chromosome-limits   paint chromosome limits inside charts
-     -gd <arg>                      compare with genome distribution (possible
-                                    values: HUMAN or MOUSE)
-     -gff <arg>                     region file (in GFF/GTF or BED format)
-     -hm <arg>                      minimum size for a homopolymer to be considered
-                                    in indel analysis (default is 3)
-     -nr <arg>                      number of reads in the chunk (default is 500)
-     -nt <arg>                      number of threads (default equals the number of cores)
-     -nw <arg>                      number of windows (default is 400)
-     -os,--outside-stats            compute region outside stats (only with -gff
-                                    option)
-     -outdir <arg>                  output folder
-     -outformat <arg>               output report format (PDF or HTML, default is
-                                    HTML)
-     -p <arg>                       specify protocol to calculate correct strand
-                                    reads (works only with -gff option, possible
-                                    values are STRAND-SPECIFIC-FORWARD or
-                                    STRAND-SPECIFIC-REVERSE, default is
-                                    NON-STRAND-SPECIFIC)
+    usage: qualimap bamqc -bam <arg> [-c] [-gd <arg>] [-gff <arg>] [-hm <arg>] [-nr
+       <arg>] [-nt <arg>] [-nw <arg>] [-oc <arg>] [-os] [-outdir <arg>]
+       [-outfile <arg>] [-outformat <arg>] [-p <arg>]
+    -bam <arg>                           Input mapping file in BAM format
+    -c,--paint-chromosome-limits         Paint chromosome limits inside charts
+    -gd,--genome-gc-distr <arg>          Species to compare with genome GC
+                                      distribution. Possible values: HUMAN or
+                                      MOUSE.
+    -gff,--feature-file <arg>            Feature file with regions of interest in
+                                      GFF/GTF or BED format
+    -hm <arg>                            Minimum size for a homopolymer to be
+                                      considered in indel analysis (default is
+                                      3)
+    -nr <arg>                            Number of reads analyzed in a chunk
+                                      (default is 1000)
+    -nt <arg>                            Number of threads (default is 8)
+    -nw <arg>                            Number of windows (default is 400)
+    -oc,--output-genome-coverage <arg>   File to save per base non-zero coverage.
+                                      Warning: large files are  expected for large
+                                      genomes
+    -os,--outside-stats                  Report information for the regions outside
+                                      those defined by feature-file  (ignored
+                                      when -gff option is not set)
+    -outdir <arg>                        Output folder for HTML report and raw
+                                      data.
+    -outfile <arg>                       Output file for PDF report (default value
+                                      is report.pdf).
+    -outformat <arg>                     Format of the ouput report (PDF or HTML,
+                                      default is HTML).
+    -p,--sequencing-protocol <arg>       Sequencing library protocol:
+                                      strand-specific-forward,
+                                      strand-specific-reverse or
+                                      non-strand-specific (default)
+
 
 
 | The only required parameter is :guilabel:`bam` -- the input mapping file.
@@ -72,23 +83,62 @@ RNA-seq QC
 
 To perform RNA-seq QC analysis use the following command::
 
-    usage: qualimap rnaseq [-algorithm <arg>] -bam <arg> [-counts <arg>] -gtf <arg>
-       [-outdir <arg>] [-outfile <arg>] [-outformat <arg>] [-protocol <arg>] [-rscriptpath <arg>]
-    -algorithm <arg>     Counting algorithm: uniquely-mapped-reads(default) or proportional
-    -bam <arg>           Mapping file in BAM format
-    -counts <arg>        Path to output computed counts 
-    -gtf <arg>           Annotations file in Ensembl GTF format.
-    -outdir <arg>        Output folder
-    -outfile <arg>       Output file for PDF report (default value is report.pdf)
-    -outformat <arg>     Output report format (PDF or HTML, default is HTML)
-    -protocol <arg>      Library protocol: strand-specific-forward,strand-specific-reverse or non-strand-specific (default)
+ usage: qualimap rnaseq [-a <arg>] -bam <arg> -gtf <arg> [-oc <arg>] [-outdir
+       <arg>] [-outfile <arg>] [-outformat <arg>] [-p <arg>]
+ -a,--algorithm <arg>             Counting algorithm:
+                                  uniquely-mapped-reads(default) or
+                                  proportional.
+ -bam <arg>                       Input mapping file in BAM format.
+ -gtf <arg>                       Annotations file in Ensembl GTF format.
+ -oc <arg>                        Path to output computed counts.
+ -outdir <arg>                    Output folder for HTML report and raw data.
+ -outfile <arg>                   Output file for PDF report (default value is
+                                  report.pdf).
+ -outformat <arg>                 Format of the ouput report (PDF or HTML,
+                                  default is HTML).
+ -p,--sequencing-protocol <arg>   Sequencing library protocol:
+                                  strand-specific-forward,
+                                  strand-specific-reverse or non-strand-specific
+                                  (default)
 
+
+| The required parameteres for this type of analysis are the spliced-alignment file in BAM format and annotations in GTF format.
 
 | Detailed explanation of available options can be found :ref:`here<rnaseqqc>`.
 
 Example (data available :ref:`here<annotation-files>`)::
 
     qualimap rnaseq -bam kidney.bam -gtf human.64.gtf -outdir rnaseq_qc_results
+
+
+
+.. _cmdline-multibamqc:
+
+Multi-sample BAM QC
+-------------------
+
+To perform multi-sample BAM QC use the following command::
+
+ usage: qualimap multi-bamqc -d <arg> [-outdir <arg>] [-outfile <arg>]
+       [-outformat <arg>]
+ -d,--data <arg>    File describing the input data. Format of the file is 
+                    a 2-column tab-delimited table. 
+                    Column 1: sample name 
+                    Column 2: path to the BAM QC result for the sample.
+ -outdir <arg>      Output folder for HTML report and raw data.
+ -outfile <arg>     Output file for PDF report (default value is report.pdf).
+ -outformat <arg>   Format of the ouput report (PDF or HTML, default is HTML).
+
+| The main argument for this command is the configuration file describing input data (-d). This has to be a 2-column tab-delimted file. The first column should contain the sample name and the second column should contain path to the results of BAM QC analysis for the sample. The path for the data could be absolute or relative to the location of the configuration file.
+
+| Detailed explanation of the analysis can be found here :ref:`here<multibamqc>`.
+
+Example (data available :ref:`here<multibamqc-samples>`)::
+    
+    unzip gh2ax_chip_seq.zip
+    cd gh2ax_chip_seq.txt
+    qualimap multi-bamqc -i gh2ax_chip_seq.txt -outdir gh2ax_multibamqc
+
 
 
 .. _cmdline-countsqc:
@@ -98,24 +148,36 @@ Counts QC
 
 To perform counts QC analysis use the following command::
 
-    usage: qualimap counts -d1 <arg> [-d2 <arg>] [-i <arg>] [-k <arg>] [-n1 <arg>]
-           [-n2 <arg>] [-outdir <arg>] [-outformat <arg>] [-s <arg>]
-     -d1,--data1 <arg>      first file with counts
-     -d2,--data2 <arg>      second file with counts
-     -i,--info <arg>        info file
-     -k,--threshold <arg>   threshold for the number of counts
-     -n1,--name1 <arg>      name for the first sample
-     -n2,--name2 <arg>      name for second sample
-     -outdir <arg>          output folder
-     -outformat <arg>       output report format (PDF or HTML, default is HTML)
-     -s,--species <arg>     use default file for the given species [human | mouse]
+ usage: qualimap counts [-c] -d <arg> [-i <arg>] [-k <arg>] [-outdir <arg>]
+       [-outfile <arg>] [-outformat <arg>] [-R <arg>] [-s <arg>]
+ -c,--compare             Perform comparison of conditions. Currently 2 maximum
+                          is possible.
+ -d,--data <arg>          File describing the input data. Format of the file is
+                          a 4 column tab-delimited table.
+                          Column 1: sample name
+                          Column 2: condition of the sample
+                          Column 3: path to the counts data for the sample
+                          Column 4: index of the column with counts
+ -i,--info <arg>          Path to info file containing genes GC-content, length
+                          and type.
+ -k,--threshold <arg>     Threshold for the number of counts
+ -outdir <arg>            Output folder for HTML report and raw data.
+ -outfile <arg>           Output file for PDF report (default value is
+                          report.pdf).
+ -outformat <arg>         Format of the ouput report (PDF or HTML, default is
+                          HTML).
+ -R,--rscriptpath <arg>   Path to Rscript executable (by default it is assumed
+                          to be available from system $PATH)
+ -s,--species <arg>       Use built-in info file for the given species: HUMAN or
+                          MOUSE.
 
+| The main argument for this command is the configuration file describing the input samples (-d). This has to be a 4-column tab-delimited file. The first column should contain the name of the sample, the second - name of the biological condition (e.g treated or untreated), the third - path to the file containing counts data for the sample and the fourth - the index of the column in the data file which contains counts. This is useful when counts for all samples are contained in the one file, but in different columns.
 
-| Detailed explanation of available options can be found :ref:`here<countsqc>`.
+| Detailed explanation of the analysis can be found :ref:`here<countsqc>`.
 
-Example (data available :ref:`here<counts-samples>`)::
+Example. Note: requires counts file `mouse_counts_ensembl.txt <http://kokonech.github.io/qualimap/samples/mouse_counts_ensembl.txt>`_ (data available :ref:`here<counts-samples>`)::
 
-    qualimap counts -d1 kidney.counts -d2 liver.counts -s human -outdir results
+    qualimap counts -d GlcN_countsqc_input.txt -c -s mouse -outdir glcn_mice_counts
 
 
 .. _cmdline-clustering:
