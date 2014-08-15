@@ -87,9 +87,12 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     @Override
     public void run() throws Exception {
 
+
+
         String workDir = tabProperties.createDirectory().toString();
 
-        //reportProgress("Generating configuration file...");
+
+        removeSpacesFromNames();
         setupInputDataDescription(workDir);
 
         String commandString = createCommand(workDir);
@@ -157,6 +160,19 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
 
 
 
+
+    }
+
+    private void removeSpacesFromNames() {
+
+        //TODO: this is because of the problem with NOISeq
+        for (SampleInfo s : samples) {
+            s.name = s.name.replaceAll("\\s", "_");
+        }
+        for (Integer index : conditionNames.keySet()) {
+            String cName = conditionNames.get(index);
+            conditionNames.put(index, cName.replaceAll("\\s", "_"));
+        }
 
     }
 
