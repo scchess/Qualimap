@@ -20,6 +20,7 @@
  */
 package org.bioinfo.ngs.qc.qualimap.common;
 
+import antlr.StringUtils;
 import net.sf.picard.annotation.Gene;
 import net.sf.picard.util.MathUtil;
 import net.sf.samtools.SAMRecord;
@@ -27,12 +28,17 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.data.general.DefaultPieDataset;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
@@ -68,7 +74,7 @@ public class TranscriptDataHandler {
 
     double medianFivePrimeBias, medianThreePrimeBias, medianFiveToThreeBias;
     long numReadsWithJunction;
-    long numIntronicReads, numIntergenicReads;
+    long numTotalReads, numIntronicReads, numIntergenicReads;
 
     int[] meanTranscriptCovHistogram;
 
@@ -473,10 +479,33 @@ public class TranscriptDataHandler {
     }
 
 
+    public QChart createReadsOriginPieChart(String sampleName) {
+
+        long numExonicReads = numTotalReads - numIntronicReads - numIntergenicReads;
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Exonic", new Double((100 * numExonicReads) / numTotalReads));
+        dataset.setValue("Intergenic", new Double( (100.*numIntergenicReads) / numTotalReads ));
+        dataset.setValue("Intronic", new Double((100.*numIntronicReads) / numTotalReads ));
+
+        String chartTitle = "Reads genomic origin";
+        BamQCPieChart pieChart = new BamQCPieChart(chartTitle, sampleName, dataset);
+        pieChart.render();
+
+        return new QChart("Reads origin", pieChart.getJFreeChart() );
+
+    }
+
+
     public List<QChart> createPlots(String sampleName) throws IOException {
 
         ArrayList<QChart> charts = new ArrayList<QChart>();
 
+
+        {
+            QChart readsOriginChart = createReadsOriginPieChart(sampleName);
+            charts.add(readsOriginChart);
+        }
 
         TreeMap<Double, int[]> sortedCoverageMap = getSortedTranscriptCoverage();
 
@@ -484,7 +513,7 @@ public class TranscriptDataHandler {
             double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
                     sortedCoverageMap.size(), true );
             QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
-                    "Coverage Profile (Mean)", sampleName);
+                    "Coverage Profile (Total)", sampleName);
             charts.add(chart);
         }
 
@@ -601,5 +630,9 @@ public class TranscriptDataHandler {
 
     public long getNumIntergenicReads() {
         return numIntergenicReads;
+    }
+
+    public void setNumTotalReads(long totalReadCounts) {
+        numTotalReads = totalReadCounts;
     }
 }

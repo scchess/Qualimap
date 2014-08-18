@@ -101,6 +101,7 @@ public class RNASeqQCAnalysis  {
         TranscriptDataHandler th = computeCountsTask.getTranscriptDataHandler();
 
         loggerThread.logLine("Creating plots");
+        th.setNumTotalReads(computeCountsTask.getTotalReadCounts() + computeCountsTask.getNoFeatureNumber());
         List<QChart> plots = th.createPlots(computeCountsTask.getSampleName());
 
         reporter.setChartList(plots);
@@ -124,14 +125,17 @@ public class RNASeqQCAnalysis  {
 
         summaryKeeper.addSection(readsAlignment);
 
-        StatsKeeper.Section readsOrigin = new StatsKeeper.Section("Reads origin");
-        long totalReadCount = computeCountsTask.getTotalReadCounts();
+        StatsKeeper.Section readsOrigin = new StatsKeeper.Section("Reads genomic origin");
+        long totalReadCount = computeCountsTask.getTotalReadCounts() + computeCountsTask.getNoFeatureNumber();
         long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
         long intronicReadCount = th.getNumIntronicReads();
         long intergenicReadCount = th.getNumIntergenicReads();
-        readsOrigin.addRow("Exonic: ", sdf.formatPercentage( (100.*exonicReadCount) /  totalReadCount ));
-        readsOrigin.addRow("Intronic: ", sdf.formatPercentage( (100.*intronicReadCount) /  totalReadCount ));
-        readsOrigin.addRow("Intergenic: ", sdf.formatPercentage( (100.*intergenicReadCount) /  totalReadCount ));
+        readsOrigin.addRow("Exonic: ", sdf.formatLong(exonicReadCount) + " / " +
+                sdf.formatPercentage( (100.*exonicReadCount) /  totalReadCount ));
+        readsOrigin.addRow("Intronic: ", sdf.formatLong(intronicReadCount) + " / " +
+                sdf.formatPercentage( (100.*intronicReadCount) /  totalReadCount ));
+        readsOrigin.addRow("Intergenic: ", sdf.formatLong(intergenicReadCount) + " / " +
+                sdf.formatPercentage( (100.*intergenicReadCount) /  totalReadCount ));
         summaryKeeper.addSection(readsOrigin);
 
         //TODO: fix this in case of SE reads
