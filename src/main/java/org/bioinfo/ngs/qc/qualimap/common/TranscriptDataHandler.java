@@ -68,6 +68,7 @@ public class TranscriptDataHandler {
 
     double medianFivePrimeBias, medianThreePrimeBias, medianFiveToThreeBias;
     long numReadsWithJunction;
+    long numIntronicReads, numIntergenicReads;
 
     int[] meanTranscriptCovHistogram;
 
@@ -499,5 +500,26 @@ public class TranscriptDataHandler {
 
     public long getNumReadsWithJunctions() {
         return numReadsWithJunction;
+    }
+
+    public Map<String,Gene> getGeneMap() {
+        return geneMap;
+    }
+
+    public void collectIntronicRead() {
+        ++numIntronicReads;
+    }
+
+    public void collectIntergenicRead() {
+        ++numIntergenicReads;
+    }
+
+
+    public long getNumIntronicReads() {
+        return numIntronicReads;
+    }
+
+    public long getNumIntergenicReads() {
+        return numIntergenicReads;
     }
 }

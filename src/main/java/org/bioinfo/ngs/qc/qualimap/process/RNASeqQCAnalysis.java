@@ -91,7 +91,6 @@ public class RNASeqQCAnalysis  {
         prepareInputDescription(reporter);
         createCharts(reporter);
 
-
         resultManager.addReporter(reporter);
 
 
@@ -125,6 +124,15 @@ public class RNASeqQCAnalysis  {
 
         summaryKeeper.addSection(readsAlignment);
 
+        StatsKeeper.Section readsOrigin = new StatsKeeper.Section("Reads origin");
+        long totalReadCount = computeCountsTask.getTotalReadCounts();
+        long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
+        long intronicReadCount = th.getNumIntronicReads();
+        long intergenicReadCount = th.getNumIntergenicReads();
+        readsOrigin.addRow("Exonic: ", sdf.formatPercentage( (100.*exonicReadCount) /  totalReadCount ));
+        readsOrigin.addRow("Intronic: ", sdf.formatPercentage( (100.*intronicReadCount) /  totalReadCount ));
+        readsOrigin.addRow("Intergenic: ", sdf.formatPercentage( (100.*intergenicReadCount) /  totalReadCount ));
+        summaryKeeper.addSection(readsOrigin);
 
         //TODO: fix this in case of SE reads
         /*if (computeCountsTask.getLibraryProtocol() != LibraryProtocol.NON_STRAND_SPECIFIC) {
