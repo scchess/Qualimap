@@ -20,7 +20,6 @@
  */
 package org.bioinfo.ngs.qc.qualimap.common;
 
-import antlr.StringUtils;
 import net.sf.picard.annotation.Gene;
 import net.sf.picard.util.MathUtil;
 import net.sf.samtools.SAMRecord;
@@ -28,9 +27,6 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
 import javax.imageio.ImageIO;
