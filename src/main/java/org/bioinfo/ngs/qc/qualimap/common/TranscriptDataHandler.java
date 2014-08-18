@@ -337,6 +337,59 @@ public class TranscriptDataHandler {
 
     }
 
+    TreeMap<Double, int[]> getSortedTranscriptCoverage() {
+
+        TreeMap<Double, int[]> resMap = new TreeMap<Double, int[]>();
+
+        Collection<Gene> genes = geneMap.values();
+
+        for (final Gene gene : genes) {
+
+            for (final Gene.Transcript tx : gene) {
+
+                final int[] cov = transcriptCoverage.get(tx);
+
+                if (cov == null) {
+                    continue;
+                }
+
+                double meanCov = MathUtil.mean(MathUtil.promote(cov), 0, cov.length);
+                if (meanCov > 0) {
+                    resMap.put(meanCov, cov);
+                }
+
+
+            }
+        }
+        return resMap;
+    }
+
+    public double[] computePerBaseTranscriptCoverageHist(TreeMap<Double, int[]> resMap, int numItems, boolean ascendingOrder) {
+
+        final int NUM_BINS = 100;
+
+        NavigableSet<Double> set = ascendingOrder ? resMap.navigableKeySet() : resMap.descendingKeySet();
+
+        GenericHistogram hist = new GenericHistogram(NUM_BINS, true);
+
+        int count = 0;
+        for (Double coverage : set) {
+            if (count >= numItems) {
+                break;
+            }
+
+            int[] cov = resMap.get(coverage);
+            hist.updateHistogram(cov);
+
+            count++;
+
+        }
+
+        return hist.getHist();
+
+
+    }
+
     public double[] computePerBaseTranscriptCoverageHist() {
 
         final int NUM_BINS = 100;
@@ -344,6 +397,7 @@ public class TranscriptDataHandler {
         GenericHistogram hist = new GenericHistogram(NUM_BINS, true);
 
         Collection<Gene> genes = geneMap.values();
+
 
         for (final Gene gene : genes) {
 
@@ -397,30 +451,56 @@ public class TranscriptDataHandler {
     }
 
 
-    public List<QChart> createPlots(String sampleName) throws IOException {
+    public QChart createCoverageProfilePlot(double[] perBaseTranscriptCoverage, String chartName, String sampleName )
+    {
 
+        XYVector coverageData = new XYVector();
+
+        for (int i = 0; i < perBaseTranscriptCoverage.length; ++i) {
+            coverageData.addItem( new XYItem(i,perBaseTranscriptCoverage[i]));
+        }
+
+
+        BamQCChart geneCoverage = new BamQCChart(chartName,
+                sampleName, "Transcript position", " Counts ");
+        geneCoverage.addSeries("Transcript coverage profile", coverageData, new Color(255, 0, 0, 255));
+        geneCoverage.setAdjustDomainAxisLimits(false);
+        geneCoverage.setDomainAxisIntegerTicks(true);
+        geneCoverage.setShowLegend(false);
+        geneCoverage.render();
+        return new QChart(chartName, geneCoverage.getChart(), geneCoverage);
+
+    }
+
+
+    public List<QChart> createPlots(String sampleName) throws IOException {
 
         ArrayList<QChart> charts = new ArrayList<QChart>();
 
+
+        TreeMap<Double, int[]> sortedCoverageMap = getSortedTranscriptCoverage();
+
         {
-            double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist();
+            double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
+                    sortedCoverageMap.size(), true );
+            QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
+                    "Coverage Profile (Mean)", sampleName);
+            charts.add(chart);
+        }
 
-            XYVector coverageData = new XYVector();
+        {
+            double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
+                    500, true );
+            QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
+                    "Coverage Profile (Low)", sampleName);
+            charts.add(chart);
+        }
 
-            for (int i = 0; i < perBaseTranscriptCoverage.length; ++i) {
-                coverageData.addItem( new XYItem(i,perBaseTranscriptCoverage[i]));
-            }
-
-
-            BamQCChart geneCoverage = new BamQCChart("Coverage Profile",
-                    sampleName, "Transcript position", " Counts ");
-            geneCoverage.addSeries("Transcript coverage profile", coverageData, new Color(255, 0, 0, 255));
-            geneCoverage.setAdjustDomainAxisLimits(false);
-            geneCoverage.setDomainAxisIntegerTicks(true);
-            geneCoverage.setShowLegend(false);
-            geneCoverage.render();
-            QChart chart = new QChart("Transcript per-base coverage", geneCoverage.getChart(), geneCoverage);
-
+        {
+            double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
+                    500, false );
+            QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
+                    "Coverage Profile (High)", sampleName);
             charts.add(chart);
         }
 
