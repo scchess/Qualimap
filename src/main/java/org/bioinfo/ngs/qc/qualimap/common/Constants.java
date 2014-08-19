@@ -40,25 +40,6 @@ public final class Constants {
 
 	
 	//******************************************************************************************
-	//****************************** LENGTH AND MARGIN CONSTANTS *******************************
-	//******************************************************************************************
-	// Margin top for each element
-	public static final int marginTopForFirstElement = 15;
-	
-	// Margin left for each element
-	public static final int marginLeftForElement = 10;
-	
-	// Margin left for sub element of a GroupBox
-	public static final int marginLeftForSubElement = 15;
-	
-	// Common height for each element
-	public static final int elementHeight = 20;
-	
-	// Margin top for an element of a submenu
-	public static final int marginTopForElementSubMenu = 3;
-
-	
-	//******************************************************************************************
 	//******************************* FILE EXTENSION CONSTANTS *********************************
 	//******************************************************************************************
 	// Extension for the data Input File

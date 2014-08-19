@@ -35,6 +35,7 @@ public class NgsSmartMain {
 
 
     public static String APP_VERSION = "debug";
+    public static String APP_BUILT_DATE = "unknown";
 
 
 	public static void main(String[] args) throws Exception {
@@ -142,6 +143,7 @@ public class NgsSmartMain {
 
         if (timestamp != null) {
             System.out.println("Built on " + appProperties.get("app.buildTime").toString());
+            APP_BUILT_DATE = timestamp;
         }
     }
 

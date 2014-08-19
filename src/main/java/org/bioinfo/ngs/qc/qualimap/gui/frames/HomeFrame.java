@@ -593,10 +593,8 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
 	    }
 	    else if (e.getActionCommand().equalsIgnoreCase(WM_COMMAND_ABOUT)){
 			AboutDialog about = new AboutDialog(HomeFrame.this);
-			about.dispose();
-			about.pack();
 			about.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			about.setLocationRelativeTo(null);
+			about.setLocationRelativeTo(this);
 			about.setVisible(true);
 	    }
 	    else if(e.getActionCommand().equalsIgnoreCase(WM_COMMAND_WEB_QUALIMAP)){
