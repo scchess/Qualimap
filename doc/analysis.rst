@@ -183,7 +183,7 @@ Output
 RNA-seq QC
 ----------
 
-RNA-seq QC reports quality control metrics and bias estimations which are specific for whole transcriptome sequencing, such as for example transcript coverage and 5'-3' bias. This analysis could be applied as complementary tool together with :ref:`BAM QC<bamqc>` and additionally to produce gene counts for further analysis with :ref:`Counts QC <countsqc>`.
+RNA-seq QC reports quality control metrics and bias estimations which are specific for whole transcriptome sequencing, inlcuding reads genomic origin, junction analysis, transcript coverage and 5'-3' bias computation. This analysis could be applied as a complementary tool together with :ref:`BAM QC<bamqc>` and additionally to produce gene counts for further analysis with :ref:`Counts QC <countsqc>`.
 
 To start a new RNA-seq QC analysis activate main menu item :menuselection:`File --> New Analysis --> RNA-seq QC`.
 
@@ -232,6 +232,10 @@ Output
 
     The ratios between mean coverage at the 5' region, 3' region and whole transcript.
 
+    *Reads genomic origin*
+    
+    Shows how many alignments fall into exonic, intronic and intergenic regions.
+
     *Junction analysis*
 
     Total number of reads with splice junctions and 10 most frequest junctions rate.
@@ -240,13 +244,30 @@ Output
 
   Here one can check the **input data** and the **parameters** used for the analysis.
 
-:guilabel:`Coverage Profile`
 
-  The plot shows mean coverage profile of the transcripts.
+:guilabel:`Reads Genomic Origin`
+
+    Pie chart showing how many of read alignments fall into exonic, intronic and intergenic regions.
+
+:guilabel:`Coverage Profile (Total)`
+
+  The plot shows mean coverage profile of the transcripts. All transcripts with non-zero coverage are used to calcualte this plot.
+
+:guilabel:`Coverage Profile (Low)`
+
+  The plot shows mean coverage profile of 500 lowest-expressed genes. 
+
+:guilabel:`Coverage Profile (Total)`
+
+  The plot shows mean coverage profile of 500 highest-expressed genes.
 
 :guilabel:`Coverage Histogram (0-50x)`
 
-  Coverage of transcripts from 0 to 50X
+  Coverage of transcripts from 0 to 50X. 
+
+:guilabel:`Junction Analysis`
+
+  This pie chart shows analysis of junction positions in spliced alignments. **Known** category represents percentage of alignments where both junction sides are known. **Partly known** represents alignments where only one junction side is known. All other alignments with junctions are marked as **Novel**.
 
 
 .. _countsqc:
@@ -333,7 +354,7 @@ Many of plots in Counts QC mode are created using `NOISeq package <http://www.bi
 Global Plots
 """"""""""""
 
-Plots from this report present a global overview of the counts data and include all the samples.
+Plots from this report present a global overview of the counts data and include all samples.
 
 :guilabel:`Counts Density`
 
