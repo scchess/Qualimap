@@ -21,6 +21,8 @@
 package org.bioinfo.ngs.qc.qualimap.common;
 
 import net.sf.picard.annotation.Gene;
+import net.sf.picard.util.Interval;
+import net.sf.picard.util.IntervalTreeMap;
 import net.sf.picard.util.MathUtil;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.collections15.MultiMap;
@@ -34,7 +36,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
@@ -53,7 +54,9 @@ public class TranscriptDataHandler {
     MultiMap<String, GenomicFeature> featureCache;
     HashMap<String, Gene> geneMap;
     HashMap<Gene.Transcript, int[]> transcriptCoverage;
-    HashMap<String, Integer> junctionMap;
+    HashMap<String, Integer> junctionSequenceMap;
+    JunctionLocationMap junctionLocationMap;
+    IntervalTreeMap<Integer> intronIntervalTreeMap;
 
     public double getMedianFivePrimeBias() {
         return medianFivePrimeBias;
@@ -69,7 +72,7 @@ public class TranscriptDataHandler {
 
 
     double medianFivePrimeBias, medianThreePrimeBias, medianFiveToThreeBias;
-    long numReadsWithJunction;
+    long numReadsWithJunction, knownJunctions, partlyKnownJunctions;
     long numTotalReads, numIntronicReads, numIntergenicReads;
 
     int[] meanTranscriptCovHistogram;
@@ -102,7 +105,8 @@ public class TranscriptDataHandler {
         featureCache = new MultiHashMap<String, GenomicFeature>();
         geneMap = new HashMap<String, Gene>();
         transcriptCoverage = new HashMap<Gene.Transcript, int[]>();
-        junctionMap = new HashMap<String, Integer>();
+        junctionSequenceMap = new HashMap<String, Integer>();
+        junctionLocationMap = new JunctionLocationMap();
 
     }
 
@@ -155,7 +159,8 @@ public class TranscriptDataHandler {
                 geneMap.put(geneName, gene);
             }
 
-            Gene.Transcript t = gene.addTranscript(transcriptId, transcriptStart, transcriptEnd, transcriptStart, transcriptEnd, numExons);
+            Gene.Transcript t = gene.addTranscript(transcriptId, transcriptStart, transcriptEnd,
+                    transcriptStart, transcriptEnd, numExons);
 
             for (int i = 0; i < numExons; ++i ) {
                 t.addExon(exonStarts[i], exonEnds[i]);
@@ -165,6 +170,8 @@ public class TranscriptDataHandler {
         }
 
         featureCache.clear();
+
+        createHelperMaps();
 
 
     }
@@ -420,39 +427,6 @@ public class TranscriptDataHandler {
 
     }
 
-
-    public void outputTranscriptsCoverage(String fileName) throws IOException {
-
-        double[] coverageHist = computePerBaseTranscriptCoverageHist();
-
-        XYVector coverageData = new XYVector();
-
-        for (int i = 0; i < coverageHist.length; ++i) {
-            coverageData.addItem( new XYItem(i,coverageHist[i]));
-        }
-
-
-        BamQCChart geneCoverage = new BamQCChart("Transcript coverage",
-                "Sample", "Transcript position", " Counts ");
-        geneCoverage.addSeries("Transcript coverage profile", coverageData, new Color(255, 0, 0, 255));
-        geneCoverage.setAdjustDomainAxisLimits(false);
-        geneCoverage.setDomainAxisIntegerTicks(true);
-        geneCoverage.setShowLegend(false);
-        geneCoverage.render();
-        QChart chart = new QChart(fileName, geneCoverage.getChart(), geneCoverage);
-
-        BufferedImage bufImage =chart.getJFreeChart().createBufferedImage(
-                Constants.GRAPHIC_TO_SAVE_WIDTH,
-                Constants.GRAPHIC_TO_SAVE_HEIGHT);
-
-        String imagePath = fileName + ".png";
-
-        File imageFile = new File(imagePath);
-        ImageIO.write(bufImage, "PNG", imageFile);
-
-    }
-
-
     public QChart createCoverageProfilePlot(double[] perBaseTranscriptCoverage, String chartName, String sampleName )
     {
 
@@ -484,11 +458,28 @@ public class TranscriptDataHandler {
         dataset.setValue("Intergenic", new Double( (100.*numIntergenicReads) / numTotalReads ));
         dataset.setValue("Intronic", new Double((100.*numIntronicReads) / numTotalReads ));
 
-        String chartTitle = "Reads genomic origin";
+        String chartTitle = "Reads Genomic Origin";
         BamQCPieChart pieChart = new BamQCPieChart(chartTitle, sampleName, dataset);
         pieChart.render();
 
-        return new QChart("Reads origin", pieChart.getJFreeChart() );
+        return new QChart(chartTitle, pieChart.getJFreeChart() );
+
+    }
+
+    public QChart createJunctionAnalysisPieChart(String sampleName) {
+
+        long novelJunctions = numReadsWithJunction - knownJunctions - partlyKnownJunctions;
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Known", new Double((100 * knownJunctions) / numReadsWithJunction));
+        dataset.setValue("Partly known", new Double( (100.*partlyKnownJunctions) / numReadsWithJunction ));
+        dataset.setValue("Novel", new Double((100.*novelJunctions) / numReadsWithJunction ));
+
+        String chartTitle = "Junction Analysis";
+        BamQCPieChart pieChart = new BamQCPieChart(chartTitle, sampleName, dataset);
+        pieChart.render();
+
+        return new QChart(chartTitle, pieChart.getJFreeChart() );
 
     }
 
@@ -554,11 +545,17 @@ public class TranscriptDataHandler {
 
         }
 
+        {
+            QChart chart = createJunctionAnalysisPieChart(sampleName);
+            charts.add(chart);
+        }
+
+
         return charts;
 
     }
 
-    public void collectJunctionInfo(SAMRecord read, int posInRead) {
+    public void collectJunctionInfo(SAMRecord read, int posInRead, int clippedLength) {
         byte[] seq = read.getReadBases();
 
         if (seq != null && posInRead - 2 > 0 && posInRead + 1 < seq.length) {
@@ -570,19 +567,32 @@ public class TranscriptDataHandler {
             String junctionStr = new String(junction);
 
 
-            Integer count = junctionMap.get(junctionStr);
+            Integer count = junctionSequenceMap.get(junctionStr);
             if (count == null) {
-                junctionMap.put(junctionStr, 1);
+                junctionSequenceMap.put(junctionStr, 1);
             } else {
-                junctionMap.put(junctionStr, count + 1);
+                junctionSequenceMap.put(junctionStr, count + 1);
             }
+
+            int alignmentStart = read.getAlignmentStart();
+            int posInRef1 = alignmentStart + posInRead;
+            int posInRef2 = posInRef1 + clippedLength;
+            String seqName = read.getReferenceName();
+
+            boolean j1 = junctionLocationMap.hasOverlap(seqName, posInRef1);
+            boolean j2 =  junctionLocationMap.hasOverlap(seqName, posInRef2);
+            if (j1 && j2) {
+                knownJunctions++;
+            } else if (j1 || j2) {
+                partlyKnownJunctions++;
+            }
+
+
         }
 
         numReadsWithJunction += 1;
 
     }
-
-
 
     public List<JunctionInfo> computeSortedJunctionsMap() {
 
@@ -592,7 +602,7 @@ public class TranscriptDataHandler {
             return junctionList;
         }
 
-        for (Map.Entry<String, Integer> entry : junctionMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry : junctionSequenceMap.entrySet()) {
 
             double percentage = (entry.getValue() * 100.) / numReadsWithJunction;
             junctionList.add( new JunctionInfo(entry.getKey(), percentage));
@@ -607,19 +617,6 @@ public class TranscriptDataHandler {
         return numReadsWithJunction;
     }
 
-    public Map<String,Gene> getGeneMap() {
-        return geneMap;
-    }
-
-    public void collectIntronicRead() {
-        ++numIntronicReads;
-    }
-
-    public void collectIntergenicRead() {
-        ++numIntergenicReads;
-    }
-
-
     public long getNumIntronicReads() {
         return numIntronicReads;
     }
@@ -631,4 +628,77 @@ public class TranscriptDataHandler {
     public void setNumTotalReads(long totalReadCounts) {
         numTotalReads = totalReadCounts;
     }
+
+    void createHelperMaps() {
+        intronIntervalTreeMap =  new IntervalTreeMap<Integer>();
+        int numIntrons = 0;
+
+        for (Map.Entry<String,Gene> entry : geneMap.entrySet()) {
+            Gene gene = entry.getValue();
+            for (final Gene.Transcript tx : gene) {
+                int numExons = tx.exons.length;
+                if (numExons < 2) {
+                    continue;
+                }
+                int[] breakCoords = new int[(numExons - 1)*2];
+                int k = 0;
+
+                if ( gene.isPositiveStrand() ) {
+                    for (int i = 0; i < numExons; ++ i) {
+                        Gene.Transcript.Exon e = tx.exons[i];
+                        if (i == 0) {
+                            breakCoords[k++] = e.end;
+                        } else if ( i == numExons - 1) {
+                            breakCoords[k++] = e.start;
+                        } else {
+                            breakCoords[k++] = e.start;
+                            breakCoords[k++] = e.end;
+                        }
+                    }
+                } else {
+                    for (int i = numExons - 1; i >= 0; -- i) {
+                        Gene.Transcript.Exon e = tx.exons[i];
+                        if (i == 0) {
+                            breakCoords[k++] = e.start;
+                        } else if ( i == numExons - 1) {
+                            breakCoords[k++] = e.end;
+                        } else {
+                            breakCoords[k++] = e.start;
+                            breakCoords[k++] = e.end;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < breakCoords.length; i+=2) {
+                    String chrName = gene.getSequence();
+                    Interval intronInterval = new Interval(chrName, breakCoords[i], breakCoords[i+1]);
+                    numIntrons++;
+                    intronIntervalTreeMap.put(intronInterval, numIntrons);
+                    junctionLocationMap.put(chrName, breakCoords[i],breakCoords[i+1]);
+                }
+
+            }
+        }
+
+        junctionLocationMap.setupIntervalTreeMap();
+
+
+    }
+
+    public void collectNonFeatureMappedReadInfo(List<Interval> intervals) {
+        boolean liesInIntergenic = true;
+        for (Interval iv : intervals) {
+            Collection<Integer> intronOverlaps = intronIntervalTreeMap.getOverlapping(iv);
+            if (intronOverlaps.size() > 0) {
+                liesInIntergenic = false;
+                break;
+            }
+        }
+        if (liesInIntergenic) {
+            numIntergenicReads++;
+        } else {
+            numIntronicReads++;
+        }
+    }
+
 }

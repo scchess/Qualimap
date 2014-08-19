@@ -21,11 +21,9 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 
-import net.sf.picard.annotation.Gene;
 import net.sf.picard.io.IoUtil;
 import net.sf.picard.util.Interval;
 import net.sf.picard.util.IntervalTree;
-import net.sf.picard.util.IntervalTreeMap;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CoordMath;
 import org.apache.commons.collections15.MultiMap;
@@ -50,7 +48,6 @@ public class ComputeCountsTask  {
 
     Map<String,Double> readCounts;
     Map<String, GenomicRegionSet> chromosomeRegionSetMap;
-    IntervalTreeMap<Integer> intronIntervalTreeMap;
     MultiMap<String, Interval> featureIntervalMap;
     ArrayList<String> allowedFeatureList;
     TranscriptDataHandler transcriptDataHandler;
@@ -213,7 +210,8 @@ public class ComputeCountsTask  {
             }
 
             if (cigarElement.getOperator().equals(CigarOperator.N) && collectRnaSeqStats) {
-                transcriptDataHandler.collectJunctionInfo(read, posInRead);
+
+                transcriptDataHandler.collectJunctionInfo(read, posInRead, cigarElement.getLength());
 
             }
 
@@ -334,19 +332,7 @@ public class ComputeCountsTask  {
         if (features.size()  == 0) {
             noFeature++;
             if (collectRnaSeqStats) {
-                boolean liesInIntergenic = true;
-                for (Interval iv : intervals) {
-                    Collection<Integer> intronOverlaps = intronIntervalTreeMap.getOverlapping(iv);
-                    if (intronOverlaps.size() > 0) {
-                        liesInIntergenic = false;
-                        break;
-                    }
-                }
-                if (liesInIntergenic) {
-                    transcriptDataHandler.collectIntergenicRead();
-                } else {
-                    transcriptDataHandler.collectIntronicRead();
-                }
+                transcriptDataHandler.collectNonFeatureMappedReadInfo(intervals);
             }
         } else if (features.size()  == 1) {
             //if (features.iterator().next().contains("ENSG00000124222"))  {
@@ -472,64 +458,8 @@ public class ComputeCountsTask  {
 
         logger.logLine("\nBAM file analysis finished");
 
-
-
     }
 
-    void createIntronIntervalMap() {
-        intronIntervalTreeMap =  new IntervalTreeMap<Integer>();
-        int numIntrons = 0;
-
-        Map<String,Gene> geneMap = transcriptDataHandler.getGeneMap();
-        for (Map.Entry<String,Gene> entry : geneMap.entrySet()) {
-            Gene gene = entry.getValue();
-            for (final Gene.Transcript tx : gene) {
-                int numExons = tx.exons.length;
-                if (numExons < 2) {
-                    continue;
-                }
-                int[] breakCoords = new int[(numExons - 1)*2];
-                int k = 0;
-
-                if ( gene.isPositiveStrand() ) {
-                    for (int i = 0; i < numExons; ++ i) {
-                        Gene.Transcript.Exon e = tx.exons[i];
-                        if (i == 0) {
-                            breakCoords[k++] = e.end;
-                        } else if ( i == numExons - 1) {
-                            breakCoords[k++] = e.start;
-                        } else {
-                            breakCoords[k++] = e.start;
-                            breakCoords[k++] = e.end;
-                        }
-                    }
-                } else {
-                    for (int i = numExons - 1; i >= 0; -- i) {
-                        Gene.Transcript.Exon e = tx.exons[i];
-                        if (i == 0) {
-                            breakCoords[k++] = e.start;
-                        } else if ( i == numExons - 1) {
-                            breakCoords[k++] = e.end;
-                        } else {
-                            breakCoords[k++] = e.start;
-                            breakCoords[k++] = e.end;
-                        }
-                    }
-                }
-
-                for (int i = 0; i < breakCoords.length; i+=2) {
-                    String chrName = gene.getSequence();
-                    Interval intronInterval = new Interval(chrName, breakCoords[i], breakCoords[i+1]);
-                    numIntrons++;
-                    intronIntervalTreeMap.put(intronInterval, numIntrons);
-                }
-
-            }
-        }
-
-
-
-    }
 
     void initRegions() throws Exception {
 
@@ -544,11 +474,6 @@ public class ComputeCountsTask  {
         } else {
             loadGenericRegions(format);
         }
-
-        if (collectRnaSeqStats) {
-            createIntronIntervalMap();
-        }
-
 
     }
 
