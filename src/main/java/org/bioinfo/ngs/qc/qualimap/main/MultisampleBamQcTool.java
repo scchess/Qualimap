@@ -21,6 +21,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
 
 
     String inputFile;
+    boolean runBamQCFirst;
 
     public MultisampleBamQcTool() {
         super(Constants.TOOL_NAME_MULTISAMPLE_BAM_QC, false);
@@ -32,14 +33,21 @@ public class MultisampleBamQcTool extends NgsSmartTool{
                 "File describing the input data. Format of the file is a 2-column tab-delimited table." +
                 "\nColumn 1: sample name \nColumn 2: path to the BAM QC result for the sample"));
 
+        options.addOption("r", "run-bamqc", false, "Raw BAM files are provided as input. If this option is activated" +
+                " BAM QC process first will be run for each sample, then multi-sample " +
+                "analysis will be performed.");
+
+
     }
 
     @Override
     protected void checkOptions() throws ParseException {
-        inputFile = commandLine.getOptionValue("input");
+        inputFile = commandLine.getOptionValue("d");
         if(!exists(inputFile)) {
             throw new ParseException("input data description file (--data) " + inputFile + " is not found");
         }
+
+        runBamQCFirst = commandLine.hasOption("r");
     }
 
     @Override
@@ -67,6 +75,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
 
         MultisampleBamQcAnalysis multiBamQCAnalysis =
                 new MultisampleBamQcAnalysis(resultManager, homePath, bamQcResults);
+        multiBamQCAnalysis.setRunBamQcFirst(runBamQCFirst);
 
         LoggerThread loggerThread = new LoggerThread() {
             public void logLine(String msg) {

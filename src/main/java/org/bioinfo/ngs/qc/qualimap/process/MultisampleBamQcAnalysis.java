@@ -1,9 +1,13 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
+import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
+import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.jfree.chart.ChartColor;
 
 import java.awt.*;
@@ -24,6 +28,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     LoggerThread loggerThread;
     Paint[] palette;
     Map<SampleInfo,String> rawDataDirs;
+    boolean runBamQcFirst;
 
     static final int NUM_FEATURES = 5;
 
@@ -40,6 +45,11 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
     @Override
     public void run() throws Exception {
+
+        if (runBamQcFirst) {
+            runBamQcOnSamples();
+        }
+
         checkInputPaths();
 
         StatsReporter reporter = new StatsReporter();
@@ -53,6 +63,56 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         tabProperties.addReporter(reporter);
 
+    }
+
+
+    public void setRunBamQcFirst(boolean runBamQcFirst) {
+        this.runBamQcFirst = runBamQcFirst;
+    }
+
+
+    void initOutputDir(String outdir){
+
+        if(!outdir.isEmpty()){
+        	if(new File(outdir).exists()){
+				loggerThread.logLine("output folder already exists");
+			} else {
+				boolean ok = new File(outdir).mkdirs();
+                if (!ok) {
+                    loggerThread.logLine("Failed to create output directory.");
+                }
+			}
+		}
+	}
+
+
+    private void runBamQcOnSamples() throws Exception {
+
+        for (SampleInfo s : bamQCResults) {
+
+            String bamFilePath = s.path;
+            BamStatsAnalysisConfig cfg = new BamStatsAnalysisConfig();
+            String sampleOutdir = FilenameUtils.removeExtension(new File(bamFilePath).getAbsolutePath()) + "_stats";
+            initOutputDir(sampleOutdir);
+
+            BamStatsAnalysis bamQC = new BamStatsAnalysis(bamFilePath);
+            bamQC.setConfig(cfg);
+            bamQC.run();
+
+            BamQCRegionReporter reporter = new BamQCRegionReporter(cfg.regionsAvailable,false);
+            reporter.writeReport(bamQC.getBamStats(),sampleOutdir);
+            reporter.loadReportData(bamQC.getBamStats());
+            reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
+
+            AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.BAM_QC);
+            resultManager.addReporter(reporter);
+
+            Thread exportReportThread = new ExportHtmlThread(resultManager,sampleOutdir);
+            exportReportThread.run();
+
+            s.path = sampleOutdir;
+
+        }
     }
 
 
@@ -455,7 +515,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
             if (rawDataDir == null) {
-                throw new RuntimeException("The raw data doesn't exist for " + sampleInfo.name +
+                throw new RuntimeException("The raw data doesn't exist for sample: " + sampleInfo.name +
                         "\nFolder path:" + sampleInfo.path +
                         "\nPlease check raw data directory is present.\n");
             }

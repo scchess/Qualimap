@@ -9,9 +9,11 @@ package org.bioinfo.ngs.qc.qualimap.process;
 public class BamStatsAnalysisConfig {
 
     public boolean regionsAvailable;
+    public boolean drawChromosomeLimits;
     public String gffFile;
     public BamStatsAnalysisConfig() {
         this.regionsAvailable = false;
+        this.drawChromosomeLimits = true;
     }
 
 }
