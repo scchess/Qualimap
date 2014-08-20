@@ -35,6 +35,8 @@ import org.bioinfo.ngs.qc.qualimap.beans.GenomeLocator;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.common.*;
+import org.bioinfo.ngs.qc.qualimap.common.CommandLineBuilder;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 
 import java.io.File;
 import java.io.IOException;
@@ -1036,37 +1038,12 @@ public class BamStatsAnalysis {
         return progress;
     }
 
-    public String getPgProgram() {
-        return pgProgram;
-    }
-
-    public String getPgCommandString() {
-        return pgCommandString;
-    }
-
     public void setNumberOfReadsInBunch(int bunchSize) {
         numReadsInBunch = bunchSize;
     }
 
     public void setProtocol(LibraryProtocol protocol) {
         this.protocol = protocol;
-    }
-
-    public String getBamFile() {
-        return bamFile;
-    }
-
-    public int getNumberOfWindows() {
-        return numberOfWindows;
-    }
-
-    public String getFeatureFile() {
-        return featureFile;
-    }
-
-
-    public LibraryProtocol getProtocol() {
-        return protocol;
     }
 
     public int getMinHomopolymerSize() {
@@ -1081,6 +1058,79 @@ public class BamStatsAnalysis {
         this.saveCoverage = true;
         this.pathToCoverageReport = pathToCoverageReport;
     }
+
+    private static String boolToStr(boolean yes) {
+        return yes ? "yes\n" : "no\n";
+    }
+
+    public String getQualimapCmdLine(boolean  drawChromosomeLimits) {
+
+            CommandLineBuilder cmdBuilder = new CommandLineBuilder("qualimap " + Constants.TOOL_NAME_BAMQC);
+
+            cmdBuilder.append(Constants.BAMQC_OPTION_BAM_FILE, bamFile);
+
+            if (featureFile != null) {
+                cmdBuilder.append(Constants.BAMQC_OPTION_GFF_FILE, featureFile);
+                if (computeOutsideStats) {
+                    cmdBuilder.append(Constants.BAMQC_OPTION_OUTSIDE_STATS);
+                }
+            }
+
+            if (drawChromosomeLimits) {
+                cmdBuilder.append(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
+            }
+
+            cmdBuilder.append(Constants.BAMQC_OPTION_NUM_WINDOWS, numberOfWindows);
+            cmdBuilder.append(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, minHomopolymerSize);
+
+            return cmdBuilder.getCmdLine();
+
+    }
+
+
+
+    public void prepareInputDescription(StatsReporter reporter, boolean drawChromosomeLimits) {
+
+            String[] qualimapCommand =  { getQualimapCmdLine(drawChromosomeLimits) };
+            StatsKeeper.Section qualCommandSection = new StatsKeeper.Section(Constants.TABLE_SECTION_QUALIMAP_CMDLINE);
+            qualCommandSection.addRow(qualimapCommand);
+            reporter.getInputDataKeeper().addSection(qualCommandSection);
+
+
+            HashMap<String,String> alignParams = new HashMap<String, String>();
+            alignParams.put("BAM file: ", bamFile);
+            Date date = new Date();
+            alignParams.put("Analysis date: ", date.toString() );
+            alignParams.put("Number of windows: ", Integer.toString(numberOfWindows));
+            alignParams.put("Size of a homopolymer: ", Integer.toString(minHomopolymerSize));
+
+
+            Boolean.toString(true);
+            alignParams.put("Draw chromosome limits: ", boolToStr(drawChromosomeLimits));
+            if (!pgProgram.isEmpty()) {
+                alignParams.put("Program: ", pgProgram);
+                if (pgCommandString.isEmpty()) {
+                    alignParams.put("Command line: ", pgCommandString );
+                }
+            }
+            reporter.addInputDataSection("Alignment", alignParams);
+
+            if ( selectedRegionsAvailable ) {
+                HashMap<String,String> regionParams = new HashMap<String, String>();
+                regionParams.put("GFF file: ", featureFile);
+                regionParams.put("Outside statistics: ", boolToStr(computeOutsideStats));
+                regionParams.put("Library protocol: ", protocol.toString() );
+                reporter.addInputDataSection("GFF region", regionParams);
+            }
+
+
+        }
+
+
+    public void setConfig(BamStatsAnalysisConfig cfg) {
+
+    }
+
 
 
 }

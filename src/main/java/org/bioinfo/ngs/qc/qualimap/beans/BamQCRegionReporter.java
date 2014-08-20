@@ -345,6 +345,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         numMismatches = bamStats.getNumMismatches();
         alignmentErrorRate = bamStats.getErrorRate();
 
+        warnings = bamStats.getWarnings();
+
         prepareSummaryStatsKeeper();
         prepareChromosomeStatsKeeper(bamStats.getChromosomeStats());
 

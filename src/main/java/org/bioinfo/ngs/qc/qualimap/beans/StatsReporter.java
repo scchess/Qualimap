@@ -207,6 +207,10 @@ public class StatsReporter {
         return tableDataStatsKeeper;
     }
 
+    public StatsKeeper getInputDataKeeper() {
+        return inputDataKeeper;
+    }
+
     public String getFileName() {
         return fileName;
     }

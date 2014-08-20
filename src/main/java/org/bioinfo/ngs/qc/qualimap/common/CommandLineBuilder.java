@@ -1,4 +1,4 @@
-package org.bioinfo.ngs.qc.qualimap.gui.utils;
+package org.bioinfo.ngs.qc.qualimap.common;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,7 @@ import java.util.ArrayList;
  * Date: 7/14/14
  * Time: 5:49 PM
  */
+
 public class CommandLineBuilder {
 
     ArrayList<String[]> options;

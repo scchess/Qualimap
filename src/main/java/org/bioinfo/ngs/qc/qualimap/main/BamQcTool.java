@@ -28,7 +28,6 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
-import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 
@@ -207,15 +206,13 @@ public class BamQcTool extends NgsSmartTool{
             reporter.setGenomeGCContentName(genomeToCompare);
         }
 
-
-        BamAnalysisThread.prepareInputDescription(reporter, bamQC, paintChromosomeLimits);
+        bamQC.prepareInputDescription(reporter, paintChromosomeLimits);
 
 		// save stats
 
         reporter.writeReport(bamQC.getBamStats(),outdir);
 
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.BAM_QC);
-
 
         reporter.loadReportData(bamQC.getBamStats());
         reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
@@ -228,7 +225,7 @@ public class BamQcTool extends NgsSmartTool{
             if (!genomeToCompare.isEmpty()) {
                 outsideReporter.setGenomeGCContentName(genomeToCompare);
             }
-            BamAnalysisThread.prepareInputDescription(outsideReporter, bamQC, paintChromosomeLimits);
+            bamQC.prepareInputDescription(outsideReporter, paintChromosomeLimits);
             outsideReporter.writeReport(bamQC.getOutsideBamStats(),outdir);
 
             outsideReporter.loadReportData(bamQC.getOutsideBamStats());

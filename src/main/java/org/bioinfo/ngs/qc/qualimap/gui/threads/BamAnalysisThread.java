@@ -20,18 +20,13 @@
  */
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
 
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
-import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.CommandLineBuilder;
-import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
@@ -52,8 +47,7 @@ public class BamAnalysisThread extends Thread {
 	private BamAnalysisDialog bamDialog;
 
 	/** Variables that contains the tab properties loaded in the thread */
-    // TODO: make this AnalysisResultManager instead of page controller
-	TabPageController resultManager;
+    TabPageController resultManager;
 
     private static class UpdateProgressTask extends TimerTask {
         JProgressBar progressBar;
@@ -126,7 +120,7 @@ public class BamAnalysisThread extends Thread {
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter(regionsAvailable, true);
-            prepareInputDescription(reporter,bamQC,bamDialog.getDrawChromosomeLimits());
+            bamQC.prepareInputDescription( reporter, bamDialog.getDrawChromosomeLimits() );
 
 			// Draw the Chromosome Limits or not
 			reporter.setPaintChromosomeLimits( bamDialog.getDrawChromosomeLimits() );
@@ -151,7 +145,7 @@ public class BamAnalysisThread extends Thread {
 
                 BamQCRegionReporter outsideReporter = new BamQCRegionReporter(regionsAvailable, false);
 
-                prepareInputDescription(outsideReporter, bamQC, bamDialog.getDrawChromosomeLimits());
+                bamQC.prepareInputDescription(outsideReporter, bamDialog.getDrawChromosomeLimits());
 	            // Draw the Chromosome Limits or not
 				outsideReporter.setPaintChromosomeLimits(bamDialog.getDrawChromosomeLimits());
 
@@ -203,77 +197,6 @@ public class BamAnalysisThread extends Thread {
      	}
 
         bamDialog.addNewPane(resultManager);
-
-    }
-
-
-    private static String boolToStr(boolean yes) {
-        return yes ? "yes\n" : "no\n";
-    }
-
-    public static String getQualimapCmdLine(BamStatsAnalysis bamQC, boolean  drawChromosomeLimits) {
-
-        CommandLineBuilder cmdBuilder = new CommandLineBuilder("qualimap " + Constants.TOOL_NAME_BAMQC);
-
-        cmdBuilder.append(Constants.BAMQC_OPTION_BAM_FILE, bamQC.getBamFile());
-
-        if (bamQC.getFeatureFile() != null) {
-            cmdBuilder.append(Constants.BAMQC_OPTION_GFF_FILE, bamQC.getFeatureFile());
-            if (bamQC.getComputeOutsideStats()) {
-                cmdBuilder.append(Constants.BAMQC_OPTION_OUTSIDE_STATS);
-            }
-        }
-
-        if (drawChromosomeLimits) {
-            cmdBuilder.append(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
-        }
-
-        cmdBuilder.append(Constants.BAMQC_OPTION_NUM_WINDOWS, bamQC.getNumberOfWindows());
-        cmdBuilder.append(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, bamQC.getMinHomopolymerSize());
-
-
-        return cmdBuilder.getCmdLine();
-
-    }
-
-    public static void prepareInputDescription(BamQCRegionReporter reporter, BamStatsAnalysis bamQC,
-                                         boolean drawChromosomeLimits) {
-
-
-
-        String[] qualimapCommand =  { getQualimapCmdLine(bamQC, drawChromosomeLimits) };
-        StatsKeeper.Section qualCommandSection = new StatsKeeper.Section(Constants.TABLE_SECTION_QUALIMAP_CMDLINE);
-        qualCommandSection.addRow(qualimapCommand);
-        reporter.getInputDescriptionStatsKeeper().addSection(qualCommandSection);
-
-
-        HashMap<String,String> alignParams = new HashMap<String, String>();
-        alignParams.put("BAM file: ", bamQC.getBamFile());
-        Date date = new Date();
-        alignParams.put("Analysis date: ", date.toString() );
-        alignParams.put("Number of windows: ", Integer.toString(bamQC.getNumberOfWindows()));
-        alignParams.put("Size of a homopolymer: ", Integer.toString(bamQC.getMinHomopolymerSize()));
-
-
-        Boolean.toString(true);
-        alignParams.put("Draw chromosome limits: ", boolToStr(drawChromosomeLimits));
-        if (!bamQC.getPgProgram().isEmpty()) {
-            alignParams.put("Program: ", bamQC.getPgProgram());
-            if (!bamQC.getPgCommandString().isEmpty()) {
-                alignParams.put("Command line: ", bamQC.getPgCommandString() );
-            }
-        }
-        reporter.addInputDataSection("Alignment", alignParams);
-
-        if ( bamQC.selectedRegionsAvailable() ) {
-            HashMap<String,String> regionParams = new HashMap<String, String>();
-            regionParams.put("GFF file: ", bamQC.getFeatureFile());
-            regionParams.put("Outside statistics: ", boolToStr(bamQC.getComputeOutsideStats()));
-            regionParams.put("Library protocol: ", bamQC.getProtocol().toString() );
-            reporter.addInputDataSection("GFF region", regionParams);
-        }
-
-        reporter.setWarningInfo(bamQC.getBamStats().getWarnings());
 
     }
 
