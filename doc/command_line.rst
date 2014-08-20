@@ -220,20 +220,33 @@ Compute counts
 
 To compute counts from mapping data use the following command::
 
-    usage: qualimap comp-counts [-algorithm <arg>] -bam <arg> -gtf <arg> [-id <arg>]
-           [-out <arg>] [-protocol <arg>] [-type <arg>]
-     -algorithm <arg>   uniquely-mapped-reads(default) or proportional
-     -b                 calculate 5' and 3' coverage bias
-     -bam <arg>         mapping file in BAM format)
-     -gtf <arg>         region file in GTF format
-     -id <arg>          attribute of the GTF to be used as feature ID. Regions with
-                        the same ID will be aggregated as part of the same feature.
-                        Default: gene_id.
-     -out <arg>         path to output file
-     -protocol <arg>    forward-stranded,reverse-stranded or non-strand-specific
-     -type <arg>        Value of the third column of the GTF considered for
-                        counting. Other types will be ignored. Default: exon
-
+ usage: qualimap comp-counts [-a <arg>] -bam <arg> -gtf <arg> [-id <arg>] [-out
+       <arg>] [-p <arg>] [-pe] [-s <arg>] [-type <arg>]
+ -a,--algorithm <arg>             Counting algorithm:
+                                  uniquely-mapped-reads(default) or proportional
+ -bam <arg>                       Mapping file in BAM format
+ -gtf <arg>                       Region file in GTF, GFF or BED format. If GTF
+                                  format is provided, counting is based on
+                                  attributes, otherwise based on feature name
+ -id <arg>                        GTF-specific. Attribute of the GTF to be used
+                                  as feature ID. Regions with the same ID will
+                                  be aggregated as part of the same feature.
+                                  Default: gene_id.
+ -out <arg>                       Path to output file
+ -p,--sequencing-protocol <arg>   Sequencing library protocol:
+                                  strand-specific-forward,
+                                  strand-specific-reverse or non-strand-specific
+                                  (default)
+ -pe,--paired                     Setting this flag for paired-end experiments
+                                  will result in counting fragments instead of
+                                  reads
+ -s,--sorted <arg>                This flag indicates that the input file is
+                                  already sorted by name. If not set, additional
+                                  sorting by name will be performed. Only
+                                  required for paired-end analysis.
+ -type <arg>                      GTF-specific. Value of the third column of the
+                                  GTF considered for counting. Other types will
+                                  be ignored. Default: exon
 
 | Detailed explanation of available options can be found :ref:`here<compute-counts>`.
 
