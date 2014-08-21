@@ -457,6 +457,8 @@ Very often in genomics one has to work with multiple samples, which could repres
 
 QualiMap provides an automated solution for this task. Basically, the results of selected plots computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers.
 
+One can apply multi-sample analysis for precomputed results of QualiMap BAM QC or directly for raw BAM files. In latter case firstly BAM QC analysis will be performed for each input file and then multi-sample analysis will executed.
+
 To start a new multi-sample BAM QC analysis activate main menu item :menuselection:`File --> New Analysis --> Multisample BAM QC`.
 
 Examples
@@ -469,21 +471,30 @@ Examples
 Input Parameters
 ^^^^^^^^^^^^^^^^
 
-The summary statistics and plot data produced by BAM QC analysis are used as input data for multisample comparison. Therefore to perform multisample comparison one has to run the :ref:`BAM QC analysis<bamqc>` on each indvidual BAM file. 
+There are 2 types of input data that are accepted by *Multi-sample BAM QC*:
 
-.. TODO: write a wrapper script which allows to run BAM QC on each sample in a batch and then perform multisample BAM analysis 
+1. By default directory with the summary statistics and plot data already produced by BAM QC analysis is expected as input data for multi-sample comparison. 
+
+2. However if a special **"raw data" mode** is activated, then BAM files can be provided as input. In this case Qualimap will first run the :ref:`BAM QC analysis<bamqc>` on each indvidual BAM file, and then multi-sample report will be computed. 
 
 The input samples can be added using button :guilabel:`Add`. For each sample one has to provide the following information:
 
 1. **Name** of the sample as it will be used in legend.
 
-2. **Path** to the folder with which contains results of BAM QC analysis performed on the sample. The folder must include file **genome_results.txt** and subfolder **raw_data_qualimapReport** containing data of BAM QC plots.
+2. **Path** to the folder with which contains results of BAM QC analysis performed on the sample. The folder must include file **genome_results.txt** and subfolder **raw_data_qualimapReport** containing data of BAM QC plots. If **"Raw data" mode** is activated then the path to the BAM file should be provided.
 
 .. note::
 
    In QualiMap version <= 2.0 directory with raw data of BAM QC analysis was called **raw_data**. This name is also supported.
 
 Each added sample will be shown in **Samples** table. One can edit samples using button :guilabel:`Edit` and remove them using button :guilabel:`Remove`.
+
+
+:guilabel:`"Raw data" mode: run BAM QC on input samples`
+
+
+    Activate this checkbox to analyze BAM files directly. A selected set of options is available to customize *BAM QC* process. One can read detailed explantion of these options in a :ref:`corresponding section<bamqc>` of the manual.
+
 
 To start the analysis click button :guilabel:`Run analysis`.
 

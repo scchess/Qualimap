@@ -33,7 +33,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
     protected void initOptions() {
         options.addOption(requiredOption("d", "data", true,
                 "File describing the input data. Format of the file is a 2-column tab-delimited table." +
-                "\nColumn 1: sample name \nColumn 2: path to the BAM QC result for the sample"));
+                "\nColumn 1: sample name \nColumn 2: either path to the BAM QC result or path to BAM file (-r mode)"));
 
         options.addOption("r", "run-bamqc", false, "Raw BAM files are provided as input. If this option is activated" +
                 " BAM QC process first will be run for each sample, then multi-sample " +

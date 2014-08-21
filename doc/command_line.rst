@@ -119,17 +119,36 @@ Multi-sample BAM QC
 
 To perform multi-sample BAM QC use the following command::
 
- usage: qualimap multi-bamqc -d <arg> [-outdir <arg>] [-outfile <arg>]
-       [-outformat <arg>]
- -d,--data <arg>    File describing the input data. Format of the file is 
-                    a 2-column tab-delimited table. 
-                    Column 1: sample name 
-                    Column 2: path to the BAM QC result for the sample.
- -outdir <arg>      Output folder for HTML report and raw data.
- -outfile <arg>     Output file for PDF report (default value is report.pdf).
- -outformat <arg>   Format of the ouput report (PDF or HTML, default is HTML).
+ usage: qualimap multi-bamqc [-c] -d <arg> [-gff <arg>] [-hm <arg>] [-nr <arg>]
+       [-nw <arg>] [-outdir <arg>] [-outfile <arg>] [-outformat <arg>] [-r]
+ -c,--paint-chromosome-limits   Only for -r mode. Paint chromosome limits inside
+                                charts
+ -d,--data <arg>                File describing the input data. Format of the
+                                file is a 2-column tab-delimited table.
+                                Column 1: sample name
+                                Column 2: either path to the BAM QC result or
+                                path to BAM file (-r mode)
+ -gff,--feature-file <arg>      Only for -r mode. Feature file with regions of
+                                interest in GFF/GTF or BED format
+ -hm <arg>                      Only for -r mode. Minimum size for a homopolymer
+                                to be considered in indel analysis (default is
+                                3)
+ -nr <arg>                      Only for -r mode. Number of reads analyzed in a
+                                chunk (default is 1000)
+ -nw <arg>                      Only for -r mode. Number of windows (default is
+                                400)
+ -outdir <arg>                  Output folder for HTML report and raw data.
+ -outfile <arg>                 Output file for PDF report (default value is
+                                report.pdf).
+ -outformat <arg>               Format of the ouput report (PDF or HTML, default
+                                is HTML).
+ -r,--run-bamqc                 Raw BAM files are provided as input. If this
+                                option is activated BAM QC process first will be
+                                run for each sample, then multi-sample analysis
+                                will be performed.
 
-| The main argument for this command is the configuration file describing input data (-d). This has to be a 2-column tab-delimted file. The first column should contain the sample name and the second column should contain path to the results of BAM QC analysis for the sample. The path for the data could be absolute or relative to the location of the configuration file.
+ 
+| The main argument for this command is the configuration file describing input data (-d). This has to be a 2-column tab-delimted file. The first column should contain the sample name and the second column should contain either path to the results of BAM QC analysis or path to the BAM file (if -r mode is activated). The path for the data could be absolute or relative to the location of the configuration file.
 
 | Detailed explanation of the analysis can be found here :ref:`here<multibamqc>`.
 

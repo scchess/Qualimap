@@ -133,10 +133,11 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
-        activateBamQcMode = new JCheckBox("Run BAM QC on input samples");
+        activateBamQcMode = new JCheckBox("\"Raw data\" mode: run BAM QC on input samples");
         activateBamQcMode.setSelected(false);
-        activateBamQcMode.setToolTipText("<html><body>By default BAM QC results are expected as input.<br>" +
-                "However it is possible to provide BAM files as input<br>and run BAM QC on each sample.</body></html>");
+        activateBamQcMode.setToolTipText("<html><body>By default precomputed BAM QC results are expected as input.<br>" +
+                "However it is possible to provide raw BAM files as input<br>" +
+                "and run BAM QC on each sample.</body></html>");
         activateBamQcMode.addActionListener(this);
         add(activateBamQcMode, "span 2, wrap");
 
