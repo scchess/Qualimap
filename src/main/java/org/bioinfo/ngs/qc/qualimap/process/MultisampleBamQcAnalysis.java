@@ -7,7 +7,6 @@ import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
-import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.jfree.chart.ChartColor;
 
 import java.awt.*;
@@ -29,6 +28,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     Paint[] palette;
     Map<SampleInfo,String> rawDataDirs;
     boolean runBamQcFirst;
+    BamStatsAnalysisConfig bamQcConfig;
 
     static final int NUM_FEATURES = 5;
 
@@ -50,6 +50,9 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             runBamQcOnSamples();
         }
 
+        loggerThread.logLine("Running multi-sample BAM QC\n");
+
+        loggerThread.logLine("Checking input paths");
         checkInputPaths();
 
         StatsReporter reporter = new StatsReporter();
@@ -57,7 +60,9 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
         prepareInputDescription(reporter);
+        loggerThread.logLine("Loading sample data");
         createSummaryTable(reporter);
+        loggerThread.logLine("Creating charts");
         createCharts(reporter);
 
 
@@ -66,8 +71,9 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     }
 
 
-    public void setRunBamQcFirst(boolean runBamQcFirst) {
-        this.runBamQcFirst = runBamQcFirst;
+    public void setRunBamQcFirst(BamStatsAnalysisConfig cfg) {
+        this.runBamQcFirst = true;
+        this.bamQcConfig = cfg;
     }
 
 
@@ -75,7 +81,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         if(!outdir.isEmpty()){
         	if(new File(outdir).exists()){
-				loggerThread.logLine("output folder already exists");
+				loggerThread.logLine("Output directory already exists.");
 			} else {
 				boolean ok = new File(outdir).mkdirs();
                 if (!ok) {
@@ -88,18 +94,22 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
     private void runBamQcOnSamples() throws Exception {
 
+        loggerThread.logLine("Running BAM QC on given samples\n");
+
         for (SampleInfo s : bamQCResults) {
 
             String bamFilePath = s.path;
-            BamStatsAnalysisConfig cfg = new BamStatsAnalysisConfig();
+            loggerThread.logLine("Started processing " + bamFilePath + "\n\n");
+
             String sampleOutdir = FilenameUtils.removeExtension(new File(bamFilePath).getAbsolutePath()) + "_stats";
             initOutputDir(sampleOutdir);
 
             BamStatsAnalysis bamQC = new BamStatsAnalysis(bamFilePath);
-            bamQC.setConfig(cfg);
+            bamQC.setConfig(bamQcConfig);
             bamQC.run();
 
-            BamQCRegionReporter reporter = new BamQCRegionReporter(cfg.regionsAvailable,false);
+            BamQCRegionReporter reporter = new BamQCRegionReporter(bamQcConfig.regionsAvailable(),false);
+            reporter.setPaintChromosomeLimits(bamQcConfig.drawChromosomeLimits);
             reporter.writeReport(bamQC.getBamStats(),sampleOutdir);
             reporter.loadReportData(bamQC.getBamStats());
             reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
@@ -109,6 +119,8 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
             Thread exportReportThread = new ExportHtmlThread(resultManager,sampleOutdir);
             exportReportThread.run();
+            loggerThread.logLine("Finished processing " + bamFilePath + "\n");
+            loggerThread.logLine("BAM QC results are saved to  " + sampleOutdir + "\n");
 
             s.path = sampleOutdir;
 

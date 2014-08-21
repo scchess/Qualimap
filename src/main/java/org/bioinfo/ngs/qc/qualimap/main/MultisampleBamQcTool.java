@@ -6,6 +6,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysisConfig;
 import org.bioinfo.ngs.qc.qualimap.process.MultisampleBamQcAnalysis;
 import org.bioinfo.ngs.qc.qualimap.process.SampleInfo;
 
@@ -22,6 +23,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
 
     String inputFile;
     boolean runBamQCFirst;
+    BamStatsAnalysisConfig bamQcCfg;
 
     public MultisampleBamQcTool() {
         super(Constants.TOOL_NAME_MULTISAMPLE_BAM_QC, false);
@@ -63,6 +65,33 @@ public class MultisampleBamQcTool extends NgsSmartTool{
         }
 
         runBamQCFirst = commandLine.hasOption("r");
+        if (runBamQCFirst) {
+            bamQcCfg = new BamStatsAnalysisConfig();
+
+            if(commandLine.hasOption(Constants.BAMQC_OPTION_GFF_FILE)) {
+                bamQcCfg.gffFile = commandLine.getOptionValue(Constants.BAMQC_OPTION_GFF_FILE);
+                if(!exists(bamQcCfg.gffFile)) {
+                    throw new ParseException("input region gff file not found");
+                }
+            }
+
+
+            bamQcCfg.numberOfWindows =  commandLine.hasOption(Constants.BAMQC_OPTION_NUM_WINDOWS) ?
+                    Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_NUM_WINDOWS))
+                    : Constants.DEFAULT_NUMBER_OF_WINDOWS;
+
+            bamQcCfg.bunchSize = commandLine.hasOption(Constants.BAMQC_OPTION_CHUNK_SIZE) ?
+                    Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_CHUNK_SIZE)) :
+                    Constants.DEFAULT_CHUNK_SIZE;
+
+
+            bamQcCfg.minHomopolymerSize = commandLine.hasOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE) ?
+                    Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE)) :
+                    Constants.DEFAULT_HOMOPOLYMER_SIZE;
+
+            bamQcCfg.drawChromosomeLimits =  commandLine.hasOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
+
+        }
     }
 
     @Override
@@ -76,7 +105,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
 
     @Override
     protected void execute() throws Exception {
-        // init output dir
+
         initOutputDir();
 
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.MULTISAMPLE_BAM_QC);
@@ -90,15 +119,17 @@ public class MultisampleBamQcTool extends NgsSmartTool{
 
         MultisampleBamQcAnalysis multiBamQCAnalysis =
                 new MultisampleBamQcAnalysis(resultManager, homePath, bamQcResults);
-        multiBamQCAnalysis.setRunBamQcFirst(runBamQCFirst);
+        if (runBamQCFirst) {
+            multiBamQCAnalysis.setRunBamQcFirst(bamQcCfg);
+        }
 
         LoggerThread loggerThread = new LoggerThread() {
             public void logLine(String msg) {
                 System.out.println(msg);
             }
         };
-        multiBamQCAnalysis.setOutputParsingThread(loggerThread);
 
+        multiBamQCAnalysis.setOutputParsingThread(loggerThread);
 
         multiBamQCAnalysis.run();
 

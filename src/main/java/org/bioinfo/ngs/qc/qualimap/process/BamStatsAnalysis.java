@@ -1128,6 +1128,12 @@ public class BamStatsAnalysis {
 
 
     public void setConfig(BamStatsAnalysisConfig cfg) {
+        if (cfg.gffFile != null) {
+            selectedRegionsAvailable = true;
+            featureFile = cfg.gffFile;
+        }
+        numberOfWindows = cfg.numberOfWindows;
+        minHomopolymerSize = cfg.minHomopolymerSize;
 
     }
 
