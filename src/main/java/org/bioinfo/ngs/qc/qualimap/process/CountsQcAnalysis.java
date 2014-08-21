@@ -36,7 +36,7 @@ import java.util.*;
  * Date: 5/15/14
  * Time: 4:03 PM
  */
-public class MultisampleCountsAnalysis extends AnalysisProcess{
+public class CountsQcAnalysis extends AnalysisProcess{
 
     List<CountsSampleInfo> samples;
     Map<Integer,String> conditionNames;
@@ -47,9 +47,9 @@ public class MultisampleCountsAnalysis extends AnalysisProcess{
     static final String COMPARISON_ANALYSIS = "Comparison";
     private int countsThreshold;
 
-    public MultisampleCountsAnalysis(AnalysisResultManager tabProperties,
-                                     String homePath,
-                                     List<CountsSampleInfo> samples) {
+    public CountsQcAnalysis(AnalysisResultManager tabProperties,
+                            String homePath,
+                            List<CountsSampleInfo> samples) {
         super(tabProperties, homePath);
         this.samples = samples;
         this.reportProgress = false;

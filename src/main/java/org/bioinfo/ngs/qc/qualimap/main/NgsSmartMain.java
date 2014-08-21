@@ -62,7 +62,7 @@ public class NgsSmartMain {
             }
 
             if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_COUNTS_QC)){
-                tool = new MultisampleCountsQcTool();
+                tool = new CountsQcTool();
             }
 
             if (toolName.equals(Constants.TOOL_NAME_COMPUTE_COUNTS)) {

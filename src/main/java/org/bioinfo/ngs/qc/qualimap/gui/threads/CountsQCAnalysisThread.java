@@ -31,7 +31,7 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.CountsQcDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
-import org.bioinfo.ngs.qc.qualimap.process.MultisampleCountsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.process.CountsQcAnalysis;
 
 import javax.swing.*;
 
@@ -95,7 +95,7 @@ public class CountsQCAnalysisThread extends Thread {
 
         String homePath = settingsDlg.getHomeFrame().getQualimapFolder() + File.separator;
 
-        MultisampleCountsAnalysis countsAnalysis = new MultisampleCountsAnalysis(tabProperties, homePath,
+        CountsQcAnalysis countsAnalysis = new CountsQcAnalysis(tabProperties, homePath,
                 settingsDlg.getDataItems());
 
         countsAnalysis.setThreshold( settingsDlg.getCountsThreshold() );

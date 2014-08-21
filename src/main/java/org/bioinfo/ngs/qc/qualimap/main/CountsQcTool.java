@@ -33,7 +33,7 @@ import java.util.Map;
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.process.CountsSampleInfo;
-import org.bioinfo.ngs.qc.qualimap.process.MultisampleCountsAnalysis;
+import org.bioinfo.ngs.qc.qualimap.process.CountsQcAnalysis;
 
 /**
  * Created by kokonech
@@ -41,7 +41,7 @@ import org.bioinfo.ngs.qc.qualimap.process.MultisampleCountsAnalysis;
  * Time: 5:03 PM
  */
 
-public class MultisampleCountsQcTool extends NgsSmartTool{
+public class CountsQcTool extends NgsSmartTool{
 
 
     private String inputFile;
@@ -55,7 +55,7 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
     private static final String SPECIES_FOLDER = "species";
     private boolean compareConditions;
 
-    public MultisampleCountsQcTool(){
+    public CountsQcTool(){
         super(Constants.TOOL_NAME_COUNTS_QC, true);
 
         INFO_FILE_HUMAN_68 = homePath + File.separator + SPECIES_FOLDER +
@@ -138,15 +138,15 @@ public class MultisampleCountsQcTool extends NgsSmartTool{
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.COUNTS_QC);
 
         ArrayList<String> conditionNames = new ArrayList<String>();
-        List<CountsSampleInfo> samples = MultisampleCountsAnalysis.parseInputFile(inputFile,conditionNames);
+        List<CountsSampleInfo> samples = CountsQcAnalysis.parseInputFile(inputFile, conditionNames);
         if (samples.size() == 0) {
             System.err.println("The input file " + inputFile + " does not contain any samples. " +
                     "Please check file format.");
             System.exit(-1);
         }
 
-        MultisampleCountsAnalysis countsAnalysis =
-                new MultisampleCountsAnalysis(resultManager, homePath, samples);
+        CountsQcAnalysis countsAnalysis =
+                new CountsQcAnalysis(resultManager, homePath, samples);
 
 
         countsAnalysis.setInputFilePath(inputFile);
