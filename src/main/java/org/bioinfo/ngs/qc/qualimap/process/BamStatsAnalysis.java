@@ -79,6 +79,7 @@ public class BamStatsAnalysis {
 	private BamStats bamStats;
 
 	private Logger logger;
+    private LoggerThread loggerThread;
 
 	// working variables
 	private BamGenomeWindow currentWindow;
@@ -743,6 +744,9 @@ public class BamStatsAnalysis {
             progress = ((bamStats.getNumberOfProcessedWindows() +
                     outsideBamStats.getNumberOfProcessedWindows()) * 50) / (effectiveNumberOfWindows);
         }
+        if (loggerThread != null) {
+            loggerThread.updateProgress(progress);
+        }
 
     }
     private void finalizeWindow(BamGenomeWindow window, BamStats bamStats,
@@ -1135,6 +1139,10 @@ public class BamStatsAnalysis {
         numberOfWindows = cfg.numberOfWindows;
         minHomopolymerSize = cfg.minHomopolymerSize;
 
+    }
+
+    void setLoggerThread(LoggerThread loggerThread) {
+        this.loggerThread = loggerThread;
     }
 
 

@@ -87,8 +87,6 @@ public class CountsQcAnalysis extends AnalysisProcess{
     @Override
     public void run() throws Exception {
 
-
-
         String workDir = tabProperties.createDirectory().toString();
 
 

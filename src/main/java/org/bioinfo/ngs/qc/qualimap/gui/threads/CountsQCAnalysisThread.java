@@ -28,8 +28,8 @@ package org.bioinfo.ngs.qc.qualimap.gui.threads;
 import java.io.*;
 
 import org.bioinfo.commons.log.Logger;
-import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.CountsQcDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisDialogLoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.CountsQcAnalysis;
 
@@ -52,31 +52,6 @@ public class CountsQCAnalysisThread extends Thread {
 
 	/** Variables that contains the tab properties loaded in the thread */
 	TabPageController tabProperties;
-
-    static class OutputParsingThread extends LoggerThread {
-
-        CountsQcDialog parentDialog;
-
-
-        OutputParsingThread(CountsQcDialog parentDialog) {
-            this.parentDialog = parentDialog;
-
-        }
-
-        @Override
-        public void logLine(String msg) {
-            System.out.println(msg);
-            /*if (msg.contains("STATUS:")) {
-                parentDialog.setProgressStatus(msg.split(":")[1]);
-            }*/
-            JTextArea logArea = parentDialog.getLogArea();
-            logArea.append(msg + "\n");
-            logArea.setCaretPosition(logArea.getText().length());
-        }
-
-    }
-
-
 
 	public CountsQCAnalysisThread(CountsQcDialog countsQcDialog, TabPageController tabProperties) {
 		super("MultisampleCountsQcThread");
@@ -116,7 +91,7 @@ public class CountsQCAnalysisThread extends Thread {
             countsAnalysis.setInfoFilePath(infoFilePath);
         }
 
-        OutputParsingThread outputParsingThread= new OutputParsingThread( settingsDlg ) ;
+        AnalysisDialogLoggerThread outputParsingThread= new AnalysisDialogLoggerThread( settingsDlg ) ;
         countsAnalysis.setOutputParsingThread(outputParsingThread);
 
         try {

@@ -104,8 +104,10 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             String sampleOutdir = FilenameUtils.removeExtension(new File(bamFilePath).getAbsolutePath()) + "_stats";
             initOutputDir(sampleOutdir);
 
+            loggerThread.updateProgress(0);
             BamStatsAnalysis bamQC = new BamStatsAnalysis(bamFilePath);
             bamQC.setConfig(bamQcConfig);
+            bamQC.setLoggerThread(loggerThread);
             bamQC.run();
 
             BamQCRegionReporter reporter = new BamQCRegionReporter(bamQcConfig.regionsAvailable(),false);
@@ -119,6 +121,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
             Thread exportReportThread = new ExportHtmlThread(resultManager,sampleOutdir);
             exportReportThread.run();
+            loggerThread.updateProgress(100);
             loggerThread.logLine("Finished processing " + bamFilePath + "\n");
             loggerThread.logLine("BAM QC results are saved to  " + sampleOutdir + "\n");
 

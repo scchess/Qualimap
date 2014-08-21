@@ -99,6 +99,7 @@ public final class Constants {
     public static final String COMMAND_REMOVE_ITEM = "delete_item";
     public static final String COMMAND_EDIT_ITEM = "edit_item";
     public static final String COMMAND_RUN_ANALYSIS = "run_analysis";
+    public static final String COMMAND_BROWSE_GFF = "browse_gff";
 
     public static final String VIZ_TYPE_HEATMAP = "heatmap";
     public static final String VIZ_TYPE_LINE = "line";
@@ -138,7 +139,6 @@ public final class Constants {
     public static final String BAMQC_OPTION_OUTSIDE_STATS = "os";
     public static final String BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
     public static final String BAMQC_OPTION_COVERAGE_REPORT_FILE = "oc";
-
 
 
 }

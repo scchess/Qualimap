@@ -34,6 +34,10 @@ public abstract class LoggerThread extends Thread {
 
     public abstract void logLine(String msg);
 
+    public void updateProgress(int progress) {
+
+    }
+
     public void start(BufferedReader reader) {
         this.outputReader = reader;
         start();

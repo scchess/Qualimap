@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
 import org.bioinfo.ngs.qc.qualimap.gui.panels.MultisampleBamQcDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisDialogLoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.MultisampleBamQcAnalysis;
 
@@ -26,10 +27,6 @@ public class MultisampleBamQcThread extends Thread {
 
     }
 
-    /**
-     * Public method to run this thread. Its executed when an user call to
-     * method start over this thread.
-     */
     public void run() {
 
         settingsDlg.setUiEnabled(false);
@@ -39,11 +36,17 @@ public class MultisampleBamQcThread extends Thread {
 
         MultisampleBamQcAnalysis multiBamQcAnalysis = new MultisampleBamQcAnalysis(tabProperties, homePath,
                 settingsDlg.getDataItems());
+        AnalysisDialogLoggerThread outputParsingThread= new AnalysisDialogLoggerThread( settingsDlg ) ;
+        multiBamQcAnalysis.setOutputParsingThread(outputParsingThread);
+
+        if (settingsDlg.runBamQcFirst()) {
+            multiBamQcAnalysis.setRunBamQcFirst( settingsDlg.getBamQcConfig() );
+        }
 
         try {
             multiBamQcAnalysis.run();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(settingsDlg, "Failed to analyze Qualimap reports data!\n" + e.getMessage(),
+            JOptionPane.showMessageDialog(settingsDlg, "Failed to run multi-sample BAM QC!\n" + e.getMessage(),
                     settingsDlg.getTitle(), JOptionPane.ERROR_MESSAGE);
             settingsDlg.setUiEnabled(true);
             //settingsDlg.resetUi();

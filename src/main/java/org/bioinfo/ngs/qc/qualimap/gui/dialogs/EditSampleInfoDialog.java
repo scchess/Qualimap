@@ -69,7 +69,7 @@ public class EditSampleInfoDialog extends JDialog implements KeyListener {
         add(pathField);
         browseSampleButton = new JButton("...");
         browseSampleButton.addActionListener(
-                new BrowseButtonActionListener(this, pathField, "Qualimap BAM QC result", true) );
+                new BrowseButtonActionListener(this, pathField, "BAM QC result or raw BAM file", true) );
         add(browseSampleButton, "wrap");
 
         JPanel buttonPanel = new JPanel();

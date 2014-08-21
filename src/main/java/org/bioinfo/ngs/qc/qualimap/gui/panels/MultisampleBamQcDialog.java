@@ -1,6 +1,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
@@ -8,13 +9,16 @@ import org.bioinfo.ngs.qc.qualimap.gui.dialogs.EditSampleInfoDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.MultisampleBamQcThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
+import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysisConfig;
 import org.bioinfo.ngs.qc.qualimap.process.SampleInfo;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -88,7 +92,16 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
     SampleDataTableModel sampleTableModel;
     JTable inputDataTable;
     JPanel buttonPanel;
+    JCheckBox activateBamQcMode;
     JButton addSampleButton, editSampleButton, removeSampleButton;
+
+    // BAM QC stuff
+    JPanel  bamQcOptionsPanel;
+    JCheckBox analyzeRegionsCheckBox, drawChromosomeLimits;
+    JTextField pathGffFile;
+    JButton browseGffButton;
+    JLabel labelNw, labelPathToGff, labelNumReadsPerBunch, labelMinHmSize;
+    JSpinner valueNwSpinner, minHmSizeSpinner, numReadsPerBunchSpinner;
 
 
     public MultisampleBamQcDialog(HomeFrame parent) {
@@ -120,6 +133,20 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         buttonPanel.add(removeSampleButton, "wrap");
         add(buttonPanel, "align right, span, wrap");
 
+        activateBamQcMode = new JCheckBox("Run BAM QC on input samples");
+        activateBamQcMode.setSelected(false);
+        activateBamQcMode.setToolTipText("<html><body>By default BAM QC results are expected as input.<br>" +
+                "However it is possible to provide BAM files as input<br>and run BAM QC on each sample.</body></html>");
+        activateBamQcMode.addActionListener(this);
+        add(activateBamQcMode, "span 2, wrap");
+
+        setupBamQcGui();
+        add(bamQcOptionsPanel, "span 2, wrap");
+
+        add(new JLabel("Log"), "wrap");
+        setupLogArea();
+        add(logAreaScrollPane, "span, grow, wrap 30px");
+
         // Action done while the statistics graphics are loaded
         setupProgressStream();
         add(progressStream, "align center");
@@ -137,7 +164,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         pack();
 
         // Default data  for testing
-        if (System.getenv("QUALIMAP_DEBUG") != null)  {
+        /*if (System.getenv("QUALIMAP_DEBUG") != null)  {
             SampleInfo s1 = new SampleInfo();
             s1.name = "MCF7";
             s1.path = "/data/fusions-data/breast_cancer_MCF7/tophat_out/accepted_hits_stats";
@@ -159,10 +186,84 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             s4.path = "/data/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_stats";
             sampleTableModel.addItem(s4);
 
+        }*/
+
+        //Default data 2
+        if (System.getenv("QUALIMAP_DEBUG") != null)  {
+
+            SampleInfo s1 = new SampleInfo();
+            s1.name = "S1";
+            s1.path = "/data/qualimap_release_data/alignments/HG00096.chrom20.bam";
+            sampleTableModel.addItem(s1);
+
+
+            SampleInfo s2 = new SampleInfo();
+            s2.name = "S2";
+            s2.path = "/home/kokonech/sample_data/example-alignment.sorted.bam";
+            sampleTableModel.addItem(s2);
+
+
         }
 
         updateState();
         setResizable(false);
+
+    }
+
+    private void setupBamQcGui() {
+
+        bamQcOptionsPanel = new JPanel();
+        bamQcOptionsPanel.setLayout(new MigLayout("insets 10"));
+
+        analyzeRegionsCheckBox = new JCheckBox("Analyze regions");
+        analyzeRegionsCheckBox.addActionListener(this);
+        analyzeRegionsCheckBox.setToolTipText("Check to only analyze the regions defined in the features file");
+        bamQcOptionsPanel.add(analyzeRegionsCheckBox, "wrap");
+
+        labelPathToGff = new JLabel("Regions file (GFF/BED):");
+        bamQcOptionsPanel.add(labelPathToGff, "");
+
+        pathGffFile = new JTextField(40);
+        pathGffFile.setToolTipText("Path to GFF/GTF or BED file containing regions of interest");
+        bamQcOptionsPanel.add(pathGffFile, "grow");
+
+        browseGffButton = new JButton();
+        browseGffButton.setText("...");
+        browseGffButton.setActionCommand(Constants.COMMAND_BROWSE_GFF);
+        browseGffButton.addActionListener(this);
+        bamQcOptionsPanel.add(browseGffButton, "align center, wrap");
+
+        drawChromosomeLimits = new JCheckBox("Chromosome limits");
+        drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        drawChromosomeLimits.setToolTipText("Check to draw the chromosome limits");
+        drawChromosomeLimits.setSelected(true);
+        bamQcOptionsPanel.add(drawChromosomeLimits, "wrap");
+
+        labelNw = new JLabel("Number of windows:");
+		bamQcOptionsPanel.add(labelNw);
+
+        valueNwSpinner = new JSpinner(new SpinnerNumberModel(Constants.DEFAULT_NUMBER_OF_WINDOWS, 100, 4000, 50));
+		valueNwSpinner.setToolTipText("Number of sampling windows across the reference");
+        bamQcOptionsPanel.add(valueNwSpinner, "wrap");
+
+        labelMinHmSize = new JLabel("Homopolymer size:");
+        bamQcOptionsPanel.add(labelMinHmSize);
+        minHmSizeSpinner = new JSpinner(new SpinnerNumberModel(Constants.DEFAULT_HOMOPOLYMER_SIZE, 2, 7, 1));
+        minHmSizeSpinner.setToolTipText("<html>Only homopolymers of this size or larger will be considered " +
+                "<br>when estimating number of homopolymer indels.</html>" );
+        bamQcOptionsPanel.add(minHmSizeSpinner, "wrap");
+
+        labelNumReadsPerBunch = new JLabel("Size of the chunk:");
+        bamQcOptionsPanel.add(labelNumReadsPerBunch, "gapleft 20");
+        numReadsPerBunchSpinner = new JSpinner(new SpinnerNumberModel(Constants.DEFAULT_CHUNK_SIZE, 100, 5000, 1));
+        numReadsPerBunchSpinner.setToolTipText("<html>To speed up the computation reads are analyzed in chunks. " +
+                "Each bunch is analyzed by single thread. <br>This option controls the number of reads in the chunk." +
+                "<br>Smaller number may result in lower performance, " +
+                "but also the memory consumption will be reduced.</html>");
+        bamQcOptionsPanel.add(numReadsPerBunchSpinner, "wrap 20px");
+
+
+
 
     }
 
@@ -188,6 +289,8 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
                 dlg.setLocationRelativeTo(this);
                 dlg.setVisible(true);
             }
+        } else if (actionCommand.equals(Constants.COMMAND_BROWSE_GFF)) {
+            browseGffFile();
         } else if ( actionCommand.equals(Constants.COMMAND_RUN_ANALYSIS) ) {
 
             String errMsg = validateInput();
@@ -204,23 +307,69 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         }
     }
 
+    private void browseGffFile() {
 
-    void updateState() {
+        JFileChooser fileChooser = HomeFrame.getFileChooser();
 
+        FileFilter filter = new FileFilter() {
+            public boolean accept(File fileShown) {
+                boolean result = true;
+
+                String ext = FilenameUtils.getExtension(fileShown.getName());
+
+                if (!fileShown.isDirectory() && !Constants.FILE_EXTENSION_REGION.containsKey(ext.toUpperCase())) {
+                    result = false;
+                }
+
+                return result;
+            }
+
+            public String getDescription() {
+                return ("Region Files (*.gff *.gtf *.bed)");
+            }
+        };
+        fileChooser.setFileFilter(filter);
+        int valor = fileChooser.showOpenDialog(homeFrame.getCurrentInstance());
+
+        if (valor == JFileChooser.APPROVE_OPTION) {
+            pathGffFile.setText(fileChooser.getSelectedFile().getPath());
+        }
     }
 
-String validateInput() {
+
+    void updateState() {
+        boolean runBamQc = activateBamQcMode.isSelected();
+        bamQcOptionsPanel.setEnabled(runBamQc);
+        analyzeRegionsCheckBox.setEnabled(runBamQc);
+        boolean regionsAvailable = analyzeRegionsCheckBox.isSelected();
+        browseGffButton.setEnabled(runBamQc && regionsAvailable);
+        pathGffFile.setEnabled(runBamQc && regionsAvailable);
+        labelPathToGff.setEnabled(runBamQc && regionsAvailable);
+        drawChromosomeLimits.setEnabled(runBamQc);
+        labelMinHmSize.setEnabled(runBamQc);
+        minHmSizeSpinner.setEnabled(runBamQc);
+        labelNumReadsPerBunch.setEnabled(runBamQc);
+        numReadsPerBunchSpinner.setEnabled(runBamQc);
+        labelNw.setEnabled(runBamQc);
+        valueNwSpinner.setEnabled(runBamQc);
+    }
+
+    String validateInput() {
 
         if (sampleTableModel.getRowCount() == 0) {
-            return "No input data is provided!";
+            return "No input samples are provided!";
         } else if (sampleTableModel.getRowCount() == 1) {
             return "Only one sample is provided! Please include more samples.";
         }
 
+        if (analyzeRegionsCheckBox.isSelected()) {
+            if (pathGffFile.getText().isEmpty()) {
+                return "Path to GFF file is not set!";
+            }
+        }
+
         return "";
     }
-
-
 
     public int getItemCount() {
         return sampleTableModel.getRowCount();
@@ -247,6 +396,25 @@ String validateInput() {
 
     public java.util.List<SampleInfo> getDataItems() {
             return sampleTableModel.getItems();
+    }
+
+    public boolean runBamQcFirst() {
+        return activateBamQcMode.isSelected();
+    }
+
+    public BamStatsAnalysisConfig getBamQcConfig() {
+
+        BamStatsAnalysisConfig cfg = new BamStatsAnalysisConfig();
+        if (analyzeRegionsCheckBox.isSelected()) {
+            cfg.gffFile = pathGffFile.getText();
+        }
+
+        cfg.drawChromosomeLimits = drawChromosomeLimits.isSelected();
+        cfg.numberOfWindows = (Integer) valueNwSpinner.getValue();
+        cfg.minHomopolymerSize = (Integer) minHmSizeSpinner.getValue();
+        cfg.bunchSize = (Integer) numReadsPerBunchSpinner.getValue();
+
+        return cfg;
     }
 
 

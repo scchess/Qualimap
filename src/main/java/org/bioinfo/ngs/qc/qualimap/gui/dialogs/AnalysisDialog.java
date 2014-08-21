@@ -211,6 +211,11 @@ public class AnalysisDialog extends JDialog implements ContainerListener, KeyLis
     }
 
 
+    public void updateProgress(int progress) {
+        if (progressBar != null) {
+            progressBar.setValue(progress);
+        }
+    }
 
 
  }
