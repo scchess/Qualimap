@@ -1038,10 +1038,6 @@ public class BamStatsAnalysis {
         this.threadNumber = threadNumber;
     }
 
-    public int getProgress() {
-        return progress;
-    }
-
     public void setNumberOfReadsInBunch(int bunchSize) {
         numReadsInBunch = bunchSize;
     }
@@ -1141,7 +1137,7 @@ public class BamStatsAnalysis {
 
     }
 
-    void setLoggerThread(LoggerThread loggerThread) {
+    public void setLoggerThread(LoggerThread loggerThread) {
         this.loggerThread = loggerThread;
     }
 

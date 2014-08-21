@@ -20,13 +20,11 @@
  */
 package org.bioinfo.ngs.qc.qualimap.gui.threads;
 
-import java.util.TimerTask;
-import java.util.Timer;
-
 import net.sf.samtools.SAMFormatException;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisDialogLoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
@@ -48,20 +46,6 @@ public class BamAnalysisThread extends Thread {
 
 	/** Variables that contains the tab properties loaded in the thread */
     TabPageController resultManager;
-
-    private static class UpdateProgressTask extends TimerTask {
-        JProgressBar progressBar;
-        BamStatsAnalysis bamQC;
-        UpdateProgressTask(BamStatsAnalysis bamQC, JProgressBar progressBar) {
-            this.bamQC = bamQC;
-            this.progressBar = progressBar;
-        }
-
-        @Override
-        public void run() {
-            progressBar.setValue(bamQC.getProgress());
-        }
-    }
 
 	public BamAnalysisThread(String str, BamAnalysisDialog bamDialog, TabPageController tabProperties) {
 		super(str);
@@ -99,8 +83,9 @@ public class BamAnalysisThread extends Thread {
 		// reporting
 		bamQC.activeReporting(outputDirPath.toString());
 
-		Timer timer = new Timer(true);
-        timer.schedule( new UpdateProgressTask(bamQC, bamDialog.getProgressBar()), 100, 1000);
+		// setup logging
+        AnalysisDialogLoggerThread loggerThread = new AnalysisDialogLoggerThread(bamDialog);
+        bamQC.setLoggerThread(loggerThread);
 
         bamDialog.setUiEnabled(false);
         bamDialog.getProgressStream().setText("Running BAM file analysis...");
@@ -108,11 +93,7 @@ public class BamAnalysisThread extends Thread {
 		try {
 
             bamQC.run();
-	        timer.cancel();
-
-            //resultManager.setPairedData(bamQC.isPairedData());
-            //resultManager.setBamStats(bamQC.getBamStats());
-            //resultManager.setGenomeLocator(bamQC.getLocator());
+	        //timer.cancel();
 
 			bamDialog.getProgressStream().setText("End of bam qc");
             bamDialog.getProgressBar().setValue(100);
@@ -120,7 +101,7 @@ public class BamAnalysisThread extends Thread {
 			// report
 			bamDialog.getProgressStream().setText("Computing report...");
 			BamQCRegionReporter reporter = new BamQCRegionReporter(regionsAvailable, true);
-            bamQC.prepareInputDescription( reporter, bamDialog.getDrawChromosomeLimits() );
+            bamQC.prepareInputDescription(reporter, bamDialog.getDrawChromosomeLimits());
 
 			// Draw the Chromosome Limits or not
 			reporter.setPaintChromosomeLimits( bamDialog.getDrawChromosomeLimits() );
@@ -185,14 +166,12 @@ public class BamAnalysisThread extends Thread {
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             se.printStackTrace();
             bamDialog.setUiEnabled(true);
-            timer.cancel();
             return;
         } catch (Exception e) {
 		    JOptionPane.showMessageDialog(null, "Analysis is failed. " + e.getMessage(),
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             bamDialog.setUiEnabled(true);
-            timer.cancel();
             return;
      	}
 
