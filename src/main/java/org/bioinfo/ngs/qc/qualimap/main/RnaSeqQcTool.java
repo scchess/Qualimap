@@ -132,18 +132,9 @@ public class RnaSeqQcTool extends NgsSmartTool {
             rnaSeqQCAnalysis.setCountsFilePath(countsFile);
         }
 
-        try {
-
-            rnaSeqQCAnalysis.run();
-
-        } catch (Exception e) {
-            System.err.println("Error while calculating counts! " + e.getMessage());
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        rnaSeqQCAnalysis.run();
 
         exportResult(resultManager);
-
 
 
     }

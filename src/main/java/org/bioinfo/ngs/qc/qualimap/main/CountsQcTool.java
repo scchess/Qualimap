@@ -175,13 +175,7 @@ public class CountsQcTool extends NgsSmartTool{
         countsAnalysis.setOutputParsingThread(loggerThread);
 
 
-        try {
-            countsAnalysis.run();
-        } catch (Exception e) {
-            System.err.println("Failed to analyze counts");
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        countsAnalysis.run();
 
         logger.println("\nPreparing result report");
         exportResult(resultManager);

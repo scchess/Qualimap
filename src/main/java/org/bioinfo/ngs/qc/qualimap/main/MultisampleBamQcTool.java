@@ -37,6 +37,21 @@ public class MultisampleBamQcTool extends NgsSmartTool{
                 " BAM QC process first will be run for each sample, then multi-sample " +
                 "analysis will be performed.");
 
+        // BAM QC options
+
+        options.addOption(Constants.BAMQC_OPTION_GFF_FILE, "feature-file", true,
+                "Only for -r mode. Feature file with regions of interest in GFF/GTF or BED format");
+        options.addOption(Constants.BAMQC_OPTION_NUM_WINDOWS, true,
+                "Only for -r mode. Number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
+        options.addOption(Constants.BAMQC_OPTION_CHUNK_SIZE, true,
+                "Only for -r mode. Number of reads analyzed in a chunk (default is " + Constants.DEFAULT_CHUNK_SIZE + ")" );
+        options.addOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, true,
+                "Only for -r mode. Minimum size for a homopolymer to be considered in indel analysis (default is "
+                        + Constants.DEFAULT_HOMOPOLYMER_SIZE + ") " );
+        options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
+                "Only for -r mode. Paint chromosome limits inside charts");
+
+
 
     }
 
@@ -85,13 +100,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
         multiBamQCAnalysis.setOutputParsingThread(loggerThread);
 
 
-        try {
-            multiBamQCAnalysis.run();
-        } catch (Exception e) {
-            System.err.println("Failed to perform multi-sample BAM QC analysis");
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        multiBamQCAnalysis.run();
 
         logger.println("\nPreparing result report");
         exportResult(resultManager);

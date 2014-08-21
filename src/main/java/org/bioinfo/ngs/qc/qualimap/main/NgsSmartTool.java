@@ -21,8 +21,10 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.cli.*;
+import org.apache.commons.io.FileUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.AppSettings;
@@ -177,7 +179,14 @@ public abstract class NgsSmartTool {
 		checkOptions();
 		
 		// execute
-		execute();
+        try {
+            execute();
+        } catch (Exception e) {
+            System.err.println("Failed to run " + toolName + "\n");
+            e.printStackTrace();
+            cleanupOutputDir();
+            System.exit(-1);
+        }
 	}
 	
 	protected void printHelp(){
@@ -202,6 +211,18 @@ public abstract class NgsSmartTool {
 			}
 		}
 	}
+
+    protected void cleanupOutputDir() {
+        File outDirFile = new File(outdir);
+        if (outDirFile.exists()) {
+            logger.warn("Cleanup output dir");
+            try {
+                FileUtils.deleteDirectory(outDirFile);
+            } catch (IOException e) {
+                logger.error("Failed to delete output dir");
+            }
+        }
+    }
 
     protected static Option requiredOption(String shortName, String longName, boolean hasArgument, String shortDescription ) {
             Option option = new Option(shortName, longName, hasArgument, shortDescription);
