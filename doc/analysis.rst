@@ -455,9 +455,9 @@ Multi-sample BAM QC
 
 Very often in genomics one has to work with multiple samples, which could represent sequeincing results from either biological replicates or different conditions. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
 
-QualiMap provides an automated solution for this task. Basically, the results of selected plots computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers.
+QualiMap provides an automated solution for this task. Basically, the QC metrics computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers.
 
-One can apply multi-sample analysis for precomputed results of QualiMap BAM QC or directly for raw BAM files. In latter case firstly BAM QC analysis will be performed for each input file and then multi-sample analysis will executed.
+One can apply multi-sample analysis for precomputed results of QualiMap BAM QC or directly for raw BAM files. In latter case firstly BAM QC analysis will be performed for each input file and then multi-sample analysis will be executed.
 
 To start a new multi-sample BAM QC analysis activate main menu item :menuselection:`File --> New Analysis --> Multisample BAM QC`.
 
@@ -473,9 +473,9 @@ Input Parameters
 
 There are 2 types of input data that are accepted by *Multi-sample BAM QC*:
 
-1. By default directory with the summary statistics and plot data already produced by BAM QC analysis is expected as input data for multi-sample comparison. 
+1. By default directory with the summary statistics and plot data produced by BAM QC analysis is expected as input data for multi-sample comparison. 
 
-2. However if a special **"raw data" mode** is activated, then BAM files can be provided as input. In this case Qualimap will first run the :ref:`BAM QC analysis<bamqc>` on each indvidual BAM file, and then multi-sample report will be computed. 
+2. If a special **"raw data" mode** is activated, then BAM files can be provided as input. In this case Qualimap will first run the :ref:`BAM QC analysis<bamqc>` on each indvidual BAM file, and then multi-sample report will be computed. 
 
 The input samples can be added using button :guilabel:`Add`. For each sample one has to provide the following information:
 

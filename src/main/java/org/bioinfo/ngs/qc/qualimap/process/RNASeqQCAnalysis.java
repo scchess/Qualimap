@@ -159,7 +159,7 @@ public class RNASeqQCAnalysis  {
 
         StatsKeeper.Section junctionAnalysisSection = new StatsKeeper.Section("Junction analysis");
         long numReadsWithJunctions = th.getNumReadsWithJunctions();
-        junctionAnalysisSection.addRow("Reads with junctions:", sdf.formatLong(numReadsWithJunctions));
+        junctionAnalysisSection.addRow("Reads at junctions:", sdf.formatLong(numReadsWithJunctions));
         if (numReadsWithJunctions > 0) {
             List<JunctionInfo> junctionList = th.computeSortedJunctionsMap();
 

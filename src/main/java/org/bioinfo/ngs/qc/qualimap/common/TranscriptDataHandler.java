@@ -500,7 +500,7 @@ public class TranscriptDataHandler {
             double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
                     sortedCoverageMap.size(), true );
             QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
-                    "Coverage Profile (Total)", sampleName);
+                    "Coverage Profile Along Genes (Total)", sampleName);
             charts.add(chart);
         }
 
@@ -508,7 +508,7 @@ public class TranscriptDataHandler {
             double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
                     500, true );
             QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
-                    "Coverage Profile (Low)", sampleName);
+                    "Coverage Profile Along Genes (Low)", sampleName);
             charts.add(chart);
         }
 
@@ -516,7 +516,7 @@ public class TranscriptDataHandler {
             double[] perBaseTranscriptCoverage = computePerBaseTranscriptCoverageHist(sortedCoverageMap,
                     500, false );
             QChart chart = createCoverageProfilePlot(perBaseTranscriptCoverage,
-                    "Coverage Profile (High)", sampleName);
+                    "Coverage Profile Along Genes (High)", sampleName);
             charts.add(chart);
         }
 

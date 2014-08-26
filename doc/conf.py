@@ -196,7 +196,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'QualimapManual.tex', u'Qualimap Documentation',
-   u'Fernando Garcia-Alcalde, et al', 'manual', 'True'),
+   u'F. Garcia-Alcalde, K. Okonechnikov, et al', 'manual', 'True'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

@@ -341,6 +341,7 @@ public class ComputeCountsTask  {
             String geneName = features.iterator().next();
             double count = readCounts.get(geneName);
             readCounts.put(geneName, count  + alnWeight);
+
         }   else {
             ambiguous++;
         }
