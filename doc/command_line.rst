@@ -20,6 +20,33 @@ To show available tools use command::
 
     qualimap --help
 
+There are certain options that are common to most of the command line tools::
+
+ -outdir <arg>                        Output folder for HTML report and raw
+                                       data.
+ -outfile <arg>                       Output file for PDF report (default value
+                                      is report.pdf).
+ -outformat <arg>                     Format of the ouput report (PDF or HTML,
+                                       default is HTML).
+
+
+These options allow to confugre output of Qualimap. 
+*-outdir* option sets the output folder for HTML report and raw data::
+
+ qualimap bamqc -bam file.bam -outdir qualimap_results
+
+| If the *-outfile* option is given then the output will be produced in PDF format. In this case *-outdir* option controls only the path to raw data. 
+Example::
+
+  qualimap bamqc -bam file.bam -outfile result.pdf
+
+| It is also possible to explictily set output format by using option *-outformat*. In this case report will be saved in the output dir under default name. 
+Example::
+
+  qualimap bamqc -bam file.bam -outdir qualimap_results -outformat pdf
+
+| Additionally each tool has its own defaults for output directory name. Check tools' description for details.
+
 
 .. _cmdline-bamqc:
 

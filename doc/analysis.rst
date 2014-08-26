@@ -18,13 +18,10 @@ To start a new BAM QC analysis activate main menu item :menuselection:`File --> 
 Examples
 ^^^^^^^^
 
-- `Whole-genome sequencing: HG00096.chrom20.bam <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_. Report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
+- `Whole-genome sequencing: HG00096.chrom20.bam <http://kokonech.github.io/qualimap/HG00096.chr20_bamqc/qualimapReport.html>`_. HTML report for sample alignment file from `1000 Genomes project <http://1000genomes.org>`_.
 
  
-- `Whole-genome sequencing: ERRR089819.bam <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_. Report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://www.ebi.ac.uk/ena/data/view/ERP000975>`_.
-
-.. !!FIX!!- `Whole-genome sequencing <http://qualimap.bioinfo.cipf.es/samples/plasm/qualimapReport.html>`_. Report created using the  whole-genome sequencing data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute*.
-.. - `RNA-seq <http://qualimap.bioinfo.cipf.es/samples/plasm_RNASeq/qualimapReport.html>`_. Report created using the RNA-seq data of *Plasmodium falciparum* produced by *Wellcome Trust Sanger Institute* as well as the provided gene annotations. Information for reads mapped outside the genes was also produced (report `here <plasmodium_RNA-seq/qualimapReportOutsideOfRegions.html>`_).
+- `Whole-genome sequencing: ERRR089819.bam <http://kokonech.github.io/qualimap/ERR089819_report.pdf>`_. PDF report created using the whole-genome sequencing data of *Caenorhabditis elegans* from the following `study <http://www.ebi.ac.uk/ena/data/view/ERP000975>`_.
 
 - See the :ref:`Sample data <samples>` section for more details about the data used in the examples.
 
@@ -226,7 +223,7 @@ Output
 
     *Reads alignment* 
 
-    The assignment of read counts per-category: mapped to genes, ambiguous, without any feature etc.   
+    The assignment of read counts per-category: aligned to genes or without any feature (intronic and intergenic). By default only unique alignments are counted. Additionally number of non-unique alignments is reported as well as number of ambiguous alignments and unmapped reads.
    
     *Transcript coverage profile* 
 

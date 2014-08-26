@@ -79,9 +79,9 @@ Sample Output
 BAM QC
 ******
 
-Analysis of the WG-seq data (ERR089819.bam): `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/ERR089819_result/qualimapReport.html>`_.
+Analysis of the WG-seq data (ERR089819.bam): `QualiMap HTML report <http://kokonech.github.io/qualimap/HG00096.chr20_bamqc/qualimapReport.html>`_.
 
-Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/HG00096.chrom20_result/qualimapReport.html>`_.
+Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap PDF report <http://kokonech.github.io/qualimap/ERR089819_report.pdf>`_.
 
 
 RNA-seq QC
