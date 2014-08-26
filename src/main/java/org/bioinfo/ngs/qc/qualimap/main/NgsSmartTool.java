@@ -138,6 +138,10 @@ public abstract class NgsSmartTool {
 
         if (commandLine.hasOption(OPTION_NAME_OUTFILE)) {
             reportFileName = commandLine.getOptionValue(OPTION_NAME_OUTFILE);
+            outputType = Constants.REPORT_TYPE_PDF;
+            if (!reportFileName.endsWith(".pdf")) {
+                reportFileName += ".pdf";
+            }
         }
 
 
@@ -255,7 +259,7 @@ public abstract class NgsSmartTool {
             if (reportFileName.isEmpty()) {
                 reportFileName = outdir + File.separator + "report.pdf";
             } else if (!outdir.isEmpty()) {
-                logger.warn("The output file path is set. Ingoing output dir param.");
+                logger.warn("The output file path is set. The outdir will be used to save raw data or ignored.");
             }
         }
 

@@ -310,7 +310,7 @@ public class ExportPdfThread extends Thread {
             reporterName += " : ";
         }
 
-        Paragraph chapterTitle = createChapterTitle(reporterName + "Input data & parameters"
+        Paragraph chapterTitle = createChapterTitle( "Input data & parameters"
                 + reporter.getNamePostfix());
 
         Chapter inputChapter = new Chapter(chapterTitle, curChapterNum);

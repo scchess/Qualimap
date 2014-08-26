@@ -118,9 +118,9 @@ public class RNASeqQCAnalysis  {
         StatsKeeper.Section readsAlignment = new StatsKeeper.Section("Reads alignment");
 
         readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
         readsAlignment.addRow("Non-unique alignment:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
         readsAlignment.addRow("Ambiguous alignment:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
-        readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
         readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
 
         summaryKeeper.addSection(readsAlignment);
@@ -186,6 +186,7 @@ public class RNASeqQCAnalysis  {
         inputParams.put("BAM file: ", computeCountsTask.pathToBamFile);
         inputParams.put("GTF file: ", computeCountsTask.pathToGffFile);
         inputParams.put("Protocol: ", computeCountsTask.protocol.toString());
+        inputParams.put("Counting algorithm", computeCountsTask.countingAlgorithm);
 
         reporter.addInputDataSection("Input", inputParams);
 
