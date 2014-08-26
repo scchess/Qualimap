@@ -223,6 +223,13 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
             JCheckBox checkFirstSection = createResultsCheckBox(sectionName);
             leftPanel.add(checkFirstSection);
 
+            if (reporter.hasInputDescription()) {
+                JLabel inputLabel = createInputDescriptionLinkLabel("Input data & parameters", idx);
+                inputLabel.setToolTipText("Input data description");
+                inputLabel.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
+                leftPanel.add(inputLabel);
+            }
+
             if (reporter.hasSummary() ) {
                 JLabel summaryLabel = createSummaryLinkLabel("Summary", idx);
                 summaryLabel.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_green.png")));
@@ -230,13 +237,6 @@ public class OpenLoadedStatistics extends JPanel implements ComponentListener {
                 if (initialLabel == null) {
                     initialLabel = summaryLabel;
                 }
-            }
-
-            if (reporter.hasInputDescription()) {
-                JLabel inputLabel = createInputDescriptionLinkLabel("Input", idx);
-                inputLabel.setToolTipText("Input data description");
-                inputLabel.setIcon(new ImageIcon(getClass().getResource(Constants.pathImages + "bullet_blue.png")));
-                leftPanel.add(inputLabel);
             }
 
             List<QChart> charts = reporter.getCharts();

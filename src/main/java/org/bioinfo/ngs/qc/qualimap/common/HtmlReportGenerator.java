@@ -116,12 +116,12 @@ public class HtmlReportGenerator {
         append("<div class=\"bodywrapper\">");
         append("<div class=\"body\">");
 
-        if (reporter.hasSummary()) {
-            appendSummary();
-        }
-
         if (reporter.hasInputDescription()) {
             appendInputData();
+        }
+
+        if (reporter.hasSummary()) {
+            appendSummary();
         }
 
         appendGraphs();
@@ -261,12 +261,13 @@ public class HtmlReportGenerator {
         append("\n<div class=\"sidebar\">");
         append("<h3>Contents</h3>");
 
-        if (reporter.hasSummary()) {
-            append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#summary\">Summary</a></li>");
-        }
-
         if (reporter.hasInputDescription()) {
             append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#input\">Input data & parameters</a></li>");
+        }
+
+
+        if (reporter.hasSummary()) {
+            append("<li class=\"toctree-l1\"><a class=\"reference internal\" href=\"#summary\">Summary</a></li>");
         }
 
         int sz = plotNames.size();

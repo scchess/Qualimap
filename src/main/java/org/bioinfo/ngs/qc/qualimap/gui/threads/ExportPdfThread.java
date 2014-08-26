@@ -157,20 +157,18 @@ public class ExportPdfThread extends Thread {
             reportFailure("Unable to create the pdf file \n" + e.getMessage());
 		}
 
-
-
     }
 
 
     private void addReporterData(Document document, StatsReporter reporter) throws Exception{
 
-        //addReporterHeader(document, reporter);
-        if (bamQCAnalysis) {
-            addSummary( document, reporter );
-        }
         if (reporter.hasInputDescription()) {
             addInputDesc( document, reporter );
         }
+        if (bamQCAnalysis) {
+            addSummary( document, reporter );
+        }
+
         addPlots( document, reporter );
     }
 
