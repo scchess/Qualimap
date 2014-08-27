@@ -805,10 +805,13 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                         + sdf.formatLong(readMaxSize) + " / "
                         + sdf.formatDecimal(readMeanSize));
 
-        globals.addRow("Clipped reads",
-                sdf.formatInteger(numClippedReads) + " / " +
-                sdf.formatPercentage(getPercentageClippedReads()));
-        globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
+        if (numSelectedRegions == 0) {
+
+            globals.addRow("Clipped reads",
+                        sdf.formatInteger(numClippedReads) + " / " +
+                        sdf.formatPercentage(getPercentageClippedReads()));
+            globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
+        }
 
 
         summaryStatsKeeper.addSection(globals);
@@ -842,6 +845,13 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                 globalsInRegions.addRow("Correct strand reads",
                         sdf.formatLong(numCorrectStrandReads) + " / " +
                         sdf.formatPercentage(percentageCorrectStrandReads) );
+
+
+                globalsInRegions.addRow("Clipped reads",
+                                    sdf.formatInteger(numClippedReads) + " / " +
+                                    sdf.formatPercentage(getPercentageClippedReads()));
+                globalsInRegions.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
+
             }
 
             summaryStatsKeeper.addSection(globalsInRegions);
@@ -981,12 +991,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         return res;
     }
 
-    public void setWarningInfo(Map<String, String> warnings) {
-        this.warnings  = warnings;
-    }
-
-
-
     public Properties generateBamQcProperties() {
 
         Properties prop = new Properties();
@@ -1066,7 +1070,4 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     }
 
 
-    public StatsKeeper getInputDescriptionStatsKeeper() {
-        return inputDataKeeper;
-    }
 }
