@@ -1,6 +1,40 @@
 Version Release History
 =======================
 
+
+Version 2.0 - August 27, 2014
+-----------------------------
+
+    * New mode: multi-sample BAM QC
+    * Counts QC: completely redesigned, add support for multi-sample input
+    * RNA-seq QC: add new plots (coverage across genebody, reads genomic origin, junction analysis)
+    * Command line interface improved
+    * BAM QC: changed order of plots
+    * BAM QC: fix insert size overflow
+    * BAM QC: add insert size info to plain text report
+    * RNA-seq QC: fix default protocol 
+    * Add utility script to create species annotations for Counts QC
+    * Add condtion to exit on error in main script (suggestion from Johan Dahlberg)
+    * Fix coverage quota in plain text report (bugfix from John Budde)
+    * Major documentation update
+
+A number of renamings in command line interface were introduced.
+
+common:
+    -rscriptpath => -R or --rscriptpath
+bamqc:
+    -outcov => -oc or --output-genome-coverage
+rnaseq:
+    -counts => -oc
+    -algorithm => -a or --algorithm
+    -protocol => -p or --sequencing-protocol
+comp-counts
+    -sorted => -s or --sorted
+    -paired => -pe or --paired
+    -algorithm => -a or --algorithm
+    -protocol => -p or --sequencing-protocol
+
+
 Version 1.0 - May 29, 2014
 --------------------------
 
