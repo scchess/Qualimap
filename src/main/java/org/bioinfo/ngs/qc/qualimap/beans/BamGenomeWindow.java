@@ -186,23 +186,7 @@ public class BamGenomeWindow {
 	protected void acumProperlyPairedBase(long relative){
 		
 	}
-	
-	protected void acumA(long relative){
-		numberOfAs++;
-	}
-	
-	protected void acumC(long relative){
-		numberOfCs++;
-	}
-	
-	protected void acumT(long relative){
-		numberOfTs++;
-	}
-	
-	protected void acumG(long relative){
-		numberOfGs++;
-	}
-	
+
 	protected void acumMappingQuality(long relative, int mappingQuality){
 		acumMappingQuality+=mappingQuality;
 	}

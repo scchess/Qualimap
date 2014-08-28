@@ -20,52 +20,29 @@
  */
 package org.bioinfo.ngs.qc.qualimap.beans;
 
-import org.bioinfo.commons.utils.ArrayUtils;
-import org.bioinfo.math.util.MathUtils;
+
+//TODO: BamDetailedGenomeWindow has to be removed, all processing can be done in BamGenomeWindow
 
 
 public class BamDetailedGenomeWindow extends BamGenomeWindow {
-	// reference sequence	
+
+	// reference sequence
 	private byte[] reference;
-		
+
 	// coverageData
 	private int[] coverageAcrossReference;
 
 	// quality
 	private long[] mappingQualityAcrossReference;
-			
 
-	// A content
-	private long[] aContentAcrossReference;
-
-	// C content
-	private long[] cContentAcrossReference;
-
-	// G content
-	private long[] gContentAcrossReference;
-	
-	// T content
-	private long[] tContentAcrossReference;
-	
-	// N content
-	private long[] nContentAcrossReference;
-		
-	// GC content
-	private double[] gcContentAcrossReference;
-		
-	// AT content
-    //	private double[] atContentAcrossReference;
 
     // required for calculation of global coverageData
     private long sumCoverageSquared;
 
-	
-	public BamDetailedGenomeWindow(String name, long start, long end){
-		this(name,start,end,null);		
-	}
 
 	public BamDetailedGenomeWindow(String name, long start, long end, byte[] reference){
-		super(name,start,end,reference);
+
+        super(name,start,end,reference);
 		
 		if(reference!=null){
 			this.reference = reference;
@@ -98,30 +75,6 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	}
 
 	@Override
-	protected void acumA(long relative){
-		super.acumA(relative);
-		aContentAcrossReference[(int)relative] = aContentAcrossReference[(int)relative]+1;
-	}
-	
-	@Override
-	protected void acumC(long relative){
-		super.acumC(relative);
-		cContentAcrossReference[(int)relative] = cContentAcrossReference[(int)relative]+1;
-	}
-	
-	@Override
-	protected void acumT(long relative){
-		super.acumT(relative);
-		tContentAcrossReference[(int)relative] = tContentAcrossReference[(int)relative]+1;
-	}
-	
-	@Override
-	protected void acumG(long relative){
-		super.acumG(relative);
-		gContentAcrossReference[(int)relative] = gContentAcrossReference[(int)relative]+1;
-	}
-	
-	@Override
 	protected void acumMappingQuality(long relative, int mappingQuality){
 		super.acumMappingQuality(relative,mappingQuality);		
 		// quality					
@@ -130,8 +83,13 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 
 	@Override
 	public void computeDescriptors() throws CloneNotSupportedException{
-	
+
+        super.computeDescriptors();
+
 		// normalize vectors
+
+        long sumCoverage = 0;
+
 		for(int i=0; i<coverageAcrossReference.length; i++){
 
 			long coverageAtPosition =  coverageAcrossReference[i];
@@ -145,7 +103,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
                 // insertSizeAcrossReference[i] = insertSizeAcrossReference[i]/(double)properlyPairedCoverageAcrossReference[i];
 
                 sumCoverageSquared += coverageAtPosition*coverageAtPosition;
-
+                sumCoverage += coverageAtPosition;
                 //numberOfProperlyPairedMappedBases++;
 				
 			} else {
@@ -156,10 +114,10 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		}
 				
 		// compute std coverageData
-		stdCoverage = MathUtils.standardDeviation(ArrayUtils.toDoubleArray(coverageAcrossReference));
 
-		super.computeDescriptors();
-		
+        long meanCoverage = sumCoverage / coverageAcrossReference.length;
+        stdCoverage = Math.sqrt( (double) sumCoverageSquared / coverageAcrossReference.length - meanCoverage*meanCoverage);
+
 	}
 
     @Override
