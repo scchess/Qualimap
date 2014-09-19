@@ -202,7 +202,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         StatsKeeper.Section headerSection = new StatsKeeper.Section("header");
         String[] header = {"Sample name", "Coverage mean", "Coverage std",
-                "GC percentage", "Mapping quality mean", "Insert size mean" };
+                "GC percentage", "Mapping quality mean", "Insert size median" };
         headerSection.addRow( header );
         tableDataKeeper.addSection(headerSection);
 
@@ -218,7 +218,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             row[2] = Double.toString( stats.getStdCoverage() );
             row[3] = Double.toString( stats.getMeanGcRelativeContent() );
             row[4] = Double.toString( stats.getMeanMappingQualityPerWindow() );
-            row[5] = Double.toString( stats.getMeanInsertSize() );
+            row[5] = Double.toString( stats.getMedianInsertSize() );
             dataSection.addRow(row);
 
             double[] sample = new double[NUM_FEATURES];
@@ -226,7 +226,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             sample[1] = stats.getStdCoverage();
             sample[2] = stats.getMeanGcRelativeContent();
             sample[3] = stats.getMeanMappingQualityPerWindow();
-            sample[4] = stats.getMeanInsertSize();
+            sample[4] = stats.getMedianInsertSize();
             sampleData.add(sample);
 
 
