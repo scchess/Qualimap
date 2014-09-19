@@ -13,6 +13,7 @@ Version 2.0 - August 27, 2014
     * BAM QC: fix insert size overflow
     * BAM QC: add insert size info to plain text report
     * BAM QC: fix bug with stats inside of regions
+    * BAM QC: performance improved for long genomes
     * RNA-seq QC: fix default protocol 
     * Add utility script to create species annotations for Counts QC
     * Add condtion to exit on error in main script (suggestion from Johan Dahlberg)

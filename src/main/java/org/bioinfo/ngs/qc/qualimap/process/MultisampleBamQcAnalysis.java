@@ -161,20 +161,20 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                 continue;
             }
             if (line.contains("mean coverageData =")) {
-                double meanCoverage = Double.parseDouble( line.split("=")[1].trim().replace("X","") );
+                double meanCoverage = Double.parseDouble( line.split("=")[1].trim().replaceAll("[X\\,]", "") );
                 bamStats.setCoverageMean(meanCoverage);
             } else if (line.contains("std coverageData =")) {
-                double stdCoverage = Double.parseDouble(line.split("=")[1].trim().replace("X", ""));
+                double stdCoverage = Double.parseDouble(line.split("=")[1].trim().replaceAll("[X\\,]", ""));
                 bamStats.setCoverageStd(stdCoverage);
             } else if (line.contains("mean mapping quality =")) {
-                double mappingQuality = Double.parseDouble(line.split("=")[1].trim());
+                double mappingQuality = Double.parseDouble(line.split("=")[1].trim().replaceAll("\\,",""));
                 bamStats.setMeanMappingQuality(mappingQuality);
             } else if (line.contains("GC percentage =")) {
                 // This is actually in percents already - only should be used in the context of Multiple BAM QC
                 double gcPercentage = Double.parseDouble(line.split("=")[1].trim().replace("%", ""));
                 bamStats.setMeanGcContent(gcPercentage);
             } else if (line.contains("median insert size =")) {
-                int insertSize = Integer.parseInt(line.split("=")[1].trim());
+                int insertSize = Integer.parseInt(line.split("=")[1].trim().replaceAll("\\,",""));
                 bamStats.setMedianInsertSize(insertSize);
             }
 

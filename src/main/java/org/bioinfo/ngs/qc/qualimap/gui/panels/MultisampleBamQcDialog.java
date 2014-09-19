@@ -185,7 +185,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         pack();
 
         // Default data  for testing
-        /*if (System.getenv("QUALIMAP_DEBUG") != null)  {
+        if (System.getenv("QUALIMAP_DEBUG") != null)  {
             SampleInfo s1 = new SampleInfo();
             s1.name = "MCF7";
             s1.path = "/data/fusions-data/breast_cancer_MCF7/tophat_out/accepted_hits_stats";
@@ -207,10 +207,10 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             s4.path = "/data/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_stats";
             sampleTableModel.addItem(s4);
 
-        }*/
+        }
 
         //Default data 2
-        if (System.getenv("QUALIMAP_DEBUG") != null)  {
+        /*if (System.getenv("QUALIMAP_DEBUG") != null)  {
 
             SampleInfo s1 = new SampleInfo();
             s1.name = "S1";
@@ -224,7 +224,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             sampleTableModel.addItem(s2);
 
 
-        }
+        }*/
 
         updateState();
         setResizable(false);
