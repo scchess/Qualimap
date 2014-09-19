@@ -656,6 +656,14 @@ public class TranscriptDataHandler {
                         }
                     }
                 } else {
+                    // make sure there is no problem with sorting
+                    Arrays.sort(tx.exons, new Comparator<Gene.Transcript.Exon>() {
+                        @Override
+                        public int compare(Gene.Transcript.Exon e1, Gene.Transcript.Exon e2) {
+                            return e1.start > e2.start ? -1 : 1;
+                        }
+                    });
+
                     for (int i = numExons - 1; i >= 0; -- i) {
                         Gene.Transcript.Exon e = tx.exons[i];
                         if (i == 0) {
