@@ -867,7 +867,7 @@ public class BamStats implements Serializable {
         ensureListSize(readsTsData, readMaxSize);
         ensureListSize(readsNsData, readMaxSize);
 
-        for (int i = 0; i <= readMaxSize; ++i ) {
+        for (int i = 0; i < readMaxSize; ++i ) {
 
             long numA = readsAsData.get(i);
             long numC = readsCsData.get(i);
