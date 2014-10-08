@@ -130,7 +130,11 @@ public class CountsQcTool extends NgsSmartTool{
     protected void execute() throws Exception {
 
         if ( outdir.equals(".") ) {
-            outdir = new File(inputFile).getParent() + File.separator + "countsQC_results";
+            String parentDir = new File(inputFile).getParent();
+            if (parentDir == null) {
+                parentDir = ".";
+            }
+            outdir = parentDir + File.separator + "countsQC_results";
         }
         // init output dir
         initOutputDir();

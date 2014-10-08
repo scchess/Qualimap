@@ -21,7 +21,6 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FilenameUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
@@ -117,7 +116,11 @@ public class MultisampleBamQcTool extends NgsSmartTool{
     @Override
     protected void initOutputDir() {
         if (outdir.equals(".")) {
-            outdir = FilenameUtils.removeExtension(new File(inputFile).getParent()) + File.separator + "multi_bamqc";
+            String parentDir = new File(inputFile).getParent();
+            if (parentDir == null) {
+                parentDir = ".";
+            }
+            outdir = parentDir + File.separator + "multi_bamqc";
         }
         super.initOutputDir();
     }
