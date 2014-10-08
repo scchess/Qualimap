@@ -199,7 +199,13 @@ cat("Compute scatterplots..\n")
 
 init.png( paste(opt$dirOut, "01_Scatterplot_Matrix.png",sep="/") )
 
-s <- sample(1:nrow(transformed.counts), 5000,  replace=FALSE)
+
+sample.size <- 5000
+if ( sample.size > nrow(transformed.counts) ) {
+    sample.size <- nrow(transformed.counts)
+}
+
+s <- sample(1:nrow(transformed.counts), sample.size,  replace=FALSE)
 counts.sample <- transformed.counts[s,]
 pairs(counts.sample, lower.panel = panel.smooth, upper.panel = panel.cor, main = "Scatterplot Matrix")
 
