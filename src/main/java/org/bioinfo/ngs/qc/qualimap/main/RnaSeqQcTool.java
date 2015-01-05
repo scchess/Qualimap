@@ -43,11 +43,16 @@ public class RnaSeqQcTool extends NgsSmartTool {
     public static String OPTION_BAM = "bam";
     public static String OPTION_COUNTS_FILE = "oc";
     public static String OPTION_ALGORITHM = "a";
+    public static String OPTION_PAIRED = "pe";
+    public static String OPTION_ALREADY_SORTED = "s";
 
     String bamFile, gffFile, countsFile, protocol,alg;
+    boolean pairedAnalysis, sortingRequired;
 
     public RnaSeqQcTool() {
         super(Constants.TOOL_NAME_RNASEQ_QC, false);
+        pairedAnalysis = false;
+        sortingRequired = false;
     }
 
     @Override
@@ -58,6 +63,13 @@ public class RnaSeqQcTool extends NgsSmartTool {
         options.addOption( getProtocolOption() );
         options.addOption(new Option(OPTION_ALGORITHM, "algorithm", true, "Counting algorithm: " +
                 ComputeCountsTask.getAlgorithmTypes()  + ".") );
+
+        options.addOption(new Option(OPTION_PAIRED, "paired", false, "Setting this flag for paired-end experiments will result " +
+                "in counting fragments instead of reads") );
+        options.addOption(new Option(OPTION_ALREADY_SORTED, "sorted", true,
+                "This flag indicates that the input file is already sorted by name. " +
+                "If not set, additional sorting by name will be performed. " +
+                "Only required for paired-end analysis. " ) );
 
 
     }
@@ -84,6 +96,15 @@ public class RnaSeqQcTool extends NgsSmartTool {
         } else {
             protocol = LibraryProtocol.PROTOCOL_NON_STRAND_SPECIFIC;
         }
+
+        if (commandLine.hasOption(OPTION_PAIRED)) {
+            pairedAnalysis = true;
+            if (!commandLine.hasOption(OPTION_ALREADY_SORTED)) {
+                sortingRequired = true;
+            }
+        }
+
+
 
         if (commandLine.hasOption(OPTION_COUNTS_FILE)) {
             countsFile = commandLine.getOptionValue(OPTION_COUNTS_FILE);
@@ -124,6 +145,13 @@ public class RnaSeqQcTool extends NgsSmartTool {
         computeCountsTask.setProtocol(LibraryProtocol.getProtocolByName(protocol));
         computeCountsTask.setCountingAlgorithm(alg);
         computeCountsTask.setCollectRnaSeqStats(true);
+
+        if (pairedAnalysis) {
+            computeCountsTask.setPairedEndAnalysis();
+            if (sortingRequired) {
+                computeCountsTask.setSortingRequired();
+            }
+        }
 
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.RNA_SEQ_QC);
 

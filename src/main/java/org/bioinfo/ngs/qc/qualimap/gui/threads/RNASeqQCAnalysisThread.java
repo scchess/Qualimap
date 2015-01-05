@@ -73,6 +73,13 @@ public class RNASeqQCAnalysisThread extends  Thread {
         computeCountsTask.addSupportedFeatureType(ComputeCountsTask.EXON_TYPE_ATTR);
         computeCountsTask.setAttrName(ComputeCountsTask.GENE_ID_ATTR);
 
+        if (settingsDlg.pairedAnalysisBoxIsSelected()) {
+            computeCountsTask.setPairedEndAnalysis();
+            if (!settingsDlg.sortedAlignmentBoxIsSelected()) {
+                computeCountsTask.setSortingRequired();
+            }
+        }
+
         final JTextArea logArea = settingsDlg.getLogArea();
         logArea.setText("");
 
@@ -90,6 +97,8 @@ public class RNASeqQCAnalysisThread extends  Thread {
             String countsPath = settingsDlg.getCountsOutputPath();
             rnaSeqQCAnalysis.setCountsFilePath(countsPath);
         }
+
+
 
         try {
             rnaSeqQCAnalysis.run();

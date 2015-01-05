@@ -46,7 +46,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
     JTextField bamPathEdit, gffPathEdit, countsPathEdit;
     JButton browseBamButton, browseGffButton, browseCountsFileButton;
     JComboBox strandTypeCombo, countingAlgoCombo;
-    JCheckBox advancedOptions, outputCountsBox;
+    JCheckBox advancedOptions, outputCountsBox, pairedAnalysisBox, alreadySortedBox;
     JLabel countingMethodLabel, countsPathLabel;
 
     static class BrowseGffButtonListener extends BrowseButtonActionListener {
@@ -139,6 +139,19 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         strandTypeCombo.addActionListener(this);
         add(strandTypeCombo, "wrap");
 
+        pairedAnalysisBox = new JCheckBox("Paired-end analysis");
+        pairedAnalysisBox.setToolTipText("<html>This option activates counting of fragments instead of counting of reads. " +
+                        "<br>Only valid for paired-end sequencing experiments.</html>");
+        pairedAnalysisBox.addActionListener(this);
+        add(pairedAnalysisBox);
+
+        alreadySortedBox = new JCheckBox("Alignment is sorted by name");
+        alreadySortedBox.setToolTipText("<html>The paired-end analysis requires the BAM file to be sorted by name. " +
+                        "<br>Check this box if it is the case, otherwise temporary BAM sorted by name" +
+                        "<br>will be created.</html>");
+        add(alreadySortedBox, "wrap");
+
+
         outputCountsBox = new JCheckBox("Output gene counts");
         outputCountsBox.addActionListener(this);
         add(outputCountsBox, "wrap");
@@ -222,6 +235,9 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
     }
 
     private void updateState() {
+
+        alreadySortedBox.setEnabled(pairedAnalysisBox.isSelected());
+
         countingAlgoCombo.setEnabled(advancedOptions.isSelected());
         countingMethodLabel.setEnabled(advancedOptions.isSelected());
 
@@ -304,6 +320,12 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
         return countsPathEdit.getText();
     }
 
+    public boolean pairedAnalysisBoxIsSelected() {
+        return pairedAnalysisBox.isSelected();
+    }
 
+    public boolean  sortedAlignmentBoxIsSelected() {
+        return alreadySortedBox.isSelected();
+    }
 
 }
