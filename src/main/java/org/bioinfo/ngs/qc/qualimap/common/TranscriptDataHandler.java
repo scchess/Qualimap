@@ -679,6 +679,14 @@ public class TranscriptDataHandler {
 
                 for (int i = 0; i < breakCoords.length; i+=2) {
                     String chrName = gene.getSequence();
+                    if (breakCoords[i] >= breakCoords[i+1]) {
+                        String warning = "Warning! Transcript " + tx.name +
+                                " has incorrect exon coordinates. Transcript skipped...";
+
+                        System.out.println(warning);
+                        break;
+                    }
+
                     Interval intronInterval = new Interval(chrName, breakCoords[i], breakCoords[i+1]);
                     numIntrons++;
                     intronIntervalTreeMap.put(intronInterval, numIntrons);
