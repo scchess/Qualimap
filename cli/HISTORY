@@ -2,6 +2,16 @@ Version Release History
 =======================
 
 
+Version 2.0.1 - Januar 6, 2016 
+---------------------------
+        
+    * BAM QC: fixed problem with nucleotide content (thanks to Travis Collier)
+    * RNA-seq QC: fixed issue with chromosomes
+    * RNA-seq QC: add support for paired-end reads
+    * countsQC: fixed bug when population less than sample size
+    * Fixed issue with default outdir name
+
+
 Version 2.0 - August 27, 2014
 -----------------------------
 

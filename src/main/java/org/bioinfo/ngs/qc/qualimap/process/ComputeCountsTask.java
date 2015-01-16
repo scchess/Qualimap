@@ -192,6 +192,10 @@ public class ComputeCountsTask  {
                     (protocol == LibraryProtocol.STRAND_SPECIFIC_REVERSE && firstOfPair) ) {
                 strand = !strand;
             }
+        } else {
+            if (protocol == LibraryProtocol.STRAND_SPECIFIC_REVERSE)  {
+                strand = !strand;
+            }
         }
 
         int posInRead = 0;
