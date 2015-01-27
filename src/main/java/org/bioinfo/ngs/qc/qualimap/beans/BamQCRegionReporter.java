@@ -193,6 +193,26 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("");
 		report.println("");
 
+
+		// Mismatches and indels
+
+        // TODO: skip this if all is zero? check summaryStatsKeeper
+        report.println(">>>>>>> Mismatches and indels");
+        report.println("");
+        report.println("    general error rate = " + formatDecimal(bamStats.getErrorRate()) ) ;
+        report.println("    number of mismatches = " + formatLong(bamStats.getNumMismatches()) ) ;
+
+        long numIndels= bamStats.getNumIndels();
+        if (numIndels > 0) {
+            report.println("    number of insertions = " + formatLong(bamStats.getNumInsertions()) );
+            report.println("    number of deletions = " + formatLong(bamStats.getNumDeletions()) );
+            report.println("    homopolymer indels = " + formatPercentage(bamStats.getHomopolymerIndelFraction() * 100.0) );
+        }
+
+        report.println("");
+		report.println("");
+
+
 		// coverageData
 		report.println(">>>>>>> Coverage");
 		report.println("");
@@ -207,8 +227,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		}
 		report.println("");
 		report.println("");
-		
-		
+
+
 		// coverage per chromosome data
 		report.println(">>>>>>> Coverage per contig");
 		report.println("");
