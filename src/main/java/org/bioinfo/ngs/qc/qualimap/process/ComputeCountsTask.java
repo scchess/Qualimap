@@ -565,11 +565,15 @@ public class ComputeCountsTask  {
             throw new RuntimeException("Unable to load any regions from file.");
         }
 
+        logger.logLine("\nInitialized " + recordCount + " regions it total");
+
         if (collectRnaSeqStats) {
+            logger.logLine("\nStarting constructing transcripts for RNA-seq stats...");
             transcriptDataHandler.constructTranscriptsMap();
+            logger.logLine("Finished constructing transcripts\n");
+
         }
 
-        logger.logLine("\nInitialized " + recordCount + " regions it total\n\n");
 
         gtfParser.close();
 

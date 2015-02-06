@@ -91,7 +91,7 @@ public class GenomicFeatureStreamReader {
                     if (items.length != 9) {
                         throw new RuntimeException("GTF format error: there should " +
                                 "9 tab-separated fields in each record.\n" +
-                                "Problematic line is " + line);
+                                "Problematic line is\n" + line);
                     }
 
                     String seqName = items[0];
@@ -102,20 +102,26 @@ public class GenomicFeatureStreamReader {
 
                     GenomicFeature feature = new GenomicFeature(seqName, start, end, isNegativeStrand, featureName);
 
-                    String[] attrs = items[8].trim().split(";");
-                    for (String attr: attrs) {
-                        String[] pair = attr.trim().split(" ");
-                        if (pair.length < 2) {
-                            throw new RuntimeException("GTF format error: attributes are missing.\n" +
-                                    "Problematic line is " + line);
-                        }
-                        String value = pair[1];
-                        //remove surrounding quotes
-                        if (value.startsWith("\"") && value.endsWith("\"")) {
-                            value = value.substring(1, value.length() - 1);
-                        }
+                    String[] attrs = items[8].trim().split(" ");
 
-                        feature.addAttribute(pair[0], value);
+                    int len = attrs.length;
+                    if (len % 2 != 0) {
+                        throw new RuntimeException("Warning! Line with wrong attributes is skipped:\n" + line);
+                    }
+
+                    for (int i = 0; i < len; i += 2) {
+                        String atrName = attrs[i];
+                        String atrVal = attrs[i+1];
+                        if (atrVal.endsWith(";")) {
+                            atrVal = atrVal.substring(0, atrVal.length() - 1);
+                        } else {
+                            throw new RuntimeException("Warning! Line with wrong attributes:\n" + line);
+                        }
+                        if (atrVal.startsWith("\"") && atrVal.endsWith("\"")) {
+                            atrVal = atrVal.substring(1, atrVal.length() - 1);
+                        }
+                        feature.addAttribute(atrName, atrVal);
+
                     }
 
                     return feature;
@@ -175,11 +181,24 @@ public class GenomicFeatureStreamReader {
             if (line.startsWith("#") || line.isEmpty()) {
                 // skip comments and empty lines
             }  else {
-                break;
+
+                try {
+                    return recordParser.parseFeatureRecord(line);
+                } catch (RuntimeException e) {
+                    String cause =  e.getCause().toString();
+                    System.err.println(cause);
+                    if (e.getMessage().startsWith("Warning")) {
+                       System.err.println(e.getMessage());
+                    } else {
+                        throw e;
+                    }
+                }
+
             }
         }
 
-        return recordParser.parseFeatureRecord(line);
+        //return f;
+        //return recordParser.parseFeatureRecord(line);
 
     }
 
