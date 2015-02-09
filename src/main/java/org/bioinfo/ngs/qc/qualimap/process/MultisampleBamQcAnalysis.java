@@ -410,7 +410,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         int i = 0;
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
-            XYVector histData = loadColumnData(new File(path), 0, 51,1);
+            XYVector histData = loadColumnData(new File(path), 0, 1000000,1);
             baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
             ++i;
         }
