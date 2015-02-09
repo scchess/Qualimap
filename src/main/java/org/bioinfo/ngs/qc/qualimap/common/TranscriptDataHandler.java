@@ -546,8 +546,10 @@ public class TranscriptDataHandler {
         }
 
         {
-            QChart chart = createJunctionAnalysisPieChart(sampleName);
-            charts.add(chart);
+            if (numReadsWithJunction > 0) {
+                QChart chart = createJunctionAnalysisPieChart(sampleName);
+                charts.add(chart);
+            }
         }
 
 
