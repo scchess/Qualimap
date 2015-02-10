@@ -2,8 +2,18 @@ Version Release History
 =======================
 
 
-Version 2.0.1 - Januar 6, 2016 
----------------------------
+Version 2.0.2 - February 10, 2015 
+---------------------------------
+        
+    * Compute counts: fixed issue with GTF file analysis and added support for single-end reads strand specificity (thanks to Roberto Spreafico for reports)
+    * BAM QC: added support of mismatches and indels in the text report (thanks to Nils for report)
+    * RNA-seq QC: fixed issue with loading GTF files with strange names (thanks to Haroon Kalam for report)
+    * RNA-seq QC: fixed crash when there are no junctions detected (thanks to François Lefebvre and Larry Willhelm for reports) 
+    * Multi-BamQC: fixed issue with max coverage of BAM file supported
+
+
+Version 2.0.1 - Januar 6, 2015 
+------------------------------
         
     * BAM QC: fixed problem with nucleotide content (thanks to Travis Collier)
     * RNA-seq QC: fixed issue with chromosomes
