@@ -883,8 +883,8 @@ public class BamStatsAnalysis {
 
         if (regionsWithMissingChromosomesCount > 0)  {
             if (regionsWithMissingChromosomesCount == numberOfSelectedRegions) {
-                throw new RuntimeException("Given file with regions can not be associated with the BAM file.\n" +
-                    "Please check, if the chromosome names match in the regions and the alignment files.");
+                throw new RuntimeException("The feature file with regions can not be associated with the BAM file.\n" +
+                    "Please check, if the chromosome names match in the annotation file and the alignment file.");
             } else {
                 String msg = regionsWithMissingChromosomesCount + " regions were skipped because chromosome" +
                         " name was not found in the BAM file.";

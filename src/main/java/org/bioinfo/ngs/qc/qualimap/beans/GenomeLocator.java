@@ -44,13 +44,15 @@ public class GenomeLocator implements Externalizable {
 	
 	public Long getAbsoluteCoordinates(String name, int relative){
 
-        String simplifiedName = name.replace("chr","");
+        //TODO: maybe it should be possible to ignore "chr" for human genome?
+
+        /*String simplifiedName = name.replace("chr","");*/
 
         if(positions.containsKey(name)){
 			return positions.get(name) + (relative-1);
-		} else if (positions.containsKey(simplifiedName)){
+		} /*else if (positions.containsKey(simplifiedName)){
             return positions.get(simplifiedName) + (relative-1);
-        } else {
+        } */else {
 			return (long)-1;
 		}		
 	}
