@@ -256,11 +256,13 @@ public abstract class NgsSmartTool {
 
         // check output options
         if (outputType.equals(Constants.REPORT_TYPE_PDF)) {
+
             if (reportFileName.isEmpty()) {
-                reportFileName = outdir + File.separator + "report.pdf";
-            } else if (!outdir.isEmpty()) {
-                logger.warn("The output file path is set. The outdir will be used to save raw data or ignored.");
+                reportFileName  = "report.pdf";
             }
+
+            reportFileName = outdir + File.separator + reportFileName;
+
         }
 
         Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
