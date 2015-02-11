@@ -79,7 +79,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
     private int p25InsertSize, medianInsertSize, p75InsertSize;
 
-    int readMinSize, readMaxSize, numClippedReads;
+    int readMinSize, readMaxSize;
+    int numClippedReads;
+    double readsWithInsertionPercentage, readsWithDeletionPercentage;
     double readMeanSize;
 
     private long numPairedReads, numberOfMappedFirstOfPair, numberOfMappedSecondOfPair;
@@ -182,11 +184,16 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		// actg content
 		report.println(">>>>>>> ACTG content");
 		report.println("");
-		report.println("     number of A's = " + formatLong(bamStats.getNumberOfAs()) +  " bp (" + formatPercentage(bamStats.getMeanARelativeContent()) + ")");
-		report.println("     number of C's = " + formatLong(bamStats.getNumberOfCs()) +  " bp (" + formatPercentage(bamStats.getMeanCRelativeContent()) + ")");
-		report.println("     number of T's = " + formatLong(bamStats.getNumberOfTs()) +  " bp (" + formatPercentage(bamStats.getMeanTRelativeContent()) + ")");
-		report.println("     number of G's = " + formatLong(bamStats.getNumberOfGs()) +  " bp (" + formatPercentage(bamStats.getMeanGRelativeContent()) + ")");
-		report.println("     number of N's = " + formatLong(bamStats.getNumberOfNs()) +  " bp (" + formatPercentage(bamStats.getMeanNRelativeContent()) + ")");
+		report.println("     number of A's = " + formatLong(bamStats.getNumberOfAs()) +  " bp (" +
+                formatPercentage(bamStats.getMeanARelativeContent()) + ")");
+		report.println("     number of C's = " + formatLong(bamStats.getNumberOfCs()) +  " bp (" +
+                formatPercentage(bamStats.getMeanCRelativeContent()) + ")");
+		report.println("     number of T's = " + formatLong(bamStats.getNumberOfTs()) +  " bp (" +
+                formatPercentage(bamStats.getMeanTRelativeContent()) + ")");
+		report.println("     number of G's = " + formatLong(bamStats.getNumberOfGs()) +  " bp (" +
+                formatPercentage(bamStats.getMeanGRelativeContent()) + ")");
+		report.println("     number of N's = " + formatLong(bamStats.getNumberOfNs()) +  " bp (" +
+                formatPercentage(bamStats.getMeanNRelativeContent()) + ")");
 		report.println("");
 		report.println("     GC percentage = " + formatPercentage(bamStats.getMeanGcRelativeContent()));
 		//		report.println("     AT percentage = " + formatPercentage(bamStats.getMeanAtRelativeContent()));
@@ -205,8 +212,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         long numIndels= bamStats.getNumIndels();
         if (numIndels > 0) {
             report.println("    number of insertions = " + formatLong(bamStats.getNumInsertions()) );
+            report.println("    mapped reads with insertion percentage = " +
+                    formatPercentage(bamStats.getReadsWithInsertionPercentage()));
             report.println("    number of deletions = " + formatLong(bamStats.getNumDeletions()) );
-            report.println("    homopolymer indels = " + formatPercentage(bamStats.getHomopolymerIndelFraction() * 100.0) );
+            report.println("    mapped reads with deletion percentage = " +
+                    formatPercentage(bamStats.getReadsWithDeletionPercentage()));
+            report.println("    homopolymer indels = " + formatPercentage(bamStats.getHomopolymerIndelFraction() * 100.0));
         }
 
         report.println("");
@@ -308,6 +319,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.numberOfMappedSecondOfPair = bamStats.getNumberOfMappedSecondOfPair();
         this.percentageOfMappedSecondOfPair = ( (double) numberOfMappedSecondOfPair / numReads ) * 100.0;
         this.numClippedReads = bamStats.getNumClippedReads();
+        this.readsWithInsertionPercentage = bamStats.getReadsWithInsertionPercentage();
+        this.readsWithDeletionPercentage = bamStats.getReadsWithDeletionPercentage();
 
         // regions related
         this.numSelectedRegions = bamStats.getNumSelectedRegions();
@@ -927,7 +940,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             //indelsSection.addRow("Total reads with indels", sdf.formatInteger(numIndels));
             if (numIndels > 0) {
                 indelsSection.addRow("Insertions",sdf.formatDecimal(numInsertions) );
+                indelsSection.addRow("Mapped reads with at least one insertion",
+                        sdf.formatPercentage(readsWithInsertionPercentage));
                 indelsSection.addRow("Deletions",sdf.formatDecimal(numDeletions) );
+                indelsSection.addRow("Mapped reads with at least one deletion",
+                        sdf.formatPercentage(readsWithDeletionPercentage));
                 indelsSection.addRow("Homopolymer indels",sdf.formatPercentage(homopolymerIndelFraction * 100.0) );
             }
 

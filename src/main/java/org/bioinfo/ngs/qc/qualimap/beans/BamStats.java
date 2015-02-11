@@ -214,7 +214,7 @@ public class BamStats implements Serializable {
     // reads stats
     double readMeanSize;
     int readMaxSize, readMinSize;
-    int numClippedReads;
+    int numClippedReads, numReadsWithInsertion, numReadsWithDeletion;
     List<Long> readsAsData;
     List<Long> readsCsData;
     List<Long> readsGsData;
@@ -1524,6 +1524,8 @@ public class BamStats implements Serializable {
         sampleCount += readsGcContent.size();
 
         numClippedReads += readStatsCollector.getNumClippedReads();
+        numReadsWithInsertion += readStatsCollector.getNumReadsWithInsertion();
+        numReadsWithDeletion += readStatsCollector.getNumReadsWithDeletion();
 
         int[] homopolymerIndels = readStatsCollector.getHomopolymerIndels();
         int numHomopolymerIndels = 0;
@@ -1848,6 +1850,14 @@ public class BamStats implements Serializable {
 
     public int getNumClippedReads() {
         return numClippedReads;
+    }
+
+    public double getReadsWithInsertionPercentage() {
+        return (numReadsWithInsertion / (double) numberOfMappedReads) * 100.0;
+    }
+
+    public double getReadsWithDeletionPercentage() {
+        return (numReadsWithDeletion / (double) numberOfMappedReads) * 100.0;
     }
 
     public void setNumberOfCorrectStrandReads(long numberOfCorrectStrandReads) {

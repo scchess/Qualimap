@@ -52,6 +52,8 @@ public class ReadStatsCollector {
     int[] homopolymerIndels;
 
     int numClippedReads;
+    int numReadsWithInsertion;
+    int numReadsWithDeletion;
     int numInsertions;
     int numDeletions;
     int numMismatches;
@@ -241,8 +243,24 @@ public class ReadStatsCollector {
         ++numDeletions;
     }
 
+    public void incNumReadsWithInsertion() {
+        ++numReadsWithInsertion;
+    }
+
+    public void incNumReadsWithDeletion() {
+        ++numReadsWithDeletion;
+    }
+
     public int getNumClippedReads() {
         return numClippedReads;
+    }
+
+    public int getNumReadsWithDeletion() {
+        return numReadsWithDeletion;
+    }
+
+    public int getNumReadsWithInsertion() {
+        return numReadsWithInsertion;
     }
 
     public int[] getHomopolymerIndels() {

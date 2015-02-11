@@ -261,14 +261,25 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         List<CigarElement> elementList = cigar.getCigarElements();
         //int numCigarElements = cigar.numCigarElements();
         boolean readIsClipped = false;
+        boolean readHasDeletions = false;
+        boolean readHasInsertions = false;
 		for(CigarElement element : elementList){
 			totalSize += element.getLength();
             if (element.getOperator() == CigarOperator.H || element.getOperator() == CigarOperator.S) {
                 readIsClipped = true;
             } else if (element.getOperator() == CigarOperator.I) {
                 statsCollector.incNumInsertions();
+                if (!readHasInsertions) {
+                    statsCollector.incNumReadsWithInsertion();
+                }
+                readHasInsertions = true;
+
             } else if (element.getOperator() == CigarOperator.D) {
                 statsCollector.incNumDeletions();
+                if (!readHasDeletions) {
+                    statsCollector.incNumReadsWithDeletion();
+                }
+                readHasDeletions = true;
             }
 		}
 
