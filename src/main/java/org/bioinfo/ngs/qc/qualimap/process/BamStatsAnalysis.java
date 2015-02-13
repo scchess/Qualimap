@@ -496,7 +496,7 @@ public class BamStatsAnalysis {
             outsideBamStats.setReferenceSize(referenceSize);
             outsideBamStats.setNumberOfReferenceContigs(locator.getContigs().size());
             outsideBamStats.setNumSelectedRegions(numberOfSelectedRegions);
-            outsideBamStats.setInRegionReferenceSize(insideReferenceSize);
+            outsideBamStats.setInRegionReferenceSize(referenceSize - insideReferenceSize);
             outsideBamStats.setNumberOfReads(numberOfReads);
 
             outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
