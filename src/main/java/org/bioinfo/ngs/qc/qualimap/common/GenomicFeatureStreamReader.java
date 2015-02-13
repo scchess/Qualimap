@@ -47,7 +47,7 @@ public class GenomicFeatureStreamReader {
 
                     if (items.length < 8) {
                         throw new RuntimeException("GFF format error, not enough fields.\n" +
-                                "Problematic line is " + line);
+                                "Problematic line:\n" + line);
                     }
 
                     String seqName = items[0];
@@ -68,7 +68,7 @@ public class GenomicFeatureStreamReader {
 
                     if (items.length < 6) {
                         throw new RuntimeException("BED format error, there should be at least 6 fields.\n" +
-                                "Problematic line is " + line);
+                                "Problematic line:\n" + line);
                     }
 
                     String seqName = items[0];
@@ -91,7 +91,7 @@ public class GenomicFeatureStreamReader {
                     if (items.length != 9) {
                         throw new RuntimeException("GTF format error: there should " +
                                 "9 tab-separated fields in each record.\n" +
-                                "Problematic line is\n" + line);
+                                "Problematic line:\n" + line);
                     }
 
                     String seqName = items[0];
@@ -185,8 +185,7 @@ public class GenomicFeatureStreamReader {
                 try {
                     return recordParser.parseFeatureRecord(line);
                 } catch (RuntimeException e) {
-                    String cause =  e.getCause().toString();
-                    System.err.println(cause);
+
                     if (e.getMessage().startsWith("Warning")) {
                        System.err.println(e.getMessage());
                     } else {
