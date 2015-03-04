@@ -14,7 +14,7 @@ gzip -f $QUALIMAP_DIR.tar
 #scp $QUALIMAP_DIR.tar.gz genome:/data/qualimapLatestBuild/
 
 #cleanup
-rm -rf $QUALIMAP_DIR
+#rm -rf $QUALIMAP_DIR
 
 
 

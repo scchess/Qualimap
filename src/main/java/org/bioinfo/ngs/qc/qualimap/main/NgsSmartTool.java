@@ -206,7 +206,7 @@ public abstract class NgsSmartTool {
 
         if(!outdir.isEmpty()){
         	if(new File(outdir).exists()){
-				logger.warn("output folder already exists");
+				logger.warn("output folder already exists\n");
 			} else {
 				boolean ok = new File(outdir).mkdirs();
                 if (!ok) {

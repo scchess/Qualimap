@@ -46,7 +46,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
     public static String OPTION_PAIRED = "pe";
     public static String OPTION_ALREADY_SORTED = "s";
 
-    String bamFile, gffFile, countsFile, protocol,alg;
+    String bamFile, gffFile, countsFilePath, protocol,alg;
     boolean pairedAnalysis, sortingRequired;
 
     public RnaSeqQcTool() {
@@ -59,7 +59,8 @@ public class RnaSeqQcTool extends NgsSmartTool {
     protected void initOptions() {
         options.addOption( requiredOption(OPTION_BAM, true, "Input mapping file in BAM format.") );
         options.addOption(requiredOption(OPTION_ANNOTATION, true, "Annotations file in Ensembl GTF format.") );
-        options.addOption(new Option(OPTION_COUNTS_FILE, true, "Path to output computed counts.") );
+        options.addOption(new Option(OPTION_COUNTS_FILE, true, "Output file for computed counts. " +
+                "If only name of the file is provided, then the file will be saved in the output folder.") );
         options.addOption( getProtocolOption() );
         options.addOption(new Option(OPTION_ALGORITHM, "algorithm", true, "Counting algorithm: " +
                 ComputeCountsTask.getAlgorithmTypes()  + ".") );
@@ -107,9 +108,9 @@ public class RnaSeqQcTool extends NgsSmartTool {
 
 
         if (commandLine.hasOption(OPTION_COUNTS_FILE)) {
-            countsFile = commandLine.getOptionValue(OPTION_COUNTS_FILE);
+            countsFilePath = commandLine.getOptionValue(OPTION_COUNTS_FILE);
         } else {
-            countsFile = "";
+            countsFilePath = "";
         }
 
 
@@ -139,6 +140,8 @@ public class RnaSeqQcTool extends NgsSmartTool {
     @Override
     protected void execute() throws Exception {
 
+
+
         initOutputDir();
 
         ComputeCountsTask computeCountsTask = new ComputeCountsTask(bamFile, gffFile);
@@ -156,8 +159,29 @@ public class RnaSeqQcTool extends NgsSmartTool {
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.RNA_SEQ_QC);
 
         RNASeqQCAnalysis rnaSeqQCAnalysis = new RNASeqQCAnalysis(resultManager, computeCountsTask);
-        if (countsFile.length() > 0) {
-            rnaSeqQCAnalysis.setCountsFilePath(countsFile);
+
+        if (!countsFilePath.isEmpty()) {
+
+            File outFile = new File(countsFilePath);
+            if (outFile.isDirectory()) {
+               System.err.println("\nERROR! The given output path  "+ countsFilePath + " is just a folder. " +
+                       "\nPlease, add file name.");
+               return;
+            } else {
+                File parentDir = outFile.getParentFile();
+                if (parentDir == null) {
+                    logger.warn("the directory used to write counts will be the output dir\n");
+                    countsFilePath = outdir + "/" + countsFilePath;
+                } else if (!parentDir.exists()) {
+                    System.err.println("\nERROR! The given output path " + countsFilePath + " is not correct." +
+                            "\nPlease, check the names of folders in the path.");
+                    return;
+                }
+            }
+        }
+
+        if (countsFilePath.length() > 0) {
+            rnaSeqQCAnalysis.setCountsFilePath(countsFilePath);
         }
 
         rnaSeqQCAnalysis.run();

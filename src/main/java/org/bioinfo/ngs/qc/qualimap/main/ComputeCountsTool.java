@@ -26,6 +26,7 @@ import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.process.ComputeCountsTask;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -47,7 +48,7 @@ public class ComputeCountsTool extends NgsSmartTool {
     public static String OPTION_PAIRED = "pe";
     public static String OPTION_ALREADY_SORTED = "s";
 
-    String bamFile, gffFile, outFile, featureType, attrName, alg;
+    String bamFile, gffFile, outFilePath, featureType, attrName, alg;
     LibraryProtocol protocol;
     boolean pairedAnalysis, sortingRequired;
 
@@ -71,7 +72,7 @@ public class ComputeCountsTool extends NgsSmartTool {
                 "Regions with the same ID will be aggregated as part of the same feature. Default: gene_id."));
         options.addOption(new Option(OPTION_ALGORITHM, "algorithm", true,
                 "Counting algorithm: " + ComputeCountsTask.getAlgorithmTypes()));
-        options.addOption(new Option(OPTION_OUT_FILE, true, "Path to output file") );
+        options.addOption(new Option(OPTION_OUT_FILE, true, "Output file of coverage report.") );
         options.addOption(new Option(OPTION_PAIRED, "paired", false, "Setting this flag for paired-end experiments will result " +
                 "in counting fragments instead of reads") );
         options.addOption(new Option(OPTION_ALREADY_SORTED, "sorted", true,
@@ -103,9 +104,9 @@ public class ComputeCountsTool extends NgsSmartTool {
         }
 
         if (commandLine.hasOption(OPTION_OUT_FILE)) {
-            outFile = commandLine.getOptionValue(OPTION_OUT_FILE);
+            outFilePath = commandLine.getOptionValue(OPTION_OUT_FILE);
         } else {
-            outFile = "";
+            outFilePath = "";
         }
 
         if (commandLine.hasOption(OPTION_FEATURE_TYPE)) {
@@ -157,9 +158,29 @@ public class ComputeCountsTool extends NgsSmartTool {
             }
         }
 
-        PrintWriter outWriter = outFile.isEmpty() ?
+
+        if (!outFilePath.isEmpty()) {
+
+            File outFile = new File(outFilePath);
+            if (outFile.isDirectory()) {
+               System.err.println("\nERROR! The given output path  "+ outFilePath + " is just a folder. " +
+                       "\nPlease, provide the file name.");
+               return;
+            } else {
+                File parentDir = outFile.getParentFile();
+                if (parentDir != null) {
+                    if (!parentDir.exists()) {
+                        System.err.println("\nERROR! The given output path " + outFilePath + " is not correct." +
+                            "\nPlease, check the names of folders in the path.");
+                        return;
+                    }
+                }
+            }
+        }
+
+        PrintWriter outWriter = outFilePath.isEmpty() ?
                 new PrintWriter(new OutputStreamWriter(System.out)) :
-                new PrintWriter(new FileWriter(outFile));
+                new PrintWriter(new FileWriter(outFilePath));
 
 
         try {
@@ -186,8 +207,8 @@ public class ComputeCountsTool extends NgsSmartTool {
         message.append( computeCountsTask.getOutputStatsMessage() );
 
 
-        if (!outFile.isEmpty()) {
-            message.append("Result is saved to file ").append(outFile);
+        if (!outFilePath.isEmpty()) {
+            message.append("Result is saved to file ").append(outFilePath);
         }
 
         System.err.println(message);
