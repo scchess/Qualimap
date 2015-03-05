@@ -489,7 +489,7 @@ public class TranscriptDataHandler {
         ArrayList<QChart> charts = new ArrayList<QChart>();
 
 
-        {
+        if (numTotalReads > 0) {
             QChart readsOriginChart = createReadsOriginPieChart(sampleName);
             charts.add(readsOriginChart);
         }
