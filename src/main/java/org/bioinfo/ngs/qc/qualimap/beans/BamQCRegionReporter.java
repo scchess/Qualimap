@@ -62,6 +62,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
        return ((numPairedReadsInRegions - numSingletonsInRegions) * 100.0) / (double) numReads ;
     }
 
+    public double getPercentageDublicatedReads() {
+          return (numDuplicatedReads * 100.0) / (double) numReads ;
+       }
+
     public void setGenomeGCContentName(String genomeName) {
         this.genomeGCContentName = genomeName;
     }
@@ -89,6 +93,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private long numSingletons;
     private double percentageSingletons;
     private long numCorrectStrandReads;
+    private long numDuplicatedReads;
 
     private long numMappedReadsInRegions, numPairedReadsInRegions;
     private double percentageMappedReadsInRegions;
@@ -162,7 +167,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of mapped bases = " + formatLong(bamStats.getNumberOfMappedBases()) + " bp");
 		report.println("     number of sequenced bases = " + formatLong(bamStats.getNumberOfSequencedBases()) + " bp");
 		report.println("     number of aligned bases = " + formatLong(bamStats.getNumberOfAlignedBases()) + " bp");
-		report.println("");
+        report.println("     number of duplicated reads = " + formatLong(bamStats.getEstimatedNumDuplicatedReads()) );
+
+
+        report.println("");
 		report.println("");
 
         // insert size
@@ -308,6 +316,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		this.numSequencedBases = bamStats.getNumberOfSequencedBases();
 		this.numAlignedBases = bamStats.getNumberOfAlignedBases();*/
         this.duplicationRate = bamStats.getDuplicationRate();
+        this.numDuplicatedReads = bamStats.getEstimatedNumDuplicatedReads();
+
 
         // paired reads
         this.numPairedReads = bamStats.getNumberOfPairedReads();
@@ -843,6 +853,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             globals.addRow("Clipped reads",
                         sdf.formatInteger(numClippedReads) + " / " +
                         sdf.formatPercentage(getPercentageClippedReads()));
+           if (numDuplicatedReads > 0) {
+                globals.addRow("Duplicated mapped reads", sdf.formatLong(numDuplicatedReads) + " / " +
+                                                   sdf.formatPercentage(getPercentageDublicatedReads()));
+           }
+
             globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
         }
 
@@ -883,6 +898,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                 globalsInRegions.addRow("Clipped reads",
                                     sdf.formatInteger(numClippedReads) + " / " +
                                     sdf.formatPercentage(getPercentageClippedReads()));
+
+                if (numDuplicatedReads > 0) {
+                    globalsInRegions.addRow("Duplicated mapped reads", sdf.formatLong(numDuplicatedReads) + " / " +
+                                            sdf.formatPercentage(getPercentageDublicatedReads()));
+                }
+
                 globalsInRegions.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
 
             }

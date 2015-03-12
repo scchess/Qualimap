@@ -99,6 +99,7 @@ public class BamStatsAnalysis {
 
 	// inside
 	private long insideReferenceSize;
+    private boolean skipDuplicatedReads;
 
 	// outside
 	private boolean computeOutsideStats;
@@ -169,6 +170,7 @@ public class BamStatsAnalysis {
         this.threadNumber = 4;
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
+        this.skipDuplicatedReads = false;
         this.outdir = ".";
         this.saveCoverage = false;
         this.nonZeroCoverageOnly = true;
@@ -311,7 +313,8 @@ public class BamStatsAnalysis {
 			// filter invalid reads
 			if(read.isValid() == null){
                  if (read.getDuplicateReadFlag()) {
-                    numberOfDuplicatedReads++;
+                     // TODO: update number of duplications in BAM stats too?
+                     numberOfDuplicatedReads++;
                  }
                  // accumulate only mapped reads
 				if(read.getReadUnmappedFlag()) {
@@ -337,20 +340,26 @@ public class BamStatsAnalysis {
                     if (readOverlapsRegions) {
                         bamStatsCollector.updateStats(read);
                         read.setAttribute(Constants.READ_IN_REGION, 1);
-                        bamStats.updateReadStartsHistogram(position);
+                        if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
+                            continue;
+                        }
                         bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
                         read.setAttribute(Constants.READ_IN_REGION, 0);
                         outsideBamStatsCollector.updateStats(read);
                         if (computeOutsideStats) {
-                            outsideBamStats.updateReadStartsHistogram(position);
+                            if (outsideBamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
+                                continue;
+                            }
                             outsideBamStats.updateInsertSizeHistogram(insertSize);
                         }
                     }
                 } else {
                     read.setAttribute(Constants.READ_IN_REGION, 1);
                     bamStatsCollector.updateStats(read);
-                    bamStats.updateReadStartsHistogram(position);
+                    if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
+                        continue;
+                    }
                     bamStats.updateInsertSizeHistogram(insertSize);
                 }
 
@@ -1113,6 +1122,8 @@ public class BamStatsAnalysis {
                     alignParams.put("Command line: ", pgCommandString );
                 }
             }
+            alignParams.put("Skip duplicated alignments: ", boolToStr(skipDuplicatedReads));
+
             reporter.addInputDataSection("Alignment", alignParams);
 
             if ( selectedRegionsAvailable ) {
@@ -1142,5 +1153,7 @@ public class BamStatsAnalysis {
     }
 
 
-
+    public void setSkipDuplicatedReads(boolean skipDuplications) {
+        this.skipDuplicatedReads = skipDuplications;
+    }
 }

@@ -42,7 +42,7 @@ public class BamQcTool extends NgsSmartTool{
 	private int numThreads;
     private int bunchSize;
     private int minHomopolymerSize;
-    private boolean paintChromosomeLimits;
+    private boolean paintChromosomeLimits, skipDuplicated;
 	private boolean computeOutsideStats;
     private String genomeToCompare;
     private String coverageReportFile;
@@ -79,7 +79,9 @@ public class BamQcTool extends NgsSmartTool{
                 "are expected for large genomes");
         options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
                 "Paint chromosome limits inside charts");
-		options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
+        options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED, "skip-duplicated",  false,
+                                "Activate this option to skip duplicated alignments from analysis. ");
+        options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
                 "Report information for the regions outside those defined by feature-file " +
                         " (ignored when -gff option is not set)");
         options.addOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, "genome-gc-distr",
@@ -148,6 +150,7 @@ public class BamQcTool extends NgsSmartTool{
 
 
 		paintChromosomeLimits =  commandLine.hasOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
+        skipDuplicated = commandLine.hasOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
 
 	}
 
@@ -192,6 +195,9 @@ public class BamQcTool extends NgsSmartTool{
         bamQC.setNumberOfReadsInBunch(bunchSize);
         bamQC.setProtocol(protocol);
         bamQC.setMinHomopolymerSize(minHomopolymerSize);
+        if (skipDuplicated) {
+            bamQC.setSkipDuplicatedReads(true);
+        }
 
 		// run evaluation
 		bamQC.run();

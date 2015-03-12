@@ -53,7 +53,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     JButton pathDataFileButton, pathGffFileButton;
     JTextField pathDataFile, pathGffFile, valueNw;
     JSpinner numThreadsSpinner,numReadsPerBunchSpinner, minHmSizeSpinner;
-    JCheckBox drawChromosomeLimits, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
+    JCheckBox drawChromosomeLimits, skipDuplicates, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr;
     JComboBox<String> genomeGcContentCombo, protocolCombo;
     JLabel labelPathDataFile, labelPathAditionalDataFile, labelNw,
@@ -118,6 +118,13 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         drawChromosomeLimits.setToolTipText("Check to draw the chromosome limits");
         drawChromosomeLimits.setSelected(true);
         add(drawChromosomeLimits, "wrap");
+
+        skipDuplicates = new JCheckBox("Skip duplicates");
+        skipDuplicates.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        skipDuplicates.setToolTipText("Activate this option to skip duplicated alignments from analysis");
+        skipDuplicates.setSelected(false);
+        add(skipDuplicates, "wrap");
+
 
         compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
         compareGcContentDistr.addActionListener(this);
@@ -415,6 +422,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public boolean getDrawChromosomeLimits() {
         return drawChromosomeLimits.isSelected();
+    }
+
+    public boolean getSkipDuplicatesStatus() {
+        return skipDuplicates.isSelected();
     }
 
     public boolean getComputeOutsideRegions() {

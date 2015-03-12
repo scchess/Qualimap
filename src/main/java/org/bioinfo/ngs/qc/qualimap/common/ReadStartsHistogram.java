@@ -39,7 +39,7 @@ public class ReadStartsHistogram {
         currentReadStartPosition = -1;
     }
 
-    public void update( long position ) {
+    public boolean update( long position ) {
         if (position == currentReadStartPosition) {
             readStartCounter++;
         } else {
@@ -49,9 +49,13 @@ public class ReadStartsHistogram {
             readStartCounter = 1;
             currentReadStartPosition = position;
         }
+
+        return readStartCounter > 1;
     }
 
     public long[] getHistorgram() {
         return readStartsHistogram;
     }
+
+
 }
