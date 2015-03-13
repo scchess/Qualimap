@@ -159,6 +159,7 @@ public class RnaSeqQcTool extends NgsSmartTool {
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.RNA_SEQ_QC);
 
         RNASeqQCAnalysis rnaSeqQCAnalysis = new RNASeqQCAnalysis(resultManager, computeCountsTask);
+        rnaSeqQCAnalysis.setReportFilePath(outdir + "/rnaseq_qc_results.txt");
 
         if (!countsFilePath.isEmpty()) {
 

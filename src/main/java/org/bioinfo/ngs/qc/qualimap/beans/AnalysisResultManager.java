@@ -20,6 +20,7 @@
  */
 package org.bioinfo.ngs.qc.qualimap.beans;
 
+import javafx.util.Pair;
 import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.UniqueID;
@@ -39,6 +40,7 @@ public class AnalysisResultManager {
     AnalysisType typeAnalysis;
     String  outputFolder;
     List<StatsReporter> reporters;
+    Pair<String,String> resultReport;
 
     public AnalysisResultManager(AnalysisType analysisType) {
         this.typeAnalysis = analysisType;

@@ -30,6 +30,7 @@ import org.bioinfo.ngs.qc.qualimap.common.TranscriptDataHandler;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -47,7 +48,7 @@ public class RNASeqQCAnalysis  {
     ComputeCountsTask computeCountsTask;
     private AnalysisResultManager resultManager;
     LoggerThread loggerThread;
-    String countsFilePath;
+    String countsFilePath,reportFilePath;
 
 
     boolean outputCounts;
@@ -58,6 +59,7 @@ public class RNASeqQCAnalysis  {
         this.loggerThread = task.getLogger();
         computeCountsTask.setCollectRnaSeqStats(true);
         countsFilePath = "";
+        reportFilePath = "";
 
         outputCounts = false;
 
@@ -68,11 +70,90 @@ public class RNASeqQCAnalysis  {
 
         createResultReport();
 
+        if (reportFilePath.length() > 0 ) {
+            writeReport();
+        }
+
         if (countsFilePath.length() > 0) {
             writeGeneCounts();
         }
 
     }
+
+
+    public void writeReport() throws IOException{
+
+		// init report
+		PrintWriter report = new PrintWriter(new FileWriter(reportFilePath));
+        StringUtilsSwing sdf = new StringUtilsSwing();
+        TranscriptDataHandler th = computeCountsTask.getTranscriptDataHandler();
+
+		report.println("RNA-Seq QC report");
+		report.println("-----------------------------------");
+		report.println("");
+
+        report.println(">>>>>>> Input");
+		report.println("");
+		report.println("    bam file = " + computeCountsTask.pathToBamFile );
+        report.println("    gff file = " + computeCountsTask.pathToGffFile );
+        report.println("    counting algorithm = " + computeCountsTask.countingAlgorithm);
+        report.println("    protocol = " + computeCountsTask.protocol.toString());
+        report.println("");
+		report.println("");
+
+		report.println(">>>>>>> Reads alignment");
+		report.println("");
+        report.println("    aligned to genes  = " + sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        report.println("    no feature assigned = " +  sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
+        report.println("    non-unique alignment = " + sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
+        report.println("    ambiguous alignment = " + sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
+        report.println("    not aligned = "  + sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
+        report.println("");
+		report.println("");
+
+        report.println(">>>>>>> Reads genomic origin");
+        report.println("");
+        long totalReadCount = computeCountsTask.getTotalReadCounts() + computeCountsTask.getNoFeatureNumber();
+        long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
+        long intronicReadCount = th.getNumIntronicReads();
+        long intergenicReadCount = th.getNumIntergenicReads();
+        report.println("    exonic =  " + sdf.formatLong(exonicReadCount) + " (" +
+                sdf.formatPercentage( (100.*exonicReadCount) /  totalReadCount ) + ")");
+        report.println("    intronic = " + sdf.formatLong(intronicReadCount) + " (" +
+                sdf.formatPercentage( (100.*intronicReadCount) /  totalReadCount ) + ")");
+        report.println("    intergenic = " + sdf.formatLong(intergenicReadCount) + " (" +
+                sdf.formatPercentage( (100.*intergenicReadCount) /  totalReadCount ) + ")");
+        report.println("");
+        report.println("");
+
+        report.println(">>>>>>> Transcript coverage profile");
+        report.println("");
+        report.println("    5' bias = " +  sdf.formatDecimal(th.getMedianFivePrimeBias()));
+        report.println("    3' bias = " + sdf.formatDecimal(th.getMedianThreePrimeBias()));
+        report.println("    5'-3' bias = " + sdf.formatDecimal(th.getMedianFiveToThreeBias()));
+        report.println("");
+        report.println("");
+
+        report.println(">>>>>>> Junction analysis");
+        report.println("");
+        long numReadsWithJunctions = th.getNumReadsWithJunctions();
+        report.println("    reads at junctions = " + sdf.formatLong(numReadsWithJunctions));
+        report.println("");
+        if (numReadsWithJunctions > 0) {
+            List<JunctionInfo> junctionList = th.computeSortedJunctionsMap();
+
+            int count = 0;
+            for(int i = junctionList.size() -1; i >= 0 && count <= 10; i--){
+                JunctionInfo info = junctionList.get(i);
+                report.println("    " + info.getJunctionString() + " : " + sdf.formatPercentage(info.getPercentage()));
+                count += 1;
+            }
+
+        }
+
+		report.close();
+	}
+
 
     private void writeGeneCounts() throws IOException {
         PrintWriter outWriter =  new PrintWriter(new FileWriter(countsFilePath));
@@ -149,11 +230,10 @@ public class RNASeqQCAnalysis  {
         }*/
 
 
-        TranscriptDataHandler transcriptDataHandler = computeCountsTask.getTranscriptDataHandler();
         StatsKeeper.Section transcriptCoverage = new StatsKeeper.Section("Transcript coverage profile");
-        transcriptCoverage.addRow("5' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianFivePrimeBias()));
-        transcriptCoverage.addRow("3' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianThreePrimeBias()));
-        transcriptCoverage.addRow("5'-3' bias:", sdf.formatDecimal(transcriptDataHandler.getMedianFiveToThreeBias()));
+        transcriptCoverage.addRow("5' bias:", sdf.formatDecimal(th.getMedianFivePrimeBias()));
+        transcriptCoverage.addRow("3' bias:", sdf.formatDecimal(th.getMedianThreePrimeBias()));
+        transcriptCoverage.addRow("5'-3' bias:", sdf.formatDecimal(th.getMedianFiveToThreeBias()));
 
         summaryKeeper.addSection(transcriptCoverage);
 
@@ -198,4 +278,7 @@ public class RNASeqQCAnalysis  {
     }
 
 
+    public void setReportFilePath(String path) {
+        reportFilePath = path;
+    }
 }
