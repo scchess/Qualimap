@@ -55,13 +55,14 @@ public class ComputeCountsTask  {
     String countingAlgorithm;
     String attrName;
     LoggerThread logger;
-    boolean collectRnaSeqStats;
+    boolean collectRnaSeqStats, skipSecondaryAlignments;
     boolean loadGenericRegions;
     boolean outputCoverage;
     boolean strandSpecificAnalysis, pairedEndAnalysis, sortingRequired, cleanupRequired;
 
     String pathToBamFile, pathToGffFile, sampleName;
 
+    long primaryAlignments, secondaryAlignments;
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
     long readCount, fragmentCount, seqNotFoundCount, onlyOneReadInPair;
     long protocolCorrectlyMapped;
@@ -81,6 +82,7 @@ public class ComputeCountsTask  {
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
         collectRnaSeqStats = false;
+        skipSecondaryAlignments = false;
         loadGenericRegions = false;
         outputCoverage = true;
         pairedEndAnalysis = false;
@@ -111,6 +113,10 @@ public class ComputeCountsTask  {
 
     public void setLogger(LoggerThread thread) {
         this.logger = thread;
+    }
+
+    public void skipSecondaryAlignments() {
+        this.skipSecondaryAlignments = true;
     }
 
     public void setCollectRnaSeqStats(boolean collectRnaSeqStats) {
@@ -159,6 +165,15 @@ public class ComputeCountsTask  {
         if (read == null || read.getReadUnmappedFlag()) {
             notAligned++;
             return false;
+        }
+
+        if (read.getNotPrimaryAlignmentFlag() ) {
+            secondaryAlignments++;
+            if (skipSecondaryAlignments) {
+                return false;
+            }
+        } else {
+            primaryAlignments++;
         }
 
         String chrName = read.getReferenceName();
@@ -603,6 +618,18 @@ public class ComputeCountsTask  {
 
     public long getNotAlignedNumber() {
         return notAligned;
+    }
+
+    public long getPrimaryAlignmentsNumber() {
+        return primaryAlignments;
+    }
+
+    public long getTotalAlignmentsNumber() {
+        return primaryAlignments + secondaryAlignments;
+    }
+
+    public long getSecondaryAlignmentsNumber() {
+        return secondaryAlignments;
     }
 
     public long getNoFeatureNumber() {

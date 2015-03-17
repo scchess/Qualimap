@@ -30,7 +30,6 @@ import org.bioinfo.ngs.qc.qualimap.common.TranscriptDataHandler;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -103,10 +102,13 @@ public class RNASeqQCAnalysis  {
 
 		report.println(">>>>>>> Reads alignment");
 		report.println("");
+        report.println("    reads aligned  = " + sdf.formatLong(computeCountsTask.getPrimaryAlignmentsNumber()));
+        report.println("    total alignments = " + sdf.formatLong(computeCountsTask.getTotalAlignmentsNumber()));
+        report.println("    secondary alignments = " + sdf.formatLong(computeCountsTask.getSecondaryAlignmentsNumber()));
+        report.println("    non-unique alignments = " + sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
         report.println("    aligned to genes  = " + sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        report.println("    ambiguous alignments = " + sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         report.println("    no feature assigned = " +  sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
-        report.println("    non-unique alignment = " + sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
-        report.println("    ambiguous alignment = " + sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         report.println("    not aligned = "  + sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
         report.println("");
 		report.println("");
@@ -198,10 +200,13 @@ public class RNASeqQCAnalysis  {
 
         StatsKeeper.Section readsAlignment = new StatsKeeper.Section("Reads alignment");
 
+        readsAlignment.addRow("Number of mapped reads:", sdf.formatLong(computeCountsTask.getPrimaryAlignmentsNumber()));
+        readsAlignment.addRow("Total number of alignments:", sdf.formatLong(computeCountsTask.getTotalAlignmentsNumber()));
+        readsAlignment.addRow("Number of secondary alignments:", sdf.formatLong(computeCountsTask.getSecondaryAlignmentsNumber()));
+        readsAlignment.addRow("Number of non-unique alignments:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
         readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        readsAlignment.addRow("Ambiguous alignments:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
-        readsAlignment.addRow("Non-unique alignment:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
-        readsAlignment.addRow("Ambiguous alignment:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
 
         summaryKeeper.addSection(readsAlignment);
