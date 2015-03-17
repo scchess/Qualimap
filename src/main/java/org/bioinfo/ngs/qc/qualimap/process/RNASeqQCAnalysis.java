@@ -265,13 +265,17 @@ public class RNASeqQCAnalysis  {
 
     private void prepareInputDescription(StatsReporter reporter) {
 
-        HashMap<String,String> inputParams = new HashMap<String, String>();
-        Date date = new Date();
-        inputParams.put("Analysis date: ", date.toString());
+        Map<String,String> inputParams = new TreeMap<String, String>();
         inputParams.put("BAM file: ", computeCountsTask.pathToBamFile);
         inputParams.put("GTF file: ", computeCountsTask.pathToGffFile);
         inputParams.put("Protocol: ", computeCountsTask.protocol.toString());
-        inputParams.put("Counting algorithm", computeCountsTask.countingAlgorithm);
+        inputParams.put("Counting algorithm:", computeCountsTask.countingAlgorithm);
+        inputParams.put("Paired-end sequencing:", computeCountsTask.pairedEndAnalysis ? "yes" : "no");
+        inputParams.put("Sorting performed:", computeCountsTask.sortingRequired ? "yes" : "no");
+
+
+        Date date = new Date();
+        inputParams.put("Analysis date: ", date.toString());
 
         reporter.addInputDataSection("Input", inputParams);
 
