@@ -2,6 +2,21 @@ Version Release History
 =======================
 
 
+Version 2.1 - March 19, 2015 
+----------------------------
+
+    * BAM QC: added percentage of mapped reads with at least one insertion or deletion
+    * BAM QC: added an option to skip duplicates when running analysis (suggested by Johan Dalberg)
+    * RNA-seq QC: add text report of results (suggested by Lorena Pantano)
+    * BAM QC: fixed issue with inRegionReferenceSize outside of regions (reported by Tristan Carland)
+    * comp-counts: fixed bug when output file path is wrong (reported by Stephane Plaisance)
+    * RNA-seq QC: fixed issue with no-sorting required, improved statistics and input description (thanks to Priyanka Jain for report)
+    * RNA-seq QC: fixed issue when num reads equals zero 
+    * RNA-seq QC: improved logging (implemented by Lorena Pantano)
+    * Feature reader: improved exception processing
+    * Fixed an issue with output folder when outformat is PDF
+ 
+
 Version 2.0.2 - February 10, 2015 
 ---------------------------------
         
