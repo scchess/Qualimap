@@ -181,7 +181,7 @@ public class ComputeCountsTask  {
 
         if (regionSet == null ) {
             seqNotFoundCount++;
-            System.err.println("Chromosome " + chrName + " from read is not found in annotations.");
+            // System.err.println("Chromosome " + chrName + " from read is not found in annotations.");
             return false;
         }
 
@@ -416,6 +416,7 @@ public class ComputeCountsTask  {
         strandSpecificAnalysis = protocol != LibraryProtocol.NON_STRAND_SPECIFIC;
 
         ArrayList<SAMRecord> fragmentReads = new ArrayList<SAMRecord>();
+        ArrayList<String> chr_names = new ArrayList<String>();
 
         String curReadName = null;
 
@@ -424,6 +425,10 @@ public class ComputeCountsTask  {
             SAMRecord read = iter.next();
 
             if (!checkRead(read)) {
+                if (!chr_names.contains(read.getReferenceName())) {
+                    System.err.println("Chromosome " + read.getReferenceName() + " from read is not found in annotations.");
+                    chr_names.add(read.getReferenceName());
+                }
                 continue;
             }
 
