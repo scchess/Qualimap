@@ -55,7 +55,7 @@ public class BamStats implements Serializable {
     private long numCorrectStrandReads;
 
     private ArrayList<Long>  numMappedBasesPerWindow;
-    private ArrayList<Long> coverageSquaredPerWindow;
+    private ArrayList<Long> coveragePerWindow, coverageSquaredPerWindow;
     private ArrayList<Long> windowLengthes;
 
 
@@ -130,7 +130,6 @@ public class BamStats implements Serializable {
 	
 	// coverageData
 	private double meanCoverage;
-	private double meanCoveragePerWindow;
 	private double stdCoverage;
 	private List<Double> coverageAcrossReference;
 	private List<Double> stdCoverageAcrossReference;
@@ -287,8 +286,7 @@ public class BamStats implements Serializable {
 	private int numberOfWindows;
 	private int numberOfProcessedWindows;
 	private int numberOfInitializedWindows;	
-	private boolean windowPositionsAvailable;
-	private long[] windowSizes;	
+	private long[] windowSizes;
 	private long[] windowStarts;
 	private long[] windowEnds;
 	private String[] windowNames;
@@ -298,7 +296,7 @@ public class BamStats implements Serializable {
 	transient private PrintWriter windowReport;
 	private boolean activeCoverageReporting;
 	transient private PrintWriter coverageReport;
-    private long sumCoverageSquared;
+    private long sumCoverageSquared, sumCoverage;
     private final int CACHE_SIZE = 2000;
     private Map<String,String> warnings;
     GenomeLocator locator;
@@ -374,6 +372,7 @@ public class BamStats implements Serializable {
 //		atRelativeContentAcrossReference = new ArrayList<Double>(numberOfWindows);
 
         numMappedBasesPerWindow = new ArrayList<Long>(numberOfWindows);
+        coveragePerWindow = new ArrayList<Long>(numberOfWindows);
         coverageSquaredPerWindow = new ArrayList<Long>(numberOfWindows);
         windowLengthes = new ArrayList<Long>(numberOfWindows);
 
@@ -558,7 +557,7 @@ public class BamStats implements Serializable {
         */
 
         windowLengthes.add( window.getEffectiveWindowLength() );
-        numMappedBasesPerWindow.add( window.getNumberOfMappedBases() );
+        numMappedBasesPerWindow.add(window.getNumberOfMappedBases());
 
 		/*
 		 * Sample
@@ -568,9 +567,12 @@ public class BamStats implements Serializable {
 		coverageAcrossReference.add(window.getMeanCoverage());
 		stdCoverageAcrossReference.add(window.getStdCoverage());
         if (isInstanceOfBamGenomeWindow) {
-            coverageSquaredPerWindow.add( ((BamDetailedGenomeWindow)window).getSumCoverageSquared() );
-            sumCoverageSquared += ((BamDetailedGenomeWindow)window).getSumCoverageSquared();
-            updateHistograms((BamDetailedGenomeWindow)window);
+            BamDetailedGenomeWindow dWindow = (BamDetailedGenomeWindow)window;
+            coverageSquaredPerWindow.add( dWindow.getSumCoverageSquared()  );
+            coveragePerWindow.add( dWindow.getSumCoverage() );
+            sumCoverageSquared += dWindow.getSumCoverageSquared();
+            sumCoverage += dWindow.getSumCoverage();
+            updateHistograms(dWindow);
         }
 		
 		// quality
@@ -670,9 +672,15 @@ public class BamStats implements Serializable {
         long effectiveRefSize = numSelectedRegions > 0 ? inRegionReferenceSize : referenceSize;
         meanCoverage = (double) numberOfMappedBases / (double) effectiveRefSize;
 
+
         if (numberOfSequencedBases != 0) {
 
-            stdCoverage = Math.sqrt( (double) sumCoverageSquared / (double) effectiveRefSize - meanCoverage*meanCoverage);
+            double meanCoverageSquared = meanCoverage*meanCoverage;
+
+            double stdCoverageSquared = (double) sumCoverageSquared - 2*meanCoverage*sumCoverage +
+                    meanCoverageSquared*effectiveRefSize;
+
+            stdCoverage = Math.sqrt( stdCoverageSquared / effectiveRefSize);
 
             // quality
             meanMappingQualityPerWindow = MathUtils.mean(ListUtils.toDoubleArray(mappingQualityAcrossReference));
@@ -1003,12 +1011,10 @@ public class BamStats implements Serializable {
 		double[] freqs = new double[coverageHistogramMap.size()];
 
 		// read keys
-		Object[] raw = coverageHistogramMap.keySet().toArray();
-		int totalCoverage = 0;
+        Object[] raw = coverageHistogramMap.keySet().toArray();
 		for(int i=0; i<raw.length; i++) {
 			coverages[i] = (Long)raw[i];
 			freqs[i] = coverageHistogramMap.get(raw[i]);
-			totalCoverage+=freqs[i];
 		}
 
 		// sort coverages
@@ -1116,11 +1122,9 @@ public class BamStats implements Serializable {
 
 		// read keys
 		Object[] raw = map.keySet().toArray();
-		long totalCoverage = 0;
 		for(int i=0; i<raw.length; i++) {
 			coverages[i] = (Long)raw[i];
 			freqs[i] = (double) map.get(raw[i]);
-			totalCoverage+=freqs[i];
 		}
 
 		// sort coverageData
@@ -1703,14 +1707,21 @@ public class BamStats implements Serializable {
             int lastWindowIndex = k + 1 < chromosomeCount
                     ? chromosomeWindowIndexes.get(k + 1) - 1 : numberOfWindows - 1;
 
+
+            // Computing mean
+
             long numBases = 0;
             long length = 0;
+            long sumCov = 0;
             long sumCovSquared = 0;
             for (int i = firstWindowIndex; i <= lastWindowIndex; ++i) {
                 numBases += numMappedBasesPerWindow.get(i);
+                sumCov += coveragePerWindow.get(i);
                 sumCovSquared += coverageSquaredPerWindow.get(i);
                 length += windowLengthes.get(i);
             }
+
+
 
             ContigRecord contig = contigRecords.get(k);
 
@@ -1719,8 +1730,12 @@ public class BamStats implements Serializable {
             if (length != 0) {
                 info.length = length;
                 info.numBases = numBases;
-                info.covMean =  numBases / (double) length;
-                info.covStd = Math.sqrt( sumCovSquared / (double)length - info.covMean *info.covMean);
+                info.covMean = numBases / (double)length ;
+                double meanCoverageSquared = info.covMean*info.covMean;
+                double stdCoverageSquared = (double) sumCovSquared - 2*info.covMean*sumCov +
+                                    meanCoverageSquared*length;
+                info.covStd = Math.sqrt( stdCoverageSquared / length);
+
             }
             chromosomeStats[k] = info;
 

@@ -35,9 +35,9 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 	// quality
 	private long[] mappingQualityAcrossReference;
 
-
-    // required for calculation of global coverageData
+    // required for calculation of mean and std of coverage
     private long sumCoverageSquared;
+    private long sumCoverage;
 
 
 	public BamDetailedGenomeWindow(String name, long start, long end, byte[] reference){
@@ -88,7 +88,7 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 
 		// normalize vectors
 
-        long sumCoverage = 0;
+        sumCoverage = 0;
 
 		for(int i=0; i<coverageAcrossReference.length; i++){
 
@@ -145,6 +145,10 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 
     public long getSumCoverageSquared() {
         return sumCoverageSquared;
+    }
+
+    public long getSumCoverage() {
+        return sumCoverage;
     }
 
 	/**
