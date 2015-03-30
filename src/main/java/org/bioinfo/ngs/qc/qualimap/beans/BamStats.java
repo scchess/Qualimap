@@ -228,7 +228,7 @@ public class BamStats implements Serializable {
     XYVector readsClippingProfileHistogram;
     int[] homopolymerIndelsData;
     private boolean reportNonZeroCoverageOnly;
-    private long estimatedNumDuplicatedReads;
+    private long numDetectedDuplcateReads, numEstimatedDuplicateReads;
 
     public long getNumMismatches() {
         return numMismatches;
@@ -243,8 +243,16 @@ public class BamStats implements Serializable {
         return errorRate;
     }
 
-    public long getEstimatedNumDuplicatedReads() {
-        return estimatedNumDuplicatedReads;
+    public long getNumDetectedDuplicatedReads() {
+        return numDetectedDuplcateReads;
+    }
+
+    public long getNumDuplicatedReadsEstimated() {
+        return numEstimatedDuplicateReads;
+    }
+
+    public void setNumDetectedDuplcateReads(long numReads) {
+        this.numDetectedDuplcateReads = numReads;
     }
 
     // chromosome stats
@@ -1867,7 +1875,7 @@ public class BamStats implements Serializable {
     public boolean updateReadStartsHistogram(long position) {
         boolean duplicate = readStartsHistogram.update(position);
         if (duplicate) {
-            estimatedNumDuplicatedReads++;
+            numEstimatedDuplicateReads++;
         }
         return duplicate;
     }

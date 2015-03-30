@@ -313,8 +313,14 @@ public class BamStatsAnalysis {
 			// filter invalid reads
 			if(read.isValid() == null){
                  if (read.getDuplicateReadFlag()) {
-                     // TODO: update number of duplications in BAM stats too?
                      numberOfDuplicatedReads++;
+                     if (skipDuplicatedReads) {
+                         if (numberOfDuplicatedReads == 1) {
+                             logger.println("Note: detected marked duplicates will be skipped...");
+                         }
+                         bamStatsCollector.updateStats(read);
+                         continue;
+                     }
                  }
                  // accumulate only mapped reads
 				if(read.getReadUnmappedFlag()) {
@@ -340,7 +346,7 @@ public class BamStatsAnalysis {
                     if (readOverlapsRegions) {
                         bamStatsCollector.updateStats(read);
                         read.setAttribute(Constants.READ_IN_REGION, 1);
-                        if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
+                        if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads ) {
                             continue;
                         }
                         bamStats.updateInsertSizeHistogram(insertSize);
@@ -446,8 +452,8 @@ public class BamStatsAnalysis {
             throw new RuntimeException("The BAM file is empty or corrupt");
         }
 
-        //percentageOfValidReads = ((double)numberOfValidReads/(double)numberOfReads)*100.0;
         bamStats.setNumberOfReads(numberOfReads);
+        bamStats.setNumDetectedDuplcateReads(numberOfDuplicatedReads);
 
         long totalNumberOfMappedReads = bamStatsCollector.getNumMappedReads();
         long totalNumberOfPairedReads = bamStatsCollector.getNumPairedReads();

@@ -80,7 +80,9 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
                 "Paint chromosome limits inside charts");
         options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED, "skip-duplicated",  false,
-                                "Activate this option to skip duplicated alignments from analysis. ");
+                                "Activate this option to skip duplicate (secondary) alignments from analysis." +
+                                "If the duplicates are not flagged in BAM file, then they will be detected" +
+                                        " by Qualimap.");
         options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
                 "Report information for the regions outside those defined by feature-file " +
                         " (ignored when -gff option is not set)");
