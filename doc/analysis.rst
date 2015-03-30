@@ -55,6 +55,13 @@ Input Parameters
 :guilabel:`Compare GC content distribution with` 
   This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
 
+:guilabel:`Skip duplicates` 
+  This option allows to skip duplicate (secondary) alignments from analysis. If the duplicates are not flagged in BAM file, then they will be detected by Qualimap. Type of skipped duplicates will be shown in report.
+
+:guilabel:`Compare GC content distribution with` 
+  This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
+
+
 Advanced parameters
 """""""""""""""""""
 
