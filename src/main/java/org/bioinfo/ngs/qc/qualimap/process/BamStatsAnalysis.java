@@ -74,6 +74,7 @@ public class BamStatsAnalysis {
 	private long numberOfDuplicatedReads;
     private long numberOfCorrectStrandReads;
     private long numberOfProblematicReads;
+    private long numberOfReadsWithStartGreatThenEnd;
 
 	// statistics
 	private BamStats bamStats;
@@ -434,6 +435,13 @@ public class BamStatsAnalysis {
         logger.println("Number of valid reads: " + numberOfValidReads);
         logger.println("Number of duplicated reads: " + numberOfDuplicatedReads);
         logger.println("Number of correct strand reads:" + numberOfCorrectStrandReads);
+        logger.println("Number of reads with");
+
+        if (numberOfReadsWithStartGreatThenEnd > 0) {
+            logger.warn("WARNING:" + numberOfReadsWithStartGreatThenEnd +
+                    "  read alignments have start greater than end" );
+        }
+
         if (numberOfProblematicReads > 0) {
             logger.warn("SAMRecordParser failed to process " + numberOfProblematicReads + " reads.");
         }
@@ -1158,8 +1166,16 @@ public class BamStatsAnalysis {
         this.loggerThread = loggerThread;
     }
 
+    public void incNumberOfReasWithStartGreatThenEnd() {
+        this.numberOfReadsWithStartGreatThenEnd++;
+    }
+
 
     public void setSkipDuplicatedReads(boolean skipDuplications) {
         this.skipDuplicatedReads = skipDuplications;
     }
+
+
+
+
 }

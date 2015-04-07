@@ -461,7 +461,7 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         int pos;
 
         if(readEnd < readStart){
-            System.err.println("WARNING: read alignment start is greater than end: " + readStart + " > " + readEnd);
+            ctx.incNumberOfReasWithStartGreatThenEnd();
         }
 
         //readData.numberOfProcessedReads++;
@@ -479,7 +479,6 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
             if(relative<0){
 
             } else if(relative >= windowSize){
-                //	System.err.println("WARNING: " + read.getReadName() + " is fuera del tiesto " + relative);
                 break;
             } else {
 
