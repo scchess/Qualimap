@@ -64,7 +64,8 @@ public class ComputeCountsTask  {
 
     long primaryAlignments, secondaryAlignments;
     long notAligned, alignmentNotUnique, noFeature, ambiguous;
-    long readCount, fragmentCount, seqNotFoundCount, onlyOneReadInPair;
+    long readCount, fragmentCount, seqNotFoundCount;
+    long leftProperInPair, rightProperInPair, bothProperInPair;
     long protocolCorrectlyMapped;
 
     public static final String GENE_ID_ATTR = "gene_id";
@@ -174,6 +175,18 @@ public class ComputeCountsTask  {
             }
         } else {
             primaryAlignments++;
+            if (read.getReadPairedFlag() ) {
+
+                if (read.getProperPairFlag()) {
+                    bothProperInPair++;
+                }
+                if (read.getFirstOfPairFlag()) {
+                    leftProperInPair++;
+                }
+                if (read.getSecondOfPairFlag()) {
+                    rightProperInPair++;
+                }
+            }
         }
 
         String chrName = read.getReferenceName();
@@ -181,7 +194,6 @@ public class ComputeCountsTask  {
 
         if (regionSet == null ) {
             seqNotFoundCount++;
-            // System.err.println("Chromosome " + chrName + " from read is not found in annotations.");
             return false;
         }
 
@@ -417,6 +429,7 @@ public class ComputeCountsTask  {
 
         ArrayList<SAMRecord> fragmentReads = new ArrayList<SAMRecord>();
         ArrayList<String> chr_names = new ArrayList<String>();
+        HashSet<String> notFoundChrNames = new HashSet<String>();
 
         String curReadName = null;
 
@@ -426,7 +439,7 @@ public class ComputeCountsTask  {
 
             if (!checkRead(read)) {
                 if (!chr_names.contains(read.getReferenceName())) {
-                    System.err.println("Chromosome " + read.getReferenceName() + " from read is not found in annotations.");
+                    notFoundChrNames.add(read.getReferenceName());
                     chr_names.add(read.getReferenceName());
                 }
                 continue;
@@ -450,10 +463,6 @@ public class ComputeCountsTask  {
                 processRead(read);
             }
 
-            if (read.getReadPairedFlag() && !read.getProperPairFlag()) {
-                onlyOneReadInPair++;
-            }
-
         }
 
         if (pairedEndAnalysis && fragmentReads.size() > 0) {
@@ -475,6 +484,13 @@ public class ComputeCountsTask  {
         }
 
         logger.logLine("\nProcessed " + readCount + " reads in total");
+
+        if (notFoundChrNames.size() > 0) {
+            System.err.println("\nWARNING! The following chromosomes from reads are not found in annotations:");
+            for (String notFoundChrName : notFoundChrNames) {
+                System.err.println(notFoundChrName);
+            }
+        }
 
         if (cleanupRequired) {
             logger.logLine("\nCleanup of temporary files");
@@ -629,6 +645,14 @@ public class ComputeCountsTask  {
         return primaryAlignments;
     }
 
+    public long getLeftProperInPair() {
+        return leftProperInPair;
+    }
+
+    public long getRightProperInPair() {
+        return  rightProperInPair;
+    }
+
     public long getTotalAlignmentsNumber() {
         return primaryAlignments + secondaryAlignments;
     }
@@ -647,6 +671,10 @@ public class ComputeCountsTask  {
 
     public long getAmbiguousNumber() {
         return ambiguous;
+    }
+
+    public long getNumberOfMappedPairs() {
+        return bothProperInPair / 2;
     }
 
 

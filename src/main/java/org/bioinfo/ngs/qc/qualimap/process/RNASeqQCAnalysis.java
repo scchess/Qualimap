@@ -102,7 +102,16 @@ public class RNASeqQCAnalysis  {
 
 		report.println(">>>>>>> Reads alignment");
 		report.println("");
-        report.println("    reads aligned  = " + sdf.formatLong(computeCountsTask.getPrimaryAlignmentsNumber()));
+        if (computeCountsTask.pairedEndAnalysis) {
+            report.println("    reads aligned (left/right) = " +
+                            sdf.formatLong(computeCountsTask.getLeftProperInPair()) + " / " +
+                            sdf.formatLong(computeCountsTask.getRightProperInPair())
+                    );
+            report.println("    read pairs aligned  = " +
+                            sdf.formatLong(computeCountsTask.getNumberOfMappedPairs()));
+        } else {
+            report.println("    reads aligned  = " + sdf.formatLong(computeCountsTask.getPrimaryAlignmentsNumber()));
+        }
         report.println("    total alignments = " + sdf.formatLong(computeCountsTask.getTotalAlignmentsNumber()));
         report.println("    secondary alignments = " + sdf.formatLong(computeCountsTask.getSecondaryAlignmentsNumber()));
         report.println("    non-unique alignments = " + sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
@@ -200,7 +209,16 @@ public class RNASeqQCAnalysis  {
 
         StatsKeeper.Section readsAlignment = new StatsKeeper.Section("Reads alignment");
 
-        readsAlignment.addRow("Number of mapped reads:", sdf.formatLong(computeCountsTask.getPrimaryAlignmentsNumber()));
+        if (computeCountsTask.pairedEndAnalysis) {
+            readsAlignment.addRow("Number of mapped reads (left/right):",
+                    sdf.formatLong(computeCountsTask.getLeftProperInPair()) + " / " +
+                    sdf.formatLong(computeCountsTask.getRightProperInPair())
+            );
+            readsAlignment.addRow("Number of aligned pairs (without duplicates):",
+                    sdf.formatLong(computeCountsTask.getNumberOfMappedPairs()));
+        } else {
+            readsAlignment.addRow("Number of mapped reads:", sdf.formatLong(computeCountsTask.getPrimaryAlignmentsNumber()));
+        }
         readsAlignment.addRow("Total number of alignments:", sdf.formatLong(computeCountsTask.getTotalAlignmentsNumber()));
         readsAlignment.addRow("Number of secondary alignments:", sdf.formatLong(computeCountsTask.getSecondaryAlignmentsNumber()));
         readsAlignment.addRow("Number of non-unique alignments:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
