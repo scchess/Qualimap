@@ -36,9 +36,12 @@ public class NgsSmartMain {
 
     public static String APP_VERSION = "debug";
     public static String APP_BUILT_DATE = "unknown";
+    public static final String OUT_OF_MEMORY_REPORT = "\nWARNING: out of memory! " +
+            "Qualimap allows to set RAM size using special argument: --java-mem-size\n" +
+            "Check more details using --help command or read the manual.";
 
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws OutOfMemoryError,Exception {
 		Logger logger = new Logger();
         NgsSmartTool tool = null;
 
@@ -46,7 +49,12 @@ public class NgsSmartMain {
         loadAppSettings();
 
 		if(args.length == 0 || args[0].equals("--home")){
-			launchGUI(args);
+			try {
+                launchGUI(args);
+            } catch (Exception e) {
+                System.err.println("Failed to launch GUI.");
+                e.printStackTrace();
+            }
 		} else {
 						
 			String toolName = args[0];
@@ -92,7 +100,7 @@ public class NgsSmartMain {
                     || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
 				logger.println("");
 				logger.println(getHelp());
-			} else {
+            } else {
 				logger.println("");
 				logger.println("Selected tool: " + toolName);
 				if(tool==null){
@@ -106,8 +114,10 @@ public class NgsSmartMain {
 						logger.println("ERROR: " + pe.getMessage());
 						logger.println("");
 						tool.printHelp();
-					} catch(Exception e){
-						e.printStackTrace();
+					} catch (OutOfMemoryError memErr) {
+                        System.err.println(OUT_OF_MEMORY_REPORT);
+                    }catch(Exception e){
+                        e.printStackTrace();
 					}
 				}
 			}
@@ -164,9 +174,16 @@ public class NgsSmartMain {
 		
 	}
 	
-	public static String getHelp() throws IOException{		
+	public static String getHelp() {
 		InputStream resource = ClassLoader.getSystemResourceAsStream("org/bioinfo/ngs/qc/qualimap/help/main-help.txt");
-		return IOUtils.toString(resource)+"\n";
+		String helpMessage = "";
+        try {
+            helpMessage = IOUtils.toString(resource)+"\n";
+        } catch (IOException e) {
+            System.err.println("Failed to load help report.");
+        }
+
+        return helpMessage;
 	}
 
 	public static void error(Logger logger, String message) throws IOException{

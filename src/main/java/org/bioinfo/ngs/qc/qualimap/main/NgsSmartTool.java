@@ -20,8 +20,7 @@
  */
 package org.bioinfo.ngs.qc.qualimap.main;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
@@ -186,8 +185,19 @@ public abstract class NgsSmartTool {
         try {
             execute();
         } catch (Exception e) {
-            System.err.println("Failed to run " + toolName + "\n");
-            e.printStackTrace();
+
+
+            System.err.println("Failed to run " + toolName);
+
+            StringWriter errorsWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(errorsWriter));
+            String errorReport = errorsWriter.toString();
+
+            if (errorReport.contains("java.lang.OutOfMemoryError") ) {
+                System.err.println(NgsSmartMain.OUT_OF_MEMORY_REPORT);
+            } else {
+                System.err.println(errorReport);
+            }
             cleanupOutputDir();
             System.exit(-1);
         }
