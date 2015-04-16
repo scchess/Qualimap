@@ -339,7 +339,12 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
                 resetProgress();
                 TabPageController tabController = new TabPageController(AnalysisType.COUNTS_QC);
                 CountsQCAnalysisThread t = new CountsQCAnalysisThread(this, tabController );
+
+                Thread.UncaughtExceptionHandler eh = new AnalysisDialog.ExceptionHandler(this);
+                t.setUncaughtExceptionHandler(eh);
+
                 t.start();
+
             } else {
                 JOptionPane.showMessageDialog(this, errMsg, "Validate Input", JOptionPane.ERROR_MESSAGE);
             }
@@ -403,7 +408,7 @@ public class CountsQcDialog extends AnalysisDialog implements ActionListener {
         return "";
     }
 
-    void updateState() {
+    public void updateState() {
         int numRows = inputDataTable.getRowCount();
         removeSampleButton.setEnabled(numRows > 0);
         editSampleButton.setEnabled(numRows > 0);

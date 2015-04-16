@@ -287,7 +287,7 @@ public class EpigeneticAnalysisDialog extends AnalysisDialog implements ActionLi
 
     }
 
-    void updateState() {
+    public void updateState() {
 
         int numRows = inputDataTable.getRowCount();
         removeSampleButton.setEnabled(numRows > 0);

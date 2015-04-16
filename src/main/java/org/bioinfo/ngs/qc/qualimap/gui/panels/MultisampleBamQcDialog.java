@@ -318,7 +318,12 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             if (errMsg.isEmpty()) {
                 resetProgress();
                 TabPageController tabController = new TabPageController(AnalysisType.MULTISAMPLE_BAM_QC);
+
                 MultisampleBamQcThread t = new MultisampleBamQcThread(this, tabController );
+
+                Thread.UncaughtExceptionHandler eh = new AnalysisDialog.ExceptionHandler(this);
+                t.setUncaughtExceptionHandler(eh);
+
                 t.start();
             } else {
                 JOptionPane.showMessageDialog(this, errMsg, "Validate Input", JOptionPane.ERROR_MESSAGE);
@@ -358,7 +363,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
     }
 
 
-    void updateState() {
+    public void updateState() {
         boolean runBamQc = activateBamQcMode.isSelected();
         bamQcOptionsPanel.setEnabled(runBamQc);
         analyzeRegionsCheckBox.setEnabled(runBamQc);

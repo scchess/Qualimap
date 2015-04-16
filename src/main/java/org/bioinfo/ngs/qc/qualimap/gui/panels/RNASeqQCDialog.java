@@ -222,6 +222,10 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
             TabPageController tabPageController = new TabPageController(AnalysisType.RNA_SEQ_QC);
             RNASeqQCAnalysisThread t = new RNASeqQCAnalysisThread(this, tabPageController);
+
+            Thread.UncaughtExceptionHandler eh = new AnalysisDialog.ExceptionHandler(this);
+            t.setUncaughtExceptionHandler(eh);
+
             t.start();
 
 
@@ -234,7 +238,7 @@ public class RNASeqQCDialog extends AnalysisDialog implements ActionListener {
 
     }
 
-    private void updateState() {
+    public void updateState() {
 
         alreadySortedBox.setEnabled(pairedAnalysisBox.isSelected());
 

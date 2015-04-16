@@ -199,7 +199,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     }
 
-    void updateState() {
+    public void updateState() {
 
         boolean analyzeRegions = analyzeRegionsCheckBox.isSelected();
         labelPathAditionalDataFile.setEnabled(analyzeRegions);
@@ -401,7 +401,11 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 		BamAnalysisThread t;
         t = new BamAnalysisThread("BamAnalysisThread", this, tabPageController);
 
+        Thread.UncaughtExceptionHandler eh = new AnalysisDialog.ExceptionHandler(this);
+        t.setUncaughtExceptionHandler(eh);
+
 		t.start();
+
 	}
 
     public int getNumberOfWindows() {

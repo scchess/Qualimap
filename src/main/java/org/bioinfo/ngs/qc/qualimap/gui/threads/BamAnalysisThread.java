@@ -26,9 +26,12 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.gui.panels.BamAnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.AnalysisDialogLoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
+import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 import javax.swing.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Class to manage a thread to do the Bam analysis to the input bam files and
@@ -153,25 +156,31 @@ public class BamAnalysisThread extends Thread {
 			bamDialog.getProgressStream().setText("OK");
 			bamDialog.getProgressBar().setValue(100);
 
-		} catch( OutOfMemoryError e) {
-            JOptionPane.showMessageDialog(bamDialog, "<html><body align=\"center\">Out of memory!" +
-                    "<br>Try decreasing the size of the chunk in the Advanced Options" +
-                    "<br>or changing Java virtual machine settings.</body></html>",
-                    bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
-            bamDialog.setUiEnabled(true);
-            return;
-        } catch (SAMFormatException se) {
+		} catch (SAMFormatException se) {
             System.out.print(se.getMessage());
             JOptionPane.showMessageDialog(null, "Error parsing BAM file! See log for details.",
                     bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
             se.printStackTrace();
+            bamDialog.resetProgress();
             bamDialog.setUiEnabled(true);
+            bamDialog.updateState();
             return;
         } catch (Exception e) {
-		    JOptionPane.showMessageDialog(null, "Analysis is failed. " + e.getMessage(),
-                    bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+
+            String message = "Analysis is failed.\n" + e.getMessage();
+
+            StringWriter errorsWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(errorsWriter));
+            String errorReport = errorsWriter.toString();
+
+            if (errorReport.contains("java.lang.OutOfMemoryError") ) {
+                message = NgsSmartMain.OUT_OF_MEMORY_REPORT;
+            }
+
+            JOptionPane.showMessageDialog(bamDialog, message, bamDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
+            bamDialog.resetProgress();
             bamDialog.setUiEnabled(true);
+            bamDialog.updateState();
             return;
      	}
 

@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.gui.dialogs;
 
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
+import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +30,8 @@ import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Created by kokonech
@@ -37,6 +40,37 @@ import java.io.File;
  */
 public class AnalysisDialog extends JDialog implements ContainerListener, KeyListener
 {
+
+    protected static class ExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+        AnalysisDialog dlg;
+
+        public ExceptionHandler(AnalysisDialog homeDlg) {
+            this.dlg = homeDlg;
+        }
+
+        public void uncaughtException(Thread th, Throwable ex) {
+
+            String m = ex.getMessage();
+            String errMsg = "Failed to perform " + dlg.getTitle() + "\n" + m;
+
+            StringWriter errorsWriter = new StringWriter();
+            ex.printStackTrace(new PrintWriter(errorsWriter));
+            String errorReport = errorsWriter.toString();
+
+            if (errorReport.contains("java.lang.OutOfMemoryError") ) {
+                errMsg = NgsSmartMain.OUT_OF_MEMORY_REPORT;
+            }
+
+            JOptionPane.showMessageDialog(dlg, errMsg,  dlg.getTitle(), JOptionPane.ERROR_MESSAGE);
+
+            dlg.resetProgress();
+            dlg.setUiEnabled(true);
+            dlg.updateState();
+
+        }
+    }
+
 
     protected HomeFrame homeFrame;
 
@@ -215,6 +249,11 @@ public class AnalysisDialog extends JDialog implements ContainerListener, KeyLis
         if (progressBar != null) {
             progressBar.setValue(progress);
         }
+    }
+
+    // virtual hopefully
+    public void updateState() {
+
     }
 
 

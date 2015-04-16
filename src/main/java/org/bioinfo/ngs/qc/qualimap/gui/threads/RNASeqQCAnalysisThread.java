@@ -103,7 +103,7 @@ public class RNASeqQCAnalysisThread extends  Thread {
         try {
             rnaSeqQCAnalysis.run();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(settingsDlg, "Failed to analyze counts data. " + e.getMessage(),
+            JOptionPane.showMessageDialog(settingsDlg, "Failed to analyze RNA-seq data. " + e.getMessage(),
                     settingsDlg.getTitle(), JOptionPane.ERROR_MESSAGE);
             settingsDlg.setUiEnabled(true);
             return;

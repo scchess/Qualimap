@@ -36,7 +36,7 @@ public class NgsSmartMain {
 
     public static String APP_VERSION = "debug";
     public static String APP_BUILT_DATE = "unknown";
-    public static final String OUT_OF_MEMORY_REPORT = "\nWARNING: out of memory! " +
+    public static final String OUT_OF_MEMORY_REPORT = "\nWARNING: out of memory!\n" +
             "Qualimap allows to set RAM size using special argument: --java-mem-size\n" +
             "Check more details using --help command or read the manual.";
 

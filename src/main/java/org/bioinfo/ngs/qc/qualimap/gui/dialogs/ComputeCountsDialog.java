@@ -406,6 +406,9 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
                 }
             };
 
+            Thread.UncaughtExceptionHandler eh = new AnalysisDialog.ExceptionHandler(this);
+            countReadsThread.setUncaughtExceptionHandler(eh);
+
             countReadsThread.start();
 
         }  else if (actionEvent.getActionCommand().equals(Constants.CANCEL_COMMAND)) {
@@ -417,7 +420,7 @@ public class ComputeCountsDialog extends AnalysisDialog implements ActionListene
 
     }
 
-    private void updateState() {
+    public void updateState() {
         alreadySortedBox.setEnabled(pairedAnalysisBox.isSelected());
 
         countingAlgoCombo.setEnabled(advancedOptions.isSelected());
