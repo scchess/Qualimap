@@ -163,9 +163,11 @@ public class CountsQcAnalysis extends AnalysisProcess{
 
     private void removeSpacesFromNames() {
 
-        //TODO: this is because of the problem with NOISeq
+        //Replaces are performed because of the problem with NOISeq: "-" symbol or spaces should be removed
+
         for (SampleInfo s : samples) {
             s.name = s.name.replaceAll("\\s", "_");
+            s.name = s.name.replaceAll("-", "_");
         }
         for (Integer index : conditionNames.keySet()) {
             String cName = conditionNames.get(index);
@@ -275,7 +277,7 @@ public class CountsQcAnalysis extends AnalysisProcess{
             if (line.startsWith("#") || line.isEmpty()) {
                 continue;
             }
-            String[] items = line.split("\\s+");
+            String[] items = line.split("\\t+");
             if (items.length < 4) {
                 throw new IOException("Failed to parse input file " + inputFilePath+
                         " not enough fields in line " + line);
