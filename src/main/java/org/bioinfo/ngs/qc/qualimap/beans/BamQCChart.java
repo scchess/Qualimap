@@ -24,8 +24,7 @@ import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
@@ -61,9 +60,10 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
     private XYToolTipGenerator toolTipGenerator;
 	private int numberOfSeries;
     private int seriesToExportIndex;
+    private double chromNameYPos;
+    private Map<Double,String> chrNames;
 	
 	// other params
-	private PlotOrientation orientation;
 	private boolean aPercentageChart;
 	private boolean rangeAxisIntegerTicks;
 	private boolean domainAxisIntegerTicks;
@@ -91,11 +91,13 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 		numberOfSeries = 0;
 		
 		// other params
-		orientation = PlotOrientation.VERTICAL;
 		adjustDomainAxisLimits = true;
         domainAxisTickUnitSize = 0;
         seriesToExportIndex = -1;
         showLegend = true;
+        chromNameYPos = 0;
+        chrNames = null;
+
 	}
 	
 	// line rendered series
@@ -277,13 +279,13 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 
             if(renderers.get(i) instanceof DeviationRenderer){
 				YIntervalSeries currentIntervalSeries = new YIntervalSeries(names.get(i));
-				
+
 				// add points
 				XYIntervalItem item;
 				for(int j=0; j<series.get(i).getSize(); j++){
 					item = (XYIntervalItem) series.get(i).get(j);					
 					currentIntervalSeries.add(item.getX(),item.getY(),item.getyDownDeviation(),item.getyUpDeviation());
-				}
+                }
 				
 				// add series
 				YIntervalSeriesCollection data = new YIntervalSeriesCollection();
@@ -293,15 +295,30 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 				if(renderers.get(i) instanceof XYBarRenderer) anyBarRendered = true;
 				// init series
 				XYSeries currentSeries = new XYSeries(names.get(i));
-				
+
 				// add points
 				for(int j=0; j<series.get(i).getSize(); j++){
-					currentSeries.add(series.get(i).get(j).getX(),series.get(i).get(j).getY());
-				}
-				
+                    XYItem item = series.get(i).get(j);
+                    currentSeries.add(item.getX(),item.getY());
+                }
+
+
+
 				// add series
 				chart.getXYPlot().setDataset(i, new XYSeriesCollection(currentSeries));
             }
+
+
+            boolean addChrNames =  chrNames != null;
+            if (addChrNames) {
+                for (Map.Entry<Double,String> entry : chrNames.entrySet()) {
+                    final XYTextAnnotation annotation = new XYTextAnnotation(
+                            entry.getValue(), entry.getKey(), chromNameYPos );
+                    annotation.setRotationAngle(- Math.PI / 2.0);
+                    chart.getXYPlot().addAnnotation(annotation);
+                }
+            }
+
 			
 			// set stroke
 			renderers.get(i).setSeriesStroke(0, strokes.get(i));
@@ -417,4 +434,9 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
     }
 
 
+    public void writeChromsomeNames(double yPos, Map<Double,String> names) {
+        chromNameYPos = yPos;
+        chrNames = names;
+
+    }
 }

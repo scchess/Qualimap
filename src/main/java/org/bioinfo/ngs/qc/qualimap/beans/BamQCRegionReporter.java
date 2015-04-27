@@ -445,9 +445,14 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         double maxInsertSize = 0;
         if (isPairedData && maxCoverage > 0) {
-            int length = bamStats.getInsertSizeHistogram().getSize();
-            maxInsertSize = bamStats.getInsertSizeHistogram().get(length - 1).getX();
+            for (int i = 0; i < bamStats.getInsertSizeAcrossReference().size(); i++) {
+                double iSize = bamStats.getInsertSizeAcrossReference().get(i);
+                if (iSize > maxInsertSize) {
+                    maxInsertSize = iSize;
+                }
+            }
         }
+
         // compute chromosome limits
 		Color chromosomeColor = new Color(40,40,40,150);
 		XYVector chromosomeCoverageLimits = null;
@@ -455,6 +460,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		XYVector chromosomeBytedLimits = null;
         XYVector chromosomeInsertSizeLimits = null;
         List<XYBoxAnnotation>  chromosomeAnnotations = null;
+        Map<Double,String> chromosomeNames = null;
 
         if(paintChromosomeLimits && locator!=null){
 			int numberOfChromosomes = locator.getContigs().size();
@@ -463,31 +469,39 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 			chromosomeBytedLimits = new XYVector();
             chromosomeInsertSizeLimits = new XYVector();
             chromosomeAnnotations = new ArrayList<XYBoxAnnotation>();
+            chromosomeNames = new HashMap<Double, String>();
             for(int i=0; i<numberOfChromosomes; i++){
                 long chrStart = locator.getContigs().get(i).getPosition();
                 long chrSize = locator.getContigs().get(i).getSize();
+                long chrEnd = locator.getContigs().get(i).getEnd();
+                String chrName = locator.getContigs().get(i).getName();
 
                 XYBoxAnnotation xyBoxAnnotation = new XYBoxAnnotation( (double) chrStart, 0.0,
                     (double)( chrStart + chrSize), maxCoverage, null, null);
-                xyBoxAnnotation.setToolTipText(locator.getContigs().get(i).getName());
+                xyBoxAnnotation.setToolTipText(chrName);
                 chromosomeAnnotations.add(xyBoxAnnotation);
 
+                // chromosome names on boundaries
+                chromosomeNames.put( (double) chrStart + ((double)chrSize)*0.8, chrName);
+
+                //QUESTION: why are there are three of them???
+
             	// coverageData
-				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),maxCoverage));
-				chromosomeCoverageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,0));
+				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,maxCoverage));
+				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,0));
 				// percentage
-				chromosomePercentageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				chromosomePercentageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),100));
-				chromosomePercentageLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+				chromosomePercentageLimits.addItem(new XYItem(chrEnd,0));
+				chromosomePercentageLimits.addItem(new XYItem(chrEnd,100));
+				chromosomePercentageLimits.addItem(new XYItem(chrEnd,0));
 				// byte
-				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),255));
-				chromosomeBytedLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+				chromosomeBytedLimits.addItem(new XYItem(chrEnd,0));
+				chromosomeBytedLimits.addItem(new XYItem(chrEnd,255));
+				chromosomeBytedLimits.addItem(new XYItem(chrEnd,0));
                 // insert size
-                chromosomeInsertSizeLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
-                chromosomeInsertSizeLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),maxInsertSize));
-                chromosomeInsertSizeLimits.addItem(new XYItem(locator.getContigs().get(i).getEnd(),0));
+                chromosomeInsertSizeLimits.addItem(new XYItem(chrEnd,0));
+                chromosomeInsertSizeLimits.addItem(new XYItem(chrEnd,maxInsertSize));
+                chromosomeInsertSizeLimits.addItem(new XYItem(chrEnd,0));
 
 
 			}
@@ -505,20 +519,24 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences,
                 bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()),
                 new Color(250,50,50,150), new Color(50,50,250), 0.2f);
-        if( paintChromosomeLimits && locator!=null ) {
-            coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
-                    false, chromosomeAnnotations);
-        }
-        coverageChart.render();
 
-        //Setting "smart" zoom for coverage across region
+        //Preparing "smart" zoom for coverage across region
         Double[] coverageData = ListUtils.toArray(bamStats.getCoverageAcrossReference());
         double upperCoverageBound = 2*StatUtils.percentile(ArrayUtils.toPrimitive(coverageData), 90);
         if (upperCoverageBound == 0) {
             // possible in rare cases when the coverage is very low coverage
             upperCoverageBound = maxCoverage*0.9;
         }
-		coverageChart.getChart().getXYPlot().getRangeAxis().setRange(0, upperCoverageBound);
+
+
+        if( paintChromosomeLimits && locator!=null ) {
+            coverageChart.addSeries("chromosomes", chromosomeCoverageLimits, chromosomeColor, stroke,
+                    false, chromosomeAnnotations);
+            coverageChart.writeChromsomeNames(0.9*upperCoverageBound, chromosomeNames);
+        }
+        coverageChart.render();
+
+        coverageChart.getChart().getXYPlot().getRangeAxis().setRange(0, upperCoverageBound);
 
         // gc content
 		BamQCChart gcContentChart = new BamQCChart("GC/AT relative content", subTitle,
@@ -686,6 +704,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         if( paintChromosomeLimits && locator!=null ) {
             mappingQuality.addSeries("chromosomes", chromosomeBytedLimits, chromosomeColor, stroke,
                     false, chromosomeAnnotations);
+            mappingQuality.writeChromsomeNames(220, chromosomeNames);
+
         }
 		mappingQuality.render();
 		mappingQuality.getChart().getXYPlot().getRangeAxis().setRange(0,255);
@@ -714,8 +734,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             if(paintChromosomeLimits && locator!=null) {
                 insertSize.addSeries("chromosomes",chromosomeInsertSizeLimits,chromosomeColor,stroke,
                         false,chromosomeAnnotations);
+                insertSize.writeChromsomeNames(maxInsertSize*0.9, chromosomeNames);
+
             }
             insertSize.render();
+            insertSize.getChart().getXYPlot().getRangeAxis().setRange(0,maxInsertSize);
+
 			charts.add(new QChart( bamStats.getName() + "_insert_size_across_reference.png",
                     insertSize.getChart(), insertSize ));
 	
