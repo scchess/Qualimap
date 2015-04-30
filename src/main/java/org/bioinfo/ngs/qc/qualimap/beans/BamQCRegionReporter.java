@@ -178,6 +178,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             report.println("     duplication rate = " + formatPercentage(bamStats.getDuplicationRate()) );
         }
 
+        if (bamStats.getNumberOfMappedReads() == 0) {
+            report.close();
+            return;
+        }
 
 
         report.println("");
@@ -221,7 +225,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 		// Mismatches and indels
 
-        // TODO: skip this if all is zero? check summaryStatsKeeper
         report.println(">>>>>>> Mismatches and indels");
         report.println("");
         report.println("    general error rate = " + formatDecimal(bamStats.getErrorRate()) ) ;
@@ -402,6 +405,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         warnings = bamStats.getWarnings();
 
         prepareSummaryStatsKeeper();
+
         prepareChromosomeStatsKeeper(bamStats.getChromosomeStats());
 
 
@@ -416,12 +420,18 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 	 * @throws IOException Error during computation
 	 */
 	public void computeChartsBuffers(BamStats bamStats, GenomeLocator locator, boolean isPairedData) throws IOException{
-		// define a stroke
+
+        // define a stroke
 		Stroke stroke = new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, new float[] {4.0f, 8.0f}, 0.0f);
 
 		if (charts == null) {
             charts = new ArrayList<QChart>();
         }
+
+        if (bamStats.getNumberOfMappedBases() == 0) {
+             return;
+        }
+
 
 		// some variables		
 		double maxValue = 50;
@@ -507,7 +517,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 			}
         }
 
-
 		///////////////// Coverage and GC-content across reference ////////////////////////////////
 
 		// coverageData
@@ -565,11 +574,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		combinedChart.addSubtitle(coverageChart.getChart().getSubtitle(0));
         charts.add(new QChart(bamStats.getName() + "_coverage_across_reference.png", combinedChart, coverageChart) );
 
-        if (bamStats.getNumberOfMappedBases() == 0) {
-            // It doesn't make sense to draw any other graphs
-            // TODO: show user a message?
-            return;
-        }
 
 
 		////////////////////////////// Balanced coverage histogram ////////////////////////////////
@@ -1019,8 +1023,13 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
     private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
 
+
         tableDataStatsKeeper = new StatsKeeper();
         tableDataStatsKeeper.setName("Chromosome stats" + namePostfix );
+
+        if (numMappedReads == 0) {
+            return;
+        }
 
         StatsKeeper.Section headerSection = new StatsKeeper.Section(Constants.TABLE_STATS_HEADER);
         String[] header = {
@@ -1028,6 +1037,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         };
         headerSection.addRow(header);
         tableDataStatsKeeper.addSection(headerSection);
+
 
         StatsKeeper.Section dataSection = new StatsKeeper.Section(Constants.TABLE_STATS_DATA);
 

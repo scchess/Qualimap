@@ -140,6 +140,8 @@ public class BamStatsAnalysis {
     private String pgProgram, pgCommandString;
 
     public static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Some regions are not loaded";
+    public static final String WARNING_ID_NO_MAPPED_READS = "NO MAPPED READS";
+
 
     public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
     public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
@@ -468,6 +470,13 @@ public class BamStatsAnalysis {
         long totalNumberOfMappedFirstOfPair = bamStatsCollector.getNumMappedFirstInPair();
         long totalNumberOfMappedSecondOfPair = bamStatsCollector.getNumMappedSecondInPair();
         long totalNumberOfSingletons = bamStatsCollector.getNumSingletons();
+
+        if (totalNumberOfMappedReads == 0) {
+            logger.println("\nWARNING: total number of mapped reads equals zero");
+            bamStats.addWarning(WARNING_ID_NO_MAPPED_READS, "Total number of mapped reads equals zero.\n" +
+                    "For more details, check the number of Unmapped reads.");
+            return;
+        }
 
         if (selectedRegionsAvailable) {
 

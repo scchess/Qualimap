@@ -387,38 +387,40 @@ public class ExportPdfThread extends Thread {
             section.add(table);
         }
 
+        if (reporter.hasTableData()) {
 
-        StatsKeeper chrStatsKeeper = reporter.getTableDataStatsKeeper();
-        List<StatsKeeper.Section> chromosomeSections = chrStatsKeeper.getSections();
-        Paragraph chrTitle = createSectionTitle(chrStatsKeeper.getName());
-        Section chrSection = summaryChapter.addSection(chrTitle);
+            StatsKeeper chrStatsKeeper = reporter.getTableDataStatsKeeper();
+            List<StatsKeeper.Section> chromosomeSections = chrStatsKeeper.getSections();
+            Paragraph chrTitle = createSectionTitle(chrStatsKeeper.getName());
+            Section chrSection = summaryChapter.addSection(chrTitle);
 
-        Table chrTable = new Table(5);
-        chrTable.setPadding(2);
-        chrTable.setSpacing(2);
+            Table chrTable = new Table(5);
+            chrTable.setPadding(2);
+            chrTable.setSpacing(2);
 
-        for (StatsKeeper.Section s : chromosomeSections) {
+            for (StatsKeeper.Section s : chromosomeSections) {
 
-            if (s.getName().equals(Constants.TABLE_STATS_HEADER)) {
+                if (s.getName().equals(Constants.TABLE_STATS_HEADER)) {
 
-                String row[] = s.getRows().get(0);
-                for (String item : row) {
-                    Cell c = new Cell(item);
-                    c.setHeader(true);
-                    chrTable.addCell(c);
+                    String row[] = s.getRows().get(0);
+                    for (String item : row) {
+                        Cell c = new Cell(item);
+                        c.setHeader(true);
+                        chrTable.addCell(c);
+                    }
+
+                } else {
+
+                List<String[]> rows = s.getRows();
+                for (String[] row : rows) {
+                    for (String item : row) {
+                        chrTable.addCell(item);
+                    }
                 }
-
-            } else {
-
-            List<String[]> rows = s.getRows();
-            for (String[] row : rows) {
-                for (String item : row) {
-                    chrTable.addCell(item);
                 }
             }
-            }
+            chrSection.add(chrTable);
         }
-        chrSection.add(chrTable);
 
         doc.add(summaryChapter);
         curChapterNum++;
