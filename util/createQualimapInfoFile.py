@@ -4,6 +4,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 import Bio.SeqUtils as SeqUtils
 import HTSeq
+import numpy as np
 
 
 def idsContainGiven(givenId, transcriptIds):
