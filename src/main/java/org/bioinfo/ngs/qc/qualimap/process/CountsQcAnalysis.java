@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 
+
 /**
  * Created by kokonech
  * Date: 5/15/14
@@ -168,7 +169,17 @@ public class CountsQcAnalysis extends AnalysisProcess{
         for (SampleInfo s : samples) {
             s.name = s.name.replaceAll("\\s", "_");
             s.name = s.name.replaceAll("-", "_");
+            if (Character.isDigit(s.name.charAt(0))) {
+                String novelName = "sample_" + s.name;
+                System.err.printf("WARNING: The sample name \""  + s.name + "\" will be replaced with name \""
+                        + novelName + "\" due to NOISeq issues\n" );
+                s.name = novelName;
+            }
+
         }
+
+
+
         for (Integer index : conditionNames.keySet()) {
             String cName = conditionNames.get(index);
             conditionNames.put(index, cName.replaceAll("\\s", "_"));
