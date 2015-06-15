@@ -84,6 +84,8 @@ Input
   This option controls whether to save overall computation statistics. If selected, the statistics will be saved in a file named `$INPUT_BAM`.counts
 
 
+.. _multimapped-reads-count:
+
 :guilabel:`Multi-mapped reads`
   This option controls what to do whith reads mapped to multiple location:
 
@@ -93,7 +95,7 @@ Input
 
 
   :dfn:`proportional`
-    Each read is weighted according to the number of mapped locations. For example, a read mapped to 4 different locations will add 0.25 to the counts of each location.
+    Multi-mapped reads are detected based on "NH" tag from SAM format. Each read is weighted according to the number of mapped locations. For example, a read mapped to 4 different locations will add 0.25 to the counts of each location. After analysis is finished the value will converted to intger value.
 
 :guilabel:`Calculate 5' and 3' coverage bias`
   If a **GTF file** is provided, the user has the possibility of computing **5' - 3' bias**. The application automatically constructs the 5' and 3' UTR (100 bp) from the gene definitions of the GTF file and determines the coverage rate of the 1000 most highly expressed transcripts in the UTR regions. This information is then stored in the *computation summary* file, together with the statistics of the counting procedure.   

@@ -212,14 +212,26 @@ Input parameters
 :guilabel:`Library protocol`
   The strand-specficity of the sequencing library. By default non-strand specific library is assumed.
 
+
+:guilabel:`Paired-end analysis`
+   This option activates counting of pair fragments instead of counting of single reads. Only valid for paired-end sequencing experiments.
+
+:guilabel:`Alignment sorted by name`
+   The paired-end analysis requires the BAM file to be sorted by name. If the BAM file is already sorted by name, then this option should be check, otherwise temporary BAM sorted by name will be created.
+
 :guilabel:`Output counts`
-  If checked, the gene counts will be saved to a specified file. 
+   If checked, the gene counts will be saved to a specified file. 
 
 :guilabel:`Path to counts`
-  Path to the output file with the computed counts.
+   Path to the output file with the computed counts.
 
 
+Advanced parameters
+"""""""""""""""""""
 
+:guilabel:`Multi-mapped reads`
+   Select method to count reads that are mapped to several genome locations. By default only **uniquely-mapped-reads** are used to compute counts. However, it is possible to include multimapped reads by activating **proprtional** method. More details :ref:`here <multimapped-reads-count>`.
+        
 
 Output
 ^^^^^^
@@ -230,7 +242,14 @@ Output
 
     *Reads alignment* 
 
-    The assignment of read counts per-category: aligned to genes or without any feature (intronic and intergenic). By default only unique alignments are counted. Additionally number of non-unique alignments is reported as well as number of ambiguous alignments and unmapped reads.
+    The assignment of read counts per-category: 
+        - total number of mapped reads 
+        - total number of alignments 
+        - number of secondary alignments (duplicates are marked as SAM flag)
+        - number of non-unique alignments (SAM format "NH" tag of a read is  more than one) 
+        - number of reads aligned to genes, also without any feature (intronic and intergenic) 
+        - number of ambiguous alignments 
+        - number of unmapped reads.
    
     *Transcript coverage profile* 
 
@@ -238,7 +257,7 @@ Output
 
     *Reads genomic origin*
     
-    Shows how many alignments fall into exonic, intronic and intergenic regions.
+    Shows how many alignments fall into exonic, intronic and intergenic regions. Exonic region includes 5'UTR,protein coding region and 3'UTR region.
 
     *Junction analysis*
 
