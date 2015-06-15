@@ -73,6 +73,13 @@ Command line
 or like this:
     :samp:`export DISPLAY=:0`
 
+Additionally it's possible to use a special option of Java **-Djava.awt.headless=true** to disable display requirement.
+
+Enabling this option can be performed by setting **JAVA_OPTS** variable in system or by changing **java_options** variable in the *qualimap* script:
+
+    :samp:`java_options="-Djava.awt.headless=true -Xmx$JAVA_MEM_SIZE -XX:MaxPermSize=1024m"`
+
+ 
 |
 
 Performance
