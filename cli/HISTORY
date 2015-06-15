@@ -2,6 +2,20 @@ Version Release History
 =======================
 
 
+Version 2.1.1 - June 15, 2015 
+-----------------------------
+
+    * BAM QC: added chromosome names when drawing chromosome limits
+    * BAM QC: fixed fail when no mapped reads; add warning
+    * BAM QC: fixed computing coverage standard deviation (reported by Charlotte Peeters)
+    * BAM QC: by default duplicates (secondary alignments) are skipped if marked
+    * BAM QC: addded report for "OutOfMemory" error
+    * RNA-seq QC: added support for computing number of read pairs
+    * Counts QC: fix fail when sample name starts from number (reported by Alena Dobiasova)
+    * Documentation: updated BAM QC, RNA-seq QC
+    * Documnetation: added special solution regarding DISPLAY issue on Linux server (suggested by Roberto Spreafico)
+    
+
 Version 2.1 - March 19, 2015 
 ----------------------------
 

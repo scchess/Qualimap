@@ -15,6 +15,7 @@ The following pages must be updated:
 
 index.html
 archive.html
+Documentation
 Example reports
 
 Use script to build the version:
