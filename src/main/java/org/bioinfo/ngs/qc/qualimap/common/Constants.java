@@ -98,6 +98,7 @@ public final class Constants {
     public static final String COMMAND_ADD_ITEM = "add_item";
     public static final String COMMAND_REMOVE_ITEM = "delete_item";
     public static final String COMMAND_EDIT_ITEM = "edit_item";
+    public static final String COMMAND_IMPORT_CONFIG = "import_config";
     public static final String COMMAND_RUN_ANALYSIS = "run_analysis";
     public static final String COMMAND_BROWSE_GFF = "browse_gff";
 

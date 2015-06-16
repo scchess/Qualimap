@@ -30,6 +30,7 @@ import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.MultisampleBamQcThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.TabPageController;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysisConfig;
+import org.bioinfo.ngs.qc.qualimap.process.MultisampleBamQcAnalysis;
 import org.bioinfo.ngs.qc.qualimap.process.SampleInfo;
 
 import javax.swing.*;
@@ -39,7 +40,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by kokonech
@@ -69,6 +72,11 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
 
         public void removeItem(int index) {
             sampleReplicateList.remove(index);
+            fireTableDataChanged();
+        }
+
+        public void clearItems() {
+            sampleReplicateList.clear();
             fireTableDataChanged();
         }
 
@@ -113,7 +121,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
     JTable inputDataTable;
     JPanel buttonPanel;
     JCheckBox activateBamQcMode;
-    JButton addSampleButton, editSampleButton, removeSampleButton;
+    JButton addSampleButton, editSampleButton, removeSampleButton, importConfigButton;
 
     // BAM QC stuff
     JPanel  bamQcOptionsPanel;
@@ -141,16 +149,26 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         buttonPanel.setLayout(new MigLayout("insets 0"));
         addSampleButton = new JButton("Add");
         addSampleButton.setActionCommand(Constants.COMMAND_ADD_ITEM);
+        addSampleButton.setToolTipText("Add novel sample for analysis");
         addSampleButton.addActionListener(this);
         buttonPanel.add(addSampleButton, "");
         editSampleButton = new JButton("Edit");
         editSampleButton.setActionCommand(Constants.COMMAND_EDIT_ITEM);
+        editSampleButton.setToolTipText("Edit selected sample.");
         editSampleButton.addActionListener(this);
         buttonPanel.add(editSampleButton, "");
         removeSampleButton = new JButton("Remove");
         removeSampleButton.setActionCommand(Constants.COMMAND_REMOVE_ITEM);
         removeSampleButton.addActionListener(this);
-        buttonPanel.add(removeSampleButton, "wrap");
+        removeSampleButton.setToolTipText("Remove selected sample.");
+        buttonPanel.add(removeSampleButton, "");
+
+        importConfigButton = new JButton("Import configuration...");
+        importConfigButton.setActionCommand(Constants.COMMAND_IMPORT_CONFIG);
+        importConfigButton.addActionListener(this);
+        importConfigButton.setToolTipText("Import existing configuration file. Replaces all existing samples.");
+        buttonPanel.add(importConfigButton, "wrap");
+
         add(buttonPanel, "align right, span, wrap");
 
         activateBamQcMode = new JCheckBox("\"Raw data\" mode: run BAM QC on input samples");
@@ -310,6 +328,8 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
                 dlg.setLocationRelativeTo(this);
                 dlg.setVisible(true);
             }
+        } else if (actionCommand.equals(Constants.COMMAND_IMPORT_CONFIG)) {
+            importConfiguration();
         } else if (actionCommand.equals(Constants.COMMAND_BROWSE_GFF)) {
             browseGffFile();
         } else if ( actionCommand.equals(Constants.COMMAND_RUN_ANALYSIS) ) {
@@ -331,6 +351,40 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
         } else  {
             updateState();
         }
+    }
+
+    private void importConfiguration() {
+
+        JFileChooser fileChooser = HomeFrame.getFileChooser();
+        //fileChooser.setFileFilter(filter);
+
+        int valor = fileChooser.showOpenDialog(homeFrame.getCurrentInstance());
+        if (valor == JFileChooser.APPROVE_OPTION) {
+            String inputFile = fileChooser.getSelectedFile().getPath();
+
+            try {
+                List<SampleInfo> bamQcResults = MultisampleBamQcAnalysis.parseInputFile(inputFile);
+                if (bamQcResults.size() == 0) {
+
+                    JOptionPane.showMessageDialog(this,
+                            "The input file " + inputFile + " does not contain any samples. " +
+                    "Please check file format.", "Import configuration file", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                sampleTableModel.clearItems();
+                for (SampleInfo item : bamQcResults) {
+                    sampleTableModel.addItem(item);
+                }
+
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Failed to load configuration file " + inputFile +
+                        ". Please check file format", "Import configuration file", JOptionPane.ERROR_MESSAGE);
+            }
+
+        }
+
     }
 
     private void browseGffFile() {
