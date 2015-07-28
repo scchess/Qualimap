@@ -56,7 +56,6 @@ public class ExportPdfThread extends Thread {
     SavePanel savePanel;
     String path;
     boolean guiAvailable;
-    boolean bamQCAnalysis;
     double percentLoad;
     int curChapterNum;
     int numSavedItems;
@@ -132,9 +131,7 @@ public class ExportPdfThread extends Thread {
                 numItemsToSave +=  reporter.getCharts().size();
             }
 
-            bamQCAnalysis = resultManager.getTypeAnalysis().isBamQC();
-
-	    	percentLoad = (100.0/numItemsToSave);
+            percentLoad = (100.0/numItemsToSave);
 
             curChapterNum = 1;
 
@@ -165,7 +162,7 @@ public class ExportPdfThread extends Thread {
         if (reporter.hasInputDescription()) {
             addInputDesc( document, reporter );
         }
-        if (bamQCAnalysis) {
+        if (reporter.hasSummary()) {
             addSummary( document, reporter );
         }
 
@@ -389,37 +386,51 @@ public class ExportPdfThread extends Thread {
 
         if (reporter.hasTableData()) {
 
-            StatsKeeper chrStatsKeeper = reporter.getTableDataStatsKeeper();
-            List<StatsKeeper.Section> chromosomeSections = chrStatsKeeper.getSections();
-            Paragraph chrTitle = createSectionTitle(chrStatsKeeper.getName());
-            Section chrSection = summaryChapter.addSection(chrTitle);
+            StatsKeeper dataStatsKeeper = reporter.getTableDataStatsKeeper();
+            List<StatsKeeper.Section> dataSections = dataStatsKeeper.getSections();
 
-            Table chrTable = new Table(5);
-            chrTable.setPadding(2);
-            chrTable.setSpacing(2);
+            int numColumns = 0;
 
-            for (StatsKeeper.Section s : chromosomeSections) {
-
+            for (StatsKeeper.Section s : dataSections) {
                 if (s.getName().equals(Constants.TABLE_STATS_HEADER)) {
-
-                    String row[] = s.getRows().get(0);
-                    for (String item : row) {
-                        Cell c = new Cell(item);
-                        c.setHeader(true);
-                        chrTable.addCell(c);
-                    }
-
-                } else {
-
-                List<String[]> rows = s.getRows();
-                for (String[] row : rows) {
-                    for (String item : row) {
-                        chrTable.addCell(item);
-                    }
-                }
+                    numColumns = s.getRows().get(0).length;
                 }
             }
-            chrSection.add(chrTable);
+
+
+            if (numColumns > 0) {
+                Paragraph dataTitle = createSectionTitle(dataStatsKeeper.getName());
+                Section chrSection = summaryChapter.addSection(dataTitle);
+
+                Table chrTable = new Table(numColumns);
+                chrTable.setPadding(2);
+                chrTable.setSpacing(2);
+
+
+                for (StatsKeeper.Section s : dataSections) {
+
+                    if (s.getName().equals(Constants.TABLE_STATS_HEADER)) {
+
+                        String row[] = s.getRows().get(0);
+                        for (String item : row) {
+                            Cell c = new Cell(item);
+                            c.setHeader(true);
+                            chrTable.addCell(c);
+                        }
+
+                    } else {
+
+                    List<String[]> rows = s.getRows();
+                    for (String[] row : rows) {
+                        for (String item : row) {
+                            chrTable.addCell(item);
+                        }
+                    }
+                    }
+                }
+
+                chrSection.add(chrTable);
+            }
         }
 
         doc.add(summaryChapter);

@@ -232,8 +232,11 @@ public class TranscriptDataHandler {
             final double[] coverage;
             {
                 final double[] tmp = MathUtil.promote(entry.getValue());
-                if (tx.getGene().isPositiveStrand())  coverage = tmp;
-                else coverage = copyAndReverse(tmp);
+                if (tx.getGene().isPositiveStrand()) {
+                    coverage = tmp;
+                } else {
+                    coverage = copyAndReverse(tmp);
+                }
             }
             final double mean = MathUtil.mean(coverage, 0, coverage.length);
 
@@ -270,11 +273,19 @@ public class TranscriptDataHandler {
             for (final Gene.Transcript tx : gene) {
                 final int[] cov = transcriptCoverage.get(tx);
 
-                if (tx.length() < Math.max(minimumLength, 100)) continue;
-                if (cov == null) continue;
+                if (tx.length() < Math.max(minimumLength, 100)) {
+                    continue;
+                }
+
+                if (cov == null) {
+                    continue;
+                }
 
                 final double mean = MathUtil.mean(MathUtil.promote(cov), 0, cov.length);
-                if (mean < 1d) continue;
+                if (mean < 1d) {
+                    continue;
+                }
+
                 if (best == null || mean > bestMean) {
                     best = tx;
                     bestMean = mean;
