@@ -434,6 +434,10 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
     }
 
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public void writeChromsomeNames(double yPos, Map<Double,String> names) {
         chromNameYPos = yPos;
         chrNames = names;

@@ -356,7 +356,6 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
     private void importConfiguration() {
 
         JFileChooser fileChooser = HomeFrame.getFileChooser();
-        //fileChooser.setFileFilter(filter);
 
         int valor = fileChooser.showOpenDialog(homeFrame.getCurrentInstance());
         if (valor == JFileChooser.APPROVE_OPTION) {

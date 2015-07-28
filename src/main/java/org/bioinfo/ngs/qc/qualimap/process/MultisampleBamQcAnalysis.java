@@ -408,12 +408,19 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                             "Multi-sample BAM QC", xTitle, yTitle);
 
         int i = 0;
+        int maxCoverage = 50;
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
             XYVector histData = loadColumnData(new File(path), 0, 1000000,1);
+            int coverage = (int) histData.getXVector()[histData.getSize() - 1];
+            maxCoverage = coverage > maxCoverage ? coverage : maxCoverage;
             baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
+
             ++i;
         }
+
+        chartName += " (0 - " + maxCoverage + "X)";
+        baseChart.setTitle(chartName);
 
         baseChart.render();
 
@@ -459,8 +466,8 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         QChart coverageAcrossRefChart = createCoverageAcrossReferenceChart();
         charts.add(coverageAcrossRefChart);
 
-        QChart coverageChart = createCoverageProfileChart("Coverage Histogram (0-50X)", "coverage_histogram.txt",
-                "Coverage", "Number of loci");
+        QChart coverageChart = createCoverageProfileChart("Coverage Histogram", "coverage_histogram.txt",
+                "Coverage", "Number of genomic locations");
         charts.add(coverageChart);
 
         QChart genomeFractionCoverage = createHistogramBasedChart("Genome Fraction Coverage",
@@ -468,12 +475,12 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         charts.add(genomeFractionCoverage);
 
         QChart duplicationRate = createHistogramBasedChart("Duplication Rate Histogram",
-                "duplication_rate_histogram.txt", "Duplication rate", "Number of loci");
+                "duplication_rate_histogram.txt", "Duplication rate", "Number of genomic locations");
         charts.add(duplicationRate);
 
 
         QChart readsGcContent = createReadsGcContentChart("Mapped reads GC-content",
-                "mapped_reads_nucleotide_content.txt", "GC-content", "Read position");
+                "mapped_reads_nucleotide_content.txt", "Read position (bp)", "GC-content (%)" );
         charts.add(readsGcContent);
 
         QChart readsClippingProfile = createHistogramBasedChart("Mapped Reads Clipping Profile",
@@ -490,7 +497,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         charts.add(mappingQualityAcrossRef);
 
         QChart mappingQualityHist = createHistogramBasedChart("Mapping Quality Histogram",
-                               "mapping_quality_histogram.txt", "Mapping quality", "Number of loci");
+                               "mapping_quality_histogram.txt", "Mapping quality", "Number of genomic locations");
         charts.add(mappingQualityHist);
 
         QChart insertSizeAcrossRef = createAcrossReferenceChart("Insert Size Across Reference",
