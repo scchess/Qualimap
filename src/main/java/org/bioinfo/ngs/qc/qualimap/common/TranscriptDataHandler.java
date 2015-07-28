@@ -346,6 +346,11 @@ public class TranscriptDataHandler {
 
                 int meanCovLevel = sum / tx.length();
 
+                if (meanCovLevel < 0) {
+                    System.out.println("Error with meanCovLevel: " + meanCovLevel);
+                    continue;
+                }
+
                 if (meanCovLevel >= NUM_BINS) {
                     meanCovLevel = NUM_BINS - 1;
                 }
