@@ -409,6 +409,7 @@ public class ComputeCountsTask  {
         return true;
     }
 
+
     public void run() throws Exception {
 
         initRegions();
@@ -469,6 +470,13 @@ public class ComputeCountsTask  {
             processFragment(fragmentReads);
         }
 
+        if (notFoundChrNames.size() > 0) {
+            System.err.println("\nWARNING! The following chromosomes from reads are not found in annotations:");
+            for (String notFoundChrName : notFoundChrNames) {
+                System.err.println(notFoundChrName);
+            }
+        }
+
         if (readCount == 0) {
             throw new RuntimeException("BAM file is empty.");
         }
@@ -484,13 +492,6 @@ public class ComputeCountsTask  {
         }
 
         logger.logLine("\nProcessed " + readCount + " reads in total");
-
-        if (notFoundChrNames.size() > 0) {
-            System.err.println("\nWARNING! The following chromosomes from reads are not found in annotations:");
-            for (String notFoundChrName : notFoundChrNames) {
-                System.err.println(notFoundChrName);
-            }
-        }
 
         if (cleanupRequired) {
             logger.logLine("\nCleanup of temporary files");

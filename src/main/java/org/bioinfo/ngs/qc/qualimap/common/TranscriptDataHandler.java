@@ -321,6 +321,8 @@ public class TranscriptDataHandler {
 
     public void computeMeanTranscriptCoverageHist() {
 
+        // TODO: number of bins is currently fixed, however it might be interesting to support more bins
+
         final int NUM_BINS = 50;
 
         meanTranscriptCovHistogram = new int[NUM_BINS];
@@ -337,14 +339,14 @@ public class TranscriptDataHandler {
 
                 final int[] cov = transcriptCoverage.get(tx);
 
-                int sum = 0;
+                long sum = 0;
                 if (cov != null) {
                     for (int c : cov) {
                         sum += c;
                     }
                 }
 
-                int meanCovLevel = sum / tx.length();
+                int meanCovLevel = (int) (sum / tx.length());
 
                 if (meanCovLevel < 0) {
                     System.out.println("Error with meanCovLevel: " + meanCovLevel);
