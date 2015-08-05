@@ -323,7 +323,7 @@ public class TranscriptDataHandler {
 
         // TODO: number of bins is currently fixed, however it might be interesting to support more bins
 
-        final int NUM_BINS = 50;
+        final int NUM_BINS = 51;
 
         meanTranscriptCovHistogram = new int[NUM_BINS];
 

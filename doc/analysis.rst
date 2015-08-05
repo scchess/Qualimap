@@ -187,7 +187,7 @@ Output
 RNA-seq QC
 ----------
 
-RNA-seq QC reports quality control metrics and bias estimations which are specific for whole transcriptome sequencing, inlcuding reads genomic origin, junction analysis, transcript coverage and 5'-3' bias computation. This analysis could be applied as a complementary tool together with :ref:`BAM QC<bamqc>` and additionally to produce gene counts for further analysis with :ref:`Counts QC <countsqc>`.
+RNA-seq QC reports quality control metrics and bias estimations which are specific for whole transcriptome sequencing, including reads genomic origin, junction analysis, transcript coverage and 5'-3' bias computation. This analysis could be applied as a complementary tool together with :ref:`BAM QC<bamqc>` and additionally to produce gene counts for further analysis with :ref:`Counts QC <countsqc>`.
 
 To start a new RNA-seq QC analysis activate main menu item :menuselection:`File --> New Analysis --> RNA-seq QC`.
 
@@ -261,7 +261,7 @@ Output
 
     *Junction analysis*
 
-    Total number of reads with splice junctions and 10 most frequest junctions rate.
+    Total number of reads with splice junctions and 10 most frequent junction rates.
    
 :guilabel:`Input`
 
@@ -274,7 +274,7 @@ Output
 
 :guilabel:`Coverage Profile (Total)`
 
-  The plot shows mean coverage profile of the transcripts. All transcripts with non-zero coverage are used to calcualte this plot.
+  The plot shows mean coverage profile of the transcripts. All transcripts with non-zero coverage are used to calculate this plot.
 
 :guilabel:`Coverage Profile (Low)`
 
@@ -286,7 +286,7 @@ Output
 
 :guilabel:`Coverage Histogram (0-50x)`
 
-  Coverage of transcripts from 0 to 50X. 
+  Coverage of transcripts from 0 to 50X. If certain genes have higher coverage level they are added to the last column (50X).
 
 :guilabel:`Junction Analysis`
 
@@ -328,7 +328,7 @@ Input Parameters
 
     For each input sample it is required to provide the following information: 
 
-    * **Sample name**. Name of the analysed sample as it will be used as a legend in the plots.
+    * **Sample name**. Name of the analyzed sample as it will be used as a legend in the plots.
     
     * **Path** to the input file containing the counts data for the sample. This must be a **tab-delimited** file with at least **two columns**. First column of the file must contain feature IDs, while other columns should contain counts for features. Rows starting with # symbol and empty lines are ignored. 
 
@@ -341,7 +341,7 @@ Input Parameters
 
 :guilabel:`Counts threshold`
 
-    In order to **remove** the influence of **spurious reads**, a feature is considered as detected if its corresponding number of counts is **greater than this threshold**. By default, the theshold value is set to 5 counts, meaning that features having less than 5 counts will not be taken into account.
+    In order to **remove** the influence of **spurious reads**, a feature is considered as detected if its corresponding number of counts is **greater than this threshold**. By default, the threshold value is set to 5 counts, meaning that features having less than 5 counts will not be taken into account.
 
 
 :guilabel:`Compare conditions`
@@ -442,17 +442,17 @@ When a **Info File** is provided by the user or annotations are chosen from thos
 
 :guilabel:`GC Bias`
 
-    The plot describes the relantionship between the GC-content of the features and the expression values. The data for the plot is generated similar to :guilabel:`Length Bias` plot. The GC content divided into beans and then mean expressiof features corresponding to given GC interval are computed. The relation between GC-content and expression is investigated using cubic spline regression model.
+    The plot describes the relantionship between the GC-content of the features and the expression values. The data for the plot is generated similar to :guilabel:`Length Bias` plot. The GC content divided into beans and then mean expression of features corresponding to given GC interval are computed. The relation between GC-content and expression is investigated using cubic spline regression model.
 
 
 Comparison Plots
 """"""""""""""""
 
-When **Compare condtions** option is selected, additional plots comparing data in groups of samples having the same biological condition or treatment are available.
+When **Compare conditions** option is selected, additional plots comparing data in groups of samples having the same biological condition or treatment are available.
 
 :guilabel:`Counts Distribution`
 
-    The plot is similar to the one in :guilabel:`Global` report. It compares ditributions of **mean** counts across conditions.
+    The plot is similar to the one in :guilabel:`Global` report. It compares distributions of **mean** counts across conditions.
 
 :guilabel:`Features With Low Counts`
 
@@ -476,7 +476,7 @@ When **Compare condtions** option is selected, additional plots comparing data i
 Multi-sample BAM QC
 -------------------
 
-Very often in genomics one has to work with multiple samples, which could represent sequeincing results from either biological replicates or different conditions. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
+Very often in genomics one has to work with multiple samples, which could represent sequencing results from either biological replicates or different conditions. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
 
 QualiMap provides an automated solution for this task. Basically, the QC metrics computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers.
 
