@@ -167,8 +167,22 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of reads = " + formatLong(bamStats.getNumberOfReads()));		
 		report.println("     number of mapped reads = " + formatLong(bamStats.getNumberOfMappedReads()) +
                 " (" + formatPercentage(bamStats.getPercentageOfMappedReads())+ ")");
-		report.println("");
-		report.println("     number of mapped bases = " + formatLong(bamStats.getNumberOfMappedBases()) + " bp");
+        report.println("");
+
+		if (bamStats.getNumberOfPairedReads() > 0) {
+            report.println("     number of mapped paired reads (first in pair) = "
+                    + formatLong(bamStats.getNumberOfMappedFirstOfPair()) );
+            report.println("     number of mapped paired reads (second in pair) = "
+                    + formatLong(bamStats.getNumberOfMappedSecondOfPair()) );
+            report.println("     number of mapped paired reads (both in pair) = "
+                    + formatLong(bamStats.getNumberOfPairedReads() - bamStats.getNumberOfSingletons()) );
+            report.println("     number of mapped paired reads (singletons) = "
+                    + formatLong(bamStats.getNumberOfSingletons()) );
+            report.println("");
+
+        }
+
+        report.println("     number of mapped bases = " + formatLong(bamStats.getNumberOfMappedBases()) + " bp");
 		report.println("     number of sequenced bases = " + formatLong(bamStats.getNumberOfSequencedBases()) + " bp");
 		report.println("     number of aligned bases = " + formatLong(bamStats.getNumberOfAlignedBases()) + " bp");
         if (bamStats.getNumDetectedDuplicatedReads() > 0) {
@@ -860,16 +874,16 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                 sdf.formatLong(numReads - numMappedReads) + " / "
                         + sdf.formatPercentage(100.0 - getPercentMappedReads()));
 
-        globals.addRow("Paired reads",
+        globals.addRow("Mapped paired reads",
                 sdf.formatLong(numPairedReads) + " / "
                         + sdf.formatPercentage(percantagePairedReads) );
         if (numPairedReads > 0) {
 
-            globals.addRow("Mapped reads, only first in pair",
+            globals.addRow("Mapped reads, first in pair",
                     sdf.formatLong(numberOfMappedFirstOfPair) + " / " +
                     sdf.formatPercentage(percentageOfMappedFirstOfPair));
 
-            globals.addRow("Mapped reads, only second in pair",
+            globals.addRow("Mapped reads,  second in pair",
                     sdf.formatLong(numberOfMappedSecondOfPair) + " / " +
                     sdf.formatPercentage(percentageOfMappedSecondOfPair));
 
