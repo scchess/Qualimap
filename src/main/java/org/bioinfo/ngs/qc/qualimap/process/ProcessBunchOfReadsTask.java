@@ -160,9 +160,12 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
                     alignment = computeReadAlignment(read);
                 }
             } catch (SAMFormatException e) {
-                System.err.println("Problem analyzing the read: " + read.getReadName());
+                System.err.println("WARNING! Problematic read alignment skipped: " + read.getReadName());
                 System.err.println(e.getMessage());
                 e.printStackTrace();
+            }  catch (ArrayIndexOutOfBoundsException e) {
+                System.err.println("WARNING! Incorrect read alignment skipped: " + read.getReadName());
+                //e.printStackTrace();
             }
 
             if (alignment == null ) {
@@ -252,6 +255,14 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         if (alignmentLength < 0 || readLength == 0) {
             return null;
         }
+
+        /* This is to check the status
+        if (read.getReadName().equals("M_AHSTEUER006:166:C5UJMANXX:8:1113:11295:78610B")
+            System.err.println("Detected strange alignment");
+            System.err.println("Read length: " + read.getReadLength());
+            System.err.println("Read bases:" + read.getReadString());
+        }*/
+
 
         //System.err.println("Computing alignment for read " + read.getReadName());
 		Cigar cigar = read.getCigar();
@@ -374,7 +385,6 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
         if (alignmentLength < 0) {
             return null;
         }
-
 
 		Cigar cigar = read.getCigar();
 
