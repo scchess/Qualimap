@@ -83,7 +83,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
 	gcPercent, percentMappedReads, meanMappingQuality, meanInsertSize,
-    stdInsertSize, meanCoverage, stdCoverage;
+    stdInsertSize, meanCoverage, stdCoverage, adaptedMeanCoverage;
 
     private int p25InsertSize, medianInsertSize, p75InsertSize;
 
@@ -98,6 +98,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private double percentageSingletons;
     private long numCorrectStrandReads;
     private long numDuplicatedReadsMarked, numDuplicatedReadsEstimated;
+
+    boolean includeIntersectingPairs;
+    private long numOverlappingReadPairs;
 
     private long numMappedReadsInRegions, numPairedReadsInRegions;
     private double percentageMappedReadsInRegions;
@@ -178,8 +181,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                     + formatLong(bamStats.getNumberOfPairedReads() - bamStats.getNumberOfSingletons()) );
             report.println("     number of mapped paired reads (singletons) = "
                     + formatLong(bamStats.getNumberOfSingletons()) );
+            if (bamStats.getNumOverlappingReadPairs() > 0) {
+                report.println("     number of overlapping read pairs = "
+                     + formatLong(bamStats.getNumOverlappingReadPairs()) );
+            }
             report.println("");
-
         }
 
         report.println("     number of mapped bases = " + formatLong(bamStats.getNumberOfMappedBases()) + " bp");
@@ -264,6 +270,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("");
 		report.println("     mean coverageData = " + formatDecimal(bamStats.getMeanCoverage()) + "X");
 		report.println("     std coverageData = " + formatDecimal(bamStats.getStdCoverage()) + "X");
+        if (bamStats.getNumOverlappingReadPairs() > 0) {
+            report.println("     paired-end adapted mean coverage = "
+                      + formatDecimal(bamStats.getAdaptedMeanCoverage()) + "X" );
+        }
+
 		report.println("");
 		for(int i=0; i<bamStats.getCoverageQuotes().getSize(); i++){
 			report.println("     There is a " +
@@ -356,9 +367,15 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.percentageOfMappedFirstOfPair = ( (double) numberOfMappedFirstOfPair / numReads) * 100.0;
         this.numberOfMappedSecondOfPair = bamStats.getNumberOfMappedSecondOfPair();
         this.percentageOfMappedSecondOfPair = ( (double) numberOfMappedSecondOfPair / numReads ) * 100.0;
+
+        this.includeIntersectingPairs = bamStats.reportOverlappingReadPairs();
+        this.numOverlappingReadPairs = bamStats.getNumOverlappingReadPairs();
+
+        // read properties
         this.numClippedReads = bamStats.getNumClippedReads();
         this.readsWithInsertionPercentage = bamStats.getReadsWithInsertionPercentage();
         this.readsWithDeletionPercentage = bamStats.getReadsWithDeletionPercentage();
+
 
         // regions related
         this.numSelectedRegions = bamStats.getNumSelectedRegions();
@@ -403,6 +420,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		// coverageData
 		this.meanCoverage = bamStats.getMeanCoverage();
 		this.stdCoverage = bamStats.getStdCoverage();
+        this.adaptedMeanCoverage = bamStats.getAdaptedMeanCoverage();
 
         // read sizes
         readMaxSize = bamStats.getReadMaxSize();
@@ -891,10 +909,17 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                                        sdf.formatLong(numPairedReads - numSingletons) + " / "
                                                + sdf.formatPercentage((getPercentageBothMatesPaired())));
 
-              globals.addRow("Mapped reads, singletons",
+            globals.addRow("Mapped reads, singletons",
                     sdf.formatLong(numSingletons) + " / "
                             + sdf.formatPercentage(getPercentSingletons()));
-             }
+
+            if (includeIntersectingPairs) {
+                globals.addRow("Overlapping read pairs",
+                        sdf.formatLong(numOverlappingReadPairs));
+            }
+
+
+        }
 
         globals.addRow("Read min/max/mean length",
                 sdf.formatLong(readMinSize) + " / "
@@ -992,6 +1017,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		StatsKeeper.Section coverageSection = new StatsKeeper.Section("Coverage" + postfix);
 		coverageSection.addRow("Mean", sdf.formatDecimal(meanCoverage));
 		coverageSection.addRow("Standard Deviation",sdf.formatDecimal(stdCoverage) );
+
+        if (numOverlappingReadPairs > 0) {
+            coverageSection.addRow("Mean (paired-end reads overlap ignored)", sdf.formatDecimal(adaptedMeanCoverage));
+        }
+
 		summaryStatsKeeper.addSection(coverageSection);
 
 		StatsKeeper.Section mappingQualitySection = new StatsKeeper.Section("Mapping Quality" + postfix);

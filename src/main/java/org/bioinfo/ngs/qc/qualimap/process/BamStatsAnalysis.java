@@ -101,6 +101,7 @@ public class BamStatsAnalysis {
 	// inside
 	private long insideReferenceSize;
     private boolean skipDuplicatedReads;
+    private boolean collectIntersectingPairedEndReads;
 
 	// outside
 	private boolean computeOutsideStats;
@@ -174,6 +175,7 @@ public class BamStatsAnalysis {
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
         this.skipDuplicatedReads = false;
+        this.collectIntersectingPairedEndReads = false;
         this.outdir = ".";
         this.saveCoverage = false;
         this.nonZeroCoverageOnly = true;
@@ -239,6 +241,10 @@ public class BamStatsAnalysis {
         //bamStats.setWindowReferences("w",windowSize);
         bamStats.setWindowReferences("w", windowPositions);
         bamStatsCollector = new BamStatsCollector();
+        if (collectIntersectingPairedEndReads) {
+            bamStatsCollector.enableIntersectingReadsCollection();
+        }
+
         openWindows = new ConcurrentHashMap<Long,BamGenomeWindow>();
 
         if (saveCoverage) {
@@ -447,6 +453,11 @@ public class BamStatsAnalysis {
         if (numberOfProblematicReads > 0) {
             logger.warn("SAMRecordParser failed to process " + numberOfProblematicReads + " reads.");
         }
+
+        if (collectIntersectingPairedEndReads) {
+            bamStatsCollector.finalizeAlignmentInfo();
+        }
+
         logger.println("\nInside of regions...");
         logger.print(bamStatsCollector.report());
 
@@ -508,12 +519,17 @@ public class BamStatsAnalysis {
         bamStats.setNumberOfMappedFirstOfPair(totalNumberOfMappedFirstOfPair);
         bamStats.setNumberOfMappedSecondOfPair(totalNumberOfMappedSecondOfPair);
         bamStats.setNumberOfSingletons( totalNumberOfSingletons );
+        if (collectIntersectingPairedEndReads) {
+            bamStats.setNumberOfIntersectingReadPairs(bamStatsCollector.getNumOverlappingReadPairs(),
+                    bamStatsCollector.getNumOverlappingBases());
+        }
 
         bamStats.setReferenceSize(referenceSize);
         bamStats.setNumberOfReferenceContigs(locator.getContigs().size());
         bamStats.setReadMaxSize(maxReadSize);
         bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
+
 
         isPairedData = bamStats.getNumberOfPairedReads() > 0;
 
@@ -1185,6 +1201,9 @@ public class BamStatsAnalysis {
     }
 
 
+    public void activateIntersectingPairedEndReadsStats() {
+        this.collectIntersectingPairedEndReads = true;
+    }
 
 
 }

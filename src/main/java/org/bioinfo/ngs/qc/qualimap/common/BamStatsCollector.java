@@ -22,6 +22,9 @@ package org.bioinfo.ngs.qc.qualimap.common;
 
 import net.sf.samtools.SAMRecord;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by kokonech
  * Date: 5/11/12
@@ -29,8 +32,24 @@ import net.sf.samtools.SAMRecord;
  */
 public class BamStatsCollector {
 
+
+    class ReadAlignmentInfo{
+        int firstReadEndPos;
+        int secondReadStartPos;
+        ReadAlignmentInfo() {
+            firstReadEndPos = 0;
+            secondReadStartPos = 0;
+        }
+    }
+
     long numMappedReads, numPairedReads;
     long numMappedFirstInPair, numMappedSecondInPair, numSingletons;
+    boolean collectIntersectingReadPairs;
+    long numOverlappingReadPairs, numOverlappingBases;
+    Map<String,ReadAlignmentInfo> pairsCollector;
+    String curChromosome;
+    // TODO: read length might influence?
+    // int readLength;
 
     public long getNumMappedReads() {
         return numMappedReads;
@@ -52,7 +71,27 @@ public class BamStatsCollector {
         return numPairedReads;
     }
 
-    public BamStatsCollector() {}
+    public long getNumOverlappingReadPairs() {
+        return numOverlappingReadPairs;
+    }
+
+    public long getNumOverlappingBases() {
+        return numOverlappingBases;
+    }
+
+
+    public BamStatsCollector()
+    {
+        collectIntersectingReadPairs = false;
+    }
+
+    public void enableIntersectingReadsCollection() {
+        collectIntersectingReadPairs = true;
+        pairsCollector = new HashMap<String,ReadAlignmentInfo>();
+        curChromosome = "";
+
+    }
+
 
     public void updateStats(SAMRecord read) {
         numMappedReads++;
@@ -65,10 +104,53 @@ public class BamStatsCollector {
             }
             if (read.getMateUnmappedFlag()) {
                 numSingletons++;
+            } else if (collectIntersectingReadPairs) {
+                collectPairedReadInfo(read);
             }
         }
 
     }
+
+    public void finalizeAlignmentInfo() {
+        if (!curChromosome.isEmpty()) {
+            //System.out.println("Collected " + pairsCollector.size() + "  read pairs from chromosome " + curChromosome);
+            for (Map.Entry<String, ReadAlignmentInfo> entry : pairsCollector.entrySet()) {
+                ReadAlignmentInfo info = entry.getValue();
+                if (info.secondReadStartPos > 0) {
+                    int intersectionSize = info.firstReadEndPos - info.secondReadStartPos + 1;
+                    if (intersectionSize > 0 ) {
+                        numOverlappingBases += intersectionSize;
+                        numOverlappingReadPairs++;
+                    }
+                }
+            }
+            //System.out.println("Number of intersecting pairs " + numOverlappingReadPairs);
+        }
+    }
+
+    private void collectPairedReadInfo(SAMRecord read) {
+
+        String chr = read.getReferenceName();
+        if (!curChromosome.equals(chr)) {
+            finalizeAlignmentInfo();
+            curChromosome = chr;
+            pairsCollector.clear();
+        }
+
+        //TODO: what if there are several alignments of the same read?
+
+        String readName = read.getReadName();
+        if (pairsCollector.containsKey(readName)){
+            ReadAlignmentInfo info = pairsCollector.get(readName);
+            info.secondReadStartPos = read.getAlignmentStart();
+        }  else {
+            ReadAlignmentInfo info = new ReadAlignmentInfo();
+            info.firstReadEndPos = read.getAlignmentEnd();
+            pairsCollector.put(readName, info);
+        }
+
+    }
+
 
     public String report() {
         StringBuilder buf = new StringBuilder();

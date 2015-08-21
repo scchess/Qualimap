@@ -228,7 +228,12 @@ public class BamStats implements Serializable {
     XYVector readsClippingProfileHistogram;
     int[] homopolymerIndelsData;
     private boolean reportNonZeroCoverageOnly;
+
     private long numDetectedDuplcateReads, numEstimatedDuplicateReads;
+    private double adaptedMeanCoverage;
+
+    private boolean reportOverlappingReadPairs;
+    private long numOverlappingReadPairs, numOfIntersectingMappedBases;
 
     public long getNumMismatches() {
         return numMismatches;
@@ -253,6 +258,24 @@ public class BamStats implements Serializable {
 
     public void setNumDetectedDuplcateReads(long numReads) {
         this.numDetectedDuplcateReads = numReads;
+    }
+
+    public void setNumberOfIntersectingReadPairs(long numIntersectingReadPairs, long numIntersectingBases) {
+        this.reportOverlappingReadPairs = true;
+        this.numOverlappingReadPairs = numIntersectingReadPairs;
+        this.numOfIntersectingMappedBases = numIntersectingBases;
+    }
+
+    public boolean reportOverlappingReadPairs() {
+        return reportOverlappingReadPairs;
+    }
+
+    public long getNumOverlappingReadPairs() {
+        return numOverlappingReadPairs;
+    }
+
+    public double getAdaptedMeanCoverage() {
+        return adaptedMeanCoverage;
     }
 
     // chromosome stats
@@ -679,6 +702,10 @@ public class BamStats implements Serializable {
 
         long effectiveRefSize = numSelectedRegions > 0 ? inRegionReferenceSize : referenceSize;
         meanCoverage = (double) numberOfMappedBases / (double) effectiveRefSize;
+
+        if (numOfIntersectingMappedBases > 0) {
+            adaptedMeanCoverage = (double) (numberOfMappedBases - numOfIntersectingMappedBases) / (double) effectiveRefSize;
+        }
 
 
         if (numberOfSequencedBases != 0) {

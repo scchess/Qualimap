@@ -43,6 +43,7 @@ public class BamQcTool extends NgsSmartTool{
     private int bunchSize;
     private int minHomopolymerSize;
     private boolean paintChromosomeLimits, skipDuplicated;
+    private boolean collectOverlappingPairedEndReads;
 	private boolean computeOutsideStats;
     private String genomeToCompare;
     private String coverageReportFile;
@@ -83,6 +84,8 @@ public class BamQcTool extends NgsSmartTool{
                                 "Activate this option to skip duplicated alignments from analysis. " +
                                 "If the duplicates are not flagged in BAM file, then they will be detected" +
                                         " by Qualimap.");
+        options.addOption(Constants.BAMQC_OPTION_COLLECT_OVERLAP_PAIRS, "collect-overlap-pairs",  false,
+                                "Activate this option to collect statistics of overlapping paired-end reads " );
         options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
                 "Report information for the regions outside those defined by feature-file " +
                         " (ignored when -gff option is not set)");
@@ -153,6 +156,7 @@ public class BamQcTool extends NgsSmartTool{
 
 		paintChromosomeLimits =  commandLine.hasOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
         skipDuplicated = commandLine.hasOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
+        collectOverlappingPairedEndReads = commandLine.hasOption(Constants.BAMQC_OPTION_COLLECT_OVERLAP_PAIRS);
 
 	}
 
@@ -199,6 +203,10 @@ public class BamQcTool extends NgsSmartTool{
         bamQC.setMinHomopolymerSize(minHomopolymerSize);
         if (skipDuplicated) {
             bamQC.setSkipDuplicatedReads(true);
+        }
+
+        if (collectOverlappingPairedEndReads){
+            bamQC.activateIntersectingPairedEndReadsStats();
         }
 
 		// run evaluation

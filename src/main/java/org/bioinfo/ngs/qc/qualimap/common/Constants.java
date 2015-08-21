@@ -141,6 +141,8 @@ public final class Constants {
     public static final String BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE = "hm";
     public static final String BAMQC_OPTION_COVERAGE_REPORT_FILE = "oc";
     public static final String BAMQC_OPTION_SKIP_DUPLICATED = "sd";
+    public static final String BAMQC_OPTION_COLLECT_OVERLAP_PAIRS = "ip";
+
 
 
 
