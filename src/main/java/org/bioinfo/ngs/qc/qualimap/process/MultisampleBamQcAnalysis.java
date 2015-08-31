@@ -271,6 +271,11 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     }
 
     QChart createHistogramBasedChart(String chartName, String dataPath, String xTitle, String yTitle) throws IOException {
+        return createHistogramBasedChart(chartName, dataPath, xTitle, yTitle, 0);
+    }
+
+
+    QChart createHistogramBasedChart(String chartName, String dataPath, String xTitle, String yTitle, int minXValue) throws IOException {
         BamQCChart baseChart = new BamQCChart(chartName,
                             "Multi-sample BAM QC", xTitle, yTitle);
 
@@ -281,7 +286,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             if (!inputFile.exists()) {
                 continue;
             }
-            XYVector histData = loadColumnData(inputFile, 0, Double.MAX_VALUE, 1);
+            XYVector histData = loadColumnData(inputFile, minXValue, Double.MAX_VALUE, 1);
             if (histData.getSize() == 0) {
                 continue;
             }
@@ -508,7 +513,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         charts.add(insertSizeAcrossRef);
 
         QChart insertSizeHist = createHistogramBasedChart("Insert Size Histogram",
-                        "insert_size_histogram.txt", "Insert Size", "Number of reads");
+                        "insert_size_histogram.txt", "Insert Size", "Number of reads", 1);
         charts.add(insertSizeHist);
 
         reporter.setChartList(charts);
