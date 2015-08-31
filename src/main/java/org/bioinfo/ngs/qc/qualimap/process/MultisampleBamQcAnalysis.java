@@ -254,7 +254,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             }
 
             double d1 = Double.parseDouble(items[0]);
-            if (d1 <= minX || d1 >= maxX) {
+            if (d1 < minX || d1 >= maxX) {
                 continue;
             }
             double d2 = Double.parseDouble(items[dataColumn]);
@@ -282,6 +282,9 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                 continue;
             }
             XYVector histData = loadColumnData(inputFile, 0, Double.MAX_VALUE, 1);
+            if (histData.getSize() == 0) {
+                continue;
+            }
             baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
             ++i;
         }
