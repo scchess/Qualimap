@@ -69,6 +69,8 @@ The following command allows to perform BAM QC analysis::
     -hm <arg>                            Minimum size for a homopolymer to be
                                       considered in indel analysis (default is
                                       3)
+    -ip,--collect-overlap-pairs          Activate this option to collect statistics
+                                      of overlapping paired-end reads
     -nr <arg>                            Number of reads analyzed in a chunk
                                       (default is 1000)
     -nt <arg>                            Number of threads (default is 8)

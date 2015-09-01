@@ -17,14 +17,12 @@ Compute counts
   - At which level wants to perform the counting (genes, transcripts...).
 
   - What to do whith reads mapped to multiple locations.
-
-  - The strand-specifity.
+  
+  - Paired-end reads status and strand-specifity.
 
   - When a transcriptome GTF file is provided the tool allows to calculate 5' and 3' prime coverage bias.
 
 To access the tool use :menuselection:`Tools --> Compute counts`. 
-
-.. note:: For paired-end reads currently each mate of a pair is considered independently (taking into account the strand-specificity of the protocol). We will add full support for paired-end reads in future versions of Qualimap.
 
 
 .. _example-compute-counts:
@@ -42,6 +40,7 @@ Example
 
     - Feature ID: gene_id (to count at the level of genes)
     - Feature type: exon (to ignore other features like start/end codons)
+    - Paired-end reads counts computation and strand-specificity
     - Multimapped reads: uniquely-mapped-reads (to ignore not unique alignments)
 
 - Output:
@@ -76,6 +75,12 @@ Input
 
 :guilabel:`Feature type`
   The user can select the feature type (value of the third column of the GTF) considered for counting. Other types will be ignored. The application preload the first 1000 lines of the file so a list with possible feature IDs is conveniently provided.
+
+:guilabel:`Paired-end reads`
+  This option allows to activate counting of pairs of reads instead of single reads
+
+:guilabel:`Alignment sorted by name`
+ For correct analysis of paired-end reads alignment should be sorted by name. If this operation is already performed, sorting can be skipped.
 
 :guilabel:`Output`
   Path to the ouput file.

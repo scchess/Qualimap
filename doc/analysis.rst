@@ -58,9 +58,8 @@ Input Parameters
 :guilabel:`Skip duplicates` 
   This option allows to skip duplicated alignments from analysis. If the duplicates are not flagged in BAM file, then they will be detected by Qualimap. Type of skipped duplicates will be shown in report.
 
-:guilabel:`Compare GC content distribution with` 
-  This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
-
+:guilabel:`Detect overlapping paired-end reads`
+   In case of small insert size the paired-end read alignmetns might overlap in high proportion. Using this option detection of overlapping pairs can be activated. Additionally, adapted mean coverage is calcualted based on extraction of pair overlap-region.
 
 Advanced parameters
 """""""""""""""""""
@@ -257,7 +256,7 @@ Output
 
     *Reads genomic origin*
     
-    Shows how many alignments fall into exonic, intronic and intergenic regions. Exonic region includes 5'UTR,protein coding region and 3'UTR region.
+    Shows how many alignments fall into exonic, intronic and intergenic regions along with number of intronic/intergenic alignments overlapping exons. Exonic region includes 5'UTR,protein coding region and 3'UTR region.
 
     *Junction analysis*
 
