@@ -256,7 +256,7 @@ public class ComputeCountsTask  {
 
         HashMap<String,BitSet> featureIntervalMap = new HashMap<String, BitSet>();
         int intIndex = 0;
-
+        boolean  readOverlaps = false;
 
         for (Interval alignmentInterval : intervals) {
             GenomicRegionSet regionSet = chromosomeRegionSetMap.get(alignmentInterval.getSequence());
@@ -265,8 +265,10 @@ public class ComputeCountsTask  {
             while (overlapIter.hasNext()) {
                 IntervalTree.Node<Set<GenomicRegionSet.Feature>> node = overlapIter.next();
 
-                if (CoordMath.encloses(node.getStart(), node.getEnd(),
-                        alignmentInterval.getStart(), alignmentInterval.getEnd()) ) {
+                boolean segmentEnclosed =  CoordMath.encloses(node.getStart(), node.getEnd(),
+                        alignmentInterval.getStart(), alignmentInterval.getEnd());
+
+                if ( segmentEnclosed) {
 
                     Set<GenomicRegionSet.Feature> features = node.getValue();
                     for (GenomicRegionSet.Feature feature : features) {
@@ -293,6 +295,14 @@ public class ComputeCountsTask  {
                         }
                     }
 
+                } else {
+                    if (collectRnaSeqStats && !readOverlaps) {
+                        if (CoordMath.overlaps(node.getStart(), node.getEnd(),
+                            alignmentInterval.getStart(), alignmentInterval.getEnd())) {
+                                transcriptDataHandler.increaseNumReadsIntersectingExonRegion();
+                            readOverlaps = true;
+                        }
+                    }
                 }
 
             }

@@ -73,7 +73,7 @@ public class TranscriptDataHandler {
 
     double medianFivePrimeBias, medianThreePrimeBias, medianFiveToThreeBias;
     long numReadsWithJunction, knownJunctions, partlyKnownJunctions;
-    long numTotalReads, numIntronicReads, numIntergenicReads;
+    long numTotalReads, numIntronicReads, numIntergenicReads, numIntersectingExonRegionReads;
 
     int[] meanTranscriptCovHistogram;
 
@@ -735,6 +735,14 @@ public class TranscriptDataHandler {
         } else {
             numIntronicReads++;
         }
+    }
+
+    public void increaseNumReadsIntersectingExonRegion() {
+        numIntersectingExonRegionReads++;
+    }
+
+    public long getNumReadsIntersectingExonRegion() {
+        return numIntersectingExonRegionReads;
     }
 
 }

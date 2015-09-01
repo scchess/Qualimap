@@ -128,12 +128,18 @@ public class RNASeqQCAnalysis  {
         long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
         long intronicReadCount = th.getNumIntronicReads();
         long intergenicReadCount = th.getNumIntergenicReads();
+        long intersectingExonReadCount = th.getNumReadsIntersectingExonRegion();
         report.println("    exonic =  " + sdf.formatLong(exonicReadCount) + " (" +
                 sdf.formatPercentage( (100.*exonicReadCount) /  totalReadCount ) + ")");
         report.println("    intronic = " + sdf.formatLong(intronicReadCount) + " (" +
                 sdf.formatPercentage( (100.*intronicReadCount) /  totalReadCount ) + ")");
         report.println("    intergenic = " + sdf.formatLong(intergenicReadCount) + " (" +
                 sdf.formatPercentage( (100.*intergenicReadCount) /  totalReadCount ) + ")");
+
+        report.println("    overlapping exon = " + sdf.formatLong(intersectingExonReadCount) +
+                       " (" + sdf.formatPercentage( (100.*intersectingExonReadCount) / totalReadCount) + ")");
+
+
         report.println("");
         report.println("");
 
@@ -234,12 +240,15 @@ public class RNASeqQCAnalysis  {
         long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
         long intronicReadCount = th.getNumIntronicReads();
         long intergenicReadCount = th.getNumIntergenicReads();
+        long intersectingExonReadCount = th.getNumReadsIntersectingExonRegion();
         readsOrigin.addRow("Exonic: ", sdf.formatLong(exonicReadCount) + " / " +
                 sdf.formatPercentage( (100.*exonicReadCount) /  totalReadCount ));
         readsOrigin.addRow("Intronic: ", sdf.formatLong(intronicReadCount) + " / " +
                 sdf.formatPercentage( (100.*intronicReadCount) /  totalReadCount ));
         readsOrigin.addRow("Intergenic: ", sdf.formatLong(intergenicReadCount) + " / " +
                 sdf.formatPercentage( (100.*intergenicReadCount) /  totalReadCount ));
+        readsOrigin.addRow("Intronic/intergenic overlapping exon: ", sdf.formatLong(intersectingExonReadCount)
+                + " / " + sdf.formatPercentage( (100.*intersectingExonReadCount) / totalReadCount));
         summaryKeeper.addSection(readsOrigin);
 
         //TODO: fix this in case of SE reads
