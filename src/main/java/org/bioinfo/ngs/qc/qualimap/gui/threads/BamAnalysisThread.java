@@ -74,6 +74,9 @@ public class BamAnalysisThread extends Thread {
         bamQC.setProtocol( bamDialog.getLibraryProtocol() );
         bamQC.setMinHomopolymerSize( bamDialog.getMinHomopolymerSize());
         bamQC.setSkipDuplicatedReads(bamDialog.getSkipDuplicatesStatus());
+        if (bamDialog.getOverlappingReadPairAlignmentStatus()) {
+            bamQC.activateIntersectingPairedEndReadsStats();
+        }
 
 		// Set the region file
         boolean regionsAvailable = false;

@@ -54,7 +54,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     JTextField pathDataFile, pathGffFile, valueNw;
     JSpinner numThreadsSpinner,numReadsPerBunchSpinner, minHmSizeSpinner;
     JCheckBox drawChromosomeLimits, skipDuplicates, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
-    JCheckBox compareGcContentDistr;
+    JCheckBox compareGcContentDistr, detectOverlapingPairs;
     JComboBox<String> genomeGcContentCombo, protocolCombo;
     JLabel labelPathDataFile, labelPathAditionalDataFile, labelNw,
             labelNumThreads, labelNumReadsPerBunch, protocolLabel, minHmSizeLabel;
@@ -123,7 +123,16 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         skipDuplicates.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         skipDuplicates.setToolTipText("Activate this option to skip duplicated alignments from analysis");
         skipDuplicates.setSelected(false);
-        add(skipDuplicates, "wrap");
+        add(skipDuplicates, "");
+
+
+        detectOverlapingPairs = new JCheckBox("Detect overlapping paired-end reads");
+        detectOverlapingPairs.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        detectOverlapingPairs.setToolTipText("Activate this option to detect overlapping paired-end read" +
+                " alignments and compute adapted mean coverage.");
+        detectOverlapingPairs.setSelected(false);
+
+        add(detectOverlapingPairs, "wrap");
 
 
         compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
@@ -430,6 +439,10 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public boolean getSkipDuplicatesStatus() {
         return skipDuplicates.isSelected();
+    }
+
+    public boolean getOverlappingReadPairAlignmentStatus() {
+        return detectOverlapingPairs.isSelected();
     }
 
     public boolean getComputeOutsideRegions() {
