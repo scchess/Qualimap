@@ -79,21 +79,21 @@ Sample Output
 BAM QC
 ******
 
-Analysis of the WG-seq data (ERR089819.bam): `QualiMap HTML report <http://kokonech.github.io/qualimap/HG00096.chr20_bamqc/qualimapReport.html>`_.
+Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap HTML report <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/HG00096.chr20_bamqc/qualimapReport.html>`_.
 
-Analysis of the WG-seq data (HG00096.chrom20.bam): `QualiMap PDF report <http://kokonech.github.io/qualimap/ERR089819_report.pdf>`_.
+Analysis of the WG-seq data (ERR089819.bam): `QualiMap PDF report <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/ERR089819_report.pdf>`_.
 
 
 RNA-seq QC
 **********
 
-Analysis of RNA-seq data (kidney.bam, human.64.gtf): `QualiMap HTML report <http://kokonech.github.io/qualimap/kidney_rnaseqqc/qualimapReport.html>`_.
+Analysis of RNA-seq data (kidney.bam, human.64.gtf): `QualiMap HTML report <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/kidney_rnaseqqc/qualimapReport.html>`_.
 
 
 Multisample BAM QC
 ******************
 
-Multisample analysis of 12 gH2AX ChiP-seq alignments: `Qualimap HTML report <http://kokonech.github.io/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_.
+Multisample analysis of 12 gH2AX ChiP-seq alignments: `Qualimap HTML report <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_.
 
 
 Counts QC

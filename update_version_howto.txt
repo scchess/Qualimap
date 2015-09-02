@@ -22,6 +22,10 @@ Use script to build the version:
 ./prepare_new_version.sh 
 to create all required elements.
 
+To update qualimap results examples use the github:
+http://github.com/kokonech/kokonech.github.io
+
+
 Currently qualimap is hosted at ssh.cipf.es (subserver wikis)
 
 

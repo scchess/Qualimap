@@ -2,6 +2,21 @@ Version Release History
 =======================
 
 
+Version 2.1.2 - September 02, 2015
+----------------------------------
+
+    * BAM QC: added an option to analyze overlapping paired-end read alignments (suggested by Eva Koenig) 
+    * BAM QC: fixed processing of incorrect alignments (reported by Alexander Peltzer)
+    * BAM QC: improved paired reads statistics description (suggested by Jochen Singer)
+    * RNA-seq QC: fixed issue with transcript high coverage (reported by Daniel Barrel)
+    * RNA-seq QC: added to statistcs number of intronic/intergenic reads overlapping exons
+    * RNA-seq QC: minor fix of coverage plot 
+    * Multisample BAM QC: corrected labels in coverage and GC-content plots (reported by Franziska Singer) 
+    * Multisample BAM QC: fixed issue with min X-value in insert size plots (reported by Roland Schmucki) 
+    * Improved PDF format output
+    * Documentation: update BAM QC, RNA-seq QC descriptions
+ 
+
 Version 2.1.1 - June 15, 2015 
 -----------------------------
 
@@ -9,11 +24,11 @@ Version 2.1.1 - June 15, 2015
     * BAM QC: fixed fail when no mapped reads; add warning
     * BAM QC: fixed computing coverage standard deviation (reported by Charlotte Peeters)
     * BAM QC: by default duplicates (secondary alignments) are skipped if marked
-    * BAM QC: addded report for "OutOfMemory" error
+    * BAM QC: added report for "OutOfMemory" error
     * RNA-seq QC: added support for computing number of read pairs
     * Counts QC: fix fail when sample name starts from number (reported by Alena Dobiasova)
     * Documentation: updated BAM QC, RNA-seq QC
-    * Documnetation: added special solution regarding DISPLAY issue on Linux server (suggested by Roberto Spreafico)
+    * Documentation: added special solution regarding DISPLAY issue on Linux server (suggested by Roberto Spreafico)
     
 
 Version 2.1 - March 19, 2015 
