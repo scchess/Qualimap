@@ -104,9 +104,9 @@ public class BamStatsCollector {
             }
             if (read.getMateUnmappedFlag()) {
                 numSingletons++;
-            } else if (collectIntersectingReadPairs) {
+            } /*else if (collectIntersectingReadPairs) {
                 collectPairedReadInfo(read);
-            }
+            }*/
         }
 
     }
@@ -128,7 +128,11 @@ public class BamStatsCollector {
         }
     }
 
-    private void collectPairedReadInfo(SAMRecord read) {
+    public void collectPairedReadInfo(SAMRecord read) {
+
+        if (!read.getReadPairedFlag() || read.getMateUnmappedFlag()) {
+            return;
+        }
 
         String chr = read.getReferenceName();
         if (!curChromosome.equals(chr)) {

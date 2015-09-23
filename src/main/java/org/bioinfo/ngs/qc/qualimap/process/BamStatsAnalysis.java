@@ -54,7 +54,7 @@ public class BamStatsAnalysis {
 	private String bamFile;
 
 	// reference
-    private String referenceFile;
+    private String  referenceFile;
     private boolean referenceAvailable;
 	private byte[] reference;
 	private long referenceSize;
@@ -358,6 +358,9 @@ public class BamStatsAnalysis {
                         if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads ) {
                             continue;
                         }
+                        if (collectIntersectingPairedEndReads) {
+                            bamStatsCollector.collectPairedReadInfo(read);
+                        }
                         bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
                         read.setAttribute(Constants.READ_IN_REGION, 0);
@@ -374,6 +377,10 @@ public class BamStatsAnalysis {
                     bamStatsCollector.updateStats(read);
                     if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
                         continue;
+                    }
+                    if (collectIntersectingPairedEndReads) {
+                        bamStatsCollector.collectPairedReadInfo(read);
+
                     }
                     bamStats.updateInsertSizeHistogram(insertSize);
                 }
@@ -1157,11 +1164,12 @@ public class BamStatsAnalysis {
             alignParams.put("Draw chromosome limits: ", boolToStr(drawChromosomeLimits));
             if (!pgProgram.isEmpty()) {
                 alignParams.put("Program: ", pgProgram);
-                if (pgCommandString.isEmpty()) {
+                if (!pgCommandString.isEmpty()) {
                     alignParams.put("Command line: ", pgCommandString );
                 }
             }
             alignParams.put("Skip duplicated alignments: ", boolToStr(skipDuplicatedReads));
+            alignParams.put("Analyze overlapping paired-end reads:", boolToStr(collectIntersectingPairedEndReads));
 
             reporter.addInputDataSection("Alignment", alignParams);
 
