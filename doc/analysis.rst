@@ -362,7 +362,7 @@ Input Parameters
 
 :guilabel:`Info File`
 
-    File containing annotations of the features of the count files. It must be a **four-column** **tab-delimited** text file, with the features names or IDs in the first column, the group (e.g. the biotype from Ensembl database) in the second column, feature GC content in the third column and feature length in the last column (see `human.ens68.txt <http://kokonech.github.io/qualimap/samples/human.ens68.txt>`_ for an example). Please, make sure that the **features IDs** on this file are the same in the **count files**.
+    File containing annotations of the features of the count files. It must be a **four-column** **tab-delimited** text file, with the features names or IDs in the first column, the group (e.g. the biotype from Ensembl database) in the second column, feature length in the third column and feature GC-content in the last column (see `human.ens68.txt <http://kokonech.github.io/qualimap/samples/human.ens68.txt>`_ for an example). Please, make sure that the **features IDs** on this file are the same in the **count files**.
 
 .. note::
     To generate info file based on an arbitrary GTF annotations and genome FASTA file, one can use the following `Python script <https://bitbucket.org/kokonech/qualimap/src/master/util/createQualimapInfoFile.py?at=master>`_ available from Qualimap repo.

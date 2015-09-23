@@ -117,8 +117,12 @@ if (!is.null(opt$info)){
     ann.data <- read.csv(opt$info, sep = "\t")
     cat("Loaded annoations for ",nrow(ann.data), "genes\n")
     gene.biotypes <- ann.data[1]
+    
+    #cat("Gene lentgh head:", str(head(gene.length)), "\n")
+    #cat(str(head(gene.biotypes)))
     gene.length <- ann.data[2]
     gene.gc <- ann.data[3]
+   
     #gene.loc <- ann.data[c(4,5,6)]
     info.available <- TRUE
     
@@ -215,10 +219,10 @@ garbage <- dev.off()
 # Global saturation
 
 cat("Compute saturation..\n")
-saturation <- dat(ns.data, k = k, ndepth = 8, type = "saturation")
+mysaturation <- dat(ns.data, k = k, ndepth = 8, type = "saturation")
 
 init.png(paste(opt$dirOut, "02_Saturation.png", sep = "/") )
-explo.plot(saturation, toplot = 1, samples = NULL)
+explo.plot(mysaturation, toplot = 1, samples = 1:num_samples)
 garbage <- dev.off()
 
 cat("Compute counts per biotype..\n")
@@ -267,7 +271,7 @@ for (i in 1:num_samples) {
     # Saturation
     
     init.png(paste(sample.outDir,"01_Saturation.png",sep="/"))
-    explo.plot(saturation, toplot = 1, samples = i)
+    explo.plot(mysaturation, toplot = 1, samples = i)
     garbage <- dev.off()
     
     if (info.available) {
