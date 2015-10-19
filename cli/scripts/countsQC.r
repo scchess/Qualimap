@@ -114,6 +114,7 @@ gene.loc <- NULL
 
 if (!is.null(opt$info)){
     cat("Loading annotations from ", opt$info,"\n")
+    #ann.data <- read.csv(opt$info, row.names = 1,  sep = "\t")
     ann.data <- read.csv(opt$info, sep = "\t")
     cat("Loaded annoations for ",nrow(ann.data), "genes\n")
     gene.biotypes <- ann.data[1]
@@ -138,9 +139,14 @@ if (info.available) {
         warning("The gene names from counts do not correspond to the names from annotation file.")
         str(gene.names)
         str(ann.names)
-        cat("Annotation based analysis is deactivated")
+        cat("Annotation based analysis is deactivated\n")
         info.available <- FALSE
+        gene.biotypes <- NULL
+        gene.length <- NULL
+        gene.gc <- NULL
     } else  {
+        #str(gene.names)
+        #str(ann.names)
         cat(length(intersection),"out of",length(gene.names),"annotations from counts file found in annotations file\n")
     }
 }
@@ -199,21 +205,26 @@ garbage <- dev.off()
 
 # Correlation matrix
 
-cat("Compute scatterplots..\n")
+if (num_samples > 1) {
 
-init.png( paste(opt$dirOut, "01_Scatterplot_Matrix.png",sep="/") )
+    cat("Compute scatterplots..\n")
+
+    init.png( paste(opt$dirOut, "01_Scatterplot_Matrix.png",sep="/") )
 
 
-sample.size <- 5000
-if ( sample.size > nrow(transformed.counts) ) {
-    sample.size <- nrow(transformed.counts)
+    sample.size <- 5000
+    if ( sample.size > nrow(transformed.counts) ) {
+        sample.size <- nrow(transformed.counts)
+    }
+
+    s <- sample(1:nrow(transformed.counts), sample.size,  replace=FALSE)
+    counts.sample <- transformed.counts[s,]
+    pairs(counts.sample, lower.panel = panel.smooth, upper.panel = panel.cor, main = "Scatterplot Matrix")
+
+    garbage <- dev.off()
+} else {
+    cat("Only one sample is provide, skipping sample comparison counts scatterplot matrix...\n")
 }
-
-s <- sample(1:nrow(transformed.counts), sample.size,  replace=FALSE)
-counts.sample <- transformed.counts[s,]
-pairs(counts.sample, lower.panel = panel.smooth, upper.panel = panel.cor, main = "Scatterplot Matrix")
-
-garbage <- dev.off()
 
 
 # Global saturation
