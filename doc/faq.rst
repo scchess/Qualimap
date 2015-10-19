@@ -10,9 +10,9 @@ General
 
 **Q**: *How to cite Qualimap?*
 
-**A**: If you use Qualimap for your research, please cite the following:
+**A**: If you use Qualimap 2 for your research, please cite the following:
 
-**García-Alcalde, et al. "Qualimap: evaluating next generation sequencing alignment data." Bioinformatics(2012) 28 (20): 2678-2679**
+**Okonechnikov, K., Conesa, A., & García-Alcalde, F. (2015). "Qualimap 2: advanced multi-sample quality control for high-throughput sequencing data." Bioinformatics, btv566**
 
 |
 
@@ -50,6 +50,20 @@ Also one can override this parameter by setting environment variable $JAVA_OPTS.
 
 
 |
+
+**Q**: *Counts QC* mode launched on MacOS doesn't produce any results. Some of the following errors are reported: 
+
+   :samp:`unable to load shared object ../libs/cairo.so` 
+   
+   or
+   
+   :samp:`libpng warning: Application built with libpng-1.5.18 but running with 1.6.17`
+   
+
+**A**: Issue is related to the update of R package structure on MacOS. The error can be fixed by updating R to version >= 3.2.2  and installation of a specific library XQuartz. More details can be found in the following `discussion <https://groups.google.com/forum/#!topic/qualimap/3EGtIdgojNc>`_.  
+
+|
+
 
 **Q**: *I always get a message "Out of Memory". What should I do?*
 

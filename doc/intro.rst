@@ -139,7 +139,11 @@ where :samp:`$QUALIMAP_HOME` is the full path to the Qualimap installation folde
 Citing Qualimap
 ---------------
 
-If you use Qualimap for your research, please cite the following:
+If you use Qualimap 2 for your research, please cite the following:
+
+*Okonechnikov, K., Conesa, A., & García-Alcalde, F. (2015). "Qualimap 2: advanced multi-sample quality control for high-throughput sequencing data." Bioinformatics, btv566*
+
+The first version of the tool was described in the following manuscript:
 
 *García-Alcalde, et al. "Qualimap: evaluating next generation sequencing alignment data." Bioinformatics(2012) 28 (20): 2678-2679*
 
