@@ -50,7 +50,7 @@ public abstract class NgsSmartTool {
     protected String reportFileName;
     protected String toolName;
     protected String outputType;
-    protected boolean outDirIsRequired,outFormatIsRequired, rIsRequired;
+    protected boolean outDirIsRequired,outFormatIsRequired, rIsRequired, createdOutDir;
 
     static String OPTION_NAME_OUTDIR = "outdir";
     static String OPTION_NAME_OUTFILE = "outfile";
@@ -216,10 +216,12 @@ public abstract class NgsSmartTool {
 
         if(!outdir.isEmpty()){
         	if(new File(outdir).exists()){
-				logger.warn("output folder already exists\n");
+				logger.warn("Output folder already exists\n");
 			} else {
 				boolean ok = new File(outdir).mkdirs();
-                if (!ok) {
+                if (ok) {
+                    createdOutDir = true;
+                } else {
                     logger.error("Failed to create output directory.");
                 }
 			}
@@ -227,15 +229,21 @@ public abstract class NgsSmartTool {
 	}
 
     protected void cleanupOutputDir() {
-        File outDirFile = new File(outdir);
-        if (outDirFile.exists()) {
-            logger.warn("Cleanup output dir");
-            try {
-                FileUtils.deleteDirectory(outDirFile);
-            } catch (IOException e) {
-                logger.error("Failed to delete output dir");
+
+        if (createdOutDir) {
+
+            File outDirFile = new File(outdir);
+            if (outDirFile.exists()) {
+                logger.warn("Cleanup output dir");
+                try {
+                    FileUtils.deleteDirectory(outDirFile);
+                } catch (IOException e) {
+                    logger.error("Failed to delete output dir");
+                }
             }
+
         }
+
     }
 
     protected static Option requiredOption(String shortName, String longName, boolean hasArgument, String shortDescription ) {
