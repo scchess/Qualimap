@@ -22,6 +22,8 @@ package org.bioinfo.ngs.qc.qualimap.beans;
 
 import java.awt.*;
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 
@@ -126,6 +128,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     String genomeGCContentName;
     int numSelectedRegions;
 
+    static NumberFormat decimailFormatter = DecimalFormat.getInstance(Locale.US);
+
     public BamQCRegionReporter(boolean gffIsAvailable, boolean inside) {
         if (gffIsAvailable) {
             if (inside) {
@@ -138,6 +142,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             namePostfix = "";
         }
         genomeGCContentName = "";
+
+        decimailFormatter.setMaximumFractionDigits(2);
+
     }
 
 
@@ -797,18 +804,17 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		}
 	}
 
-
     private String formatLong(long decimal){
-		return StringUtils.decimalFormat(decimal,"###,###,####,###,###,###,###,###,###,###,###.##");
-	}
+        return decimailFormatter.format(decimal);
+    }
 
 	private String formatDecimal(double decimal){
-		return StringUtils.decimalFormat(decimal,"###,###,###,###,###,###,###.##");
+        return decimailFormatter.format(decimal);
 	}
 
 	private String formatPercentage(double percentage){
-		return StringUtils.decimalFormat(percentage,"###.##")+"%";
-	}
+		return decimailFormatter.format(percentage) + "%";
+    }
 
 
 

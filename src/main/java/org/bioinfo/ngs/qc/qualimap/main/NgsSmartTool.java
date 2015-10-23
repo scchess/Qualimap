@@ -62,6 +62,7 @@ public abstract class NgsSmartTool {
 		this.toolName = toolName;
 		this.outDirIsRequired = true;
         this.outFormatIsRequired = true;
+        this.createdOutDir = false;
         this.rIsRequired = rIsRequired;
         init();
     }
@@ -216,7 +217,7 @@ public abstract class NgsSmartTool {
 
         if(!outdir.isEmpty()){
         	if(new File(outdir).exists()){
-				logger.warn("Output folder already exists\n");
+				logger.warn("Output folder already exists, the results will be saved there\n");
 			} else {
 				boolean ok = new File(outdir).mkdirs();
                 if (ok) {

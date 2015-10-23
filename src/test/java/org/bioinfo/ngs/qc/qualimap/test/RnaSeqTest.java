@@ -20,11 +20,18 @@
  */
 package org.bioinfo.ngs.qc.qualimap.test;
 
+import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain;
 import org.junit.Test;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 
 public class RnaSeqTest {
+
+    static NumberFormat formatter = DecimalFormat.getInstance(Locale.US);
 
     @Test
     public void testBamQC(){
@@ -33,7 +40,19 @@ public class RnaSeqTest {
     			"counts"
     			};
         try {
-			NgsSmartMain.main(args);
+			//NgsSmartMain.main(args);
+            System.out.println("Boo!");
+
+            formatter.setMaximumFractionDigits(2);
+            System.out.println(formatter.format(1000000000));
+            System.out.println(formatter.format(25.15546756745));
+
+
+
+            //formatter.
+
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
