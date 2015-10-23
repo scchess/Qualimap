@@ -146,6 +146,7 @@ public class BamStatsAnalysis {
 
     public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
     public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
+    public static final String MM9_GENOME_ID =  "MOUSE (mm10)";
     public static final String HUMAN_GENOME_NAME = "human";
     public static final String MOUSE_GENOME_NAME = "mouse";
 
@@ -157,6 +158,7 @@ public class BamStatsAnalysis {
             genomeGcContentMap = new HashMap<String,String>();
             genomeGcContentMap.put(HUMAN_GENOME_ID, "species/human.hg19.gc_histogram.txt");
             genomeGcContentMap.put(MOUSE_GENOME_ID, "species/mouse.mm9.gc_histogram.txt");
+            genomeGcContentMap.put(MM9_GENOME_ID, "species/mouse.mm10.gc_histogram.txt");
         }
 
         return genomeGcContentMap;
