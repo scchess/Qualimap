@@ -943,22 +943,22 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                         sdf.formatPercentage(getPercentageOverlappingPairs()));
             }
 
-        }
-
-        if (numDuplicatedReadsMarked > 0) {
+            if (numDuplicatedReadsMarked > 0) {
                 globals.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
                                                    sdf.formatPercentage(getPercentageDublicateReadsMarked()));
-        } else {
+            } else {
                 globals.addRow("Duplicated reads (estimated)",
                         sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
                         sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
                 globals.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
-        }
+            }
 
+        }
 
         summaryStatsKeeper.addSection(globals);
 
         if (numSelectedRegions > 0) {
+
             StatsKeeper.Section globalsInRegions = new StatsKeeper.Section("Globals" + postfix);
             globalsInRegions.addRow("Regions size/percentage of reference",
                     sdf.formatLong((numBasesInsideRegions))
@@ -1000,6 +1000,17 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                 }
 
             }
+
+            if (numDuplicatedReadsMarked > 0) {
+                globalsInRegions.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
+                                                                   sdf.formatPercentage(getPercentageDublicateReadsMarked()));
+            } else {
+                globalsInRegions.addRow("Duplicated reads (estimated)",
+                    sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
+                    sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
+                globalsInRegions.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
+            }
+
 
             summaryStatsKeeper.addSection(globalsInRegions);
 
