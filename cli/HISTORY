@@ -2,6 +2,17 @@ Version Release History
 =======================
 
 
+Version 2.1.3 - October 29, 2015
+----------------------------------
+
+    * Fixed a problem with removal of provided existing output folder in command line mode (reported by Nathan McNeil)
+    * BAM QC: added the mm10 GC-content distribution template (suggested by Priyank Shukla )
+    * BAM QC: fixed issue with report of duplication rate in regions ( thanks to Christian for report )
+    * BAM QC: stabilzed default text output number format (reported by Max Koeppel and Henri-Jean Garchon )
+    * Counts QC: fixed issues with single sample adaption ( reported by Yung-Chih Lai )
+    * Documentation: update introudction, BAM QC, RNA-seq QC and F.A.Q. blocks
+ 
+
 Version 2.1.2 - September 23, 2015
 ----------------------------------
 
