@@ -28,6 +28,7 @@ import org.bioinfo.ngs.qc.qualimap.beans.BamQCRegionReporter;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
+import org.bioinfo.ngs.qc.qualimap.common.SkipDuplicatesMode;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
 
 
@@ -202,7 +203,7 @@ public class BamQcTool extends NgsSmartTool{
         bamQC.setProtocol(protocol);
         bamQC.setMinHomopolymerSize(minHomopolymerSize);
         if (skipDuplicated) {
-            bamQC.setSkipDuplicatedReads(true);
+            bamQC.setSkipDuplicatedReads(true, SkipDuplicatesMode.BOTH);
         }
 
         if (collectOverlappingPairedEndReads){

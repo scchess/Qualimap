@@ -47,6 +47,7 @@ public class FinalizeWindowTask implements Callable<Integer> {
         try {
             window.computeDescriptors();
             bamStats.addWindowInformation(window);
+            //System.out.println("Finalzed window " + window.getName() + "\n");
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             return -1;

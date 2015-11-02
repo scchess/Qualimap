@@ -100,7 +100,7 @@ public class BamStatsAnalysis {
 
 	// inside
 	private long insideReferenceSize;
-    private boolean skipDuplicatedReads;
+    private boolean skipMarkedDuplicates, skipDetectedDuplicates;
     private boolean collectIntersectingPairedEndReads;
 
 	// outside
@@ -143,7 +143,6 @@ public class BamStatsAnalysis {
     public static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Some regions are not loaded";
     public static final String WARNING_ID_NO_MAPPED_READS = "NO MAPPED READS";
 
-
     public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
     public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
     public static final String MM9_GENOME_ID =  "MOUSE (mm10)";
@@ -176,7 +175,8 @@ public class BamStatsAnalysis {
         this.threadNumber = 4;
         this.selectedRegionsAvailable =false;
         this.computeOutsideStats = false;
-        this.skipDuplicatedReads = false;
+        this.skipMarkedDuplicates = false;
+        this.skipDetectedDuplicates = false;
         this.collectIntersectingPairedEndReads = false;
         this.outdir = ".";
         this.saveCoverage = false;
@@ -325,7 +325,7 @@ public class BamStatsAnalysis {
 			if(read.isValid() == null){
                  if (read.getDuplicateReadFlag()) {
                      numberOfDuplicatedReads++;
-                     if (skipDuplicatedReads) {
+                     if (skipMarkedDuplicates) {
                          if (numberOfDuplicatedReads == 1) {
                              logger.println("Note: detected marked duplicates will be skipped...");
                          }
@@ -357,7 +357,7 @@ public class BamStatsAnalysis {
                     if (readOverlapsRegions) {
                         bamStatsCollector.updateStats(read);
                         read.setAttribute(Constants.READ_IN_REGION, 1);
-                        if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads ) {
+                        if (bamStats.updateReadStartsHistogram(position) && skipDetectedDuplicates ) {
                             continue;
                         }
                         if (collectIntersectingPairedEndReads) {
@@ -368,7 +368,7 @@ public class BamStatsAnalysis {
                         read.setAttribute(Constants.READ_IN_REGION, 0);
                         outsideBamStatsCollector.updateStats(read);
                         if (computeOutsideStats) {
-                            if (outsideBamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
+                            if (outsideBamStats.updateReadStartsHistogram(position) && skipDetectedDuplicates) {
                                 continue;
                             }
                             outsideBamStats.updateInsertSizeHistogram(insertSize);
@@ -377,7 +377,7 @@ public class BamStatsAnalysis {
                 } else {
                     read.setAttribute(Constants.READ_IN_REGION, 1);
                     bamStatsCollector.updateStats(read);
-                    if (bamStats.updateReadStartsHistogram(position) && skipDuplicatedReads) {
+                    if (bamStats.updateReadStartsHistogram(position) && skipDetectedDuplicates) {
                         continue;
                     }
                     if (collectIntersectingPairedEndReads) {
@@ -429,7 +429,7 @@ public class BamStatsAnalysis {
         // close stream
         reader.close();
 
-        if (!readsBunch.isEmpty()) {
+        if (!readsBunch.isEmpty() || bamStats.getNumberOfProcessedWindows() < bamStats.getNumberOfWindows() ) {
             int numWindows = bamStats.getNumberOfWindows();
             long lastPosition = bamStats.getWindowEnd(numWindows - 1) + 1;
             collectAnalysisResults(readsBunch);
@@ -450,7 +450,7 @@ public class BamStatsAnalysis {
         logger.println("Total processed windows:" + bamStats.getNumberOfProcessedWindows());
         logger.println("Number of reads: " + numberOfReads);
         logger.println("Number of valid reads: " + numberOfValidReads);
-        logger.println("Number of duplicated reads: " + numberOfDuplicatedReads);
+        logger.println("Number of marked duplicated reads: " + numberOfDuplicatedReads);
         logger.println("Number of correct strand reads:" + numberOfCorrectStrandReads);
         logger.println("Number of reads with");
 
@@ -733,6 +733,12 @@ public class BamStatsAnalysis {
 
     public BamGenomeWindow initWindow(String name,long windowStart,long windowEnd, byte[]reference,
                                              boolean detailed){
+
+
+        //System.err.print("Init window " + name + "\n");
+        /*if (name.equals("w_464")) {
+            System.err.print("Last window is here?");
+        }*/
 
         byte[]miniReference = null;
 		if(reference != null) {
@@ -1170,7 +1176,7 @@ public class BamStatsAnalysis {
                     alignParams.put("Command line: ", pgCommandString );
                 }
             }
-            alignParams.put("Skip duplicated alignments: ", boolToStr(skipDuplicatedReads));
+            alignParams.put("Skip duplicated alignments: ", boolToStr(skipDetectedDuplicates || skipMarkedDuplicates));
             alignParams.put("Analyze overlapping paired-end reads:", boolToStr(collectIntersectingPairedEndReads));
 
             reporter.addInputDataSection("Alignment", alignParams);
@@ -1206,8 +1212,18 @@ public class BamStatsAnalysis {
     }
 
 
-    public void setSkipDuplicatedReads(boolean skipDuplications) {
-        this.skipDuplicatedReads = skipDuplications;
+    public void setSkipDuplicatedReads(boolean skipDuplications, SkipDuplicatesMode mode) {
+        if (skipDuplications) {
+            if (mode == SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES) {
+                this.skipDetectedDuplicates = true;
+            } else if(mode == SkipDuplicatesMode.ONLY_MARKED_DUPLICATES) {
+                this.skipMarkedDuplicates = true;
+            } else {
+                this.skipMarkedDuplicates = true;
+                this.skipDetectedDuplicates = true;
+            }
+        }
+
     }
 
 
