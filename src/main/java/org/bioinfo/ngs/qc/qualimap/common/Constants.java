@@ -142,6 +142,7 @@ public final class Constants {
     public static final String BAMQC_OPTION_COVERAGE_REPORT_FILE = "oc";
     public static final String BAMQC_OPTION_SKIP_DUPLICATED = "sd";
     public static final String BAMQC_OPTION_COLLECT_OVERLAP_PAIRS = "ip";
+    public static final String BAMQC_OPTION_SKIP_DUPLICATES_MODE = "sdmode";
 
 
 

@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.common;
 
 import net.sf.samtools.SAMRecord;
+import sun.font.TrueTypeFont;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class BamStatsCollector {
 
     long numMappedReads, numPairedReads;
     long numMappedFirstInPair, numMappedSecondInPair, numSingletons;
+    long numMarkedDuplicates;
     boolean collectIntersectingReadPairs;
     long numOverlappingReadPairs, numOverlappingBases;
     Map<String,ReadAlignmentInfo> pairsCollector;
@@ -79,6 +81,10 @@ public class BamStatsCollector {
         return numOverlappingBases;
     }
 
+    public long getNumMarkedDuplicates() {
+        return numMarkedDuplicates;
+    }
+
 
     public BamStatsCollector()
     {
@@ -93,7 +99,7 @@ public class BamStatsCollector {
     }
 
 
-    public void updateStats(SAMRecord read) {
+    public boolean updateStats(SAMRecord read) {
         numMappedReads++;
         if (read.getReadPairedFlag()) {
             numPairedReads++;
@@ -104,10 +110,16 @@ public class BamStatsCollector {
             }
             if (read.getMateUnmappedFlag()) {
                 numSingletons++;
-            } /*else if (collectIntersectingReadPairs) {
-                collectPairedReadInfo(read);
-            }*/
+            }
         }
+        if (read.getDuplicateReadFlag()) {
+            numMarkedDuplicates++;
+            return true;
+        } else {
+            return false;
+        }
+
+
 
     }
 

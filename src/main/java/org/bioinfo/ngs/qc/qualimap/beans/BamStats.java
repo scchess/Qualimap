@@ -229,7 +229,7 @@ public class BamStats implements Serializable {
     int[] homopolymerIndelsData;
     private boolean reportNonZeroCoverageOnly;
 
-    private long numDetectedDuplcateReads, numEstimatedDuplicateReads;
+    private long numDetectedDuplcateReads, numEstimatedDuplicateReads, numDuplicatesSkipped;
     private double adaptedMeanCoverage;
 
     private boolean reportOverlappingReadPairs;
@@ -256,8 +256,16 @@ public class BamStats implements Serializable {
         return numEstimatedDuplicateReads;
     }
 
-    public void setNumDetectedDuplcateReads(long numReads) {
+    public void setNumMarkedDuplcateReads(long numReads) {
         this.numDetectedDuplcateReads = numReads;
+    }
+
+    public void setNumDuplicatesSkipped(long numReads) {
+         numDuplicatesSkipped = numReads;
+    }
+
+    public long getNumDuplicatesSkipped() {
+        return numDuplicatesSkipped;
     }
 
     public void setNumberOfIntersectingReadPairs(long numIntersectingReadPairs, long numIntersectingBases) {
@@ -277,6 +285,7 @@ public class BamStats implements Serializable {
     public double getAdaptedMeanCoverage() {
         return adaptedMeanCoverage;
     }
+
 
     // chromosome stats
     public class ChromosomeInfo {

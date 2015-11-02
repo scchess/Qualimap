@@ -77,6 +77,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
               return (numDuplicatedReadsEstimated * 100.0) / (double) numReads ;
     }
 
+    public double getPercentageSkippedDublicatedReads() {
+              return (numDuplicatesSkipped * 100.0) / (double) numReads ;
+    }
+
     public void setGenomeGCContentName(String genomeName) {
         this.genomeGCContentName = genomeName;
     }
@@ -104,7 +108,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private long numSingletons;
     private double percentageSingletons;
     private long numCorrectStrandReads;
-    private long numDuplicatedReadsMarked, numDuplicatedReadsEstimated;
+    private long numDuplicatedReadsMarked, numDuplicatedReadsEstimated, numDuplicatesSkipped;
 
     boolean includeIntersectingPairs;
     private long numOverlappingReadPairs;
@@ -204,7 +208,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of sequenced bases = " + formatLong(bamStats.getNumberOfSequencedBases()) + " bp");
 		report.println("     number of aligned bases = " + formatLong(bamStats.getNumberOfAlignedBases()) + " bp");
         if (bamStats.getNumDetectedDuplicatedReads() > 0) {
-            report.println("     number of duplicated reads (marked) = " + formatLong(bamStats.getNumDetectedDuplicatedReads()) );
+            report.println("     number of duplicated reads (flagged) = " + formatLong(bamStats.getNumDetectedDuplicatedReads()) );
         } else {
             report.println("     number of duplicated reads (estimated) = " + formatLong(bamStats.getNumDuplicatedReadsEstimated()) );
             report.println("     duplication rate = " + formatPercentage(bamStats.getDuplicationRate()) );
@@ -368,6 +372,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.duplicationRate = bamStats.getDuplicationRate();
         this.numDuplicatedReadsMarked = bamStats.getNumDetectedDuplicatedReads();
         this.numDuplicatedReadsEstimated = bamStats.getNumDuplicatedReadsEstimated();
+        this.numDuplicatesSkipped = bamStats.getNumDuplicatesSkipped();
 
 
         // paired reads
@@ -927,16 +932,18 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         }
 
+
+
         globals.addRow("Read min/max/mean length",
                 sdf.formatLong(readMinSize) + " / "
                         + sdf.formatLong(readMaxSize) + " / "
                         + sdf.formatDecimal(readMeanSize));
 
+
+
+
         if (numSelectedRegions == 0) {
 
-            globals.addRow("Clipped reads",
-                        sdf.formatInteger(numClippedReads) + " / " +
-                        sdf.formatPercentage(getPercentageClippedReads()));
             if (includeIntersectingPairs) {
                 globals.addRow("Overlapping read pairs",
                         sdf.formatLong(numOverlappingReadPairs) + " / " +
@@ -945,8 +952,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
             if (numDuplicatedReadsMarked > 0) {
                 globals.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
-                                                   sdf.formatPercentage(getPercentageDublicateReadsMarked()));
-            } else {
+                                                       sdf.formatPercentage(getPercentageDublicateReadsMarked()));
+            }
+
+            if (numDuplicatedReadsEstimated > 0) {
                 globals.addRow("Duplicated reads (estimated)",
                         sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
                         sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
@@ -954,6 +963,18 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             }
 
         }
+
+        globals.addRow("Clipped reads",
+                        sdf.formatInteger(numClippedReads) + " / " +
+                        sdf.formatPercentage(getPercentageClippedReads()));
+
+
+        if (numDuplicatesSkipped > 0) {
+            globals.addRow("Duplicated reads skipped: ",
+                    sdf.formatLong(numDuplicatesSkipped) + " / " +
+                    sdf.formatPercentage(getPercentageSkippedDublicatedReads()));
+        }
+
 
         summaryStatsKeeper.addSection(globals);
 
@@ -963,7 +984,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             globalsInRegions.addRow("Regions size/percentage of reference",
                     sdf.formatLong((numBasesInsideRegions))
                             + " / " + sdf.formatPercentage(getSelectedRegionsPercentage()));
-
 
             globalsInRegions.addRow("Mapped reads",
                     sdf.formatLong(numMappedReadsInRegions)
@@ -1003,13 +1023,16 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
             if (numDuplicatedReadsMarked > 0) {
                 globalsInRegions.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
-                                                                   sdf.formatPercentage(getPercentageDublicateReadsMarked()));
-            } else {
+                                  sdf.formatPercentage(getPercentageDublicateReadsMarked()));
+            }
+
+            if (numDuplicatedReadsEstimated > 0) {
                 globalsInRegions.addRow("Duplicated reads (estimated)",
                     sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
                     sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
                 globalsInRegions.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
             }
+
 
 
             summaryStatsKeeper.addSection(globalsInRegions);

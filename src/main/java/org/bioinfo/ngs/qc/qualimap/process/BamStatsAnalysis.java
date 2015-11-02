@@ -71,7 +71,7 @@ public class BamStatsAnalysis {
 	// globals
 	private long numberOfReads;
 	private long numberOfValidReads;
-	private long numberOfDuplicatedReads;
+	private long numberOfDuplicatesSkipped;
     private long numberOfCorrectStrandReads;
     private long numberOfProblematicReads;
     private long numberOfReadsWithStartGreatThenEnd;
@@ -234,6 +234,22 @@ public class BamStatsAnalysis {
         //effectiveNumberOfWindows = computeEffectiveNumberOfWindows(referenceSize,windowSize);
         List<Long> windowPositions = computeWindowPositions(windowSize);
         effectiveNumberOfWindows = windowPositions.size();
+
+        if (skipDetectedDuplicates || skipMarkedDuplicates) {
+            String skipDuplicatesReport = "";
+            if (skipDetectedDuplicates && skipMarkedDuplicates) {
+                skipDuplicatesReport += "Both flagged and estimated by Qualimap algorithm duplicate alignments will be skipped...";
+            } else if (skipMarkedDuplicates) {
+                skipDuplicatesReport += "Only flagged duplicate alignments will be skipped...";
+            } else {
+                skipDuplicatesReport += "Only duplicate alignments estimated by Qualimap algorithm will be skipped...";
+            }
+
+            logger.println(skipDuplicatesReport);
+        }
+
+
+
         bamStats = new BamStats("genome", locator, referenceSize,effectiveNumberOfWindows);
         logger.println("Number of windows: " + numberOfWindows +
                 ", effective number of windows: " + effectiveNumberOfWindows);
@@ -323,17 +339,8 @@ public class BamStatsAnalysis {
 
 			// filter invalid reads
 			if(read.isValid() == null){
-                 if (read.getDuplicateReadFlag()) {
-                     numberOfDuplicatedReads++;
-                     if (skipMarkedDuplicates) {
-                         if (numberOfDuplicatedReads == 1) {
-                             logger.println("Note: detected marked duplicates will be skipped...");
-                         }
-                         bamStatsCollector.updateStats(read);
-                         continue;
-                     }
-                 }
-                 // accumulate only mapped reads
+
+                // accumulate only mapped reads
 				if(read.getReadUnmappedFlag()) {
                     continue;
                 }
@@ -355,9 +362,14 @@ public class BamStatsAnalysis {
                     boolean readOverlapsRegions = readOverlapsRegions(read);
 
                     if (readOverlapsRegions) {
-                        bamStatsCollector.updateStats(read);
+                        if (bamStatsCollector.updateStats(read) && skipMarkedDuplicates) {
+                            numberOfDuplicatesSkipped++;
+                            continue;
+                        }
+
                         read.setAttribute(Constants.READ_IN_REGION, 1);
                         if (bamStats.updateReadStartsHistogram(position) && skipDetectedDuplicates ) {
+                            numberOfDuplicatesSkipped++;
                             continue;
                         }
                         if (collectIntersectingPairedEndReads) {
@@ -366,9 +378,13 @@ public class BamStatsAnalysis {
                         bamStats.updateInsertSizeHistogram(insertSize);
                     } else {
                         read.setAttribute(Constants.READ_IN_REGION, 0);
-                        outsideBamStatsCollector.updateStats(read);
+                        if (outsideBamStatsCollector.updateStats(read) && skipMarkedDuplicates) {
+                            numberOfDuplicatesSkipped++;
+                            continue;
+                        }
                         if (computeOutsideStats) {
                             if (outsideBamStats.updateReadStartsHistogram(position) && skipDetectedDuplicates) {
+                                numberOfDuplicatesSkipped++;
                                 continue;
                             }
                             outsideBamStats.updateInsertSizeHistogram(insertSize);
@@ -376,8 +392,12 @@ public class BamStatsAnalysis {
                     }
                 } else {
                     read.setAttribute(Constants.READ_IN_REGION, 1);
-                    bamStatsCollector.updateStats(read);
+                    if (bamStatsCollector.updateStats(read) && skipMarkedDuplicates) {
+                        numberOfDuplicatesSkipped++;
+                        continue;
+                    }
                     if (bamStats.updateReadStartsHistogram(position) && skipDetectedDuplicates) {
+                        numberOfDuplicatesSkipped++;
                         continue;
                     }
                     if (collectIntersectingPairedEndReads) {
@@ -450,9 +470,7 @@ public class BamStatsAnalysis {
         logger.println("Total processed windows:" + bamStats.getNumberOfProcessedWindows());
         logger.println("Number of reads: " + numberOfReads);
         logger.println("Number of valid reads: " + numberOfValidReads);
-        logger.println("Number of marked duplicated reads: " + numberOfDuplicatedReads);
         logger.println("Number of correct strand reads:" + numberOfCorrectStrandReads);
-        logger.println("Number of reads with");
 
         if (numberOfReadsWithStartGreatThenEnd > 0) {
             logger.warn("WARNING:" + numberOfReadsWithStartGreatThenEnd +
@@ -483,7 +501,7 @@ public class BamStatsAnalysis {
         }
 
         bamStats.setNumberOfReads(numberOfReads);
-        bamStats.setNumDetectedDuplcateReads(numberOfDuplicatedReads);
+        bamStats.setNumDuplicatesSkipped(numberOfDuplicatesSkipped);
 
         long totalNumberOfMappedReads = bamStatsCollector.getNumMappedReads();
         long totalNumberOfPairedReads = bamStatsCollector.getNumPairedReads();
@@ -539,6 +557,7 @@ public class BamStatsAnalysis {
         bamStats.setReadMinSize(minReadSize);
         bamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
 
+        bamStats.setNumMarkedDuplcateReads( bamStatsCollector.getNumMarkedDuplicates() );
 
         isPairedData = bamStats.getNumberOfPairedReads() > 0;
 
@@ -571,6 +590,8 @@ public class BamStatsAnalysis {
             outsideBamStats.setReadMaxSize(maxReadSize);
             outsideBamStats.setReadMinSize(minReadSize);
             outsideBamStats.setReadMeanSize( acumReadSize / (double) numberOfReads );
+
+            outsideBamStats.setNumMarkedDuplcateReads( outsideBamStatsCollector.getNumMarkedDuplicates() );
 
             logger.println("Computing descriptors for outside regions...");
             outsideBamStats.computeDescriptors();
@@ -1146,6 +1167,21 @@ public class BamStatsAnalysis {
             cmdBuilder.append(Constants.BAMQC_OPTION_NUM_WINDOWS, numberOfWindows);
             cmdBuilder.append(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, minHomopolymerSize);
 
+            if (skipDetectedDuplicates && skipMarkedDuplicates) {
+                cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
+            }
+
+            if (skipMarkedDuplicates && !skipDetectedDuplicates) {
+                cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
+                cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "1");
+            }
+
+            if (!skipMarkedDuplicates && skipDetectedDuplicates) {
+                cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
+                cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "2");
+            }
+
+
             return cmdBuilder.getCmdLine();
 
     }
@@ -1176,7 +1212,19 @@ public class BamStatsAnalysis {
                     alignParams.put("Command line: ", pgCommandString );
                 }
             }
-            alignParams.put("Skip duplicated alignments: ", boolToStr(skipDetectedDuplicates || skipMarkedDuplicates));
+
+
+            String skipDuplicateAlnStatus = boolToStr(false);
+            if (skipDetectedDuplicates) {
+                skipDuplicateAlnStatus = "yes (only estimated)";
+            } else if (skipMarkedDuplicates) {
+                skipDuplicateAlnStatus = "yes (only flagged)";
+            }
+            if (skipMarkedDuplicates && skipDetectedDuplicates ) {
+                skipDuplicateAlnStatus = "yes (both flagged and estimated)";
+            }
+
+            alignParams.put("Skip duplicate alignments: ", skipDuplicateAlnStatus);
             alignParams.put("Analyze overlapping paired-end reads:", boolToStr(collectIntersectingPairedEndReads));
 
             reporter.addInputDataSection("Alignment", alignParams);

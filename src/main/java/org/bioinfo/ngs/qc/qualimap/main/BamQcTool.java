@@ -49,11 +49,13 @@ public class BamQcTool extends NgsSmartTool{
     private String genomeToCompare;
     private String coverageReportFile;
     private LibraryProtocol protocol;
+    private SkipDuplicatesMode skipDuplicatesMode;
 
     public BamQcTool(){
         super(Constants.TOOL_NAME_BAMQC,false);
         numThreads = Runtime.getRuntime().availableProcessors();
         protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
+        skipDuplicatesMode = SkipDuplicatesMode.BOTH;
         genomeToCompare = "";
         coverageReportFile = "";
     }
@@ -70,7 +72,7 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(Constants.BAMQC_OPTION_NUM_WINDOWS, true,
                 "Number of windows (default is "+ Constants.DEFAULT_NUMBER_OF_WINDOWS + ")");
         options.addOption(Constants.BAMQC_OPTION_NUM_THREADS, true,
-                "Number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
+                    "Number of threads (default is " +  Runtime.getRuntime().availableProcessors() + ")");
         options.addOption(Constants.BAMQC_OPTION_CHUNK_SIZE, true,
                 "Number of reads analyzed in a chunk (default is " + Constants.DEFAULT_CHUNK_SIZE + ")" );
         options.addOption(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, true,
@@ -82,9 +84,16 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
                 "Paint chromosome limits inside charts");
         options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED, "skip-duplicated",  false,
-                                "Activate this option to skip duplicated alignments from analysis. " +
-                                "If the duplicates are not flagged in BAM file, then they will be detected" +
+                                "Activate this option to skip duplicated alignments from the analysis. " +
+                                "If the duplicates are not flagged in the BAM file, then they will be detected" +
                                         " by Qualimap.");
+        options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "skip-dup-mode", true,
+                                        "Specific type of duplicated alignments to skip (if this option is activated).\n" +
+                                                "0 : both flagged and estimated (default)\n" +
+                                                "1 : only flagged duplicates\n" +
+                                                "2 : only estimated by Qualimap\n"
+                                        );
+
         options.addOption(Constants.BAMQC_OPTION_COLLECT_OVERLAP_PAIRS, "collect-overlap-pairs",  false,
                                 "Activate this option to collect statistics of overlapping paired-end reads " );
         options.addOption(Constants.BAMQC_OPTION_OUTSIDE_STATS, "outside-stats", false,
@@ -157,6 +166,17 @@ public class BamQcTool extends NgsSmartTool{
 
 		paintChromosomeLimits =  commandLine.hasOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
         skipDuplicated = commandLine.hasOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
+        if (commandLine.hasOption(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE)) {
+            int mode = Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE));
+            if (mode == 1) {
+                skipDuplicatesMode = SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
+            } else if (mode == 2) {
+                skipDuplicatesMode = SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES;
+            }
+
+
+        }
+
         collectOverlappingPairedEndReads = commandLine.hasOption(Constants.BAMQC_OPTION_COLLECT_OVERLAP_PAIRS);
 
 	}
@@ -203,7 +223,7 @@ public class BamQcTool extends NgsSmartTool{
         bamQC.setProtocol(protocol);
         bamQC.setMinHomopolymerSize(minHomopolymerSize);
         if (skipDuplicated) {
-            bamQC.setSkipDuplicatedReads(true, SkipDuplicatesMode.BOTH);
+            bamQC.setSkipDuplicatedReads(true, skipDuplicatesMode);
         }
 
         if (collectOverlappingPairedEndReads){
