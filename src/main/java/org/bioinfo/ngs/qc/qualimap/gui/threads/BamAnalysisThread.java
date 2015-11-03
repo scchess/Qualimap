@@ -74,7 +74,7 @@ public class BamAnalysisThread extends Thread {
         bamQC.setNumberOfReadsInBunch(bamDialog.getBunchSize());
         bamQC.setProtocol( bamDialog.getLibraryProtocol() );
         bamQC.setMinHomopolymerSize( bamDialog.getMinHomopolymerSize());
-        bamQC.setSkipDuplicatedReads(bamDialog.getSkipDuplicatesStatus(), SkipDuplicatesMode.BOTH);
+        bamQC.setSkipDuplicatedReads(bamDialog.getSkipDuplicatesStatus(), bamDialog.getSkipDuplicatesMode());
         if (bamDialog.getOverlappingReadPairAlignmentStatus()) {
             bamQC.activateIntersectingPairedEndReadsStats();
         }

@@ -55,11 +55,12 @@ Input Parameters
 :guilabel:`Compare GC content distribution with` 
   This allows to **compare** the **GC distribution** of the sample with the selected pre-calculated **genome** GC distribution. Currently two genome distributions are available: human (hg19) and mouse (mm9). More species will be included in future releases.
 
-:guilabel:`Skip duplicates` 
-  This option allows to skip duplicated alignments from analysis. If the duplicates are not flagged in BAM file, then they will be detected by Qualimap. Type of skipped duplicates will be shown in report.
-
 :guilabel:`Detect overlapping paired-end reads`
    In case of small insert size the paired-end read alignmetns might overlap in high proportion. Using this option detection of overlapping pairs can be activated. Additionally, adapted mean coverage is calcualted based on extraction of pair overlap-region.
+
+:guilabel:`Skip duplicates` 
+  This option allows to skip duplicated alignments from analysis. There are three modes of this option. By default, if the duplicates are flagged in BAM file they are skipped and the remaining alignments are futher analyzed by Qualimap to detect duplicates to skip. Additionally it is possible to skip only flagged duplicates or only detected by Qualimap. Number of skipped duplicates will be shown in the report.
+
 
 Advanced parameters
 """""""""""""""""""

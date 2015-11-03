@@ -95,7 +95,11 @@ The following command allows to perform BAM QC analysis::
                                       alignments from analysis. If the
                                       duplicates are not flagged in BAM file,
                                       then they will be detected by Qualimap.
-
+    -sdmode,--skip-dup-mode <arg>        Specific type of duplicated alignments to
+                                      skip (if this option is activated).
+                                      0 : both flagged and estimated (default)
+                                      1 : only flagged duplicates
+                                      2 : only estimated by Qualimap
 
 
 | The only required parameter is :guilabel:`bam` -- the input mapping file.
@@ -133,6 +137,13 @@ To perform RNA-seq QC analysis use the following command::
                                   strand-specific-forward,
                                   strand-specific-reverse or non-strand-specific
                                   (default)
+ -pe,--paired                     Setting this flag for paired-end experiments
+                                  will result in counting fragments instead of
+                                  reads.
+ -s,--sorted                      This flag indicates that the input file is
+                                  already sorted by name. If not set, additional
+                                  sorting by name will be performed. Only
+                                  required for paired-end analysis.
 
 
 | The required parameteres for this type of analysis are the spliced-alignment file in BAM format and annotations in GTF format.

@@ -26,6 +26,7 @@ import org.bioinfo.commons.io.utils.FileUtils;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
 import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
+import org.bioinfo.ngs.qc.qualimap.common.SkipDuplicatesMode;
 import org.bioinfo.ngs.qc.qualimap.gui.dialogs.AnalysisDialog;
 import org.bioinfo.ngs.qc.qualimap.gui.frames.HomeFrame;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.BamAnalysisThread;
@@ -55,7 +56,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     JSpinner numThreadsSpinner,numReadsPerBunchSpinner, minHmSizeSpinner;
     JCheckBox drawChromosomeLimits, skipDuplicates, computeOutsideStats, advancedInfoCheckBox, analyzeRegionsCheckBox;
     JCheckBox compareGcContentDistr, detectOverlapingPairs;
-    JComboBox<String> genomeGcContentCombo, protocolCombo;
+    JComboBox<String> genomeGcContentCombo, protocolCombo, selectSkipDupMethodBox;
     JLabel labelPathDataFile, labelPathAditionalDataFile, labelNw,
             labelNumThreads, labelNumReadsPerBunch, protocolLabel, minHmSizeLabel;
     File inputFile, regionFile;
@@ -117,23 +118,28 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         drawChromosomeLimits.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         drawChromosomeLimits.setToolTipText("Check to draw the chromosome limits");
         drawChromosomeLimits.setSelected(true);
-        add(drawChromosomeLimits, "wrap");
-
-        skipDuplicates = new JCheckBox("Skip duplicates");
-        skipDuplicates.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        skipDuplicates.setToolTipText("Activate this option to skip duplicated alignments from analysis");
-        skipDuplicates.setSelected(false);
-        add(skipDuplicates, "");
-
+        add(drawChromosomeLimits, "");
 
         detectOverlapingPairs = new JCheckBox("Detect overlapping paired-end reads");
         detectOverlapingPairs.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         detectOverlapingPairs.setToolTipText("Activate this option to detect overlapping paired-end read" +
-                " alignments and compute adapted mean coverage.");
+             " alignments and compute adapted mean coverage.");
         detectOverlapingPairs.setSelected(false);
 
         add(detectOverlapingPairs, "wrap");
 
+        skipDuplicates = new JCheckBox("Skip duplicates");
+        skipDuplicates.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        skipDuplicates.setToolTipText("Activate this option to skip duplicated alignments from analysis");
+        skipDuplicates.addActionListener(this);
+        skipDuplicates.setSelected(false);
+        add(skipDuplicates, "wrap");
+
+        String[] skipDupStyles =  { "Both flagged and estimated", "Only flagged", "Only estimated"};
+        selectSkipDupMethodBox = new JComboBox<String>( skipDupStyles );
+        selectSkipDupMethodBox.setToolTipText("Select which duplicate alignments should be skipped. By default both " +
+                "flagged and further detected using internal algorithm are skipped.");
+        add(selectSkipDupMethodBox, "gapleft 20, span 2, wrap");
 
         compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
         compareGcContentDistr.addActionListener(this);
@@ -201,6 +207,12 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         add(new JLabel(""), "span 2");
         add(startAnalysisButton, "wrap");
 
+
+        if (System.getenv("QUALIMAP_DEBUG") != null) {
+            pathDataFile.setText("/data/qualimap_release_data/counts/kidney.sorted.with_duplicates.bam");
+        }
+
+
         updateState();
         pack();
 
@@ -229,6 +241,7 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         minHmSizeSpinner.setEnabled(advOptionsEnabled);
 
         genomeGcContentCombo.setEnabled(compareGcContentDistr.isSelected());
+        selectSkipDupMethodBox.setEnabled(skipDuplicates.isSelected());
     }
 
 
@@ -480,5 +493,16 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
 
     public int getMinHomopolymerSize() {
         return ((SpinnerNumberModel) minHmSizeSpinner.getModel()).getNumber().intValue();
+    }
+
+    public SkipDuplicatesMode getSkipDuplicatesMode() {
+        int idx = selectSkipDupMethodBox.getSelectedIndex();
+        if (idx == 1) {
+            return SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
+        } else if (idx == 2) {
+            return SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES;
+        } else {
+            return SkipDuplicatesMode.BOTH;
+        }
     }
 }
