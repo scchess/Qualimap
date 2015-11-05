@@ -75,10 +75,11 @@ public class ComputeCountsTool extends NgsSmartTool {
         options.addOption(new Option(OPTION_OUT_FILE, true, "Output file of coverage report.") );
         options.addOption(new Option(OPTION_PAIRED, "paired", false, "Setting this flag for paired-end experiments will result " +
                 "in counting fragments instead of reads") );
-        options.addOption(new Option(OPTION_ALREADY_SORTED, "sorted", true,
+        options.addOption(new Option(OPTION_ALREADY_SORTED, "sorted", false,
                 "This flag indicates that the input file is already sorted by name. " +
                 "If not set, additional sorting by name will be performed. " +
                 "Only required for paired-end analysis. " ) );
+
 
     }
 
