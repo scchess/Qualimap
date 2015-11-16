@@ -509,12 +509,7 @@ public class BamStatsAnalysis {
         long totalNumberOfMappedSecondOfPair = bamStatsCollector.getNumMappedSecondInPair();
         long totalNumberOfSingletons = bamStatsCollector.getNumSingletons();
 
-        if (totalNumberOfMappedReads == 0) {
-            logger.println("\nWARNING: total number of mapped reads equals zero");
-            bamStats.addWarning(WARNING_ID_NO_MAPPED_READS, "Total number of mapped reads equals zero.\n" +
-                    "For more details, check the number of Unmapped reads.");
-            return;
-        }
+        boolean mappedReadsInRegion = totalNumberOfMappedReads > 0;
 
         if (selectedRegionsAvailable) {
 
@@ -561,14 +556,21 @@ public class BamStatsAnalysis {
 
         isPairedData = bamStats.getNumberOfPairedReads() > 0;
 
-        logger.println("Computing descriptors...");
-		bamStats.computeDescriptors();
-        logger.println("Computing per chromosome statistics...");
-		bamStats.computeChromosomeStats(locator, chromosomeWindowIndexes);
-        logger.println("Computing histograms...");
-		bamStats.computeHistograms();
+        if (mappedReadsInRegion) {
+            logger.println("Computing descriptors...");
+		    bamStats.computeDescriptors();
+            logger.println("Computing per chromosome statistics...");
+		    bamStats.computeChromosomeStats(locator, chromosomeWindowIndexes);
+            logger.println("Computing histograms...");
+		    bamStats.computeHistograms();
+        } else {
+            logger.println("\nWARNING: number of mapped reads equals zero");
+            bamStats.addWarning(WARNING_ID_NO_MAPPED_READS, "Total number of mapped reads or mapped reads in region equals zero.\n" +
+                            "For more details, check the number of Unmapped reads.");
+        }
 
         if(selectedRegionsAvailable && computeOutsideStats){
+
             outsideBamStats.setReferenceSize(referenceSize);
             outsideBamStats.setNumberOfReferenceContigs(locator.getContigs().size());
             outsideBamStats.setNumSelectedRegions(numberOfSelectedRegions);
@@ -593,12 +595,18 @@ public class BamStatsAnalysis {
 
             outsideBamStats.setNumMarkedDuplcateReads( outsideBamStatsCollector.getNumMarkedDuplicates() );
 
-            logger.println("Computing descriptors for outside regions...");
-            outsideBamStats.computeDescriptors();
-            logger.println("Computing per chromosome statistics for outside regions...");
-		    outsideBamStats.computeChromosomeStats(locator, chromosomeWindowIndexes);
-            logger.println("Computing histograms for outside regions...");
-		    outsideBamStats.computeHistograms();
+            if (outsideBamStatsCollector.getNumMappedReads() > 0)  {
+                logger.println("Computing descriptors for outside regions...");
+                outsideBamStats.computeDescriptors();
+                logger.println("Computing per chromosome statistics for outside regions...");
+                outsideBamStats.computeChromosomeStats(locator, chromosomeWindowIndexes);
+                logger.println("Computing histograms for outside regions...");
+                outsideBamStats.computeHistograms();
+            } else  {
+                logger.println("\nWARNING: number of mapped reads outside of regions equals zero");
+                bamStats.addWarning(WARNING_ID_NO_MAPPED_READS, "Number of mapped reads outside of regions equals zero.\n" +
+                    "For more details, check the number of Unmapped reads.");
+            }
 
         }
 

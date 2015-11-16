@@ -214,7 +214,9 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             report.println("     duplication rate = " + formatPercentage(bamStats.getDuplicationRate()) );
         }
 
-        if (bamStats.getNumberOfMappedReads() == 0) {
+
+        if (bamStats.getNumberOfMappedReads() == 0 ||
+                (bamStats.getNumSelectedRegions() > 0  && bamStats.getNumberOfMappedReadsInRegions() == 0) ) {
             report.close();
             return;
         }
@@ -455,7 +457,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         prepareSummaryStatsKeeper();
 
-        prepareChromosomeStatsKeeper(bamStats.getChromosomeStats());
+
+        prepareChromosomeStatsKeeper(bamStats.getChromosomeStats(), bamStats.getNumSelectedRegions() > 0);
 
 
 
@@ -1108,13 +1111,13 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
     }
 
-    private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray) {
+    private void prepareChromosomeStatsKeeper(BamStats.ChromosomeInfo[] statsArray, boolean inRegionsAnalysis) {
 
 
         tableDataStatsKeeper = new StatsKeeper();
         tableDataStatsKeeper.setName("Chromosome stats" + namePostfix );
 
-        if (numMappedReads == 0) {
+        if ( numMappedReads == 0 || ( inRegionsAnalysis && numMappedReadsInRegions == 0) ) {
             return;
         }
 

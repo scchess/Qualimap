@@ -248,7 +248,7 @@ Output
         - number of secondary alignments (duplicates are marked as SAM flag)
         - number of non-unique alignments (SAM format "NH" tag of a read is  more than one) 
         - number of reads aligned to genes, also without any feature (intronic and intergenic) 
-        - number of ambiguous alignments 
+        - number of ambiguous alignments (belong to several genes) 
         - number of unmapped reads.
    
     *Transcript coverage profile* 
