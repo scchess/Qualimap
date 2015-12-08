@@ -115,7 +115,7 @@ public class RNASeqQCAnalysis  {
         report.println("    total alignments = " + sdf.formatLong(computeCountsTask.getTotalAlignmentsNumber()));
         report.println("    secondary alignments = " + sdf.formatLong(computeCountsTask.getSecondaryAlignmentsNumber()));
         report.println("    non-unique alignments = " + sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
-        report.println("    aligned to genes  = " + sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        report.println("    aligned to genes  = " + sdf.formatLong(computeCountsTask.getTotalExonicReads()));
         report.println("    ambiguous alignments = " + sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         report.println("    no feature assigned = " +  sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
         report.println("    not aligned = "  + sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
@@ -124,8 +124,8 @@ public class RNASeqQCAnalysis  {
 
         report.println(">>>>>>> Reads genomic origin");
         report.println("");
-        long totalReadCount = computeCountsTask.getTotalReadCounts() + computeCountsTask.getNoFeatureNumber();
-        long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
+        long exonicReadCount = computeCountsTask.getTotalExonicReads();
+        long totalReadCount = exonicReadCount + computeCountsTask.getNoFeatureNumber();
         long intronicReadCount = th.getNumIntronicReads();
         long intergenicReadCount = th.getNumIntergenicReads();
         long intersectingExonReadCount = th.getNumReadsIntersectingExonRegion();
@@ -199,7 +199,7 @@ public class RNASeqQCAnalysis  {
         TranscriptDataHandler th = computeCountsTask.getTranscriptDataHandler();
 
         loggerThread.logLine("Creating plots");
-        th.setNumTotalReads(computeCountsTask.getTotalReadCounts() + computeCountsTask.getNoFeatureNumber());
+        th.setNumTotalReads(computeCountsTask.getTotalExonicReads() + computeCountsTask.getNoFeatureNumber());
         List<QChart> plots = th.createPlots(computeCountsTask.getSampleName());
 
         reporter.setChartList(plots);
@@ -228,7 +228,7 @@ public class RNASeqQCAnalysis  {
         readsAlignment.addRow("Total number of alignments:", sdf.formatLong(computeCountsTask.getTotalAlignmentsNumber()));
         readsAlignment.addRow("Number of secondary alignments:", sdf.formatLong(computeCountsTask.getSecondaryAlignmentsNumber()));
         readsAlignment.addRow("Number of non-unique alignments:", sdf.formatLong(computeCountsTask.getAlignmentNotUniqueNumber()));
-        readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalReadCounts()));
+        readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalExonicReads()));
         readsAlignment.addRow("Ambiguous alignments:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
         readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
@@ -236,8 +236,8 @@ public class RNASeqQCAnalysis  {
         summaryKeeper.addSection(readsAlignment);
 
         StatsKeeper.Section readsOrigin = new StatsKeeper.Section("Reads genomic origin");
-        long totalReadCount = computeCountsTask.getTotalReadCounts() + computeCountsTask.getNoFeatureNumber();
-        long exonicReadCount = totalReadCount - computeCountsTask.getNoFeatureNumber();
+        long exonicReadCount = computeCountsTask.getTotalExonicReads();
+        long totalReadCount = exonicReadCount + computeCountsTask.getNoFeatureNumber();
         long intronicReadCount = th.getNumIntronicReads();
         long intergenicReadCount = th.getNumIntergenicReads();
         long intersectingExonReadCount = th.getNumReadsIntersectingExonRegion();

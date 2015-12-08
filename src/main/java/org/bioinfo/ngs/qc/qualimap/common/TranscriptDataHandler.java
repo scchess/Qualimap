@@ -31,10 +31,7 @@ import org.apache.commons.math.stat.StatUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.jfree.data.general.DefaultPieDataset;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -417,34 +414,6 @@ public class TranscriptDataHandler {
 
     }
 
-    public double[] computePerBaseTranscriptCoverageHist() {
-
-        final int NUM_BINS = 100;
-
-        GenericHistogram hist = new GenericHistogram(NUM_BINS, true);
-
-        Collection<Gene> genes = geneMap.values();
-
-
-        for (final Gene gene : genes) {
-
-            for (final Gene.Transcript tx : gene) {
-
-                final int[] cov = transcriptCoverage.get(tx);
-
-                if (cov == null)
-                    continue;
-
-                hist.updateHistogram(cov);
-
-
-            }
-        }
-
-        return hist.getHist();
-
-    }
-
     public QChart createCoverageProfilePlot(double[] perBaseTranscriptCoverage, String chartName, String sampleName )
     {
 
@@ -721,7 +690,7 @@ public class TranscriptDataHandler {
 
     }
 
-    public void collectNonFeatureMappedReadInfo(List<Interval> intervals) {
+    public void collectNonFeatureMappedReadInfo(List<Interval> intervals, int numReads) {
         boolean liesInIntergenic = true;
         for (Interval iv : intervals) {
             Collection<Integer> intronOverlaps = intronIntervalTreeMap.getOverlapping(iv);
@@ -731,9 +700,9 @@ public class TranscriptDataHandler {
             }
         }
         if (liesInIntergenic) {
-            numIntergenicReads++;
+            numIntergenicReads += numReads;
         } else {
-            numIntronicReads++;
+            numIntronicReads += numReads;
         }
     }
 

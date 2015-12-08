@@ -63,8 +63,8 @@ public class ComputeCountsTask  {
     String pathToBamFile, pathToGffFile, sampleName;
 
     long primaryAlignments, secondaryAlignments;
-    long notAligned, alignmentNotUnique, noFeature, ambiguous;
-    long readCount, fragmentCount, seqNotFoundCount;
+    long notAligned, alignmentNotUnique, noFeature, ambiguous, exonicReads;
+    long readCount, fragmentCount, seqNotFoundCount, singleReadCount;
     long leftProperInPair, rightProperInPair, bothProperInPair;
     long protocolCorrectlyMapped;
 
@@ -114,10 +114,6 @@ public class ComputeCountsTask  {
 
     public void setLogger(LoggerThread thread) {
         this.logger = thread;
-    }
-
-    public void skipSecondaryAlignments() {
-        this.skipSecondaryAlignments = true;
     }
 
     public void setCollectRnaSeqStats(boolean collectRnaSeqStats) {
@@ -338,7 +334,7 @@ public class ComputeCountsTask  {
             fragmentWeight += read.getFloatAttribute(Constants.READ_WEIGHT_ATTR);
         }
         fragmentWeight /= numReads;
-        processAlignmentIntervals(intervals, fragmentWeight);
+        processAlignmentIntervals(intervals, fragmentWeight, 2);
 
 
     }
@@ -347,12 +343,12 @@ public class ComputeCountsTask  {
     void processRead(SAMRecord read) {
         List<Interval> intervals = getReadIntervals(read);
         float readWeight = read.getFloatAttribute(Constants.READ_WEIGHT_ATTR);
-        fragmentCount++;
-        processAlignmentIntervals(intervals, readWeight);
+        singleReadCount++;
+        processAlignmentIntervals(intervals, readWeight, 1);
     }
 
 
-    void processAlignmentIntervals(List<Interval> intervals, float alnWeight) {
+    void processAlignmentIntervals(List<Interval> intervals, float alnWeight, int numReads) {
 
         //Find intersections
         Map<String,BitSet> featureIntervalMap = findIntersectingFeatures(intervals);
@@ -371,9 +367,9 @@ public class ComputeCountsTask  {
         }
 
         if (features.size()  == 0) {
-            noFeature++;
+            noFeature += numReads;
             if (collectRnaSeqStats) {
-                transcriptDataHandler.collectNonFeatureMappedReadInfo(intervals);
+                transcriptDataHandler.collectNonFeatureMappedReadInfo(intervals, numReads);
             }
         } else if (features.size()  == 1) {
             //if (features.iterator().next().contains("ENSG00000124222"))  {
@@ -382,9 +378,10 @@ public class ComputeCountsTask  {
             String geneName = features.iterator().next();
             double count = readCounts.get(geneName);
             readCounts.put(geneName, count  + alnWeight);
+            exonicReads += numReads;
 
         }   else {
-            ambiguous++;
+            ambiguous += numReads;
         }
 
         if (features.size() > 0 && strandSpecificAnalysis) {
@@ -460,6 +457,10 @@ public class ComputeCountsTask  {
                 continue;
             }
 
+
+            //TODO: there is an issue once the paired end reads are processed! This must be fixed
+            // Test data: /data/qualimap_release_data/RNA_seq/VCAP/tophat_2.0.10_VCap200/RNA_SEQ_QC_PAIRED.txt
+
             if (pairedEndAnalysis && read.getReadPairedFlag() && read.getProperPairFlag()) {
                 String readName = read.getReadName();
                 if (curReadName == null || readName.equals( curReadName ) ) {
@@ -501,6 +502,9 @@ public class ComputeCountsTask  {
             transcriptDataHandler.calculateCoverageBias();
         }
 
+        if (pairedEndAnalysis) {
+            logger.logLine("\nCounted " + fragmentCount + " read pairs, " + singleReadCount + " single reads");
+        }
         logger.logLine("\nProcessed " + readCount + " reads in total");
 
         if (cleanupRequired) {
@@ -781,5 +785,9 @@ public class ComputeCountsTask  {
 
     public LoggerThread getLogger() {
         return logger;
+    }
+
+    public long getTotalExonicReads() {
+        return exonicReads;
     }
 }
