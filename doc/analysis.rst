@@ -246,9 +246,10 @@ Output
         - total number of mapped reads 
         - total number of alignments 
         - number of secondary alignments (duplicates are marked as SAM flag)
-        - number of non-unique alignments (SAM format "NH" tag of a read is  more than one) 
-        - number of reads aligned to genes, also without any feature (intronic and intergenic) 
-        - number of ambiguous alignments (belong to several genes) 
+        - number of non-unique alignments (SAM format "NH" tag of a read is more than one) 
+        - number of reads aligned to genes 
+        - number of ambiguous alignments (belong to several genes, ignored during counting procedure) 
+        - number of alignments without any feature (intronic and intergenic)
         - number of unmapped reads.
    
     *Transcript coverage profile* 
@@ -259,7 +260,7 @@ Output
 
     *Reads genomic origin*
     
-    Shows how many alignments fall into exonic, intronic and intergenic regions along with number of intronic/intergenic alignments overlapping exons. Exonic region includes 5'UTR,protein coding region and 3'UTR region.
+    Shows how many alignments fall into exonic, intronic and intergenic regions along with a number of intronic/intergenic alignments overlapping exons. Exonic region includes 5'UTR,protein coding region and 3'UTR region.
 
     *Junction analysis*
 

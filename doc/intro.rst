@@ -42,7 +42,7 @@ Requirements
 Qualimap requires:
 
 * `JAVA <http://www.java.com>`_ runtime version 6 or above.
-* `R <http://www.r-project.org>`_ enviroment version 2.14 or above.
+* `R <http://www.r-project.org>`_ enviroment version 3.1 or above.
 
 The JAVA runtime can be downloaded from the `official web-site <http://www.java.com>`_.
 There are prebuilt binaries available for many platforms.
@@ -111,7 +111,7 @@ More details available here:
  
     http://cran.r-project.org/bin/linux/ubuntu/README
 
-Qualimap needs R version 2.14 or above. This can be checked with the following command:
+Qualimap needs R version 3.1 or above. This can be checked with the following command:
 
 :samp:`Rscript --version`
 
