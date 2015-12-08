@@ -128,10 +128,13 @@ public class BamStatsAnalysis {
 
     private int maxSizeOfTaskQueue;
 
+
 	// reporting
 	private boolean activeReporting;
 	private boolean saveCoverage, nonZeroCoverageOnly;
     private String pathToCoverageReport;
+    private int windowBlockSizeToReport;
+
 
     // analysis
 	private boolean isPairedData;
@@ -181,6 +184,7 @@ public class BamStatsAnalysis {
         this.outdir = ".";
         this.saveCoverage = false;
         this.nonZeroCoverageOnly = true;
+        this.windowBlockSizeToReport = 50;
         protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
         pgProgram = "";
         pgCommandString = "";
@@ -234,6 +238,10 @@ public class BamStatsAnalysis {
         //effectiveNumberOfWindows = computeEffectiveNumberOfWindows(referenceSize,windowSize);
         List<Long> windowPositions = computeWindowPositions(windowSize);
         effectiveNumberOfWindows = windowPositions.size();
+
+        if (effectiveNumberOfWindows > Constants.DEFAULT_STABLIZED_WINDOW_PROPORTION) {
+            windowBlockSizeToReport = effectiveNumberOfWindows / 10;
+        }
 
         if (skipDetectedDuplicates || skipMarkedDuplicates) {
             String skipDuplicatesReport = "";
@@ -856,7 +864,7 @@ public class BamStatsAnalysis {
 
         // report progress
         int numProcessedWindows = bamStats.getNumberOfProcessedWindows();
-        if (numProcessedWindows % 50 == 0 && bamStats == this.bamStats) {
+        if (numProcessedWindows % windowBlockSizeToReport == 0 && bamStats == this.bamStats) {
             logger.println("Processed " + numProcessedWindows + " out of " + effectiveNumberOfWindows + " windows...");
         }
 

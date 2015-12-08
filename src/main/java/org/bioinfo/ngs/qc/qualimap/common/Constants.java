@@ -27,6 +27,7 @@ public final class Constants {
 	public static final int DEFAULT_NUMBER_OF_WINDOWS = 400;
 	public static final int DEFAULT_CHUNK_SIZE = 1000;
     public static final int DEFAULT_HOMOPOLYMER_SIZE = 3;
+    public static final int DEFAULT_STABLIZED_WINDOW_PROPORTION = 500;
 
 	public static final int GRAPHIC_TO_SAVE_WIDTH = 1024;
 	public static final int GRAPHIC_TO_SAVE_HEIGHT = 768;
