@@ -101,7 +101,7 @@ public class BamQcTool extends NgsSmartTool{
                         " (ignored when -gff option is not set)");
         options.addOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION, "genome-gc-distr",
                 true, "Species to compare with genome GC distribution. " +
-                "Possible values: HUMAN or MOUSE.");
+                "Possible values: HUMAN - hg19; MOUSE - mm9(default), mm10");
         options.addOption(getProtocolOption());
 	}
 
@@ -149,12 +149,14 @@ public class BamQcTool extends NgsSmartTool{
 
         if (commandLine.hasOption(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION)) {
             String val = commandLine.getOptionValue(Constants.BAMQC_OPTION_COMPARE_WITH_GENOME_DISTRIBUTION);
-            if (val.equalsIgnoreCase(BamStatsAnalysis.HUMAN_GENOME_NAME)) {
+            if (val.equalsIgnoreCase(BamStatsAnalysis.HUMAN_GENOME_NAME) || val.equalsIgnoreCase("hg19")) {
                 genomeToCompare = BamStatsAnalysis.HUMAN_GENOME_ID;
-            } else if (val.equalsIgnoreCase(BamStatsAnalysis.MOUSE_GENOME_NAME)) {
+            } else if (val.equalsIgnoreCase(BamStatsAnalysis.MOUSE_GENOME_NAME) || (val.equals("mm9"))) {
                 genomeToCompare = BamStatsAnalysis.MOUSE_GENOME_ID;
+            } else if (val.equals("mm10")) {
+                genomeToCompare = BamStatsAnalysis.MM10_GENOME_ID;
             } else {
-                throw new ParseException("Unknown genome \"" + val+ "\", please use HUMAN or MOUSE");
+                throw new ParseException("Unknown genome \"" + val+ "\", please use available");
 
             }
         }

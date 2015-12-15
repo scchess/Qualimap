@@ -170,13 +170,13 @@ public class ExportHtmlThread extends Thread{
             }
 
             if(success){
-				reportSuccess("Html report created successfully\n");
+				reportSuccess("HTML report created successfully\n");
 			} else {
 				reportFailure("Failed to create the HTML file\n");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-            reportFailure("Unable to create the html file \n" + e.getMessage());
+            reportFailure("Unable to create the HTML file \n" + e.getMessage());
 		}
     }
 

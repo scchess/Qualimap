@@ -284,6 +284,8 @@ public abstract class NgsSmartTool {
 
         }
 
+        logger.println("Writing " + outputType + " report...");
+
         Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
                new ExportPdfThread(resultManager, reportFileName  ) :
                new ExportHtmlThread(resultManager, outdir);

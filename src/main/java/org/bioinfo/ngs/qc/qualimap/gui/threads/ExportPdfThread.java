@@ -142,7 +142,7 @@ public class ExportPdfThread extends Thread {
             document.close();
             file.close();
 
-            reportSuccess("Pdf File Created Successfully \n");
+            reportSuccess("PDF file created successfully \n");
 
 		} catch (Exception e) {
             e.printStackTrace();
@@ -151,7 +151,7 @@ public class ExportPdfThread extends Thread {
 			if (!f.delete()) {
                 System.err.print("Failed to delete " + path);
             }
-            reportFailure("Unable to create the pdf file \n" + e.getMessage());
+            reportFailure("Unable to create the PDF file \n" + e.getMessage());
 		}
 
     }
