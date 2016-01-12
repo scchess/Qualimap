@@ -377,8 +377,8 @@ public class ExportPdfThread extends Thread {
             table.setSpacing(2);
 
             for (String[] row : s.getRows()) {
-                table.addCell(row[0]);
-                table.addCell(row[1]);
+                table.addCell(new Cell(row[0]));
+                table.addCell(new Cell(row[1]));
             }
 
             section.add(table);
@@ -412,18 +412,21 @@ public class ExportPdfThread extends Thread {
                     if (s.getName().equals(Constants.TABLE_STATS_HEADER)) {
 
                         String row[] = s.getRows().get(0);
+                        int fontSize = row.length < 7 ? 12 : 10;
                         for (String item : row) {
-                            Cell c = new Cell(item);
-                            c.setHeader(true);
-                            chrTable.addCell(c);
+                            //Cell c = new Cell(item);
+                            //c.setHeader(true);
+                            chrTable.addCell(new Phrase(item,FontFactory.getFont(FontFactory.HELVETICA , fontSize,
+                                    Font.BOLD)));
                         }
 
                     } else {
 
                     List<String[]> rows = s.getRows();
                     for (String[] row : rows) {
+                        int fontSize = row.length < 7 ? 12 : 10;
                         for (String item : row) {
-                            chrTable.addCell(item);
+                            chrTable.addCell(new Phrase(item,FontFactory.getFont(FontFactory.HELVETICA , fontSize)));
                         }
                     }
                     }

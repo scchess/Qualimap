@@ -51,8 +51,9 @@ public class MultisampleBamQcTool extends NgsSmartTool{
     @Override
     protected void initOptions() {
         options.addOption(requiredOption("d", "data", true,
-                "File describing the input data. Format of the file is a 2-column tab-delimited table." +
-                "\nColumn 1: sample name \nColumn 2: either path to the BAM QC result or path to BAM file (-r mode)"));
+                "File describing the input data. Format of the file is a 2- or 3-column tab-delimited table." +
+                "\nColumn 1: sample name \nColumn 2: either path to the BAM QC result or path to BAM file (-r mode)" +
+                        "\nColumn 3: group name (activates sample group marking)\n"));
 
         options.addOption("r", "run-bamqc", false, "Raw BAM files are provided as input. If this option is activated" +
                 " BAM QC process first will be run for each sample, then multi-sample " +
@@ -134,6 +135,7 @@ public class MultisampleBamQcTool extends NgsSmartTool{
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.MULTISAMPLE_BAM_QC);
 
         List<SampleInfo> bamQcResults = MultisampleBamQcAnalysis.parseInputFile(inputFile);
+
         if (bamQcResults.size() == 0) {
             System.err.println("The input file " + inputFile + " does not contain any samples. " +
                     "Please check file format.");

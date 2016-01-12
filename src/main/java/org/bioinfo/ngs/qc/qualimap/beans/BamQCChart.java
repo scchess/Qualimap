@@ -104,6 +104,11 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
 	public void addSeries(String name, XYVector series, Color color){
 		addSeries(name,series,color,new BasicStroke(1.5f), true);
 	}
+
+    public void addSeries(String name, XYVector series, Color color, boolean  visibleInLegend){
+		addSeries(name,series,color,new BasicStroke(1.5f), visibleInLegend);
+	}
+
 	
 	public void addSeries(String name, XYVector series, Color color, Stroke stroke, boolean visibleInLegend,
                           List<XYBoxAnnotation> annotations){
@@ -333,11 +338,16 @@ public class BamQCChart extends ChartRawDataWriter implements Serializable {
             chart.getXYPlot().setRenderer(i,renderers.get(i));
 
 			// add legend item
-			LegendItem legendItem = new LegendItem(names.get(i));
-			legendItem.setLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,11));
-			legendItem.setLabelPaint(Color.darkGray);
-			legendItem.setFillPaint(colors.get(i));
-			lis.getLegendItems().add(legendItem);
+
+            AbstractXYItemRenderer renderer = renderers.get(i);
+            boolean visibleInLegend = renderer.isSeriesVisibleInLegend(0);
+            if (visibleInLegend) {
+                LegendItem legendItem = new LegendItem(names.get(i));
+			    legendItem.setLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,11));
+			    legendItem.setLabelPaint(Color.darkGray);
+			    legendItem.setFillPaint(colors.get(i));
+			    lis.getLegendItems().add(legendItem);
+            }
 		}
 
 		// finalize legend

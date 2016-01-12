@@ -102,26 +102,19 @@ public class GenomicFeatureStreamReader {
 
                     GenomicFeature feature = new GenomicFeature(seqName, start, end, isNegativeStrand, featureName);
 
-                    String[] attrs = items[8].trim().split(" ");
+                    String[] attrs = items[8].trim().split(";");
 
-                    int len = attrs.length;
-                    if (len % 2 != 0) {
-                        throw new RuntimeException("Warning! Line with wrong attributes is skipped:\n" + line);
-                    }
-
-                    for (int i = 0; i < len; i += 2) {
-                        String atrName = attrs[i];
-                        String atrVal = attrs[i+1];
-                        if (atrVal.endsWith(";")) {
-                            atrVal = atrVal.substring(0, atrVal.length() - 1);
-                        } else {
-                            throw new RuntimeException("Warning! Line with wrong attributes:\n" + line);
+                    for (String attr : attrs) {
+                        String[] atrPair = attr.trim().split(" ");
+                        if (atrPair.length != 2) {
+                            throw new RuntimeException("Warning! Line with wrong attributes is skipped:\n" + line);
                         }
+                        String atrName = atrPair[0];
+                        String atrVal = atrPair[1];
                         if (atrVal.startsWith("\"") && atrVal.endsWith("\"")) {
                             atrVal = atrVal.substring(1, atrVal.length() - 1);
                         }
                         feature.addAttribute(atrName, atrVal);
-
                     }
 
                     return feature;

@@ -51,6 +51,7 @@ public class BamQCPointChart {
     XYSeriesCollection dataset;
     List<Color> colors;
     List<String> names;
+    Map<String,XYSeries> groupSeries;
 
     public BamQCPointChart(String title, String subTitle, String xLabel, String yLabel) {
         this.chartTitle = title;
@@ -60,6 +61,7 @@ public class BamQCPointChart {
         dataset = new XYSeriesCollection();
         colors = new ArrayList<Color>();
         names = new ArrayList<String>();
+        groupSeries = new HashMap<String, XYSeries>();
 
     }
 
@@ -70,6 +72,26 @@ public class BamQCPointChart {
         colors.add(c);
         names.add(sampleName);
 
+    }
+
+    public void addPointToGroupSeries(String groupName, double x, double y, Color c) {
+        if (groupSeries.containsKey(groupName)) {
+            XYSeries series = groupSeries.get(groupName);
+            series.add(x,y);
+        } else {
+            XYSeries s = new XYSeries(groupName);
+            s.add(x,y);
+            groupSeries.put(groupName, s);
+            colors.add(c);
+            names.add(groupName);
+        }
+    }
+
+    public void finalizeGroupSeries() {
+        for (String name: names) {
+            XYSeries s = groupSeries.get(name);
+            dataset.addSeries(s);
+        }
     }
 
     public void render() {
@@ -128,9 +150,11 @@ public class BamQCPointChart {
 		};
 
         final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setBaseLinesVisible(false);
         plot.setRenderer(renderer);
 
         for (int i = 0; i < plot.getSeriesCount(); ++i) {
+
             LegendItem legendItem = new LegendItem(names.get(i));
 			legendItem.setLabelFont(new Font(Font.SANS_SERIF,Font.PLAIN,11));
 			legendItem.setLabelPaint(Color.darkGray);

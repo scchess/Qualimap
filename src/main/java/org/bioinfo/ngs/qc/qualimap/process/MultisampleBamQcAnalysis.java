@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
@@ -47,6 +48,8 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     LoggerThread loggerThread;
     Paint[] palette;
     Map<SampleInfo,String> rawDataDirs;
+    Map<String,ArrayList<String>> sampleGroups;
+    Map<String, Integer> groupIndex;
     boolean runBamQcFirst;
     BamStatsAnalysisConfig bamQcConfig;
 
@@ -59,6 +62,10 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         this.bamQCResults = bamQCResults;
         this.palette = ChartColor.createDefaultPaintArray();
         this.rawDataDirs = new HashMap<SampleInfo, String>();
+
+        this.sampleGroups = new HashMap<String, ArrayList<String>>();
+        this.groupIndex = new HashMap<String, Integer>();
+
         sampleData = new ArrayList<double[]>();
 
     }
@@ -74,10 +81,10 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         loggerThread.logLine("Checking input paths");
         checkInputPaths();
+        processGroups();
 
         StatsReporter reporter = new StatsReporter();
         reporter.setFileName( "multisampleBamQcReport" );
-
 
         prepareInputDescription(reporter);
         loggerThread.logLine("Loading sample data");
@@ -87,6 +94,28 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
         tabProperties.addReporter(reporter);
+
+    }
+
+    private void processGroups() {
+
+        int numGroups = 0;
+        for (SampleInfo s : bamQCResults) {
+            if (sampleGroups.containsKey(s.group) ){
+                ArrayList<String> samples = sampleGroups.get(s.group);
+                samples.add(s.name);
+            } else {
+                ArrayList<String> samples = new ArrayList<String>();
+                samples.add(s.name);
+                sampleGroups.put(s.group, samples);
+                groupIndex.put(s.group, numGroups);
+                numGroups++;
+            }
+        }
+
+        if (bamQCResults.size() == numGroups ) {
+            sampleGroups.clear();
+        }
 
     }
 
@@ -196,15 +225,27 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         StatsKeeper.Section section = new StatsKeeper.Section("Globals");
         section.addRow("Number of samples", Integer.toString( bamQCResults.size() ));
+        boolean  groupsAvailable =  sampleGroups.size() > 0;
+        if (groupsAvailable) {
+            section.addRow("Number of groups", Integer.toString( sampleGroups.size() ));
+        }
         summaryKeeper.addSection(section);
 
         StatsKeeper tableDataKeeper = reporter.getTableDataStatsKeeper();
+        tableDataKeeper.setName("Sample statistics");
 
         StatsKeeper.Section headerSection = new StatsKeeper.Section("header");
         String[] header = {"Sample name", "Coverage mean", "Coverage std",
                 "GC percentage", "Mapping quality mean", "Insert size median" };
+        if (groupsAvailable) {
+            header = new String[]{"Sample", "Group", "Coverage mean", "Coverage std",
+                    "GC percentage", "Mapping quality mean", "Insert size median"};
+        }
+
         headerSection.addRow( header );
         tableDataKeeper.addSection(headerSection);
+
+
 
         StatsKeeper.Section dataSection = new StatsKeeper.Section("data");
 
@@ -214,11 +255,16 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
             String[] row = new String[header.length];
             row[0] = bamQcResult.name;
-            row[1] = Double.toString( stats.getMeanCoverage() );
-            row[2] = Double.toString( stats.getStdCoverage() );
-            row[3] = Double.toString( stats.getMeanGcRelativeContent() );
-            row[4] = Double.toString( stats.getMeanMappingQualityPerWindow() );
-            row[5] = Double.toString( stats.getMedianInsertSize() );
+            int mv = 0;
+            if (sampleGroups.size() > 0) {
+                row[1] = bamQcResult.group;
+                mv = 1;
+            }
+            row[1 + mv ] = Double.toString( stats.getMeanCoverage() );
+            row[2 + mv ] = Double.toString( stats.getStdCoverage() );
+            row[3 + mv ] = Double.toString( stats.getMeanGcRelativeContent() );
+            row[4 + mv ] = Double.toString( stats.getMeanMappingQualityPerWindow() );
+            row[5 + mv ] = Double.toString( stats.getMedianInsertSize() );
             dataSection.addRow(row);
 
             double[] sample = new double[NUM_FEATURES];
@@ -280,6 +326,8 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                             "Multi-sample BAM QC", xTitle, yTitle);
 
         int i = 0;
+        Set<Integer> shownInLegend = new HashSet<Integer>();
+
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
             File inputFile = new File(path);
@@ -290,7 +338,16 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             if (histData.getSize() == 0) {
                 continue;
             }
-            baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
+            if (sampleGroups.size() == 0) {
+                baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
+            } else {
+                int gIdx = groupIndex.get(bamQcResult.group);
+                boolean  showInLegend = !shownInLegend.contains(gIdx);
+                baseChart.addSeries(bamQcResult.group, histData, getSampleColor(gIdx), showInLegend );
+                shownInLegend.add(gIdx);
+            }
+
+
             ++i;
         }
 
@@ -304,6 +361,9 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                                 "Multi-sample BAM QC", xTitle, yTitle);
 
             int i = 0;
+            Set<Integer> shownInLegend = new HashSet<Integer>();
+
+
             for (SampleInfo bamQcResult : bamQCResults) {
 
                 File inputFile = new File(  rawDataDirs.get(bamQcResult) + File.separator + dataPath );
@@ -326,7 +386,14 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                     gcData.addItem( new XYItem(pos,gc));
                 }
 
-                baseChart.addSeries(bamQcResult.name, gcData, getSampleColor(i));
+                if (sampleGroups.size() == 0) {
+                    baseChart.addSeries(bamQcResult.name, gcData, getSampleColor(i) );
+                } else {
+                    int gIdx = groupIndex.get(bamQcResult.group);
+                    boolean  showInLegend = !shownInLegend.contains(gIdx);
+                    baseChart.addSeries(bamQcResult.group, gcData, getSampleColor(gIdx), showInLegend );
+                    shownInLegend.add(gIdx);
+                }
                 ++i;
             }
 
@@ -361,6 +428,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         DescriptiveStatistics stats = new DescriptiveStatistics();
         int k = 0;
+        Set<Integer> shownInLegend = new HashSet<Integer>();
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = rawDataDirs.get(bamQcResult) + File.separator + "coverage_across_reference.txt";
             XYVector rawData = loadColumnData(new File(path), 0, Double.MAX_VALUE, 1);
@@ -368,8 +436,15 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             for (int i = 0; i < scaledData.getSize(); ++i) {
                 stats.addValue( scaledData.get(i).getY() );
             }
+            if (sampleGroups.size() == 0) {
+                baseChart.addSeries(bamQcResult.name, scaledData, getSampleColor(k) );
+            } else {
+                int gIdx = groupIndex.get(bamQcResult.group);
+                boolean  showInLegend = !shownInLegend.contains(gIdx);
+                baseChart.addSeries(bamQcResult.group, scaledData, getSampleColor(gIdx), showInLegend );
+                shownInLegend.add(gIdx);
+            }
 
-            baseChart.addSeries(bamQcResult.name, scaledData, getSampleColor(k) );
             ++k;
         }
         baseChart.setDomainAxisIntegerTicks(false);
@@ -389,6 +464,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                             "Multi-sample BAM QC", "Position in reference (relative)", yTitle);
 
         int k = 0;
+        Set<Integer> shownInLegend = new HashSet<Integer>();
         for (SampleInfo bamQcResult : bamQCResults) {
             File dataFile = new File( rawDataDirs.get(bamQcResult) + File.separator +  dataPath );
             if (!dataFile.exists()) {
@@ -397,7 +473,15 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             XYVector rawData = loadColumnData(dataFile, 0, Double.MAX_VALUE, 1);
             XYVector scaledData = scaleXAxis(rawData);
 
-            baseChart.addSeries(bamQcResult.name, scaledData, getSampleColor(k) );
+            if (sampleGroups.size() == 0) {
+                baseChart.addSeries(bamQcResult.name, scaledData, getSampleColor(k) );
+            } else {
+                int gIdx = groupIndex.get(bamQcResult.group);
+                boolean  showInLegend = !shownInLegend.contains(gIdx);
+                baseChart.addSeries(bamQcResult.group, scaledData, getSampleColor(gIdx), showInLegend );
+                shownInLegend.add(gIdx);
+            }
+
             ++k;
         }
         baseChart.setDomainAxisIntegerTicks(false);
@@ -417,12 +501,22 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         int i = 0;
         int maxCoverage = 50;
+        Set<Integer> shownInLegend = new HashSet<Integer>();
+
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
             XYVector histData = loadColumnData(new File(path), 0, 1000000,1);
             int coverage = (int) histData.getXVector()[histData.getSize() - 1];
             maxCoverage = coverage > maxCoverage ? coverage : maxCoverage;
-            baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
+            if (sampleGroups.size() == 0) {
+                baseChart.addSeries(bamQcResult.name, histData, getSampleColor(i) );
+            } else {
+                int gIdx = groupIndex.get(bamQcResult.group);
+                boolean  showInLegend = !shownInLegend.contains(gIdx);
+                baseChart.addSeries(bamQcResult.group, histData, getSampleColor(gIdx), showInLegend );
+                shownInLegend.add(gIdx);
+            }
+
 
             ++i;
         }
@@ -454,7 +548,17 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         for (int i = 0; i < sampleData.size(); ++i) {
             double[] transformedSample = pca.sampleToEigenSpace(sampleData.get(i));
-            baseChart.addPoint(bamQCResults.get(i).name, transformedSample[0],transformedSample[1], getSampleColor(i) );
+            if (sampleGroups.size() == 0) {
+                baseChart.addPoint(bamQCResults.get(i).name, transformedSample[0],transformedSample[1], getSampleColor(i) );
+            } else {
+                String groupName = bamQCResults.get(i).group;
+                int gIdx = groupIndex.get(groupName);
+                baseChart.addPointToGroupSeries(groupName, transformedSample[0], transformedSample[1], getSampleColor(gIdx));
+            }
+        }
+
+        if (sampleGroups.size() > 0) {
+            baseChart.finalizeGroupSeries();
         }
 
         baseChart.render();
@@ -524,9 +628,14 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     private void prepareInputDescription(StatsReporter reporter) {
         HashMap<String,String> sampleParams = new HashMap<String, String>();
         for ( SampleInfo info : bamQCResults ) {
-            sampleParams.put(info.name, info.path );
+            if (sampleGroups.size() == 0) {
+                sampleParams.put(info.name, info.path );
+            } else {
+                sampleParams.put(info.name + " (" + info.group + ")", info.path);
+            }
         }
-        reporter.addInputDataSection("Samples", sampleParams);
+        String sectionName = sampleGroups.size() == 0 ? "Samples" : "Samples (with groups)";
+        reporter.addInputDataSection(sectionName, sampleParams);
 
 
     }
@@ -584,6 +693,8 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFilePath));
         String line;
+        int numSamplesWithGroup = 0;
+
         while ( (line = bufferedReader.readLine()) != null) {
             if (line.startsWith("#") || line.isEmpty()) {
                 continue;
@@ -591,7 +702,8 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
             String[] items = line.trim().split("\\s+");
 
-            if (items.length != 2) {
+            boolean okLength = items.length == 2 || items.length == 3;
+            if (!okLength) {
                 continue;
             }
 
@@ -601,10 +713,19 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
                 // Try relative path
                 path = new File(inputFilePath).getParent() + File.separator + path;
             }
-
-            paths.add(  new SampleInfo(items[0], path ) );
+            if (items.length == 2) {
+                paths.add(  new SampleInfo(items[0], path ) );
+            } else {
+                numSamplesWithGroup++;
+                paths.add( new SampleInfo(items[0], path, items[2]) );
+            }
 
         }
+
+        if (numSamplesWithGroup > 0 && numSamplesWithGroup != paths.size()) {
+            throw new IOException("Error parsing configuration: number of defined groups is less than number of samples!");
+        }
+
 
         return paths;
 

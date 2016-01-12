@@ -29,12 +29,20 @@ public class SampleInfo{
 
     public String name;
     public String path;
+    public String group;
 
     public SampleInfo() {}
 
     public SampleInfo(String name, String path) {
         this.name = name;
         this.path = path;
+        this.group = name;
+    }
+
+    public SampleInfo(String name, String path, String group) {
+        this.name = name;
+        this.path = path;
+        this.group = group;
     }
 
 
