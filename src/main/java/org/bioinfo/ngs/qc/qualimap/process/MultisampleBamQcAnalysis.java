@@ -28,9 +28,11 @@ import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.gui.threads.ExportHtmlThread;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
+import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.jfree.chart.ChartColor;
 
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -189,14 +191,17 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             if (line.startsWith("#") || line.isEmpty()) {
                 continue;
             }
-            if (line.contains("mean coverageData =")) {
+            if (line.contains("number of mapped reads =")) {
+                long numMappedReads = Long.parseLong(line.split("=")[1].split("\\(")[0].trim().replaceAll("[\\,]", ""));
+                bamStats.setNumberOfMappedReads(numMappedReads);
+            } else if (line.contains("mean coverageData =")) {
                 double meanCoverage = Double.parseDouble( line.split("=")[1].trim().replaceAll("[X\\,]", "") );
                 bamStats.setCoverageMean(meanCoverage);
             } else if (line.contains("std coverageData =")) {
                 double stdCoverage = Double.parseDouble(line.split("=")[1].trim().replaceAll("[X\\,]", ""));
                 bamStats.setCoverageStd(stdCoverage);
             } else if (line.contains("mean mapping quality =")) {
-                double mappingQuality = Double.parseDouble(line.split("=")[1].trim().replaceAll("\\,",""));
+                double mappingQuality = Double.parseDouble(line.split("=")[1].trim().replaceAll("\\,", ""));
                 bamStats.setMeanMappingQuality(mappingQuality);
             } else if (line.contains("GC percentage =")) {
                 // This is actually in percents already - only should be used in the context of Multiple BAM QC
@@ -223,13 +228,12 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
         StatsKeeper summaryKeeper = reporter.getSummaryStatsKeeper();
 
-        StatsKeeper.Section section = new StatsKeeper.Section("Globals");
-        section.addRow("Number of samples", Integer.toString( bamQCResults.size() ));
+        StatsKeeper.Section globalsSection = new StatsKeeper.Section("Globals");
+        globalsSection.addRow("Number of samples", Integer.toString(bamQCResults.size()));
         boolean  groupsAvailable =  sampleGroups.size() > 0;
         if (groupsAvailable) {
-            section.addRow("Number of groups", Integer.toString( sampleGroups.size() ));
+            globalsSection.addRow("Number of groups", Integer.toString(sampleGroups.size()));
         }
-        summaryKeeper.addSection(section);
 
         StatsKeeper tableDataKeeper = reporter.getTableDataStatsKeeper();
         tableDataKeeper.setName("Sample statistics");
@@ -243,11 +247,18 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         }
 
         headerSection.addRow( header );
+
         tableDataKeeper.addSection(headerSection);
 
 
-
         StatsKeeper.Section dataSection = new StatsKeeper.Section("data");
+
+
+        long totalNumReads = 0;
+        double totalMeanCoverage = 0;
+        double totalGcContent = 0;
+        double totalMappingQuality = 0;
+        double totalInsertSize = 0;
 
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = bamQcResult.path + File.separator + "genome_results.txt";
@@ -267,6 +278,12 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
             row[5 + mv ] = Double.toString( stats.getMedianInsertSize() );
             dataSection.addRow(row);
 
+            totalNumReads += stats.getNumberOfMappedReads();
+            totalMeanCoverage += stats.getMeanCoverage();
+            totalGcContent += stats.getMeanGcRelativeContent();
+            totalMappingQuality += stats.getMeanMappingQualityPerWindow();
+            totalInsertSize += stats.getMedianInsertSize();
+
             double[] sample = new double[NUM_FEATURES];
             sample[0] = stats.getMeanCoverage();
             sample[1] = stats.getStdCoverage();
@@ -277,6 +294,20 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
 
         }
+
+        StringUtilsSwing sdf = new StringUtilsSwing();
+
+
+        int numSamples = sampleData.size();
+        globalsSection.addRow("Total number of mapped reads", sdf.formatLong(totalNumReads) );
+        globalsSection.addRow("Mean samples coverage", sdf.formatDecimal(totalMeanCoverage / numSamples ));
+        globalsSection.addRow("Mean samples GC-content", sdf.formatDecimal(totalGcContent / numSamples ));
+        globalsSection.addRow("Mean samples mapping quality", sdf.formatDecimal(totalMappingQuality / numSamples ));
+        if (totalInsertSize > 0) {
+            globalsSection.addRow("Mean samples insert size", sdf.formatDecimal(totalInsertSize / numSamples ));
+        }
+        summaryKeeper.addSection(globalsSection);
+
         tableDataKeeper.addSection(dataSection);
 
 
