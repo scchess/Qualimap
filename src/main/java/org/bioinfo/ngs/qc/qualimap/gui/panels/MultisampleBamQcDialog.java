@@ -54,7 +54,7 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
     static class SampleDataTableModel extends AbstractTableModel {
 
         java.util.List<SampleInfo> sampleReplicateList;
-        final String[] columnNames = { "Sample name", "Path"};
+        final String[] columnNames = { "Sample name", "Path", "Group"};
 
         public SampleDataTableModel() {
             sampleReplicateList = new ArrayList<SampleInfo>();
@@ -102,6 +102,8 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
                 return sampleInfo.name;
             } else if (j == 1) {
                 return sampleInfo.path;
+            } else if (j == 2) {
+                return sampleInfo.group;
             } else {
                 return "";
             }
@@ -207,22 +209,26 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             SampleInfo s1 = new SampleInfo();
             s1.name = "MCF7";
             s1.path = "/data/fusions-data/breast_cancer_MCF7/tophat_out/accepted_hits_stats";
+            s1.group = EditSampleInfoDialog.EMPTY_GROUP;
             sampleTableModel.addItem(s1);
 
 
             SampleInfo s2 = new SampleInfo();
             s2.name = "Kidney";
-            s2.path = "/data/qualimap_release_data/counts/kidney_stats";
+            s2.path = "/data/qualimap_release_data/counts/kidney_stats_v2.1.2";
+            s2.group = EditSampleInfoDialog.EMPTY_GROUP;
             sampleTableModel.addItem(s2);
 
             SampleInfo s3 = new SampleInfo();
             s3.name = "Liver";
             s3.path = "/data/qualimap_release_data/counts/liver_stats";
+            s3.group = EditSampleInfoDialog.EMPTY_GROUP;
             sampleTableModel.addItem(s3);
 
             SampleInfo s4 = new SampleInfo();
             s4.name = "Plasmodium DNA";
             s4.path = "/data/qualimap_release_data/alignments/Plasmodium-falciparum-3D7_stats";
+            s4.group = EditSampleInfoDialog.EMPTY_GROUP;
             sampleTableModel.addItem(s4);
 
         }
@@ -373,6 +379,9 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
 
                 sampleTableModel.clearItems();
                 for (SampleInfo item : bamQcResults) {
+                    if (item.name.equals(item.group)) {
+                        item.group = EditSampleInfoDialog.EMPTY_GROUP;
+                    }
                     sampleTableModel.addItem(item);
                 }
 
@@ -441,6 +450,19 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
             return "Only one sample is provided! Please include more samples.";
         }
 
+        List<SampleInfo> infoItems = sampleTableModel.getItems();
+        int numItemsWithGroup = 0;
+        for (SampleInfo info : infoItems) {
+            if (!info.group.equals(EditSampleInfoDialog.EMPTY_GROUP)) {
+                numItemsWithGroup += 1;
+            }
+        }
+
+        if (numItemsWithGroup > 0 && numItemsWithGroup != infoItems.size()) {
+            return "The group type was not assigned to all of the samples!";
+        }
+
+
         if (analyzeRegionsCheckBox.isSelected()) {
             if (pathGffFile.getText().isEmpty()) {
                 return "Path to GFF file is not set!";
@@ -474,7 +496,15 @@ public class MultisampleBamQcDialog extends AnalysisDialog implements ActionList
     }
 
     public java.util.List<SampleInfo> getDataItems() {
-            return sampleTableModel.getItems();
+
+        List<SampleInfo> infoList = sampleTableModel.getItems();
+        for (SampleInfo info : infoList) {
+            if (info.group.equals(EditSampleInfoDialog.EMPTY_GROUP)) {
+                info.group = info.name;
+            }
+        }
+
+        return infoList;
     }
 
     public boolean runBamQcFirst() {

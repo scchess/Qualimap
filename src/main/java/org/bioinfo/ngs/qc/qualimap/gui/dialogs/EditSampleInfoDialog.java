@@ -26,10 +26,7 @@ import org.bioinfo.ngs.qc.qualimap.process.SampleInfo;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.io.File;
 
 /**
@@ -40,11 +37,13 @@ import java.io.File;
 public class EditSampleInfoDialog extends JDialog implements KeyListener {
 
     MultisampleBamQcDialog parentDlg;
-    JTextField sampleName, pathField;
+    JTextField sampleName, pathField, groupName;
     JButton okButton, cancelButton, browseSampleButton;
     Component frame;
     boolean editMode;
     int itemIndex;
+
+    public static final String EMPTY_GROUP = "<no group>";
 
     public EditSampleInfoDialog( MultisampleBamQcDialog parent) {
 
@@ -72,7 +71,7 @@ public class EditSampleInfoDialog extends JDialog implements KeyListener {
         SampleInfo itemToModify = parentDlg.getDataItem(itemIndex);
         sampleName.setText(itemToModify.name);
         pathField.setText(itemToModify.path);
-
+        groupName.setText(itemToModify.group);
 
     }
 
@@ -82,15 +81,34 @@ public class EditSampleInfoDialog extends JDialog implements KeyListener {
 
         add(new JLabel("Sample name:"));
         sampleName = new JTextField(30);
+        sampleName.setToolTipText("Name of the sample, applied in the analysis.");
         add(sampleName, "wrap");
 
         add(new JLabel("Path"));
         pathField = new JTextField(30);
+        pathField.setToolTipText("Path to the Qualimap BAM QC reprot folder or to the BAM file.");
         add(pathField);
+
         browseSampleButton = new JButton("...");
         browseSampleButton.addActionListener(
                 new BrowseButtonActionListener(this, pathField, "BAM QC result or raw BAM file", true) );
         add(browseSampleButton, "wrap");
+
+        add(new JLabel("Group (optional)"));
+        groupName = new JTextField(30);
+        groupName.setText(EMPTY_GROUP);
+        groupName.setToolTipText("The field allows to set the group of the sample. " +
+                "In this case all samples should have groups. Without the group leave the field empty.");
+        groupName.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                if (groupName.getText().equals(EMPTY_GROUP)) {
+                    groupName.setText("");
+                }
+            }
+        });
+        add(groupName, "wrap");
+
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new MigLayout("insets 10"));
@@ -103,6 +121,10 @@ public class EditSampleInfoDialog extends JDialog implements KeyListener {
                     SampleInfo item = new SampleInfo();
                     item.name = sampleName.getText();
                     item.path = pathField.getText();
+                    item.group = groupName.getText();
+                    if (item.group.isEmpty()) {
+                        item.group = EMPTY_GROUP;
+                    }
                     if (editMode) {
                         parentDlg.replaceDataItem(itemIndex, item);
                     } else {
