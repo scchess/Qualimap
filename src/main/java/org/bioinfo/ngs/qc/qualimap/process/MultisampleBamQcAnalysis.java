@@ -21,7 +21,6 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.bioinfo.ngs.qc.qualimap.beans.*;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
@@ -32,7 +31,6 @@ import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.jfree.chart.ChartColor;
 
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -54,6 +52,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
     Map<String, Integer> groupIndex;
     boolean runBamQcFirst;
     BamStatsAnalysisConfig bamQcConfig;
+    Map<Integer,Double> globalCoverageData;
 
     static final int NUM_FEATURES = 5;
 
@@ -69,6 +68,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         this.groupIndex = new HashMap<String, Integer>();
 
         sampleData = new ArrayList<double[]>();
+        globalCoverageData = new HashMap<Integer, Double>();
 
     }
 
@@ -537,6 +537,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         for (SampleInfo bamQcResult : bamQCResults) {
             String path = rawDataDirs.get(bamQcResult) + File.separator + dataPath;
             XYVector histData = loadColumnData(new File(path), 0, 1000000,1);
+            integrateHistogramData(globalCoverageData, histData);
             int coverage = (int) histData.getXVector()[histData.getSize() - 1];
             maxCoverage = coverage > maxCoverage ? coverage : maxCoverage;
             if (sampleGroups.size() == 0) {
@@ -558,6 +559,38 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         baseChart.render();
 
         return new QChart(chartName, baseChart.getChart());
+    }
+
+    QChart createGlobalCoverageChart(String chartName, String xTitle, String yTitle) {
+
+        BamQCChart baseChart = new BamQCChart(chartName,
+                            "Multi-sample BAM QC", xTitle, yTitle);
+
+
+        List<Integer> keyList = new ArrayList<Integer>(globalCoverageData.keySet());
+        Collections.sort(keyList);
+
+        XYVector histData = new XYVector();
+
+        for (int cov : keyList) {
+            histData.addItem( new XYItem(cov, globalCoverageData.get(cov)));
+        }
+
+        baseChart.addSeries("All samples combined", histData, getSampleColor(0), true );
+        baseChart.render();
+
+        return new QChart(chartName, baseChart.getChart());
+    }
+
+
+    private void integrateHistogramData(Map<Integer, Double> globalCoverageData, XYVector histData) {
+        int size = histData.getSize();
+        for (int i = 0; i < size; i++) {
+            XYItem item = histData.get(i);
+            int x =  (int) item.getX();
+            double data = globalCoverageData.containsKey(x) ? globalCoverageData.get(x) : 0;
+            globalCoverageData.put(x, data + item.getY());
+        }
     }
 
     private QChart createPCABiPlot() {
@@ -610,11 +643,15 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
         charts.add(coverageAcrossRefChart);
 
         QChart coverageChart = createCoverageProfileChart("Coverage Histogram", "coverage_histogram.txt",
-                "Coverage", "Number of genomic locations");
+                "Coverage (X)", "Number of genomic locations");
         charts.add(coverageChart);
 
+        QChart globalCoverageChart = createGlobalCoverageChart("Global Coverage Histogram",
+                "Coverage (X)", "Number of genomic locations");
+        charts.add(globalCoverageChart);
+
         QChart genomeFractionCoverage = createHistogramBasedChart("Genome Fraction Coverage",
-                "genome_fraction_coverage.txt", "Coverage", "Fraction of genome (%)");
+                "genome_fraction_coverage.txt", "Coverage (X)", "Fraction of genome (%)");
         charts.add(genomeFractionCoverage);
 
         QChart duplicationRate = createHistogramBasedChart("Duplication Rate Histogram",
