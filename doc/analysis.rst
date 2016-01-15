@@ -479,9 +479,13 @@ When **Compare conditions** option is selected, additional plots comparing data 
 Multi-sample BAM QC
 -------------------
 
-Very often in genomics one has to work with multiple samples, which could represent sequencing results from either biological replicates or different conditions. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
+Very often in genomics one has to work with multiple samples, which could represent sequencing results from either biological replicates or different conditions. For example, to reliably detect significant mutations from sequencing data in cancer it is required to analyze tens or even hundreds of samples from matched normal-tumor data. When performing such large scale experiments it is always important to know if all samples belonging to a specific group pass the quality controls. To detect possible outliers one can compare results of :ref:`BAM QC analysis<bamqc>` performed on each individual sample. 
 
-QualiMap provides an automated solution for this task. Basically, the QC metrics computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers.
+QualiMap provides an automated solution for this task. Basically, the QC metrics computed in *BAM QC analysis* are combined together for all samples. Additionally **Principal Component Analysis** is performed to analyze variability and detect outliers. 
+
+.. note::
+
+ Starting from version 2.2 it is possible to assign groups marking biolobical or technical conditions of the samples. 
 
 One can apply multi-sample analysis for precomputed results of QualiMap BAM QC or directly for raw BAM files. In latter case firstly BAM QC analysis will be performed for each input file and then multi-sample analysis will be executed.
 
@@ -490,9 +494,13 @@ To start a new multi-sample BAM QC analysis activate main menu item :menuselecti
 Examples
 ^^^^^^^^
 
-- `gH2AX Chip-seq data: 4 conditions, 3 replicates per condition <http://kokonech.github.io/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_. Example report for a ChIP-seq experiment having 12 samples.
+
+- `gh2ax chip-seq data: 12 samples <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_: example report for a ChIP-seq experiment having 12 samples.  
+
+- `gh2ax chip-seq data: 4 conditions, 3 replicates per condition <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/gh2ax_groups_multibamqc/multisampleBamQcReport.html>`_: example report for the same ChIP-seq experiment with 4 biological conditions marked. Each condition group includes 3 samples. 
  
-- See the :ref:`Sample data <samples>` section for more details about the data used in the example.
+
+See the :ref:`Sample data <samples>` section for more details about the data used in the example.
 
 Input Parameters
 ^^^^^^^^^^^^^^^^
@@ -509,15 +517,17 @@ The input samples can be added using button :guilabel:`Add`. For each sample one
 
 2. **Path** to the folder with which contains results of BAM QC analysis performed on the sample. The folder must include file **genome_results.txt** and subfolder **raw_data_qualimapReport** containing data of BAM QC plots. If **"Raw data" mode** is activated then the path to the BAM file should be provided.
 
+3. **Group** of the sample. This option allows to combine the samples of the same condition. After the group is assigned, the samples in the plots belonging to the group will have the same color. Importantly, if the groups are avaialble, they should be provided for **each sample**. Empty value will mean no group.
+
 .. note::
 
    In QualiMap version <= 2.0 directory with raw data of BAM QC analysis was called **raw_data**. This name is also supported.
 
 Each added sample will be shown in **Samples** table. One can edit samples using button :guilabel:`Edit` and remove them using button :guilabel:`Remove`.
 
+Additionally it is possible to import configuration file, that is applied for command line interface using button :guilabel:`Import configuration...`. The configuration file is explained in :ref:`the overview of the command line mode<cmdline-multibamqc>`.
 
 :guilabel:`"Raw data" mode: run BAM QC on input samples`
-
 
     Activate this checkbox to analyze BAM files directly. A selected set of options is available to customize *BAM QC* process. One can read detailed explantion of these options in a :ref:`corresponding section<bamqc>` of the manual.
 
@@ -530,7 +540,7 @@ Output
 
 :guilabel:`Summary` 
 
-  The summary table contains comparison of selected critical alignment metrics for all samples. The metrics include mean and standard deviation of coverage, mean GC content, mean insert size and mean mapping qualities. 
+  The summary table contains comparison of selected critical alignment metrics for all samples. The metrics include mean and standard deviation of coverage, mean GC content, mean insert size and mean mapping qualities. If the sample groups are provided, they are also shown for each sample.
 
 :guilabel:`Input` 
 
@@ -542,7 +552,7 @@ Output
 
 :guilabel:`Coverage Across Reference`, :guilabel:`Coverage Histogram (0-50X)` , :guilabel:`Genome Fraction Coverage`, :guilabel:`Duplication Rate Histogram`, :guilabel:`Mapped Reads GC Content`, :guilabel:`Mapped Reads GC Content Distribution`, :guilabel:`Mapped Reads Clipping Profile`, :guilabel:`Mapping Quality Across Reference`, :guilabel:`Mapping Quality Histogram`, :guilabel:`Insert Size Across Reference`, :guilabel:`Insert Size Histogram`
 
-  The following plots demonstrate the comparison of samples using data from corresponding plots computed during BAM QC analysis. Each curve on a plot represents a single sample.
+  The following plots demonstrate the comparison of samples using data from corresponding plots computed during BAM QC analysis. Each curve on a plot represents a single sample. 
 
   Please refer to documentation of :ref:`BAM QC<bamqc>` for detailed information about the plots.
 

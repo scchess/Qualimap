@@ -192,7 +192,21 @@ To perform multi-sample BAM QC use the following command::
                                 will be performed.
 
  
-| The main argument for this command is the configuration file describing input data (-d). This has to be a 2-column tab-delimted file. The first column should contain the sample name and the second column should contain either path to the results of BAM QC analysis or path to the BAM file (if -r mode is activated). The path for the data could be absolute or relative to the location of the configuration file.
+| The main argument for this command is the configuration file describing input data (-d). This has to be a 2- or 3-column tab-delimted file. The first column should contain the sample name and the second column should contain either path to the results of BAM QC analysis or path to the BAM file (if -r mode is activated). The path for the data could be absolute or relative to the location of the configuration file. Additionally the third optional column can provide the condition of the sample. This is an optional column. However, if conditions are available they should be provided for each sample. 
+
+| Here's an example of configuration file describing samples with conditions:
+
+    ``sample_1   sample_1_stats  group_1``
+
+    ``sample_2   sample_2_stats  group_1``
+
+    ``sample_3   sample_3_stats  group_1``
+
+    ``sample_4   sample_4_stats  group_2``
+
+    ``sample_5   sample_5_stats  group_2``
+
+    ``sample_6   sample_6_stats  group_2``
 
 | Detailed explanation of the analysis can be found here :ref:`here<multibamqc>`.
 

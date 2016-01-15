@@ -40,7 +40,7 @@ Multisample BAM QC
 
 - `gh2ax_chip_seq.zip <http://kokonech.github.io/qualimap/samples/gh2ax_chip_seq.zip>`_
     
-    Example dataset from an unpublished ChiP-seq experiment with 4 condtions, each having 3 replicates (12 sampels in total). The archive contains BAM QC results for each sample and input configuration for command line version of Multisample BAM QC.
+    Example dataset from an unpublished ChiP-seq experiment with 4 condtions, each having 3 replicates (12 sampels in total). The archive contains BAM QC results for each sample and input configurations (normal: *input.txt*, with marked conditions: *input.with_groups.txt*) for command line version of Multisample BAM QC.
 
 
 .. _counts-samples:
@@ -95,6 +95,8 @@ Multisample BAM QC
 
 Multisample analysis of 12 gH2AX ChiP-seq alignments: `Qualimap HTML report <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/gh2ax_multibamqc/multisampleBamQcReport.html>`_.
 
+Multisample analysis of the same data with condition assigned for each sample: `Qualimap HTML report <http://rawgit.com/kokonech/kokonech.github.io/master/qualimap/gh2ax_groups_multibamqc/multisampleBamQcReport.html>`_.
+
 
 Counts QC
 *********
@@ -135,7 +137,6 @@ Clustering
 **********
 
 Analysis of MeDIP-seq data: `QualiMap HTML report <http://qualimap.bioinfo.cipf.es/samples/clustering_result/qualimapReport.html>`_.
-
 
 
 
