@@ -1890,7 +1890,7 @@ public class BamStats implements Serializable {
 
 
     public void updateInsertSizeHistogram(int insertSize) {
-        if (insertSize >= 0 ) {
+        if (insertSize > 0 ) {
             insertSizeArray.add(insertSize);
         }
     }
