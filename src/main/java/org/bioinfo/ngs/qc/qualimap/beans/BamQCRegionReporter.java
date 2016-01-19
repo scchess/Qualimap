@@ -33,6 +33,7 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.BamStats.ChromosomeInfo;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.SkipDuplicatesMode;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StatsKeeper;
 import org.bioinfo.ngs.qc.qualimap.gui.utils.StringUtilsSwing;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysis;
@@ -109,6 +110,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     private double percentageSingletons;
     private long numCorrectStrandReads;
     private long numDuplicatedReadsMarked, numDuplicatedReadsEstimated, numDuplicatesSkipped;
+    private SkipDuplicatesMode skipDuplicatesMode;
 
     boolean includeIntersectingPairs;
     private long numOverlappingReadPairs;
@@ -133,6 +135,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     int numSelectedRegions;
 
     static NumberFormat decimailFormatter = DecimalFormat.getInstance(Locale.US);
+    static NumberFormat percentageFormatter = DecimalFormat.getInstance(Locale.US);
 
     public BamQCRegionReporter(boolean gffIsAvailable, boolean inside) {
         if (gffIsAvailable) {
@@ -147,8 +150,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         }
         genomeGCContentName = "";
 
-        decimailFormatter.setMaximumFractionDigits(2);
-
+        decimailFormatter.setMaximumFractionDigits(4);
+        percentageFormatter.setMaximumFractionDigits(2);
     }
 
 
@@ -375,7 +378,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.numDuplicatedReadsMarked = bamStats.getNumDetectedDuplicatedReads();
         this.numDuplicatedReadsEstimated = bamStats.getNumDuplicatedReadsEstimated();
         this.numDuplicatesSkipped = bamStats.getNumDuplicatesSkipped();
-
+        this.skipDuplicatesMode = bamStats.getSkipDuplicatesMode();
 
         // paired reads
         this.numPairedReads = bamStats.getNumberOfPairedReads();
@@ -821,7 +824,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 	}
 
 	private String formatPercentage(double percentage){
-		return decimailFormatter.format(percentage) + "%";
+		return percentageFormatter.format(percentage) + "%";
     }
 
 
@@ -1027,16 +1030,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             if (numDuplicatedReadsMarked > 0) {
                 globalsInRegions.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
                                   sdf.formatPercentage(getPercentageDublicateReadsMarked()));
-            }
-
-            if (numDuplicatedReadsEstimated > 0) {
+            }  else if (numDuplicatedReadsEstimated > 0) {
                 globalsInRegions.addRow("Duplicated reads (estimated)",
                     sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
                     sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
                 globalsInRegions.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
             }
-
-
 
             summaryStatsKeeper.addSection(globalsInRegions);
 
@@ -1061,8 +1060,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
 
 		StatsKeeper.Section coverageSection = new StatsKeeper.Section("Coverage" + postfix);
-		coverageSection.addRow("Mean", sdf.formatDecimal(meanCoverage));
-		coverageSection.addRow("Standard Deviation",sdf.formatDecimal(stdCoverage) );
+		coverageSection.addRow("Mean", StringUtils.decimalFormat(meanCoverage ,
+                "###,###,###,###,,###,###,###.####"));
+		coverageSection.addRow("Standard Deviation", StringUtils.decimalFormat(stdCoverage,
+                "###,###,###,###,###,###,###.####"));
 
         if (numOverlappingReadPairs > 0) {
             coverageSection.addRow("Mean (paired-end reads overlap ignored)", sdf.formatDecimal(adaptedMeanCoverage));
@@ -1136,8 +1137,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             row[0] =  statsRecord.getName();
             row[1] = Long.toString(statsRecord.getLength());
             row[2] = Long.toString(statsRecord.getNumBases());
-            row[3] = StringUtils.decimalFormat(statsRecord.getCovMean(),"#,###,###,###.##");
-            row[4] = StringUtils.decimalFormat(statsRecord.getCovStd(),"#,###,###,###.##");
+            row[3] = StringUtils.decimalFormat(statsRecord.getCovMean(),"#,###,###,###.####");
+            row[4] = StringUtils.decimalFormat(statsRecord.getCovStd(),"#,###,###,###.####");
 
             dataSection.addRow(row);
         }
