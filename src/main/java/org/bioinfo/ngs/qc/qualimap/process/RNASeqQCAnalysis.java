@@ -231,6 +231,10 @@ public class RNASeqQCAnalysis  {
         readsAlignment.addRow("Aligned to genes:", sdf.formatLong(computeCountsTask.getTotalExonicReads()));
         readsAlignment.addRow("Ambiguous alignments:", sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         readsAlignment.addRow("No feature assigned:", sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
+        if (computeCountsTask.getChromosomeNotFoundNumber() > 0) {
+            readsAlignment.addRow("Missing chromosome in annotation: ",
+                    sdf.formatLong(computeCountsTask.getChromosomeNotFoundNumber()));
+        }
         readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
 
         summaryKeeper.addSection(readsAlignment);

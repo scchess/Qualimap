@@ -460,7 +460,6 @@ public class ComputeCountsTask  {
             }
 
 
-            //TODO: there is an issue once the paired end reads are processed! This must be fixed
             // Test data: /data/qualimap_release_data/RNA_seq/VCAP/tophat_2.0.10_VCap200/RNA_SEQ_QC_PAIRED.txt
 
             if (pairedEndAnalysis && read.getReadPairedFlag() && read.getProperPairFlag()) {
@@ -684,6 +683,10 @@ public class ComputeCountsTask  {
 
     public long getAlignmentNotUniqueNumber() {
         return alignmentNotUnique;
+    }
+
+    public long getChromosomeNotFoundNumber() {
+        return  seqNotFoundCount;
     }
 
     public long getAmbiguousNumber() {

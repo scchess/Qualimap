@@ -243,14 +243,16 @@ Output
     *Reads alignment* 
 
     The assignment of read counts per-category: 
-        - total number of mapped reads 
+        - total number of mapped reads (left/right in case of paired-end reads, secondary alignments are ignored)
         - total number of alignments 
-        - number of secondary alignments (duplicates are marked as SAM flag)
-        - number of non-unique alignments (SAM format "NH" tag of a read is more than one) 
+        - number of secondary alignments ( SAM flag for multi-mapped reads )
+        - number of non-unique alignments ( SAM format "NH" tag of a read is more than one, by default not taken into account during further analysis ) 
         - number of reads aligned to genes 
         - number of ambiguous alignments (belong to several genes, ignored during counting procedure) 
         - number of alignments without any feature (intronic and intergenic)
+        - number of ignored alignments when the chromsome is not found in annotation 
         - number of unmapped reads.
+
    
     *Transcript coverage profile* 
 
