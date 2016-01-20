@@ -135,10 +135,9 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
         skipDuplicates.setSelected(false);
         add(skipDuplicates, "wrap");
 
-        String[] skipDupStyles =  { "Both flagged and estimated", "Only flagged", "Only estimated"};
+        String[] skipDupStyles =  {  "Only flagged", "Only estimated", "Both flagged and estimated"};
         selectSkipDupMethodBox = new JComboBox<String>( skipDupStyles );
-        selectSkipDupMethodBox.setToolTipText("Select which duplicate alignments should be skipped. By default both " +
-                "flagged and further detected using internal algorithm are skipped.");
+        selectSkipDupMethodBox.setToolTipText("Select which type of duplicate alignments should be skipped.");
         add(selectSkipDupMethodBox, "gapleft 20, span 2, wrap");
 
         compareGcContentDistr = new JCheckBox("Compare GC content distribution with:");
@@ -498,11 +497,11 @@ public class BamAnalysisDialog extends AnalysisDialog implements ActionListener 
     public SkipDuplicatesMode getSkipDuplicatesMode() {
         int idx = selectSkipDupMethodBox.getSelectedIndex();
         if (idx == 1) {
-            return SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
-        } else if (idx == 2) {
             return SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES;
-        } else {
+        } else if (idx == 2) {
             return SkipDuplicatesMode.BOTH;
+        } else {
+            return SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
         }
     }
 }

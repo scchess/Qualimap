@@ -91,15 +91,16 @@ The following command allows to perform BAM QC analysis::
                                       strand-specific-forward,
                                       strand-specific-reverse or
                                       non-strand-specific (default)
-    -sd,--skip-duplicated             Activate this option to skip duplicated
-                                      alignments from analysis. If the
+    -sd,--skip-duplicated             Activate this option to skip duplicate
+                                      alignments from the analysis. If the
                                       duplicates are not flagged in BAM file,
                                       then they will be detected by Qualimap.
     -sdmode,--skip-dup-mode <arg>        Specific type of duplicated alignments to
                                       skip (if this option is activated).
-                                      0 : both flagged and estimated (default)
-                                      1 : only flagged duplicates
-                                      2 : only estimated by Qualimap
+                                      0 : only flagged duplicates (default)
+                                      1 : only estimated by Qualimap
+                                      2 : both flagged and estimated 
+                                      
 
 
 | The only required parameter is :guilabel:`bam` -- the input mapping file.

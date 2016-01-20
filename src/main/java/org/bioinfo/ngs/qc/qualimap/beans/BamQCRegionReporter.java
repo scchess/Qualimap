@@ -74,9 +74,18 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
           return (numDuplicatedReadsMarked * 100.0) / (double) numReads ;
     }
 
+    public double getPercentageDublicateReadsMarkedInRegions() {
+          return (numDuplicatedReadsMarked * 100.0) / (double) numMappedReadsInRegions ;
+    }
+
     public double getPercentageDublicateReadsEstimated() {
               return (numDuplicatedReadsEstimated * 100.0) / (double) numReads ;
     }
+
+    public double getPercentageDublicateReadsEstimatedInRegions() {
+              return (numDuplicatedReadsEstimated * 100.0) / (double) numMappedReadsInRegions ;
+    }
+
 
     public double getPercentageSkippedDublicatedReads() {
               return (numDuplicatesSkipped * 100.0) / (double) numReads ;
@@ -956,12 +965,20 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                         sdf.formatPercentage(getPercentageOverlappingPairs()));
             }
 
-            if (numDuplicatedReadsMarked > 0) {
+            boolean  showMarkedDuplicates = numDuplicatedReadsMarked > 0 ||
+                    skipDuplicatesMode == SkipDuplicatesMode.ONLY_MARKED_DUPLICATES
+                    || skipDuplicatesMode == SkipDuplicatesMode.BOTH;
+
+            if (showMarkedDuplicates) {
                 globals.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
                                                        sdf.formatPercentage(getPercentageDublicateReadsMarked()));
             }
 
-            if (numDuplicatedReadsEstimated > 0) {
+            boolean  showEstimatedDuplicates = numDuplicatedReadsMarked == 0 ||
+                    skipDuplicatesMode == SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES
+                    || skipDuplicatesMode == SkipDuplicatesMode.BOTH;
+
+            if (showEstimatedDuplicates) {
                 globals.addRow("Duplicated reads (estimated)",
                         sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
                         sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
@@ -1029,11 +1046,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
             if (numDuplicatedReadsMarked > 0) {
                 globalsInRegions.addRow("Duplicated reads (flagged)", sdf.formatLong(numDuplicatedReadsMarked) + " / " +
-                                  sdf.formatPercentage(getPercentageDublicateReadsMarked()));
+                                  sdf.formatPercentage(getPercentageDublicateReadsMarkedInRegions()));
             }  else if (numDuplicatedReadsEstimated > 0) {
                 globalsInRegions.addRow("Duplicated reads (estimated)",
                     sdf.formatLong(numDuplicatedReadsEstimated) + " / " +
-                    sdf.formatPercentage(getPercentageDublicateReadsEstimated()));
+                    sdf.formatPercentage(getPercentageDublicateReadsEstimatedInRegions()));
                 globalsInRegions.addRow("Duplication rate", sdf.formatPercentage(duplicationRate));
             }
 

@@ -89,9 +89,10 @@ public class BamQcTool extends NgsSmartTool{
                                         " by Qualimap.");
         options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "skip-dup-mode", true,
                                         "Specific type of duplicated alignments to skip (if this option is activated).\n" +
-                                                "0 : both flagged and estimated (default)\n" +
-                                                "1 : only flagged duplicates\n" +
-                                                "2 : only estimated by Qualimap\n"
+                                                "0 : only flagged duplicates (default)\n" +
+                                                "1 : only estimated by Qualimap\n" +
+                                                "2 : both flagged and estimated"
+
                                         );
 
         options.addOption(Constants.BAMQC_OPTION_COLLECT_OVERLAP_PAIRS, "collect-overlap-pairs",  false,
@@ -168,11 +169,16 @@ public class BamQcTool extends NgsSmartTool{
 
 		paintChromosomeLimits =  commandLine.hasOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES);
         skipDuplicated = commandLine.hasOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
+        if (skipDuplicated) {
+            skipDuplicatesMode = SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
+        }
         if (commandLine.hasOption(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE)) {
             int mode = Integer.parseInt(commandLine.getOptionValue(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE));
-            if (mode == 1) {
+            if (mode == 2) {
+                skipDuplicatesMode = SkipDuplicatesMode.BOTH;
+            } else if (mode == 0) {
                 skipDuplicatesMode = SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
-            } else if (mode == 2) {
+            } else if (mode == 1) {
                 skipDuplicatesMode = SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES;
             }
 

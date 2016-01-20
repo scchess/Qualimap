@@ -169,6 +169,8 @@ public class ComputeCountsTask  {
             if (skipSecondaryAlignments) {
                 return false;
             }
+
+        //TODO: probably total alignment count should be generated
         } else {
             primaryAlignments++;
             if (read.getReadPairedFlag() ) {

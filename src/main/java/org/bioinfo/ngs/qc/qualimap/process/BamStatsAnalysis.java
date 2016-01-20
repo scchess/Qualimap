@@ -145,6 +145,7 @@ public class BamStatsAnalysis {
 
     public static final String WARNING_ID_CHROMOSOME_NOT_FOUND = "Some regions are not loaded";
     public static final String WARNING_ID_NO_MAPPED_READS = "NO MAPPED READS";
+    public static final String WARNING_NO_MARKED_DUPLICATES = "No flagged duplicates are detected";
 
     public static final String HUMAN_GENOME_ID = "HUMAN (hg19)";
     public static final String MOUSE_GENOME_ID =  "MOUSE (mm9)";
@@ -510,6 +511,11 @@ public class BamStatsAnalysis {
 
         bamStats.setNumberOfReads(numberOfReads);
         bamStats.setNumDuplicatesSkipped(numberOfDuplicatesSkipped);
+        bamStats.setSkipDuplicatesMode(skipMarkedDuplicates, skipDetectedDuplicates);
+        if (skipMarkedDuplicates && numberOfDuplicatesSkipped == 0) {
+            bamStats.addWarning(WARNING_NO_MARKED_DUPLICATES,
+                "Make sure duplicate alignments are flagged in the BAM file or apply a different skip duplicates mode.");
+        }
 
         long totalNumberOfMappedReads = bamStatsCollector.getNumMappedReads();
         long totalNumberOfPairedReads = bamStatsCollector.getNumPairedReads();
@@ -1183,16 +1189,16 @@ public class BamStatsAnalysis {
             cmdBuilder.append(Constants.BAMQC_OPTION_NUM_WINDOWS, numberOfWindows);
             cmdBuilder.append(Constants.BAMQC_OPTION_MIN_HOMOPOLYMER_SIZE, minHomopolymerSize);
 
-            if (skipDetectedDuplicates && skipMarkedDuplicates) {
+            if (!skipDetectedDuplicates && skipMarkedDuplicates) {
                 cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
             }
 
-            if (skipMarkedDuplicates && !skipDetectedDuplicates) {
+            if (!skipMarkedDuplicates && skipDetectedDuplicates) {
                 cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
                 cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "1");
             }
 
-            if (!skipMarkedDuplicates && skipDetectedDuplicates) {
+            if (skipMarkedDuplicates && skipDetectedDuplicates) {
                 cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATED);
                 cmdBuilder.append(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "2");
             }

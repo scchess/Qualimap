@@ -6,6 +6,6 @@ package org.bioinfo.ngs.qc.qualimap.common;
  * Time: 4:11 PM
  */
 public enum SkipDuplicatesMode {
-    BOTH, ONLY_MARKED_DUPLICATES, ONLY_DETECTED_DUPLICATES
+    NONE, ONLY_MARKED_DUPLICATES, ONLY_DETECTED_DUPLICATES, BOTH
 
 }

@@ -59,7 +59,7 @@ Input Parameters
    In case of small insert size the paired-end read alignmetns might overlap in high proportion. Using this option detection of overlapping pairs can be activated. Additionally, adapted mean coverage is calcualted based on extraction of pair overlap-region.
 
 :guilabel:`Skip duplicates` 
-  This option allows to skip duplicated alignments from analysis. There are three modes of this option. By default, if the duplicates are flagged in BAM file they are skipped and the remaining alignments are futher analyzed by Qualimap to detect duplicates to skip. Additionally it is possible to skip only flagged duplicates or only detected by Qualimap. Number of skipped duplicates will be shown in the report.
+  This option allows to skip duplicate alignments from analysis. There are three modes of this option. By default, the duplicates are skipped only if they are flagged in BAM file and remaining alignments are futher analyzed by Qualimap. Additionally it is possible to skip only the duplicates detected by Qualimap method (based on duplication rate estimation) or aplly both approaches. Number of skipped duplicates will be shown in the report.
 
 
 Advanced parameters

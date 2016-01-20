@@ -27,6 +27,7 @@ import org.bioinfo.commons.utils.ArrayUtils;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.math.util.MathUtils;
+import org.bioinfo.ngs.qc.qualimap.common.SkipDuplicatesMode;
 import org.bioinfo.ngs.qc.qualimap.process.ReadStatsCollector;
 import org.bioinfo.ngs.qc.qualimap.common.ReadStartsHistogram;
 
@@ -230,6 +231,7 @@ public class BamStats implements Serializable {
     private boolean reportNonZeroCoverageOnly;
 
     private long numDetectedDuplcateReads, numEstimatedDuplicateReads, numDuplicatesSkipped;
+    private SkipDuplicatesMode skipDuplicatesMode;
     private double adaptedMeanCoverage;
 
     private boolean reportOverlappingReadPairs;
@@ -268,6 +270,20 @@ public class BamStats implements Serializable {
         return numDuplicatesSkipped;
     }
 
+    public void setSkipDuplicatesMode(boolean skipMarked, boolean skipDetected) {
+        if (skipMarked && skipDetected) {
+            skipDuplicatesMode = SkipDuplicatesMode.BOTH;
+        } else if (skipMarked) {
+            skipDuplicatesMode = SkipDuplicatesMode.ONLY_MARKED_DUPLICATES;
+        } else if (skipDetected) {
+            skipDuplicatesMode = SkipDuplicatesMode.ONLY_DETECTED_DUPLICATES;
+        }
+    }
+
+    public SkipDuplicatesMode getSkipDuplicatesMode() {
+        return skipDuplicatesMode;
+    }
+
     public void setNumberOfIntersectingReadPairs(long numIntersectingReadPairs, long numIntersectingBases) {
         this.reportOverlappingReadPairs = true;
         this.numOverlappingReadPairs = numIntersectingReadPairs;
@@ -285,7 +301,6 @@ public class BamStats implements Serializable {
     public double getAdaptedMeanCoverage() {
         return adaptedMeanCoverage;
     }
-
 
     // chromosome stats
     public class ChromosomeInfo {
@@ -446,6 +461,7 @@ public class BamStats implements Serializable {
         readStartsHistogram =  new ReadStartsHistogram();
 
         warnings = new HashMap<String, String>() ;
+        skipDuplicatesMode = SkipDuplicatesMode.NONE;
 		
 	}
 
