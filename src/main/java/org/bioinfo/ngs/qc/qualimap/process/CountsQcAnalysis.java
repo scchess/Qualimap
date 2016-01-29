@@ -1,6 +1,6 @@
 /**
  * QualiMap: evaluation of next generation sequencing alignment data
- * Copyright (C) 2015 Garcia-Alcalde et al.
+ * Copyright (C) 2016 Garcia-Alcalde et al.
  * http://qualimap.org
  *
  * This program is free software; you can redistribute it and/or

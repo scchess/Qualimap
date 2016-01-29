@@ -1,6 +1,6 @@
 /**
  * QualiMap: evaluation of next generation sequencing alignment data
- * Copyright (C) 2015 Garcia-Alcalde et al.
+ * Copyright (C) 2016 Garcia-Alcalde et al.
  * http://qualimap.org
  *
  * This program is free software; you can redistribute it and/or
@@ -86,7 +86,7 @@ public class BamQcTool extends NgsSmartTool{
         options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATED, "skip-duplicated",  false,
                                 "Activate this option to skip duplicated alignments from the analysis. " +
                                 "If the duplicates are not flagged in the BAM file, then they will be detected" +
-                                        " by Qualimap.");
+                                        " by Qualimap and can be selected for skipping.");
         options.addOption(Constants.BAMQC_OPTION_SKIP_DUPLICATES_MODE, "skip-dup-mode", true,
                                         "Specific type of duplicated alignments to skip (if this option is activated).\n" +
                                                 "0 : only flagged duplicates (default)\n" +

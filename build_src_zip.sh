@@ -7,7 +7,7 @@ export TIME=`date +%d-%m-%y`
 
 mkdir $OUTPUT_DIR
 
-mvn license:check -Dyear=2015
+mvn license:check -Dyear=2016
 rc=$?
 if [[ $rc != 0 ]] ; then
     exit $rc

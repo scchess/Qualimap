@@ -94,7 +94,8 @@ The following command allows to perform BAM QC analysis::
     -sd,--skip-duplicated             Activate this option to skip duplicate
                                       alignments from the analysis. If the
                                       duplicates are not flagged in BAM file,
-                                      then they will be detected by Qualimap.
+                                      then they will be detected by Qualimap
+                                      and can be selected for skipping.
     -sdmode,--skip-dup-mode <arg>        Specific type of duplicated alignments to
                                       skip (if this option is activated).
                                       0 : only flagged duplicates (default)
