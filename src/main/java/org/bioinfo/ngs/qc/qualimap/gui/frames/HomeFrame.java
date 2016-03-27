@@ -255,7 +255,9 @@ public class HomeFrame extends JFrame implements WindowListener, ActionListener,
         final ArrayList<String> missingPackages = new ArrayList<String>();
 
         String pathToRScript = AppSettings.getGlobalSettings().getPathToRScript();
-        final Process p = Runtime.getRuntime().exec(pathToRScript + " " + path + "scripts/init.r");
+        String[] command = new String[] {pathToRScript, path + "scripts/init.r"};
+
+        final Process p = Runtime.getRuntime().exec(command);
         Thread outputReadingThread = new Thread(new Runnable() { public void run() {
             BufferedReader outputReader = new BufferedReader( new InputStreamReader ( p.getInputStream() ) );
             String line;

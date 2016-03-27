@@ -20,6 +20,7 @@
  */
 package org.bioinfo.ngs.qc.qualimap.process;
 
+import org.apache.commons.lang.StringUtils;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.beans.QChart;
 import org.bioinfo.ngs.qc.qualimap.beans.StatsReporter;
@@ -94,9 +95,9 @@ public class CountsQcAnalysis extends AnalysisProcess{
         removeSpacesFromNames();
         setupInputDataDescription(workDir);
 
-        String commandString = createCommand(workDir);
+        String commandString[] = createCommand(workDir);
         if (loggerThread != null) {
-            loggerThread.logLine(commandString);
+            loggerThread.logLine(StringUtils.join(commandString, " "));
         }
 
         //reportProgress("Running R script");
@@ -220,24 +221,38 @@ public class CountsQcAnalysis extends AnalysisProcess{
 
     }
 
-    private String createCommand(String workDir) {
-       String pathToRscript = AppSettings.getGlobalSettings().getPathToRScript();
-        String commandString = pathToRscript + " " + homePath
-                + File.separator + "scripts"+ File.separator + "countsQC.r";
+    private String[] createCommand(String workDir) {
 
-        commandString += " --homedir " + homePath + File.separator + "scripts";
-        commandString += " --input " + inputFilePath;
-        commandString += " -k " + countsThreshold;
+        List<String> argList = new ArrayList<String>();
+
+        String pathToRscript = AppSettings.getGlobalSettings().getPathToRScript();
+        argList.add(pathToRscript);
+
+        String commandString = homePath + File.separator + "scripts"+ File.separator + "countsQC.r";
+        argList.add(commandString);
+
+        argList.add("--homedir");
+        argList.add(homePath + File.separator + "scripts");
+
+        argList.add("--input");
+        argList.add(inputFilePath);
+
+        argList.add("-k");
+        argList.add(Integer.toString(countsThreshold));
         if (!infoFilePath.isEmpty()) {
-            commandString += " --info " + infoFilePath;
+            argList.add("--info");
+            argList.add(infoFilePath);
         }
 
         if (compareConditions) {
-            commandString += " --compare";
+            argList.add("--compare");
         }
-        commandString += " -o " + workDir;
+        argList.add("-o");
+        argList.add(workDir);
 
-        return commandString;
+        String[] result = new String[argList.size()];
+        result = argList.toArray(result);
+        return result;
     }
 
     protected void prepareInputDescription(StatsReporter reporter) {

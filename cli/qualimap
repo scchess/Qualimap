@@ -63,7 +63,7 @@ done
 shell_path=`dirname "$prg"`;
 absolute=`echo $shell_path | grep "^/"`;
 
-if [ -z $absolute ]
+if [ -z "$absolute" ]
 then
 	export QUALIMAP_HOME="`pwd`/$shell_path"
 else 
@@ -77,7 +77,7 @@ fi
 
 set -o errexit
 
-java $java_options -classpath $QUALIMAP_HOME/qualimap.jar:$QUALIMAP_HOME/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain "${ARGS[@]}"
+java $java_options -classpath "$QUALIMAP_HOME"/qualimap.jar:"$QUALIMAP_HOME"/lib/* org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain "${ARGS[@]}"
 
 if [ -n "$OUTPUT_ADDITIONAL_HELP" ]; then 
     echo "Special arguments: "
