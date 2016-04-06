@@ -522,6 +522,7 @@ public class BamStatsAnalysis {
         long totalNumberOfMappedFirstOfPair = bamStatsCollector.getNumMappedFirstInPair();
         long totalNumberOfMappedSecondOfPair = bamStatsCollector.getNumMappedSecondInPair();
         long totalNumberOfSingletons = bamStatsCollector.getNumSingletons();
+        long totalNumberOfSuppAlignments = bamStatsCollector.getNumSupplementaryAlignments();
 
         boolean mappedReadsInRegion = totalNumberOfMappedReads > 0;
 
@@ -555,6 +556,7 @@ public class BamStatsAnalysis {
         bamStats.setNumberOfMappedFirstOfPair(totalNumberOfMappedFirstOfPair);
         bamStats.setNumberOfMappedSecondOfPair(totalNumberOfMappedSecondOfPair);
         bamStats.setNumberOfSingletons( totalNumberOfSingletons );
+        bamStats.setNumberOfSuppAlignments( totalNumberOfSuppAlignments);
         if (collectIntersectingPairedEndReads) {
             bamStats.setNumberOfIntersectingReadPairs(bamStatsCollector.getNumOverlappingReadPairs(),
                     bamStatsCollector.getNumOverlappingBases());

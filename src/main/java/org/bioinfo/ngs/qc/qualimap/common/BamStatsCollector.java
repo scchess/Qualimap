@@ -20,8 +20,8 @@
  */
 package org.bioinfo.ngs.qc.qualimap.common;
 
+import com.hp.hpl.jena.graph.query.SimpleQueryEngine;
 import net.sf.samtools.SAMRecord;
-import sun.font.TrueTypeFont;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class BamStatsCollector {
         }
     }
 
-    long numMappedReads, numPairedReads;
+    long numMappedReads, numPairedReads, numSupplementaryAlignments;
     long numMappedFirstInPair, numMappedSecondInPair, numSingletons;
     long numMarkedDuplicates;
     boolean collectIntersectingReadPairs;
@@ -56,6 +56,8 @@ public class BamStatsCollector {
     public long getNumMappedReads() {
         return numMappedReads;
     }
+
+    public long getNumSupplementaryAlignments() { return numSupplementaryAlignments; }
 
     public long getNumMappedFirstInPair() {
         return numMappedFirstInPair;
@@ -101,6 +103,10 @@ public class BamStatsCollector {
 
     public boolean updateStats(SAMRecord read) {
         numMappedReads++;
+        int flagValue = read.getFlags();
+        if ((flagValue & Constants.SAM_FLAG_SUPP_ALIGNMENT) > 0) {
+             numSupplementaryAlignments++;
+        }
         if (read.getReadPairedFlag()) {
             numPairedReads++;
             if (read.getFirstOfPairFlag()) {

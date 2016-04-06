@@ -80,15 +80,12 @@
 
 	</dependencies>
 	
-	<repositories>
-	
+     <repositories>
        <repository>
            <id>org.bioinfo</id>
            <name>Bioinfo Library</name>
            <url>http://repos.bioinfo.cipf.es/maven2/</url>
         </repository>
-        
-   	
     </repositories>
 	
    <pluginRepositories>

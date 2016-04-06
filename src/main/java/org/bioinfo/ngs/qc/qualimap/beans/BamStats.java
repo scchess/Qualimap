@@ -44,6 +44,7 @@ public class BamStats implements Serializable {
 	private long numberOfMappedReads;
 	private long numberOfPairedReads;
     private long numberOfSingletons;
+    private long numberOfSuppAlignments;
     private long numberOfMappedFirstOfPair;
     private long numberOfMappedSecondOfPair;
 
@@ -1647,6 +1648,14 @@ public class BamStats implements Serializable {
     public void setNumberOfSingletons(long numberOfSingletons) {
         this.numberOfSingletons = numberOfSingletons;
     }
+
+    public long getNumberOfSuppAlignments() { return numberOfSuppAlignments;  }
+
+    public double getPercentageOfSuppAlignments() { return (numberOfSuppAlignments * 100.0 /  (double) numberOfReads); }
+    public void setNumberOfSuppAlignments( long numSuppAlignments) {
+        this.numberOfSuppAlignments = numSuppAlignments;
+    }
+
 
     public double getPercentageOfSingletons() {
         return (numberOfSingletons / (double) numberOfReads) * 100.0;

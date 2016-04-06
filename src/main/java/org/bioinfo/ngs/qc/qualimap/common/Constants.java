@@ -32,7 +32,8 @@ public final class Constants {
 	public static final int GRAPHIC_TO_SAVE_WIDTH = 1024;
 	public static final int GRAPHIC_TO_SAVE_HEIGHT = 768;
 	
-	
+	public static final int SAM_FLAG_SUPP_ALIGNMENT = 0x800;
+
 	/** Path to locate the images when the application is running in a jar file */
 	public static final String pathImages = "/org/bioinfo/ngs/qc/qualimap/gui/images/";
 	

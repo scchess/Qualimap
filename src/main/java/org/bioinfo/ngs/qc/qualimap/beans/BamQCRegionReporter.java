@@ -57,6 +57,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         return ((numPairedReads - numSingletons) * 100.0) / (double) numReads ;
     }
 
+    public double getPercentageSuppAlignments() {
+        return (numSuppAlignments * 100.0) / (double) numReads;
+    }
+
     public double getPercentageClippedReads() {
         return (numClippedReads * 100.0) / (double) numReads;
     }
@@ -115,7 +119,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
     private long numPairedReads, numberOfMappedFirstOfPair, numberOfMappedSecondOfPair;
     private double percantagePairedReads, percentageOfMappedFirstOfPair, percentageOfMappedSecondOfPair;
-    private long numSingletons;
+    private long numSingletons, numSuppAlignments;
     private double percentageSingletons;
     private long numCorrectStrandReads;
     private long numDuplicatedReadsMarked, numDuplicatedReadsEstimated, numDuplicatesSkipped;
@@ -198,6 +202,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 		report.println("     number of reads = " + formatLong(bamStats.getNumberOfReads()));		
 		report.println("     number of mapped reads = " + formatLong(bamStats.getNumberOfMappedReads()) +
                 " (" + formatPercentage(bamStats.getPercentageOfMappedReads())+ ")");
+        if (bamStats.getNumberOfSuppAlignments() > 0) {
+            report.println("     number of supplementary alignments = " + formatLong(bamStats.getNumberOfSuppAlignments())
+                    + " (" + formatPercentage(bamStats.getPercentageOfSuppAlignments()) + ")");
+        }
+
         report.println("");
 
 		if (bamStats.getNumberOfPairedReads() > 0) {
@@ -388,6 +397,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.numDuplicatedReadsEstimated = bamStats.getNumDuplicatedReadsEstimated();
         this.numDuplicatesSkipped = bamStats.getNumDuplicatesSkipped();
         this.skipDuplicatesMode = bamStats.getSkipDuplicatesMode();
+        this.numSuppAlignments = bamStats.getNumberOfSuppAlignments();
 
         // paired reads
         this.numPairedReads = bamStats.getNumberOfPairedReads();
@@ -398,6 +408,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.percentageOfMappedFirstOfPair = ( (double) numberOfMappedFirstOfPair / numReads) * 100.0;
         this.numberOfMappedSecondOfPair = bamStats.getNumberOfMappedSecondOfPair();
         this.percentageOfMappedSecondOfPair = ( (double) numberOfMappedSecondOfPair / numReads ) * 100.0;
+
 
         this.includeIntersectingPairs = bamStats.reportOverlappingReadPairs();
         this.numOverlappingReadPairs = bamStats.getNumOverlappingReadPairs();
@@ -918,6 +929,11 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         globals.addRow("Mapped reads", sdf.formatLong(numMappedReads)
                 + " / " + sdf.formatPercentage(getPercentMappedReads()));
+
+        if (numSuppAlignments > 0) {
+            globals.addRow("Supplementary alignments", sdf.formatLong(numSuppAlignments) + " / " +
+             sdf.formatPercentage(getPercentageSuppAlignments()));
+        }
 
         globals.addRow("Unmapped reads",
                 sdf.formatLong(numReads - numMappedReads) + " / "
