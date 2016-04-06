@@ -823,15 +823,19 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
                     insertSize.getChart(), insertSize ));
 	
 			// mapping quality histogram
-			BamQCXYHistogramChart insertSizeHistogram =
-                    new BamQCXYHistogramChart(Constants.PLOT_TITLE_INSERT_SIZE_HISTOGRAM,
-                            subTitle, "Insert size (bp)", "Number of reads");
-			insertSizeHistogram.addHistogram("insert size", bamStats.getInsertSizeHistogram(), new Color(15,170,90,150));
-			insertSizeHistogram.setNumberOfBins(50);
-            insertSizeHistogram.setRangeAxisIntegerTicks(true);
-			insertSizeHistogram.render();
-			charts.add(new QChart(bamStats.getName() + "_insert_size_histogram.png",
-                    insertSizeHistogram.getChart(), insertSizeHistogram));
+
+            if (bamStats.getInsertSizeHistogram() != null) {
+
+                BamQCXYHistogramChart insertSizeHistogram =
+                        new BamQCXYHistogramChart(Constants.PLOT_TITLE_INSERT_SIZE_HISTOGRAM,
+                                subTitle, "Insert size (bp)", "Number of reads");
+                insertSizeHistogram.addHistogram("insert size", bamStats.getInsertSizeHistogram(), new Color(15,170,90,150));
+                insertSizeHistogram.setNumberOfBins(50);
+                insertSizeHistogram.setRangeAxisIntegerTicks(true);
+                insertSizeHistogram.render();
+                charts.add(new QChart(bamStats.getName() + "_insert_size_histogram.png",
+                        insertSizeHistogram.getChart(), insertSizeHistogram));
+            }
 		}
 	}
 

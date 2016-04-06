@@ -83,7 +83,7 @@ public class ComputeCountsTask  {
         allowedFeatureList = new ArrayList<String>();
         featureIntervalMap = new MultiHashMap<String, Interval>();
         collectRnaSeqStats = false;
-        skipSecondaryAlignments = false;
+        skipSecondaryAlignments = false; //TODO: this should be true for default?
         loadGenericRegions = false;
         outputCoverage = true;
         pairedEndAnalysis = false;
@@ -138,15 +138,35 @@ public class ComputeCountsTask  {
         final SAMFileWriter writer = new SAMFileWriterFactory().makeSAMOrBAMWriter(reader.getFileHeader(),
                 false,
                 targetFile);
-
-        for (SAMRecord record : reader) {
+        SAMRecordIterator iter = reader.iterator();
+        int numIncorrect = 0;
+        while (iter.hasNext()) {
+            SAMRecord record = null;
+            try {
+                record = iter.next();
+            } catch (SAMFormatException e) {
+                numIncorrect += 1;
+                /*if (e.getMessage().contains("28006:55702")) {
+                    System.err.println(e.getMessage());
+                }*/
+            }
+            if (record == null) {
+                continue;
+            }
+            /*if (record.getReadName().equals("ST-E00161:151:HKTTVCCXX:4:1202:28006:55702")) {
+                System.err.println("BOO!");
+            }*/
             writer.addAlignment(record);
             if (++n % 10000000 == 0) {
                 logger.logLine("Read " + n + " records.");
             }
         }
 
+
         logger.logLine("Finished reading inputs, merging and writing to output now.");
+        if (numIncorrect > 0) {
+            logger.logLine("WARNING! Number of non-correct SAM format alignments skipped: " + numIncorrect);
+        }
 
         reader.close();
         writer.close();
@@ -318,12 +338,12 @@ public class ComputeCountsTask  {
             return;
         } else if (numReads == 1) {
             String readName = fragmentReads.get(0).getReadName();
-            System.err.println("WARNING: The fragment " + readName + " has only 1 alignments," +
+            System.err.println("WARNING: The fragment " + readName + " has only 1 alignment," +
                     " however multiple segments are assumed!");
             return;
         } else if (numReads > 2) {
-            String readName = fragmentReads.get(0).getReadName();
-            System.err.println("WARNING: The fragment " + readName + " has more than 2 alignments!");
+            //String readName = fragmentReads.get(0).getReadName();
+            //System.err.println("WARNING: The fragment " + readName + " has more than 2 alignments!");
             return;
         }
 
@@ -425,9 +445,11 @@ public class ComputeCountsTask  {
 
         logger.logLine("Starting BAM file analysis\n");
 
+        String initialPathToBamFile = "";
         if (pairedEndAnalysis) {
             if (sortingRequired) {
                 logger.logLine("Sorting BAM file by name...\n");
+                initialPathToBamFile = pathToBamFile;
                 pathToBamFile = sortSamByName(pathToBamFile);
             }
         }
@@ -442,11 +464,21 @@ public class ComputeCountsTask  {
         HashSet<String> notFoundChrNames = new HashSet<String>();
 
         String curReadName = null;
+        int problematicAlignments = 0;
 
         while (iter.hasNext()) {
 
-            SAMRecord read = iter.next();
+            SAMRecord read = null;
+            try {
+                read = iter.next();
+            }
+            catch (SAMFormatException e) {
+                problematicAlignments++;
+            }
 
+            if (read == null) {
+                continue;
+            }
             if (!checkRead(read)) {
                 if (!chr_names.contains(read.getReferenceName())) {
                     notFoundChrNames.add(read.getReferenceName());
@@ -489,8 +521,12 @@ public class ComputeCountsTask  {
             }
         }
 
+        if (problematicAlignments > 0) {
+            System.err.println("WARNING! Number of non-correct SAM format alignments: " + problematicAlignments);
+        }
+
         if (readCount == 0) {
-            throw new RuntimeException("BAM file is empty.");
+            throw new RuntimeException("BAM file is empty or no read alignments are located in exonic regions.");
         }
 
         if (seqNotFoundCount + alignmentNotUnique == readCount) {
@@ -513,7 +549,13 @@ public class ComputeCountsTask  {
             FileUtils.deleteQuietly(new File(pathToBamFile));
         }
 
+        // restore file name for report
+        if (initialPathToBamFile.length() > 0) {
+            pathToBamFile = initialPathToBamFile;
+        }
+
         logger.logLine("\nBAM file analysis finished");
+
 
     }
 

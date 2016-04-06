@@ -570,7 +570,8 @@ public class BamStatsAnalysis {
 
         bamStats.setNumMarkedDuplcateReads( bamStatsCollector.getNumMarkedDuplicates() );
 
-        isPairedData = bamStats.getNumberOfPairedReads() > 0;
+        isPairedData = bamStats.getNumberOfPairedReads() > 0 &&
+                (bamStats.getNumberOfPairedReads() - bamStats.getNumberOfSingletons()) > 0;
 
         if (mappedReadsInRegion) {
             logger.println("Computing descriptors...");
