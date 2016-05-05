@@ -633,8 +633,8 @@ public class BamStats implements Serializable {
         }
 		
 		// quality
-		mappingQualityAcrossReference.add(window.getMeanMappingQuality());		
-		/*if(isInstanceOfBamGenomeWindow) {
+		mappingQualityAcrossReference.add(window.getMeanMappingQuality());
+        /*if(isInstanceOfBamGenomeWindow) {
             updateHistogramFromLongVector(mappingQualityHistogramMap,((BamDetailedGenomeWindow)window).getMappingQualityAcrossReference());
         }*/
 
@@ -862,7 +862,12 @@ public class BamStats implements Serializable {
 
         addCacheDataToMap(mappingQualityHistogramCache,mappingQualityHistogramMap);
         mappingQualityHistogram = computeVectorHistogram(mappingQualityHistogramMap);
+        if (numSelectedRegions > 0) {
+            meanMappingQualityPerWindow = computeMeanValFromHistogram(mappingQualityHistogram);
+        }
+
         addCacheDataToMap(coverageHistogramCache, coverageHistogramMap);
+
 
         computeInsertSizeHistogram();
         computeCoverageHistogram();
@@ -1761,6 +1766,21 @@ public class BamStats implements Serializable {
             }
         }
 
+    }
+
+    public double computeMeanValFromHistogram(XYVector hist) {
+        double meanVal = 0;
+        double global = 0;
+        double total = 0;
+        for ( int i = 0; i < hist.getSize(); ++i ) {
+            XYItem val = hist.get(i);
+            global += val.getX()*val.getY();
+            total += val.getY();
+        }
+        if (total > 0) {
+            meanVal = global / total;
+        }
+        return meanVal;
     }
 
     public void computeChromosomeStats(GenomeLocator locator, ArrayList<Integer> chromosomeWindowIndexes) throws IOException {

@@ -74,12 +74,12 @@ public class BamDetailedGenomeWindow extends BamGenomeWindow {
 		//properlyPairedCoverageAcrossReference[(int)relative] = properlyPairedCoverageAcrossReference[(int)relative] + 1;
 	}
 
-	@Override
+	/*@Override
 	protected void acumMappingQuality(long relative, int mappingQuality){
 		super.acumMappingQuality(relative,mappingQuality);		
 		// quality					
 		mappingQualityAcrossReference[(int)relative] = mappingQualityAcrossReference[(int)relative]+mappingQuality;
-	}
+	}*/
 
 	@Override
 	public void computeDescriptors() throws CloneNotSupportedException{

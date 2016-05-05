@@ -187,9 +187,10 @@ public class BamGenomeWindow {
 		
 	}
 
+	/* NOTE: this function is not used
 	protected void acumMappingQuality(long relative, int mappingQuality){
 		acumMappingQuality+=mappingQuality;
-	}
+	}*/
 	
 	public void acumInsertSize(long insertSize){
 		if(insertSize > 0 /*& insertSize<5000*/){
