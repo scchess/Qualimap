@@ -21,6 +21,8 @@
 package org.bioinfo.ngs.qc.qualimap.main;
 
 import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
@@ -113,7 +115,7 @@ public abstract class NgsSmartTool {
         }
         if (outFormatIsRequired) {
             options.addOption( OPTION_NAME_OUTPUT_TYPE, true,
-                    "Format of the ouput report (PDF or HTML, default is HTML).");
+                    "Format of the output report (PDF, HTML or both PDF:HTML, default is HTML).");
         }
 
         if (rIsRequired) {
@@ -147,7 +149,8 @@ public abstract class NgsSmartTool {
 
         if (commandLine.hasOption(OPTION_NAME_OUTPUT_TYPE)) {
             outputType = commandLine.getOptionValue(OPTION_NAME_OUTPUT_TYPE).toUpperCase();
-            if (!outputType.equals(Constants.REPORT_TYPE_HTML) && !outputType.equals(Constants.REPORT_TYPE_PDF)) {
+            if (!outputType.equals(Constants.REPORT_TYPE_HTML) && !outputType.equals(Constants.REPORT_TYPE_PDF) &&
+                    !outputType.equals(Constants.REPORT_TYPE_BOTH)) {
                 throw new ParseException("Unknown output report format " + outputType);
             }
 
@@ -271,10 +274,10 @@ public abstract class NgsSmartTool {
 		return new File(fileName).exists();
 	}
 
-    protected void exportResult(AnalysisResultManager resultManager) {
+    protected void exportResult(AnalysisResultManager resultManager) throws InterruptedException {
 
         // check output options
-        if (outputType.equals(Constants.REPORT_TYPE_PDF)) {
+        if (outputType.equals(Constants.REPORT_TYPE_PDF) || outputType.equals(Constants.REPORT_TYPE_BOTH)) {
 
             if (reportFileName.isEmpty()) {
                 reportFileName  = "report.pdf";
@@ -286,11 +289,20 @@ public abstract class NgsSmartTool {
 
         logger.println("Writing " + outputType + " report...");
 
-        Thread exportReportThread = outputType.equals( Constants.REPORT_TYPE_PDF ) ?
-               new ExportPdfThread(resultManager, reportFileName  ) :
-               new ExportHtmlThread(resultManager, outdir);
-
-         exportReportThread.run();
+        if (outputType.equals( Constants.REPORT_TYPE_PDF ) ) {
+            Thread t = new ExportPdfThread(resultManager, reportFileName );
+            t.run();
+        } else if (outputType.equals( Constants.REPORT_TYPE_HTML) ) {
+            Thread t = new ExportHtmlThread(resultManager, outdir);
+            t.run();
+        } else {
+            assert( outputType.equals(Constants.REPORT_TYPE_BOTH) );
+            Thread t1 = new ExportHtmlThread(resultManager, outdir);
+            t1.run();
+            t1.join();
+            Thread t2 = new ExportPdfThread(resultManager, reportFileName );
+            t2.run();
+        }
     }
 
 }

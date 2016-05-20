@@ -114,6 +114,7 @@ public final class Constants {
     // Reporting
     public static final String REPORT_TYPE_HTML = "HTML";
     public static final String REPORT_TYPE_PDF = "PDF";
+    public static final String REPORT_TYPE_BOTH = "PDF:HTML";
     public static final String TABLE_STATS_HEADER = "header";
     public static final String TABLE_STATS_DATA = "data";
     public static final String TABLE_SECTION_QUALIMAP_CMDLINE = "QualiMap command line";
