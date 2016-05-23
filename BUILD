@@ -24,6 +24,11 @@ mvn install
 
 Upon first build all dependencies will be downloaded to the repo, this may require some time.
 
+Also special parameter "-o" allows to use local repostiory after downloading the samples once:
+mvn install -o
+
+The current online repostiory org.bioinfo is not available due to some reasons, but there is a local version to download available
+
 3) Run Qualimap
 
 The built jar can be found in target/install subdir of sources folder.

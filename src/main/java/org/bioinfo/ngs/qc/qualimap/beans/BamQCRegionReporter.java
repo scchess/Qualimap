@@ -528,6 +528,15 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             }
 		}
 
+        //Preparing "smart" zoom for coverage across region
+        Double[] coverageData = ListUtils.toArray(bamStats.getCoverageAcrossReference());
+        double upperCoverageBound = 2*StatUtils.percentile(ArrayUtils.toPrimitive(coverageData), 90);
+        if (upperCoverageBound == 0) {
+            // possible in rare cases when the coverage is very low coverage
+            upperCoverageBound = maxCoverage*0.9;
+        }
+
+
         double maxInsertSize = 0;
         if (isPairedData && maxCoverage > 0) {
             for (int i = 0; i < bamStats.getInsertSizeAcrossReference().size(); i++) {
@@ -555,7 +564,10 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             chromosomeInsertSizeLimits = new XYVector();
             chromosomeAnnotations = new ArrayList<XYBoxAnnotation>();
             chromosomeNames = new HashMap<Double, String>();
+            double chromMaxCoverageLimit = maxCoverage > 2*upperCoverageBound ? 2*upperCoverageBound : maxCoverage;
+
             for(int i=0; i<numberOfChromosomes; i++){
+
                 long chrStart = locator.getContigs().get(i).getPosition();
                 long chrSize = locator.getContigs().get(i).getSize();
                 long chrEnd = locator.getContigs().get(i).getEnd();
@@ -573,7 +585,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
             	// coverageData
 				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,0));
-				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,maxCoverage));
+				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,chromMaxCoverageLimit));
 				chromosomeCoverageLimits.addItem(new XYItem(chrEnd,0));
 				// percentage
 				chromosomePercentageLimits.addItem(new XYItem(chrEnd,0));
@@ -603,14 +615,6 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         coverageChart.addIntervalRenderedSeries("Coverage",new XYVector(windowReferences,
                 bamStats.getCoverageAcrossReference(), bamStats.getStdCoverageAcrossReference()),
                 new Color(250,50,50,150), new Color(50,50,250), 0.2f);
-
-        //Preparing "smart" zoom for coverage across region
-        Double[] coverageData = ListUtils.toArray(bamStats.getCoverageAcrossReference());
-        double upperCoverageBound = 2*StatUtils.percentile(ArrayUtils.toPrimitive(coverageData), 90);
-        if (upperCoverageBound == 0) {
-            // possible in rare cases when the coverage is very low coverage
-            upperCoverageBound = maxCoverage*0.9;
-        }
 
 
         if( paintChromosomeLimits && locator!=null ) {
