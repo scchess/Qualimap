@@ -519,6 +519,8 @@ public class ProcessBunchOfReadsTask implements Callable<ProcessBunchOfReadsTask
                     readData.acumMappingQuality(relative, mappingQuality);
                     // base stats
                     readData.acumBase(relative, nucleotide);
+                } else if (nucleotide == 'N') {
+                    readData.numberOfNs++;
                 }
 
             }

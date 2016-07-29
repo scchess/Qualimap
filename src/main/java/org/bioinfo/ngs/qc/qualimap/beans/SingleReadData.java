@@ -36,6 +36,7 @@ public class SingleReadData {
     public long numberOfTs;
     public long numberOfCs;
     public long numberOfGs;
+    public long numberOfNs;
     // These number denotes how many bases are aligned from sequenced bases
     //public long numberOfAlignedBases;
 

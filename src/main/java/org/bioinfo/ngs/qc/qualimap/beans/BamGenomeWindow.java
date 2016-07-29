@@ -488,6 +488,7 @@ public class BamGenomeWindow {
         numberOfCs += readData.numberOfCs;
         numberOfGs += readData.numberOfGs;
         numberOfTs += readData.numberOfTs;
+        numberOfNs += readData.numberOfNs;
 
 
     }
