@@ -200,6 +200,7 @@ public class BamStatsAnalysis {
         workerThreadPool = Executors.newFixedThreadPool(threadNumber);
 
         SAMFileReader reader = new SAMFileReader(new File(bamFile));
+        reader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
 
         // org.bioinfo.ntools.process header
 		String lastActionDone = "Loading sam header...";
@@ -346,8 +347,16 @@ public class BamStatsAnalysis {
 
             ++numberOfReads;
 
-			// filter invalid reads
-			if(read.isValid() == null){
+            // filter invalid reads
+            List<SAMValidationError> valErrorList = read.isValid();
+            boolean readIsValid = valErrorList == null;
+            if (!readIsValid) {
+                if (valErrorList.size() == 1) {
+                    readIsValid = valErrorList.get(0).getType() == SAMValidationError.Type.READ_GROUP_NOT_FOUND;
+                }
+            }
+
+			if(readIsValid){
 
                 // accumulate only mapped reads
 				if(read.getReadUnmappedFlag()) {
@@ -451,6 +460,8 @@ public class BamStatsAnalysis {
 
                 numberOfValidReads++;
 
+            } else {
+                numberOfProblematicReads++;
             }
 
         }
@@ -482,12 +493,12 @@ public class BamStatsAnalysis {
         logger.println("Number of correct strand reads:" + numberOfCorrectStrandReads);
 
         if (numberOfReadsWithStartGreatThenEnd > 0) {
-            logger.warn("WARNING:" + numberOfReadsWithStartGreatThenEnd +
+            logger.warn( numberOfReadsWithStartGreatThenEnd +
                     "  read alignments have start greater than end" );
         }
 
         if (numberOfProblematicReads > 0) {
-            logger.warn("SAMRecordParser failed to process " + numberOfProblematicReads + " reads.");
+            logger.warn("SAMRecordParser marked " + numberOfProblematicReads + " problematic reads.");
         }
 
         if (collectIntersectingPairedEndReads) {
@@ -1040,10 +1051,13 @@ public class BamStatsAnalysis {
             while (i < numContigs) {
                 long nextContigStart =  contigs.get(i).getEnd() + 1;
                 if (startPos >= nextContigStart ) {
-                    if (startPos > nextContigStart && nextContigStart < referenceSize) {
+                    //System.out.println("Passing " + contigs.get(i).getName() );
+                    if ( nextContigStart < referenceSize) {
                         //System.out.println("Chromosome window break: " + (windowStarts.size() + 1));
                         chromosomeWindowIndexes.add(windowStarts.size());
-                        windowStarts.add(nextContigStart);
+                        if (startPos > nextContigStart) {
+                            windowStarts.add(nextContigStart);
+                        }
                         //System.out.println("window start: " + nextContigStart);
                     }
                     i++;
