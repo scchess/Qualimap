@@ -106,13 +106,18 @@ public class GenomicFeatureStreamReader {
 
                     for (String attr : attrs) {
                         String[] atrPair = attr.trim().split(" ");
-                        if (atrPair.length != 2) {
+                        if (atrPair.length < 2) {
                             throw new RuntimeException("Warning! Line with wrong attributes is skipped:\n" + line);
                         }
                         String atrName = atrPair[0];
                         String atrVal = atrPair[1];
-                        if (atrVal.startsWith("\"") && atrVal.endsWith("\"")) {
-                            atrVal = atrVal.substring(1, atrVal.length() - 1);
+                        if (atrVal.startsWith("\"") ) {
+                            if  (atrVal.endsWith("\"")) {
+                                atrVal = atrVal.substring(1, atrVal.length() - 1);
+                            }  else {
+                                // ignore complex values like "x (assigned to previous version y)"
+                                atrVal = atrVal.substring(1, atrVal.length());
+                            }
                         }
                         feature.addAttribute(atrName, atrVal);
                     }
