@@ -65,7 +65,7 @@ public class ComputeCountsTask  {
     long primaryAlignments, secondaryAlignments;
     long notAligned, alignmentNotUnique, noFeature, ambiguous, exonicReads;
     long readCount, fragmentCount, seqNotFoundCount, singleReadCount;
-    long leftProperInPair, rightProperInPair, bothProperInPair;
+    long leftProperInPair, rightProperInPair, bothProperInPair, numSingleReadOnly;
     long protocolCorrectlyMapped;
 
     public static final String GENE_ID_ATTR = "gene_id";
@@ -337,9 +337,8 @@ public class ComputeCountsTask  {
         if (numReads == 0) {
             return;
         } else if (numReads == 1) {
-            String readName = fragmentReads.get(0).getReadName();
-            System.err.println("WARNING: The fragment " + readName + " has only 1 alignment," +
-                    " however multiple segments are assumed!");
+            //String readName = fragmentReads.get(0).getReadName();
+            numSingleReadOnly += 1;
             return;
         } else if (numReads > 2) {
             //String readName = fragmentReads.get(0).getReadName();
@@ -541,6 +540,10 @@ public class ComputeCountsTask  {
 
         if (pairedEndAnalysis) {
             logger.logLine("\nCounted " + fragmentCount + " read pairs, " + singleReadCount + " single reads");
+            if (numSingleReadOnly > 0) {
+                logger.logLine("The number of skipped alignments having only one read in fragment: " + numSingleReadOnly);
+            }
+
         }
         logger.logLine("\nProcessed " + readCount + " reads in total");
 
