@@ -20,10 +20,12 @@
  */
 package org.bioinfo.ngs.qc.qualimap.main;
 
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.bioinfo.ngs.qc.qualimap.beans.AnalysisResultManager;
 import org.bioinfo.ngs.qc.qualimap.common.AnalysisType;
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 import org.bioinfo.ngs.qc.qualimap.common.LoggerThread;
 import org.bioinfo.ngs.qc.qualimap.process.BamStatsAnalysisConfig;
 import org.bioinfo.ngs.qc.qualimap.process.MultisampleBamQcAnalysis;
@@ -73,7 +75,9 @@ public class MultisampleBamQcTool extends NgsSmartTool{
         options.addOption(Constants.BAMQC_OPTION_PAINT_CHROMOSOMES, "paint-chromosome-limits", false,
                 "Only for -r mode. Paint chromosome limits inside charts");
 
-
+        Option sspOpt  = getProtocolOption();
+        sspOpt.setDescription("Only for -r mode. " + sspOpt.getDescription());
+        options.addOption(sspOpt);
 
     }
 
@@ -92,6 +96,11 @@ public class MultisampleBamQcTool extends NgsSmartTool{
                 bamQcCfg.gffFile = commandLine.getOptionValue(Constants.BAMQC_OPTION_GFF_FILE);
                 if(!exists(bamQcCfg.gffFile)) {
                     throw new ParseException("input region gff file not found");
+                }
+                if (commandLine.hasOption(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL)) {
+                    bamQcCfg.protocol = LibraryProtocol.getProtocolByName(
+                            commandLine.getOptionValue(Constants.CMDLINE_OPTION_LIBRARY_PROTOCOL).toLowerCase()
+                    );
                 }
             }
 

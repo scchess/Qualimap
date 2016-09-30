@@ -21,6 +21,7 @@
 package org.bioinfo.ngs.qc.qualimap.process;
 
 import org.bioinfo.ngs.qc.qualimap.common.Constants;
+import org.bioinfo.ngs.qc.qualimap.common.LibraryProtocol;
 
 /**
  * Created by kokonech
@@ -33,11 +34,14 @@ public class BamStatsAnalysisConfig {
     public boolean drawChromosomeLimits;
     public String gffFile;
     public int numberOfWindows, bunchSize, minHomopolymerSize;
+    public LibraryProtocol protocol;
+
     public BamStatsAnalysisConfig() {
         this.drawChromosomeLimits = false;
         this.numberOfWindows = Constants.DEFAULT_NUMBER_OF_WINDOWS;
         this.bunchSize = Constants.DEFAULT_CHUNK_SIZE;
         this.minHomopolymerSize = Constants.DEFAULT_HOMOPOLYMER_SIZE;
+        this.protocol = LibraryProtocol.NON_STRAND_SPECIFIC;
 
     }
 

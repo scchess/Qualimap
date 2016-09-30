@@ -1284,6 +1284,7 @@ public class BamStatsAnalysis {
         if (cfg.gffFile != null) {
             selectedRegionsAvailable = true;
             featureFile = cfg.gffFile;
+            protocol = cfg.protocol;
         }
         numberOfWindows = cfg.numberOfWindows;
         minHomopolymerSize = cfg.minHomopolymerSize;
