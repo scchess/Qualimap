@@ -67,6 +67,7 @@ public class ComputeCountsTask  {
     long readCount, fragmentCount, seqNotFoundCount, singleReadCount;
     long leftProperInPair, rightProperInPair, bothProperInPair, numSingleReadOnly;
     long protocolCorrectlyMapped;
+    long fwdStrandEstimation, rvStrandEstimation;
 
     public static final String GENE_ID_ATTR = "gene_id";
     public static final String EXON_TYPE_ATTR = "exon";
@@ -231,8 +232,9 @@ public class ComputeCountsTask  {
         List<CigarElement> cigarElements = cigar.getCigarElements();
         int offset = read.getAlignmentStart();
         boolean strand = read.getReadNegativeStrandFlag();
+        boolean firstOfPair = true;
         if (pairedRead) {
-            boolean firstOfPair = read.getFirstOfPairFlag();
+            firstOfPair = read.getFirstOfPairFlag();
             if ( (protocol  == LibraryProtocol.STRAND_SPECIFIC_FORWARD && !firstOfPair) ||
                     (protocol == LibraryProtocol.STRAND_SPECIFIC_REVERSE && firstOfPair) ) {
                 strand = !strand;
@@ -243,12 +245,14 @@ public class ComputeCountsTask  {
             }
         }
 
+
         int posInRead = 0;
         for (CigarElement cigarElement : cigarElements) {
             int length = cigarElement.getLength();
 
             if ( cigarElement.getOperator().equals(CigarOperator.M)  ) {
-                intervals.add(new Interval(chrName, offset, offset + length - 1, strand, "" ));
+                String mark = firstOfPair ? "f" : "r";
+                intervals.add(new Interval(chrName, offset, offset + length - 1, strand, mark ));
                 posInRead += length;
             }
 
@@ -299,9 +303,24 @@ public class ComputeCountsTask  {
                         }
 
                         boolean includeInterval = true;
+                        boolean featureStrand = feature.isPositiveStrand();
+
                         if (strandSpecificAnalysis) {
-                            boolean featureStrand = feature.isPositiveStrand();
                             includeInterval = featureStrand == alignmentInterval.isPositiveStrand();
+                        } else {
+                            if (alignmentInterval.getName().equals("f")) {
+                                if (featureStrand == alignmentInterval.isPositiveStrand() ) {
+                                    fwdStrandEstimation++;
+                                 } else {
+                                    rvStrandEstimation++;
+                                }
+                            } else {
+                                if (featureStrand == alignmentInterval.isPositiveStrand() ) {
+                                    rvStrandEstimation++;
+                                } else {
+                                    fwdStrandEstimation++;
+                                }
+                            }
                         }
 
                         intervalBits.set(intIndex, includeInterval);
@@ -409,8 +428,14 @@ public class ComputeCountsTask  {
             protocolCorrectlyMapped++;
         }
 
-        if (readCount % 500000 == 0) {
-            logger.logLine("Analyzed " + readCount + " reads...");
+        if (pairedEndAnalysis) {
+            if (fragmentCount % 250000 == 0) {
+                logger.logLine("Analyzed " + fragmentCount*2 + " reads...");
+            }
+        } else {
+            if (readCount % 500000 == 0) {
+                logger.logLine("Analyzed " + readCount + " reads...");
+            }
         }
 
     }
@@ -546,6 +571,8 @@ public class ComputeCountsTask  {
 
         }
         logger.logLine("\nProcessed " + readCount + " reads in total");
+
+        //logger.logLine("SSP estimation (fwd/rev): " + getFwdStrandEstimation() + " / " + getRevStrandEstimation());
 
         if (cleanupRequired) {
             logger.logLine("\nCleanup of temporary files");
@@ -740,6 +767,14 @@ public class ComputeCountsTask  {
 
     public long getNumberOfMappedPairs() {
         return bothProperInPair / 2;
+    }
+
+    public float getFwdStrandEstimation() {
+        return (fwdStrandEstimation) / ( (float)(fwdStrandEstimation + rvStrandEstimation) );
+    }
+
+    public float getRevStrandEstimation() {
+        return (rvStrandEstimation) / ( (float)(fwdStrandEstimation + rvStrandEstimation) );
     }
 
 

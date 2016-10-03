@@ -119,6 +119,12 @@ public class RNASeqQCAnalysis  {
         report.println("    ambiguous alignments = " + sdf.formatLong(computeCountsTask.getAmbiguousNumber()));
         report.println("    no feature assigned = " +  sdf.formatLong(computeCountsTask.getNoFeatureNumber()));
         report.println("    not aligned = "  + sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
+        if ( !computeCountsTask.strandSpecificAnalysis) {
+            report.println("    SSP estimation (fwd/rev) = "  +
+                    sdf.formatDecimal(computeCountsTask.getFwdStrandEstimation()) + " / "  +
+                    sdf.formatDecimal(computeCountsTask.getRevStrandEstimation()));
+        }
+
         report.println("");
 		report.println("");
 
@@ -236,6 +242,12 @@ public class RNASeqQCAnalysis  {
                     sdf.formatLong(computeCountsTask.getChromosomeNotFoundNumber()));
         }
         readsAlignment.addRow("Not aligned:", sdf.formatLong(computeCountsTask.getNotAlignedNumber()));
+        if ( !computeCountsTask.strandSpecificAnalysis) {
+            readsAlignment.addRow("Strand specificity estimation (fwd/rev):",
+                    sdf.formatDecimal(computeCountsTask.getFwdStrandEstimation()) + " / "  +
+                    sdf.formatDecimal(computeCountsTask.getRevStrandEstimation()));
+        }
+
 
         summaryKeeper.addSection(readsAlignment);
 

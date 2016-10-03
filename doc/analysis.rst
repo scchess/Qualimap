@@ -253,7 +253,8 @@ Output
         - number of ignored alignments when the chromsome is not found in annotation 
         - number of unmapped reads.
 
-   
+    Additionally, if default *non-strand-specific* protocol is stated in the settings, *forward-* and *reverse-strand-specificitiy* is estimated based on the strands of the read alginments. Similarity of computed proportions (i.e ~0.5 forward, ~0.5 reverse) confirms non-strand-specificity, while domination of a certain strand estimates possible protocol ( i.e. reverse SSP in case of ~0.1 forward, ~0.9 reverse)     
+  
     *Transcript coverage profile* 
 
     The  profile provides ratios between mean coverage at the 5' region, the 3' region and the whole transcript. The 5' bias is the ratio between mean coverage at the 5' region and the whole transcript, while the 3' bias is the ratio between mean coverage at the 3' region and the whole transcript. 5'-3' bias is the ratio between both biases.
