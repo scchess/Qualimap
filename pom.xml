@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 	<groupId>org.bioinfo.ngs</groupId>
 	<artifactId>qualimap</artifactId>
-	<version>2.2.1-dev</version>
+	<version>2.2.1</version>
     <name>qualimap</name>
     
     <properties>
@@ -84,7 +84,7 @@
        <repository>
            <id>org.bioinfo</id>
            <name>Bioinfo Library</name>
-           <url>http://repos.bioinfo.cipf.es/maven2/</url>
+           <url>file://home/kokonech/work/var/www/gitorious/public/maven2/</url>
         </repository>
     </repositories>
 	

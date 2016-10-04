@@ -1,6 +1,21 @@
 Version Release History
 =======================
 
+Version 2.2.1 - October 3, 2016
+-------------------------------
+
+    * BAM QC: fixed issue with paired-end reads only singletons (reported by Anrold Liao)
+    * BAM QC: adapted novel SAM flag for multiple alignment segments ( reported by Alexis Groppi)
+    * BAM QC: fixed issue with mapping quality report inside regions (reported by Teresa Requena)
+    * BAM QC: added support for counting Ns in read alignments
+    * BAM QC: fixed issue with chromosome limit in coverage plot
+    * RNA-seq QC: strand-specificity is estimated in case default non-strand-specific protocol stated in the settings  
+    * RNA-seq QC: fixed problem with incorrect BAM records    
+    * RNA-seq QC: number of correctly marked reads without proper pair reported in a single warning
+    * Allowed names with spaces in provided file/folder path for analysis
+    * Multi-BAM QC: include strand specificity option for estimation of valid strand reads in each BAM QC report
+
+
 Version 2.2 - January 29, 2016
 ------------------------------
 
