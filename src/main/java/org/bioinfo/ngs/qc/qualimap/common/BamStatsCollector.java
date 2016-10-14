@@ -57,7 +57,9 @@ public class BamStatsCollector {
         return numMappedReads;
     }
 
-    public long getNumSupplementaryAlignments() { return numSupplementaryAlignments; }
+    public long getNumSupplementaryAlignments() {
+        return numSupplementaryAlignments;
+    }
 
     public long getNumMappedFirstInPair() {
         return numMappedFirstInPair;

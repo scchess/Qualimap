@@ -42,6 +42,7 @@ public class BamStats implements Serializable {
 	private long numberOfAlignedBases;
 	private long numberOfReads;
 	private long numberOfMappedReads;
+    private long numberOfSecondaryAlignments;
 	private long numberOfPairedReads;
     private long numberOfSingletons;
     private long numberOfSuppAlignments;
@@ -301,6 +302,14 @@ public class BamStats implements Serializable {
 
     public double getAdaptedMeanCoverage() {
         return adaptedMeanCoverage;
+    }
+
+    public long getNumberOfSecondaryAlignments() {
+        return numberOfSecondaryAlignments;
+    }
+
+    public void setNumberOfSecondaryAlignments(long numberOfSecondaryAlignments) {
+        this.numberOfSecondaryAlignments = numberOfSecondaryAlignments;
     }
 
     // chromosome stats

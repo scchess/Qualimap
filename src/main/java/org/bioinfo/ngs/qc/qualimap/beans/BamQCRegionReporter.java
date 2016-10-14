@@ -99,11 +99,29 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.genomeGCContentName = genomeName;
     }
 
+    public Long getNumSecondaryAlignments() {
+        return numSecondaryAlignments;
+    }
+
+    public void setNumSecondaryAlignments(Long numSecondaryAlignments) {
+        this.numSecondaryAlignments = numSecondaryAlignments;
+    }
+
     private boolean paintChromosomeLimits;
 
-	private Long referenceSize, aNumber, cNumber, gNumber,
-	tNumber, nNumber, numReads, numMappedReads,
-    /*numMappedBases, numSequencedBases, numAlignedBases,*/
+	private Long referenceSize;
+    private Long aNumber;
+    private Long cNumber;
+    private Long gNumber;
+    private Long tNumber;
+    private Long nNumber;
+    private Long numReads;
+    private Long numMappedReads;
+
+
+
+    private Long numSecondaryAlignments;
+    private Long/*numMappedBases, numSequencedBases, numAlignedBases,*/
     numBasesInsideRegions;
 
 	private Double aPercent, cPercent, gPercent, tPercent, nPercent,
@@ -206,7 +224,8 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
             report.println("     number of supplementary alignments = " + formatLong(bamStats.getNumberOfSuppAlignments())
                     + " (" + formatPercentage(bamStats.getPercentageOfSuppAlignments()) + ")");
         }
-
+        report.println("     number of secondary alignments = "
+                + formatLong(bamStats.getNumberOfSecondaryAlignments()) );
         report.println("");
 
 		if (bamStats.getNumberOfPairedReads() > 0) {
@@ -397,6 +416,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         this.numDuplicatedReadsEstimated = bamStats.getNumDuplicatedReadsEstimated();
         this.numDuplicatesSkipped = bamStats.getNumDuplicatesSkipped();
         this.skipDuplicatesMode = bamStats.getSkipDuplicatesMode();
+        this.numSecondaryAlignments = bamStats.getNumberOfSecondaryAlignments();
         this.numSuppAlignments = bamStats.getNumberOfSuppAlignments();
 
         // paired reads
@@ -938,10 +958,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
         globals.addRow("Mapped reads", sdf.formatLong(numMappedReads)
                 + " / " + sdf.formatPercentage(getPercentMappedReads()));
 
-        if (numSuppAlignments > 0) {
-            globals.addRow("Supplementary alignments", sdf.formatLong(numSuppAlignments) + " / " +
-             sdf.formatPercentage(getPercentageSuppAlignments()));
-        }
+
 
         globals.addRow("Unmapped reads",
                 sdf.formatLong(numReads - numMappedReads) + " / "
@@ -971,6 +988,12 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         }
 
+        globals.addRow("Secondary alignments", sdf.formatLong(numSecondaryAlignments) );
+
+        if (numSuppAlignments > 0) {
+            globals.addRow("Supplementary alignments", sdf.formatLong(numSuppAlignments) + " / " +
+                    sdf.formatPercentage(getPercentageSuppAlignments()));
+        }
 
 
         globals.addRow("Read min/max/mean length",

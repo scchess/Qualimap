@@ -71,6 +71,7 @@ public class BamStatsAnalysis {
 	// globals
 	private long numberOfReads;
 	private long numberOfValidReads;
+    private long numberOfSecondaryAlignments;
 	private long numberOfDuplicatesSkipped;
     private long numberOfCorrectStrandReads;
     private long numberOfProblematicReads;
@@ -345,8 +346,6 @@ public class BamStatsAnalysis {
                 minReadSize = readSize;
             }
 
-            ++numberOfReads;
-
             // filter invalid reads
             List<SAMValidationError> valErrorList = read.isValid();
             boolean readIsValid = valErrorList == null;
@@ -355,6 +354,13 @@ public class BamStatsAnalysis {
                     readIsValid = valErrorList.get(0).getType() == SAMValidationError.Type.READ_GROUP_NOT_FOUND;
                 }
             }
+
+            if (read.getNotPrimaryAlignmentFlag()) {
+                ++numberOfSecondaryAlignments;
+                continue;
+            }
+            ++numberOfReads;
+
 
 			if(readIsValid){
 
@@ -523,6 +529,7 @@ public class BamStatsAnalysis {
         bamStats.setNumberOfReads(numberOfReads);
         bamStats.setNumDuplicatesSkipped(numberOfDuplicatesSkipped);
         bamStats.setSkipDuplicatesMode(skipMarkedDuplicates, skipDetectedDuplicates);
+        bamStats.setNumberOfSecondaryAlignments(numberOfSecondaryAlignments);
         if (skipMarkedDuplicates && numberOfDuplicatesSkipped == 0) {
             bamStats.addWarning(WARNING_NO_MARKED_DUPLICATES,
                 "Make sure duplicate alignments are flagged in the BAM file or apply a different skip duplicates mode.");
@@ -604,6 +611,7 @@ public class BamStatsAnalysis {
             outsideBamStats.setNumSelectedRegions(numberOfSelectedRegions);
             outsideBamStats.setInRegionReferenceSize(referenceSize - insideReferenceSize);
             outsideBamStats.setNumberOfReads(numberOfReads);
+            outsideBamStats.setNumberOfSecondaryAlignments(numberOfSecondaryAlignments);
 
             outsideBamStats.setNumberOfMappedReads(totalNumberOfMappedReads);
             outsideBamStats.setNumberOfPairedReads(totalNumberOfPairedReads);
