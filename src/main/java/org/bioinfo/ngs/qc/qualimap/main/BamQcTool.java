@@ -255,7 +255,7 @@ public class BamQcTool extends NgsSmartTool{
 
 		// save stats
 
-        reporter.writeReport(bamQC.getBamStats(),outdir);
+        reporter.writeReport(bamQC.getBamStats(),outdir, true);
 
         AnalysisResultManager resultManager = new AnalysisResultManager(AnalysisType.BAM_QC);
 
@@ -271,7 +271,7 @@ public class BamQcTool extends NgsSmartTool{
                 outsideReporter.setGenomeGCContentName(genomeToCompare);
             }
             bamQC.prepareInputDescription(outsideReporter, paintChromosomeLimits);
-            outsideReporter.writeReport(bamQC.getOutsideBamStats(),outdir);
+            outsideReporter.writeReport(bamQC.getOutsideBamStats(),outdir, false);
 
             outsideReporter.loadReportData(bamQC.getOutsideBamStats());
             outsideReporter.computeChartsBuffers(bamQC.getOutsideBamStats(), bamQC.getLocator(), bamQC.isPairedData());

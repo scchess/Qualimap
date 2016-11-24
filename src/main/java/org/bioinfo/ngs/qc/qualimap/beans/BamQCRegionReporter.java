@@ -186,7 +186,7 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
     }
 
 
-	public void writeReport(BamStats bamStats, String outdir) throws IOException{
+	public void writeReport(BamStats bamStats, String outdir, boolean insideOfRegions) throws IOException{
 		// init report		
 		String reportFile = outdir + "/" + bamStats.getName() + "_results.txt";
 		PrintWriter report = new PrintWriter(new File(reportFile));
@@ -264,6 +264,34 @@ public class BamQCRegionReporter extends StatsReporter implements Serializable {
 
         report.println("");
 		report.println("");
+
+        if (bamStats.getNumSelectedRegions() > 0) {
+
+            String status = insideOfRegions ? "inside" : "outside";
+            report.println(">>>>>>> Globals " + status );
+            report.println("");
+
+
+            report.println( "     regions size = " + formatLong(bamStats.getInRegionReferenceSize()) + " (" +
+                    formatPercentage(  (bamStats.getInRegionReferenceSize() / (double) bamStats.getReferenceSize() ) * 100.0 )  +  ")" );
+
+            report.println( "     number of mapped reads = " +  formatLong(bamStats.getNumberOfMappedReadsInRegions() ) +
+                    " (" + formatPercentage(bamStats.getPercentageOfInsideMappedReads()) + ")" );
+            if (bamStats.getNumberOfPairedReadsInRegions() > 0) {
+
+                report.println("     number of mapped paired reads (first in pair) = "
+                        + formatLong(bamStats.getNumberOfMappedFirstOfPairInRegions()) );
+                report.println("     number of mapped paired reads (second in pair) = "
+                        + formatLong(bamStats.getNumberOfMappedSecondOfPairInRegions()) );
+                report.println("     number of mapped paired reads (both in pair) = "
+                        + formatLong(bamStats.getNumberOfPairedReadsInRegions() - bamStats.getNumberOfSingletonsInRegions()) );
+                report.println("     number of mapped paired reads (singletons) = "
+                        + formatLong(bamStats.getNumberOfSingletonsInRegions()) );
+            }
+            report.println("");
+            report.println("");
+
+        }
 
         // insert size
         report.println(">>>>>>> Insert size");

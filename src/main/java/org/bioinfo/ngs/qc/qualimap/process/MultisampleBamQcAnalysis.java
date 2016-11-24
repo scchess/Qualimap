@@ -163,7 +163,7 @@ public class MultisampleBamQcAnalysis extends AnalysisProcess{
 
             BamQCRegionReporter reporter = new BamQCRegionReporter(bamQcConfig.regionsAvailable(),false);
             reporter.setPaintChromosomeLimits(bamQcConfig.drawChromosomeLimits);
-            reporter.writeReport(bamQC.getBamStats(),sampleOutdir);
+            reporter.writeReport(bamQC.getBamStats(),sampleOutdir, true);
             reporter.loadReportData(bamQC.getBamStats());
             reporter.computeChartsBuffers(bamQC.getBamStats(), bamQC.getLocator(), bamQC.isPairedData());
 
