@@ -23,6 +23,7 @@ package org.bioinfo.ngs.qc.qualimap.common;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 /**
  * Created by kokonech
@@ -36,6 +37,8 @@ public class GenomicFeatureStreamReader {
         abstract GenomicFeature parseFeatureRecord(String record) throws RuntimeException;
 
     }
+
+    private static Pattern pattern = Pattern.compile(";(?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)");
 
     static FeatureRecordParser getFeatureRecordParser(FeatureFileFormat format) {
         if (format.equals(FeatureFileFormat.GFF)) {
@@ -102,7 +105,9 @@ public class GenomicFeatureStreamReader {
 
                     GenomicFeature feature = new GenomicFeature(seqName, start, end, isNegativeStrand, featureName);
 
-                    String[] attrs = items[8].trim().split(";");
+                    // Allow semicolons inside of names of values
+                    //String[] attrs = items[8].trim().split(";(?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)");
+                    String[] attrs = pattern.split(items[8].trim());
 
                     for (String attr : attrs) {
                         String[] atrPair = attr.trim().split(" ");
@@ -115,7 +120,7 @@ public class GenomicFeatureStreamReader {
                             if  (atrVal.endsWith("\"")) {
                                 atrVal = atrVal.substring(1, atrVal.length() - 1);
                             }  else {
-                                // ignore complex values like "x (assigned to previous version y)"
+                                // ignore values with multiple spaces like "x (assigned to previous version y)"
                                 atrVal = atrVal.substring(1, atrVal.length());
                             }
                         }
@@ -157,9 +162,7 @@ public class GenomicFeatureStreamReader {
             if (line == null) {
                 return false;
             }
-            if (line.startsWith("#") || line.isEmpty()) {
-                // skip comments and empty lines
-            }  else {
+            if (!line.startsWith("#") && !line.isEmpty()) {
                 break;
             }
         }
@@ -176,9 +179,7 @@ public class GenomicFeatureStreamReader {
             if (line == null) {
                 return null;
             }
-            if (line.startsWith("#") || line.isEmpty()) {
-                // skip comments and empty lines
-            }  else {
+            if (!line.startsWith("#") && !line.isEmpty()) {
 
                 try {
                     return recordParser.parseFeatureRecord(line);
