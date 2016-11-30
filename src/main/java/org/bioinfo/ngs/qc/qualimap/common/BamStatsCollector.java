@@ -104,20 +104,21 @@ public class BamStatsCollector {
 
 
     public boolean updateStats(SAMRecord read) {
-        numMappedReads++;
         int flagValue = read.getFlags();
         if ((flagValue & Constants.SAM_FLAG_SUPP_ALIGNMENT) > 0) {
              numSupplementaryAlignments++;
-        }
-        if (read.getReadPairedFlag()) {
-            numPairedReads++;
-            if (read.getFirstOfPairFlag()) {
-                numMappedFirstInPair++;
-            } else if (read.getSecondOfPairFlag()) {
-                numMappedSecondInPair++;
-            }
-            if (read.getMateUnmappedFlag()) {
-                numSingletons++;
+        } else {
+            numMappedReads++;
+            if (read.getReadPairedFlag()) {
+                numPairedReads++;
+                if (read.getFirstOfPairFlag()) {
+                    numMappedFirstInPair++;
+                } else if (read.getSecondOfPairFlag()) {
+                    numMappedSecondInPair++;
+                }
+                if (read.getMateUnmappedFlag()) {
+                    numSingletons++;
+                }
             }
         }
         if (read.getDuplicateReadFlag()) {

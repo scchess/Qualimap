@@ -359,8 +359,11 @@ public class BamStatsAnalysis {
                 ++numberOfSecondaryAlignments;
                 continue;
             }
-            ++numberOfReads;
 
+            boolean novelRead = (read.getFlags() & Constants.SAM_FLAG_SUPP_ALIGNMENT) == 0;
+            if (novelRead) {
+                ++numberOfReads;
+            }
 
 			if(readIsValid){
 
