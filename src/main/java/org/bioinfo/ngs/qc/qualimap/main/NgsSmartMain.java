@@ -41,29 +41,30 @@ public class NgsSmartMain {
             "Check more details using --help command or read the manual.";
 
 
-	public static void main(String[] args) throws OutOfMemoryError,Exception {
-		Logger logger = new Logger();
+        public static void main(String[] args) throws OutOfMemoryError,Exception {
+                Logger logger = new Logger();
         NgsSmartTool tool = null;
 
         loadAppPropertiesFile();
         loadAppSettings();
 
-		if(args.length == 0 || args[0].equals("--home")){
-			try {
+                if(args.length == 0 || args[0].equals("--home")){
+                        try {
                 launchGUI(args);
             } catch (Exception e) {
                 System.err.println("Failed to launch GUI.");
                 e.printStackTrace();
+                System.exit(1);
             }
-		} else {
-						
-			String toolName = args[0];
+                } else {
 
-			// TODO: use factories map to create tools
+                        String toolName = args[0];
+
+                        // TODO: use factories map to create tools
 
             if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_BAMQC)){
-				tool = new BamQcTool();
-			}
+                                tool = new BamQcTool();
+                        }
 
             if(toolName.equalsIgnoreCase(Constants.TOOL_NAME_RNASEQ_QC)){
                 tool = new RnaSeqQcTool();
@@ -98,31 +99,35 @@ public class NgsSmartMain {
                 //runTests();
             } else if(toolName.equalsIgnoreCase("-h") || toolName.equalsIgnoreCase("-help")
                     || toolName.equalsIgnoreCase("--h") || toolName.equalsIgnoreCase("--help")){
-				logger.println("");
-				logger.println(getHelp());
+                                logger.println("");
+                                logger.println(getHelp());
             } else {
-				logger.println("");
-				logger.println("Selected tool: " + toolName);
-				if(tool==null){
+                                logger.println("");
+                                logger.println("Selected tool: " + toolName);
+                                if(tool==null){
                     logger.println("No proper tool name is provided.\n");
                     logger.println(getHelp());
+                    System.exit(1);
                 } else {
-					try {					
-						tool.run(args);
-					} catch(ParseException pe){					
-						logger.println("");
-						logger.println("ERROR: " + pe.getMessage());
-						logger.println("");
-						tool.printHelp();
-					} catch (OutOfMemoryError memErr) {
+                                        try {
+                                                tool.run(args);
+                                        } catch(ParseException pe){
+                                                logger.println("");
+                                                logger.println("ERROR: " + pe.getMessage());
+                                                logger.println("");
+                                                tool.printHelp();
+                                                System.exit(1);
+                                        } catch (OutOfMemoryError memErr) {
                         System.err.println(OUT_OF_MEMORY_REPORT);
+                        System.exit(1);
                     }catch(Exception e){
                         e.printStackTrace();
-					}
-				}
-			}
-		}
-	}
+                        System.exit(1);
+                                        }
+                                }
+                        }
+                }
+        }
 
     private static void loadAppSettings() {
         AppSettings appSettings = new AppSettings();
@@ -158,9 +163,9 @@ public class NgsSmartMain {
     }
 
     public static void launchGUI(String[] args) throws ParseException{
-		
 
-		String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");
+
+                String qualimapHomeDir =  System.getenv("QUALIMAP_HOME");
         if ( args.length > 1 && args[0].equals("--home")) {
             qualimapHomeDir = args[1];
         }
@@ -170,13 +175,13 @@ public class NgsSmartMain {
         HomeFrame inst = new HomeFrame(qualimapHomeDir);
 
         inst.setLocationRelativeTo(null);
-		inst.setVisible(true);		
-		
-	}
-	
-	public static String getHelp() {
-		InputStream resource = ClassLoader.getSystemResourceAsStream("org/bioinfo/ngs/qc/qualimap/help/main-help.txt");
-		String helpMessage = "";
+                inst.setVisible(true);
+
+        }
+
+        public static String getHelp() {
+                InputStream resource = ClassLoader.getSystemResourceAsStream("org/bioinfo/ngs/qc/qualimap/help/main-help.txt");
+                String helpMessage = "";
         try {
             helpMessage = IOUtils.toString(resource)+"\n";
         } catch (IOException e) {
@@ -184,12 +189,12 @@ public class NgsSmartMain {
         }
 
         return helpMessage;
-	}
+        }
 
-	public static void error(Logger logger, String message) throws IOException{
-		logger.println("");
-		logger.println(message);
-		logger.println("");
-		logger.println(getHelp());
-	}
+        public static void error(Logger logger, String message) throws IOException{
+                logger.println("");
+                logger.println(message);
+                logger.println("");
+                logger.println(getHelp());
+        }
 }
