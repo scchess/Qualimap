@@ -40,6 +40,8 @@ public class GenomicFeatureStreamReader {
 
     private static Pattern pattern = Pattern.compile(";(?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)");
 
+    static int geneId = 0;
+
     static FeatureRecordParser getFeatureRecordParser(FeatureFileFormat format) {
         if (format.equals(FeatureFileFormat.GFF)) {
             return new FeatureRecordParser() {
@@ -69,16 +71,24 @@ public class GenomicFeatureStreamReader {
 
                     String[] items = line.split("\t");
 
-                    if (items.length < 6) {
-                        throw new RuntimeException("BED format error, there should be at least 6 fields.\n" +
+                    if (items.length < 3) {
+                        throw new RuntimeException("BED format error, there should be at least 3 fields.\n" +
                                 "Problematic line:\n" + line);
                     }
 
                     String seqName = items[0];
                     int start = Integer.parseInt(items[1]) + 1; // 0-based
                     int end = Integer.parseInt(items[2]); //0-based, not-inclusive
-                    String featureName = items[3];
-                    boolean isNegativeStrand =  items[5].equals("-");
+                    geneId += 1;
+                    String featureName = "gene" + geneId;
+                    if (items.length >= 4) {
+                        featureName = items[3];
+                    }
+                    // NOTE: strand-specificity is analyzed in BAM file, but not for 3-column BED
+                    boolean isNegativeStrand = false;
+                    if (items.length >= 6) {
+                        isNegativeStrand = items[5].equals("-");
+                    }
 
                     return new GenomicFeature(seqName, start, end, isNegativeStrand, featureName);
                 }
